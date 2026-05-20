@@ -40,7 +40,7 @@ git checkout main
 git pull origin main
 ```
 
-## Bước 2 — Tạo hoặc chuyển sang branch feature của mình
+### Bước 2 — Tạo hoặc chuyển sang branch feature của mình
 
 **Nếu branch chưa tồn tại (task mới):**
 ```bash
