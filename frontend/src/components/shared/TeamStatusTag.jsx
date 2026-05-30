@@ -2,6 +2,7 @@ import styles from './TeamStatusTag.module.css'
 
 const STATUS_CONFIG = {
   pending:  { label: 'Chưa chốt đội' },
+  rejected:  { label: 'Chưa chốt đội' },
   waiting:  { label: 'Chờ BTC duyệt' },
   approved: { label: 'Đã chốt đội'   },
 }

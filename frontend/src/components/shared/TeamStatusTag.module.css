@@ -3,17 +3,17 @@
   align-items: center;
 
   padding: 0.3em 1em;
-  border-radius: 50px;
+  border-radius: var(--radius);
   border: 1.5px solid transparent;
 
   font-family: var(--body-font-main);
-  font-size: 14px;
-  font-weight: 700;
+  font-size: 0.9rem;
+  font-weight: bold;
 
   white-space: nowrap;
 }
 
-.pending {
+.pending, .rejected {
   background-color: var(--color-primary-orange);
   color: white;
   border-color: var(--color-primary-orange);

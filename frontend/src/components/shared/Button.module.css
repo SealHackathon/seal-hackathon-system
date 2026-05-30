@@ -116,7 +116,7 @@
 
 .btn:disabled {
   background-color: var(--color-text-muted);
-  box-shadow: 0 0.6em var(--color-text-secondary);
+  box-shadow: 0 0 var(--color-text-secondary);
   color: var(--color-text-secondary);
   cursor: default;
 }
