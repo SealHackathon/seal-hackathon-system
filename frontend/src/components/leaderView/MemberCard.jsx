@@ -24,7 +24,7 @@ function MemberCard({ member, onInvite, onCancel }) {
 
     return (
         <div className={styles.cardWrapper}>
-            {/* Track trượt — 3 panel nằm ngang */}
+
             <div
                 className={styles.track}
                 style={{

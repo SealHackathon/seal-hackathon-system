@@ -33,7 +33,6 @@
     bottom: 3em;
 }
 
-/* User info */
 .userInfo {
     display: flex;
     align-items: center;
@@ -63,7 +62,6 @@
     color: var(--color-secondary-blue);
 }
 
-/* Bio */
 .bioLabel {
     margin: 0;
     font-size: 0.9rem;
