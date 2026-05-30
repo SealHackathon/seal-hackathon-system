@@ -49,6 +49,7 @@ h1, h2, h3 {
 
   /* ! Border radius */
   --radius: 20px;
+  --inner-radius: 12px;
   --radius-circle: 100%;
 }
 

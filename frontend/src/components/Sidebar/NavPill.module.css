@@ -1,0 +1,33 @@
+.pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 6vw;
+    height: 6vw;
+    
+    color: var(--color-secondary-blue);
+    background-color: var(--color-bg-white);
+    
+    border: none;
+    border-radius: var(--inner-radius);
+
+    font-family: var(--body-font-main);
+
+    cursor: pointer;
+}
+
+.pill:hover {
+    border: 2px solid var(--color-border-blue);
+}
+
+.active {
+    background-color: var(--color-primary-blue);
+    color: white;
+}
+
+.label {
+    font-size: 0.8rem;
+    font-weight: bolder;
+}
