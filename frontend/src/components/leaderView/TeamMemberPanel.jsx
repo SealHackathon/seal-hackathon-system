@@ -10,6 +10,7 @@ function TeamMemberPanel({
     members,
     maxSlots = 4,
     teamStatus,
+    isLeader = true,
     onKick,
     onPromote,
     onLeave,
@@ -26,7 +27,8 @@ function TeamMemberPanel({
                     color="orange"
                     icon={Warning}
                     message="Sau khi chốt đội, danh sách thành viên sẽ bị khóa và không thể thay đổi. Hãy chắc chắn trước khi tiếp tục."
-                    button={
+                    button={isLeader
+                        ?
                         <Button
                             label="Chốt đội"
                             icon={LockSimple}
@@ -35,6 +37,7 @@ function TeamMemberPanel({
                             color='orange'
                             onClick={onLockTeam}
                         />
+                        : undefined
                     }
                 />
             )
@@ -46,7 +49,8 @@ function TeamMemberPanel({
                     color="orange"
                     icon={Warning}
                     message="Sau khi chốt đội, danh sách thành viên sẽ bị khóa và không thể thay đổi. Hãy chắc chắn trước khi tiếp tục."
-                    button={
+                    button={isLeader
+                        ?
                         <Button
                             label="Đang chờ BTC duyệt"
                             icon={LockSimple}
@@ -54,6 +58,7 @@ function TeamMemberPanel({
                             variant="primary"
                             disabled
                         />
+                        : undefined
                     }
                 />
             )
@@ -65,7 +70,8 @@ function TeamMemberPanel({
                     color="green"
                     icon={Check}
                     message="Đội của bạn đã được phê duyệt để tham gia cuộc thi."
-                    button={
+                    button={isLeader
+                        ?
                         <Button
                             label="Đã chốt đội"
                             icon={LockSimple}
@@ -74,6 +80,7 @@ function TeamMemberPanel({
                             variant="primary"
                             disabled
                         />
+                        : undefined
                     }
                 />
             )
@@ -85,7 +92,8 @@ function TeamMemberPanel({
                     color="orange"
                     icon={Warning}
                     message="Yêu cầu chốt đội bị từ chối"
-                    button={
+                    button={isLeader
+                        ?
                         <Button
                             label="Chốt đội"
                             icon={LockSimple}
@@ -95,19 +103,20 @@ function TeamMemberPanel({
                             color='orange'
                             onClick={onLockTeam}
                         />
+                        : undefined
                     }
                     detail={
                         <div>
                             <p>
-                                <strong style={{color:'var(--color-primary-orange)'}}>Ban Tổ Chức</strong> yêu cầu bạn điều chỉnh trước khi nộp lại:
+                                <strong style={{ color: 'var(--color-primary-orange)' }}>Ban Tổ Chức</strong> yêu cầu bạn điều chỉnh trước khi nộp lại:
                             </p>
-                            
+
                             <p style={{ whiteSpace: 'pre-line' }}>
                                 {rejectionReasons}
                             </p>
 
                             <p>
-                                Sau khi điều chỉnh, bấm <strong style={{color:'var(--color-primary-orange)'}}>"Chốt đội"</strong> để gửi lại.
+                                Sau khi điều chỉnh, bấm <strong style={{ color: 'var(--color-primary-orange)' }}>"Chốt đội"</strong> để gửi lại.
                             </p>
                         </div>
                     }
@@ -140,8 +149,8 @@ function TeamMemberPanel({
                         school={member.school}
                         isLeader={member.isLeader}
                         isCurrentUser={member.isCurrentUser}
-                        onKick={() => onKick?.(member.id)}
-                        onPromote={() => onPromote?.(member.id)}
+                        onKick={onKick ? () => onKick(member.id) : undefined}
+                        onPromote={onPromote ? () => onPromote(member.id) : undefined}
                         onLeave={onLeave}
                     />
                 ))}
