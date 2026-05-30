@@ -32,6 +32,7 @@ function TeamMemberPanel({
                             icon={LockSimple}
                             iconPosition="right"
                             variant="primary"
+                            color='orange'
                             onClick={onLockTeam}
                         />
                     }

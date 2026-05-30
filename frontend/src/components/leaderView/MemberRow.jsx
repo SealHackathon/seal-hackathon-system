@@ -1,7 +1,17 @@
 import { CrownSimple, X, SignOut } from '@phosphor-icons/react'
 import styles from './MemberRow.module.css'
 
-function MemberRow({ index, name, email, school, isLeader, isCurrentUser, onKick, onPromote, onLeave }) {
+function MemberRow({ 
+  index, 
+  name, 
+  email, 
+  school, 
+  isLeader, 
+  isCurrentUser, 
+  onKick, 
+  onPromote, 
+  onLeave 
+}) {
   return (
     <div className={styles.row}>
 
@@ -32,7 +42,7 @@ function MemberRow({ index, name, email, school, isLeader, isCurrentUser, onKick
           <button className={styles.actionBtn} onClick={onLeave} title="Rời đội">
             <SignOut size={28} weight='bold' color="var(--color-secondary-blue)" />
           </button>
-        ) : (
+        ) : (onKick || onPromote) ? (
           
           <>
             <button className={styles.actionBtn} onClick={onPromote} title="Phong làm trưởng nhóm">
@@ -42,7 +52,7 @@ function MemberRow({ index, name, email, school, isLeader, isCurrentUser, onKick
               <X size={28} weight='bold' color="var(--color-border-orange)" />
             </button>
           </>
-        )}
+        ) : null}
 
       </div>
 

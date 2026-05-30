@@ -5,7 +5,7 @@
 .wrapper {
     display: grid;
     grid-template-columns: 8fr 2fr;
-    gap: 2em;
+    gap: 5em;
 
     position: relative;
 
