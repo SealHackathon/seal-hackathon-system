@@ -31,9 +31,6 @@
   box-shadow: 0 0 var(--color-dark-blue);
 }
 
-Icon .outline {
-  
-}
 .outline {
   background-color: var(--color-bg-white);
   color: var(--color-primary-blue);
@@ -124,12 +121,11 @@ Icon .outline {
   cursor: default;
 }
 
-
 .icon {
   display: flex;
   align-items: center;
 }
 
-.primary .icon { color: white; }
-.outline .icon { color: var(--color-border-blue); }
-.outline.orange .icon { color: var(--color-border-orange); }
+.primary:not(:disabled) .icon { color: white; }
+.outline:not(:disabled) .icon { color: var(--color-border-blue); }
+.outline.orange:not(:disabled) .icon { color: var(--color-primary-orange); }
