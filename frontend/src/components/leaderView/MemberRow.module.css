@@ -17,10 +17,9 @@
 
     width: 1.5em;
 
-    color: var(--color-text-secondary);
+    color: var(--color-border-blue);
 
     text-align: center;
-    font-size: 14px;
 }
 
 .avatar {

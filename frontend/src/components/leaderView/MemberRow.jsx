@@ -30,16 +30,16 @@ function MemberRow({ index, name, email, school, isLeader, isCurrentUser, onKick
           
           
           <button className={styles.actionBtn} onClick={onLeave} title="Rời đội">
-            <SignOut size={32} weight='bold' color="var(--color-secondary-blue)" />
+            <SignOut size={28} weight='bold' color="var(--color-secondary-blue)" />
           </button>
         ) : (
           
           <>
             <button className={styles.actionBtn} onClick={onPromote} title="Phong làm trưởng nhóm">
-              <CrownSimple size={32} weight='bold' color="var(--color-border-orange)" />
+              <CrownSimple size={28} weight='bold' color="var(--color-border-orange)" />
             </button>
             <button className={styles.actionBtn} onClick={onKick} title="Kick khỏi đội">
-              <X size={32} weight='bold' color="var(--color-border-orange)" />
+              <X size={28} weight='bold' color="var(--color-border-orange)" />
             </button>
           </>
         )}

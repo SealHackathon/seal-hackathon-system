@@ -1,0 +1,44 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  padding: 1em 0;
+  border-bottom: 1px solid var(--color-border-blue);
+}
+
+.row:last-child {
+  border-bottom: none;
+}
+
+.index {
+  flex-shrink: 0;
+
+    width: 1.5em;
+
+    color: var(--color-border-blue);
+
+    text-align: center;
+}
+
+.avatar {
+  width: 3.5em;
+  height: 3.5em;
+
+  border-radius: var(--radius-circle);
+  border: 1.5px dashed var(--color-border-blue);
+  
+  background: none;
+  flex-shrink: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar:hover {
+    border: 1.5px solid var(--color-border-blue);
+}
+
+.placeholder {
+  color: var(--color-secondary-blue);
+}
