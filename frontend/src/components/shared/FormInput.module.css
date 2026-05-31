@@ -1,0 +1,141 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35em;
+    width: 100%;
+}
+
+/* Label */
+.label {
+    font-weight: bold;
+    color: var(--color-dark-blue);
+    margin-left: 1em;
+}
+
+.asterisk {
+    color: var(--color-primary-orange);
+}
+
+/* Hint */
+.hint {
+    margin-left: 1em;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+}
+
+/* Input row — input box + action icon */
+.input::placeholder {
+    color: var(--color-text-secondary);
+}
+
+.inputRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}
+
+/* Input box */
+.inputBox {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    padding: 0.65em 1em;
+    background: white;
+
+    transition: border-color 0.15s ease;
+}
+
+.inputBox.error {
+    border-color: var(--color-primary-orange);
+}
+
+.inputBox.success {
+    border-color: var(--color-primary-green);
+}
+
+.inputBox:focus-within {
+    border-color: var(--color-primary-blue);
+}
+
+.inputBox.disabled {
+    background: var(--color-bg-blue);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+/* Input element */
+.input {
+    flex: 1;
+    border: none;
+    outline: none;
+    color: var(--color-primary-blue);
+    background: transparent;
+    min-width: 0;
+}
+
+.input:disabled {
+    cursor: not-allowed;
+}
+
+/* Icons bên trong */
+.iconLeft {
+    display: flex;
+    align-items: center;
+    color: var(--color-primary-blue);
+    flex-shrink: 0;
+}
+
+.iconRight {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-primary-blue);
+    padding: 0;
+    flex-shrink: 0;
+}
+
+.iconRight:hover {
+    color: var(--color-primary-blue);
+}
+
+/* Action icon — ngoài input */
+.actionIcon {
+    display: flex;
+    align-items: center;
+    color: var(--color-primary-blue);
+    flex-shrink: 0;
+}
+
+/* Bottom row */
+.bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    min-height: 1.2em;
+}
+
+.message {
+    margin-left: 1em;
+    font-size: 0.8rem;
+    color: var(--color-text-primary);
+}
+
+.message.error {
+    color: var(--color-primary-orange);
+}
+
+.message.success {
+    color: var(--color-primary-green);
+}
+
+.charCount {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    margin-left: auto;
+    margin-right: 1em;
+}
