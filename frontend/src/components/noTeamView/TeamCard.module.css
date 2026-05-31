@@ -71,16 +71,6 @@
   border-radius: var(--radius-circle);
 }
 
-.avatarFilled {
-  border: 1.5px solid var(--color-border-blue);
-  background: var(--color-bg-white);
-}
-
-.avatarEmpty {
-  border: 1.5px dashed var(--color-border-blue);
-  background: transparent;
-}
-
 /* Bio */
 .bioLabel {
   margin: 0;
