@@ -101,6 +101,7 @@ function MemberCard({ member, onInvite, onCancel }) {
                             label="Gửi lời mời"
                             labelSize={16}
                             icon={PaperPlaneTilt}
+                            iconWeight='fill'
                             iconPosition="right"
                             variant="primary"
                             onClick={handleSend}
