@@ -1,0 +1,111 @@
+.row {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+
+    border-bottom: 1px solid var(--color-border-blue);
+
+    padding: 1em 0;
+}
+
+.row:last-child {
+    border-bottom: none;
+}
+
+.index {
+    flex-shrink: 0;
+
+    width: 1.5em;
+
+    color: var(--color-border-blue);
+
+    text-align: center;
+}
+
+.avatar {
+    flex-shrink: 0;
+    
+    position: relative;
+    
+    width: 3.5em;
+    height: 3.5em;
+    
+    border-radius: var(--radius-circle);
+    border: 1.5px solid var(--color-border-blue);
+    
+    background-color: var(--color-bg-blue);
+}
+
+.crownIcon {
+    position: absolute;
+    top: -1em;
+    left: 50%;
+    
+    transform: rotate(30deg);
+    transition: transform 0.2s ease-in-out;
+    
+    color: var(--color-primary-orange);
+}
+
+.crownIcon:hover{
+    transform: translateX(0.4em) rotate(45deg) scale(1.1);
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+    flex: 1;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+}
+
+.name {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--color-primary-blue);
+}
+
+.youBadge {
+    font-size: 0.9rem;
+    color: var(--color-secondary-blue);
+    font-weight: 600;
+}
+
+.email {
+    color: var(--color-text-primary);
+}
+
+.school {
+    color: var(--color-text-secondary);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 0.25em;
+    flex-shrink: 0;
+}
+
+.actionBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 2em;
+    height: 2em;
+
+    border: none;
+    background: none;
+    cursor: pointer;
+
+    transition: transform 0.1s ease-in-out;
+}
+
+.actionBtn:hover {
+    transform: scale(1.15);
+}

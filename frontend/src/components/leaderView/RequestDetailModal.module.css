@@ -1,0 +1,118 @@
+.backdrop {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    position: fixed;
+
+    inset: 0;
+
+    background-color: rgba(51, 55, 50, 0.4);
+    z-index: 100;
+}
+
+.modal {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25em;
+
+    width: 420px;
+    max-width: 50vw;
+
+    position: relative;
+    
+    background: white;
+    
+    border-radius: var(--radius);
+    border: 1px solid var(--color-primary-green);
+    
+    padding: 4em 2em 2em;
+}
+
+.closeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    position: absolute;
+    
+    background: none;
+    border: none;    
+    border-radius: var(--inner-radius);
+    
+    top: 1em;
+    right: 1em;
+    
+    cursor: pointer;
+    
+    padding: 0.25em;
+}
+
+.closeBtn:hover {
+    background-color: var(--color-bg-blue);
+}
+
+.userInfo {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+}
+
+.avatar {    
+    width: 3em;
+    height: 3em;
+    
+    border-radius: var(--radius-circle);
+    border: 2px solid var(--color-primary-green);
+    
+    background-color: white;
+
+    flex-shrink: 0;
+}
+
+.name {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 700;
+    
+    color: var(--color-text-primary);
+}
+
+.email {
+    margin: 0;
+    color: var(--color-text-secondary);
+}
+
+.messageBox {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75em;
+    
+    padding: 1em;
+    
+    border-radius: var(--inner-radius);
+    border: 1.5px solid var(--color-border-blue);
+    
+    background-color: white;
+}
+
+.messageIcon {
+    color: var(--color-primary-green);
+    flex-shrink: 0;
+}
+
+.message {
+    margin: 0;
+    color: var(--color-text-primary);
+    line-height: 1.6;
+}
+
+/* Buttons */
+.actions {
+    display: flex;
+    gap: 0.75em;
+}
+
+.actions>* {
+    flex: 1;
+}

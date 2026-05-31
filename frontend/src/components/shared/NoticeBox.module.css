@@ -1,0 +1,88 @@
+.box {
+  border-radius: var(--radius);
+  border: 1px solid;
+  padding: 0.5em;
+}
+
+
+/* === Phần trên === */
+
+.main {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  padding: 1.5em 1.25em 1.75em;
+  gap: 1em;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  justify-self: end; /* canh sang phai */
+}
+
+
+/* === Phần dưới (detail) === */
+
+.detail {
+  padding: 1.5em;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+
+/* === Variants === */
+
+.orange {
+  background-color: var(--color-bg-orange);
+  border-color: var(--color-border-orange);
+}
+
+.green {
+  background-color: var(--color-bg-green);
+  border-color: var(--color-primary-green);
+}
+
+
+.orange .icon { color: var(--color-primary-orange); }
+.green  .icon { color: var(--color-primary-green); }
+
+
+.message {
+  color: var(--color-text-primary);
+}
+.green .message {
+  color: var(--color-primary-green);
+  font-weight: 700;
+}
+
+.divider {
+  width: 1.5px;
+  align-self: stretch;
+  background-color: var(--color-border-orange);
+  flex-shrink: 0;
+}
+.green .divider {
+  background-color: var(--color-primary-green);
+}
+
+
+.detailDivider {
+  border: none;
+  border-top: 1.5px solid var(--color-border-orange);
+  margin: 0 1em;
+}
+.green .detailDivider {
+  border-color: var(--color-primary-green);
+}

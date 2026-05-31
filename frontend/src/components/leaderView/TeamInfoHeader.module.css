@@ -1,0 +1,58 @@
+.wrapper {
+    color: var(--color-bg-white);
+}
+
+.wrapper {
+    display: grid;
+    grid-template-columns: 8fr 2fr;
+    gap: 5em;
+
+    position: relative;
+
+    background-color: var(--color-primary-blue);
+
+    border-radius: var(--radius);
+
+    padding: 2em 3em;
+
+}
+
+.wrapper::before,
+.wrapper::after {
+    content: "";
+    position: absolute;    
+
+    height: 100%;
+
+    background: linear-gradient(0deg,
+            rgba(255, 255, 255, 0.08),
+            rgba(255, 255, 255, 0.03));
+    transform: skewX(25deg);
+    pointer-events: none;
+}
+
+.wrapper::before {
+    width: 8em;
+    left: 5em;
+}
+
+.wrapper::after {
+    width: 2em;
+    left: 2em;
+    opacity: 0.6;
+}
+
+
+.btn {
+    width: 100%;
+    margin: 0.5em 0;
+}
+
+.codeBox {
+    display: grid;
+    grid-template-columns: 3fr 8fr;
+    gap: 0.5em;
+    place-items: center;
+
+    font-weight: bold;
+}

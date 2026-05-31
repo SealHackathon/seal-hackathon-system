@@ -1,0 +1,57 @@
+.sidebar {
+    width: fit-content;
+    min-height: 80vh;
+
+    background-color: var(--color-bg-white);
+
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+
+    padding: 1em 0.5em;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    
+}
+
+.backBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5em;
+
+    padding: 0.6em 1em;
+
+    background: none;
+    border: none;
+    border-radius: var(--inner-radius);
+    
+    color: var(--color-secondary-blue);
+    cursor: pointer;
+    text-align: left;
+}
+
+.backBtn:hover {
+    background-color: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
+.backBtn span {
+    font-size: 0.8rem;
+    font-weight: bold;
+    width: min-content;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid var(--color-border-blue);
+    margin: 0.25em 0;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    align-items: center;
+}
