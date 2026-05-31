@@ -134,6 +134,8 @@
 
 
 .btn:disabled {
+  transform: translateY(0.5em);
+
   background-color: var(--color-text-muted);
   box-shadow: 0 0 var(--color-text-secondary);
   color: var(--color-text-secondary);
