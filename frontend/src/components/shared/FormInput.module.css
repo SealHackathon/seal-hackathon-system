@@ -2,13 +2,15 @@
     display: flex;
     flex-direction: column;
     gap: 0.35em;
+    
     width: 100%;
 }
 
-/* Label */
 .label {
     font-weight: bold;
+    
     color: var(--color-dark-blue);
+    
     margin-left: 1em;
 }
 
@@ -16,16 +18,15 @@
     color: var(--color-primary-orange);
 }
 
-/* Hint */
 .hint {
-    margin-left: 1em;
     font-size: 0.9rem;
     color: var(--color-text-secondary);
+    margin-left: 1em;
 }
 
-/* Input row — input box + action icon */
 .input::placeholder {
-    color: var(--color-text-secondary);
+    font-weight: normal;
+    color: var(--color-border-blue);
 }
 
 .inputRow {
@@ -34,18 +35,23 @@
     gap: 0.5em;
 }
 
-/* Input box */
 .inputBox {
-    flex: 1;
     display: flex;
     align-items: center;
+    flex: 1;
     gap: 0.5em;
+    
+    box-sizing: border-box;
+    
+    background: white;
+    
     border: 1px solid var(--color-border-blue);
     border-radius: var(--radius);
+    
+    
     padding: 0.65em 1.2em;
-    background: white;
-
-    transition: border-color 0.15s ease;
+    
+    transition: all 0.15s ease;
 }
 
 .inputBox.error {
@@ -57,6 +63,7 @@
 }
 
 .inputBox:focus-within {
+    border: 2px solid var(--color-border-blue);
     border-color: var(--color-secondary-blue);
 }
 
@@ -66,21 +73,21 @@
     cursor: not-allowed;
 }
 
-/* Input element */
 .input {
     flex: 1;
     border: none;
     outline: none;
     color: var(--color-primary-blue);
+    font-weight: bold;
     background: transparent;
     min-width: 0;
 }
 
 .input:disabled {
+    color: var(--color-secondary-blue);
     cursor: not-allowed;
 }
 
-/* Icons bên trong */
 .iconLeft {
     display: flex;
     align-items: center;
@@ -91,32 +98,39 @@
 .iconRight {
     display: flex;
     align-items: center;
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: var(--color-primary-blue);
-    padding: 0;
     flex-shrink: 0;
+    
+    background: none;
+    color: var(--color-primary-blue);
+    
+    border: none;
+    
+    cursor: pointer;
+    
+    padding: 0;
 }
 
 .iconRight:hover {
     color: var(--color-primary-blue);
 }
 
-/* Action icon — ngoài input */
 .actionIcon {
     display: flex;
     align-items: center;
-    color: var(--color-primary-blue);
     flex-shrink: 0;
+    
+    color: var(--color-primary-blue);
 }
 
-/* Bottom row */
 .bottom {
     display: flex;
     justify-content: space-between;
     align-items: center;
     min-height: 1.2em;
+}
+
+.bottom:empty {
+    display: none;
 }
 
 .message {
@@ -129,7 +143,7 @@
 }
 
 .message.success {
-    color: var(--color-border-green);
+    color: var(--color-primary-green);
 }
 
 .messageContainer {
@@ -140,12 +154,27 @@
 
 .charCount {
     font-size: 0.8rem;
+    
     color: var(--color-text-secondary);
+    
     margin-left: auto;
     margin-right: 1em;
 }
 
 .error .iconRight, .error .iconLeft {
     color: var(--color-primary-orange);
+}
+
+.error .input::placeholder {
+    color: var(--color-border-orange);
+}
+
+.input:-webkit-autofill,
+.input:-webkit-autofill:hover, 
+.input:-webkit-autofill:focus, 
+.input:-webkit-autofill:active{
+    -webkit-text-fill-color: var(--color-primary-blue) !important;
+border-radius: 6px;
+padding: 0.3em 0.5em !important; 
 }
 

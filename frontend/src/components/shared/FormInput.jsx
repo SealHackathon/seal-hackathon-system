@@ -41,7 +41,7 @@ function FormInput({
         <div className={`${styles.inputBox} ${status ? styles[status] : ''} ${disabled ? styles.disabled : ''}`}>
           {IconLeft && (
             <span className={styles.iconLeft}>
-              <IconLeft size={24} />
+              <IconLeft size={28} />
             </span>
           )}
 
@@ -64,39 +64,41 @@ function FormInput({
               onClick={onIconRightClick}
               tabIndex={-1}
             >
-              <IconRight size={24} />
+              <IconRight size={28} />
             </button>
           )}
         </div>
 
         {ActionIcon && (
           <span className={styles.actionIcon}>
-            <ActionIcon size={24} />
+            <ActionIcon size={28} />
           </span>
         )}
 
       </div>
 
-      <div className={styles.bottom}>
-        <div className={styles.messageContainer}>
-          {status === 'error' && (
-            <span className={`${styles.iconLeft} ${styles.error}`}>
-              <WarningCircle size={20} color="var(--color-primary-orange)" />
+      {(message || maxLength) && (
+        <div className={styles.bottom}>
+          <div className={styles.messageContainer}>
+            {status === 'error' && (
+              <span className={`${styles.iconLeft} ${styles.error}`}>
+                <WarningCircle size={20} weight='bold' color="var(--color-primary-orange)" />
+              </span>
+            )}
+            {message && (
+              <p className={`${styles.message} ${status ? styles[status] : ''}`}>
+                {message}
+              </p>
+            )}
+          </div>
+
+          {maxLength && (
+            <span className={styles.charCount}>
+              {value?.length ?? 0}/{maxLength}
             </span>
           )}
-          {message && (
-            <p className={`${styles.message} ${status ? styles[status] : ''}`}>
-              {message}
-            </p>
-          )}
         </div>
-
-        {maxLength && (
-          <span className={styles.charCount}>
-            {value?.length ?? 0}/{maxLength}
-          </span>
-        )}
-      </div>
+      )}
 
     </div>
   )
