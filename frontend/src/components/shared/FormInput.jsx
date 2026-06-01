@@ -27,7 +27,6 @@ function FormInput({
   return (
     <div className={styles.wrapper}>
 
-      {/* Label */}
       {label && (
         <label className={styles.label}>
           {label}
@@ -35,13 +34,10 @@ function FormInput({
         </label>
       )}
 
-      {/* Hint */}
       {hint && <p className={styles.hint}>{hint}</p>}
 
-      {/* Input row */}
       <div className={styles.inputRow}>
 
-        {/* Input box */}
         <div className={`${styles.inputBox} ${status ? styles[status] : ''} ${disabled ? styles.disabled : ''}`}>
           {IconLeft && (
             <span className={styles.iconLeft}>
@@ -81,7 +77,6 @@ function FormInput({
 
       </div>
 
-      {/* Bottom row: message + char count */}
       <div className={styles.bottom}>
         <div className={styles.messageContainer}>
           {status === 'error' && (

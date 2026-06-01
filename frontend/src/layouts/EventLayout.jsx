@@ -10,7 +10,15 @@ function EventLayout({ children }) {
 
   return (
     <div className={styles.root}>
-      <Navbar />
+      <Navbar 
+        isLoggedIn={true}
+        user={{
+          name: 'Nguyễn Thành Thái',
+          email: 'ntbi533@gmail.com',
+          avatar: null
+        }}
+
+      />
 
       <div className={styles.body}>
         <Sidebar onGoBack={handleGoBack} />
