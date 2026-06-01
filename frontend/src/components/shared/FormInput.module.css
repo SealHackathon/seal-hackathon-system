@@ -165,8 +165,8 @@
     color: var(--color-primary-orange);
 }
 
-.error .input::placeholder {
-    color: var(--color-border-orange);
+.error .input::placeholder, .error .input {
+    color: var(--color-primary-orange);
 }
 
 .input:-webkit-autofill,

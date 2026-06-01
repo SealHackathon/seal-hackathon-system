@@ -14,8 +14,6 @@
     padding: 1em 2em;
 
     position: relative;
-
-    overflow: hidden; 
 }
 
 .wrapper::before,
@@ -51,7 +49,7 @@
     margin-right: auto
 }
 
-.authButtons {
+.rightSectionContent {
     display: flex;
     gap: 0.5em;
     position: relative; /* giúp buttons nằm trên so với cái wrapper (cái vệt sáng) */

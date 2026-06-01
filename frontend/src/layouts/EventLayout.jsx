@@ -1,4 +1,4 @@
-import Navbar from '../components/navbar/Navbar'
+import Navbar from '../components/Navbar/Navbar'
 import Sidebar from '../components/sidebar/Sidebar'
 import styles from './EventLayout.module.css'
 

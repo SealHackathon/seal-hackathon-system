@@ -14,7 +14,7 @@ function Navbar({ isLoggedIn, user }) {
 
             <div className={styles.rightSection}>
                 {!isLoggedIn ? (
-                    <div className={styles.authButtons}>
+                    <div className={styles.rightSectionContent}>
                         <Button
                             label="Đăng ký"
                             variant="primary"
@@ -26,14 +26,14 @@ function Navbar({ isLoggedIn, user }) {
                         />
                     </div>
                 ) : (
-                    <>
+                    <div className={styles.rightSectionContent}>
                         <NotificationDropdown />
                         <UserMenuDropdown
                             name={user.name}
                             email={user.email}
                             avatar={user.avatar}
                         />
-                    </>
+                    </div>
                 )}
             </div>
         </div>

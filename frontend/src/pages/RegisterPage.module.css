@@ -35,7 +35,12 @@
   background: none;
   border: none;
   cursor: pointer;
+  
   color: var(--color-secondary-blue);
+
+  font-size: 0.9em;
+  font-weight: bold;
+  
   white-space: nowrap;
 }
 
@@ -66,7 +71,7 @@
 .loginPrompt {
   margin: 0;
   text-align: center;
-  color: var(--color-text-primary);
+  color: var(--color-dark-blue);
 }
 
 .loginLink {
