@@ -26,7 +26,7 @@
 
 .input::placeholder {
     font-weight: normal;
-    color: var(--color-border-blue);
+    color: var(--color-secondary-blue);
 }
 
 .inputRow {
@@ -35,7 +35,7 @@
     gap: 0.5em;
 }
 
-.inputBox {
+.box {
     display: flex;
     align-items: center;
     flex: 1;
@@ -54,20 +54,20 @@
     transition: all 0.15s ease;
 }
 
-.inputBox.error {
+.box.error {
     border-color: var(--color-primary-orange);
 }
 
-.inputBox.success {
+.box.success {
     border-color: var(--color-primary-green);
 }
 
-.inputBox:focus-within {
+.box:focus-within {
     border: 2px solid var(--color-border-blue);
     border-color: var(--color-secondary-blue);
 }
 
-.inputBox.disabled {
+.box.disabled {
     background: var(--color-bg-blue);
     opacity: 0.6;
     cursor: not-allowed;
@@ -85,7 +85,6 @@
 
 .input:disabled {
     color: var(--color-secondary-blue);
-    cursor: not-allowed;
 }
 
 .iconLeft {
@@ -119,7 +118,11 @@
     align-items: center;
     flex-shrink: 0;
     
-    color: var(--color-primary-blue);
+    color: var(--color-border-blue);
+}
+
+.actionIcon:hover {
+    color: var(--color-secondary-blue);
 }
 
 .bottom {

@@ -44,7 +44,7 @@ function ChooseOptionStep({ onClose, onBack, onNext }) {
         />
       }
     >
-      <h1 className={styles.title}>Chọn hình thức tham gia</h1>
+      <h1 className={disclaimerStepStyles.title}>Chọn hình thức tham gia</h1>
 
       <div className={disclaimerStepStyles.banner}>
         <p>

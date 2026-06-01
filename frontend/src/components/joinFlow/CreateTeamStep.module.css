@@ -1,0 +1,128 @@
+.title {
+  font-size: 1.8em;
+  font-weight: 900;
+  font-style: italic;
+  color: var(--color-primary-blue);
+  text-align: center;
+  margin: 0 0 1em;
+}
+
+.banner {
+  background: var(--color-bg-blue);
+  border-radius: var(--radius);
+  padding: 0.85em 1.25em;
+  text-align: center;
+  font-size: 14px;
+  color: var(--color-text-primary);
+  line-height: 1.6;
+  margin-bottom: 1.5em;
+}
+
+.banner p { margin: 0; }
+
+/* Invite section */
+.inviteSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  margin-top: 0.5em;
+}
+
+.inviteHeader {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5em;
+}
+
+.inviteLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.inviteHint {
+  font-size: 12px;
+  color: var(--color-text-secondary);
+}
+
+/* Member row */
+.memberRow {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.memberLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-primary-blue);
+}
+
+/* Disabled input — Thành viên 1 */
+.disabledInput {
+  padding: 0.65em 1em;
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  background: var(--color-bg-blue);
+  font-size: 14px;
+  color: var(--color-text-secondary);
+  opacity: 0.8;
+}
+
+/* Email row */
+.emailRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.emailInput {
+  flex: 1;
+  padding: 0.65em 1em;
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  font-family: var(--body-font-main);
+  font-size: 14px;
+  color: var(--color-text-primary);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.emailInput:focus { border-color: var(--color-primary-blue); }
+
+.removeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border-blue);
+  background: white;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  flex-shrink: 0;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.removeBtn:hover {
+  border-color: var(--color-danger);
+  color: var(--color-danger);
+}
+
+/* Add button */
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary-green);
+  padding: 0;
+  width: fit-content;
+}
+
+.addBtn:hover { text-decoration: underline; }

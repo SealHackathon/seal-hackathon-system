@@ -1,5 +1,5 @@
-import styles from './FormInput.module.css'
 import { WarningCircle } from '@phosphor-icons/react'
+import styles from './FormInput.module.css'
 
 function FormInput({
   label,
@@ -9,6 +9,7 @@ function FormInput({
   iconRight,
   onIconRightClick,
   actionIcon,           // icon nằm ngoài input, bên phải
+  onActionIconClick,
   type = 'text',
   value,
   onChange,
@@ -38,7 +39,7 @@ function FormInput({
 
       <div className={styles.inputRow}>
 
-        <div className={`${styles.inputBox} ${status ? styles[status] : ''} ${disabled ? styles.disabled : ''}`}>
+        <div className={`${styles.box} ${status ? styles[status] : ''} ${disabled ? styles.disabled : ''}`}>
           {IconLeft && (
             <span className={styles.iconLeft}>
               <IconLeft size={28} />
@@ -70,7 +71,11 @@ function FormInput({
         </div>
 
         {ActionIcon && (
-          <span className={styles.actionIcon}>
+          <span
+            className={styles.actionIcon}
+            onClick={onActionIconClick}
+            style={onActionIconClick ? { cursor: 'pointer' } : {}}
+          >
             <ActionIcon size={28} />
           </span>
         )}
