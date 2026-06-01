@@ -10,7 +10,7 @@ function TeamMemberPanel({
     members,
     maxSlots = 4,
     teamStatus,
-    isLeader = true,
+    isLeader ,
     onKick,
     onPromote,
     onLeave,
@@ -32,7 +32,7 @@ function TeamMemberPanel({
                         <Button
                             label="Chốt đội"
                             icon={LockSimple}
-                            iconPosition="right"
+                            iconPosition="right"    
                             variant="primary"
                             color='orange'
                             onClick={onLockTeam}
