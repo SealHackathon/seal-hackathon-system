@@ -55,8 +55,6 @@ function UserMenuDropdown({ name, email, avatar }) {
                         <li className={styles.divider}></li>
 
                         <li>
-                            {/* <SignOut size={24} color='var(--color-primary-orange)'/>
-                            <span>Đăng xuất</span> */}
                             <Button 
                                 label='Đăng xuất'
                                 labelSize={14}  

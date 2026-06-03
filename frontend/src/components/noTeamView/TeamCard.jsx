@@ -69,14 +69,6 @@ function TeamCard({
                 <div className={styles.panel}>
                     <h3 className={styles.composeTitle}>Gửi yêu cầu xin vào đội</h3>
 
-                    {/* <div className={styles.messageBox}>
-                        <textarea
-                            className={styles.textarea}
-                            value={message}
-                            onChange={(e) => setMessage(e.target.value)}
-                            rows={5}
-                        />
-                    </div> */}
                     <FormTextarea 
                         className={styles.textarea}
                         iconLeft={ListPlus}

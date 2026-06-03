@@ -1,43 +1,27 @@
 import { X, ListPlus } from '@phosphor-icons/react'
 import Button from '../shared/Button'
 import styles from './RequestDetailModal.module.css'
+import ModalShell from '../shared/ModalShell'
+import FormTextarea from '../shared/FormTextarea'
 
-function RequestDetailModal({ 
-    request, 
-    onAccept, 
-    onReject, 
-    onClose 
+function RequestDetailModal({
+  request,
+  onAccept,
+  onReject,
+  onClose
 }) {
   if (!request) return null
 
   return (
-    
-    <div className={styles.backdrop} onClick={onClose}>
 
-      
-      <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+    <ModalShell
+      size='sm'
+      onClose={() => { }}
 
-        
-        <button className={styles.closeBtn} onClick={onClose}>
-          <X size={32} color="var(--color-text-secondary)" />
-        </button>
-
-
-        <div className={styles.userInfo}>
-          <div className={styles.avatar} />
-          <div>
-            <p className={styles.name}>{request.name}</p>
-            <p className={styles.email}>{request.email}</p>
-          </div>
-        </div>
-
-        
-        <div className={styles.messageBox}>
-          <ListPlus size={28} className={styles.messageIcon} />
-          <p className={styles.message}>{request.message}</p>
-        </div>
-
-        
+      //  Sử dụng Footer để 2 cái button không ảnh hưởng đến width của nội dung
+      //  Nếu không thì nó sẽ hiển thị scrollbar 
+      //  (Ấn nút Đồng ý -> Nó bị dài nội dung ra -> Scrollbar xuất hiện nhìn không được đẹp)
+      footer={
         <div className={styles.actions}>
           <Button
             label="Từ chối"
@@ -52,9 +36,28 @@ function RequestDetailModal({
             onClick={() => { onAccept(request.id); onClose() }}
           />
         </div>
+      }
+    >
+      <div className={styles.content}>
+        <div className={styles.userInfo}>
+          <div className={styles.avatar} />
+          <div>
+            <p className={styles.name}>{request.name}</p>
+            <p className={styles.email}>{request.email}</p>
+          </div>
+        </div>
+
+        <FormTextarea
+          className={styles.message}
+          iconLeft={ListPlus}
+          value={request.message}
+          onChange={() => { }}
+          disabled
+        />
 
       </div>
-    </div>
+    </ModalShell>
+
   )
 }
 

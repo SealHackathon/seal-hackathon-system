@@ -3,7 +3,7 @@ import formInputStyles from './FormInput.module.css'
 import styles from './FormTextarea.module.css'
 
 function FormTextarea({
-    className,
+  className,
   label,
   required,
   hint,
@@ -21,7 +21,7 @@ function FormTextarea({
   const IconLeft = iconLeft
 
   return (
-    <div className={formInputStyles.wrapper}>
+    <div className={`${formInputStyles.wrapper} ${className}`}>
 
       {label && (
         <label className={formInputStyles.label}>
