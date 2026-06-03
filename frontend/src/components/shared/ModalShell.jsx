@@ -8,7 +8,7 @@ function ModalShell({
     size = 'md' // 'sm', 'md', 'lg', 'xl'
 }) {
     return (
-        <div className={styles.backdrop} onClick={onClose}>
+        <div className={`${styles.backdrop} ${'scrollbar'}`} onClick={onClose}>
             <div
                 className={`${styles.card} ${styles[size]}`}
                 onClick={e => e.stopPropagation()}

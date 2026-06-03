@@ -2,6 +2,7 @@ import { useState } from 'react'
 import DisclaimerStep from './DisclaimerStep'
 import ChooseOptionStep from './ChooseOptionStep'
 import CreateTeamStep from './CreateTeamStep'
+import JoinByCodeStep from './JoinByCodeStep'
 
 function JoinTeamFlow({ onClose }) {
   const [step, setStep] = useState(1)
@@ -32,6 +33,14 @@ function JoinTeamFlow({ onClose }) {
       currentUserEmail="ntbi533@gmail.com"
     />
   )
+
+  if (step === 3 && option === 'code') return ( 
+        <JoinByCodeStep
+            onClose={onClose}
+            onBack={() => setStep(2)}
+            onSubmit={(data) => console.log('Tham gia bằng mã:', data)}
+        />
+    )
 
   
   return null
