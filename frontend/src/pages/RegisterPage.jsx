@@ -11,9 +11,7 @@ const ROLE_OPTIONS = [
     { value: 'student_other', label: 'Sinh viên trường khác' },
 ]
 
-
 function RegisterPage() {
-
     const [form, setForm] = useState({
         role: 'student_fpt',
         studentId: '',
@@ -23,11 +21,10 @@ function RegisterPage() {
 
     const [showPassword, setShowPassword] = useState(false)
     const [errors, setErrors] = useState({})
-    const [loading, setLoading] = useState(false)
 
     function setField(key, value) {
         setForm(prev => ({ ...prev, [key]: value }))
-        setErrors(prev => ({ ...prev, [key]: '' }))   // xóa error khi user chỉnh
+        setErrors(prev => ({ ...prev, [key]: '' }))
     }
 
     function validate() {
@@ -40,43 +37,14 @@ function RegisterPage() {
         return e
     }
 
-    async function handleSubmit(e) {
+    function handleSubmit(e) {
         e.preventDefault()
-
         const e2 = validate()
         if (Object.keys(e2).length > 0) { setErrors(e2); return }
-
-        setLoading(true)
-        try {
-            const res = await fetch('http://localhost:8080/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    schoolName: form.role === 'student_fpt' ? 'Đại học FPT' : 'Khác',
-                    studentId: form.studentId,
-                    email: form.email,
-                    password: form.password,
-                }),
-            })
-            const data = await res.json()
-
-            if (data === null) {
-                setErrors({ email: 'Email hoặc mã số sinh viên đã tồn tại' })
-                return
-            }
-
-            localStorage.setItem('verifyEmail', form.email)
-            localStorage.setItem('registerData', JSON.stringify(form))
-            // navigate('/verify-email', { state: { email: form.email } })
-
-        } catch {
-            setErrors({ submit: 'Không thể kết nối tới máy chủ' })
-        } finally {
-            setLoading(false)
-        }
+        console.log('Đăng ký:', form)
     }
 
-    const isFormValid = form.studentId && form.email && form.password.length >= 8
+    const isFormValid = form.studentId && form.email && form.password
 
     return (
         <AuthLayout>
@@ -141,7 +109,7 @@ function RegisterPage() {
                             label="Đăng kí"
                             variant="primary"
                             type="submit"
-                            // disabled={!isFormValid || loading}
+                        // disabled={!isFormValid || loading}
                         />
                         <button type="button" className={styles.forgotLink}>
                             Quên mật khẩu?

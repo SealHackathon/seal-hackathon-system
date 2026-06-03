@@ -3,6 +3,7 @@ import DisclaimerStep from './DisclaimerStep'
 import ChooseOptionStep from './ChooseOptionStep'
 import CreateTeamStep from './CreateTeamStep'
 import JoinByCodeStep from './JoinByCodeStep'
+import FindTeamStep from './FindTeamStep'
 
 function JoinTeamFlow({ onClose }) {
   const [step, setStep] = useState(1)
@@ -34,15 +35,22 @@ function JoinTeamFlow({ onClose }) {
     />
   )
 
-  if (step === 3 && option === 'code') return ( 
-        <JoinByCodeStep
-            onClose={onClose}
-            onBack={() => setStep(2)}
-            onSubmit={(data) => console.log('Tham gia bằng mã:', data)}
-        />
-    )
+  if (step === 3 && option === 'code') return (
+    <JoinByCodeStep
+      onClose={onClose}
+      onBack={() => setStep(2)}
+      onSubmit={(data) => console.log('Tham gia bằng mã:', data)}
+    />
+  )
 
-  
+  if (step === 3 && option === 'search') return (
+    <FindTeamStep
+      onClose={onClose}
+      onBack={() => setStep(2)}
+      onSubmit={(data) => console.log('Xin vào đội:', data)}
+    />
+  )
+
   return null
 }
 

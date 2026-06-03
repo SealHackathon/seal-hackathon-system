@@ -140,3 +140,12 @@
     color: var(--color-text-secondary);
     padding: 0 0.2em;
 }
+
+/* === FindTeamStep === */
+
+.findTeamContent {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}

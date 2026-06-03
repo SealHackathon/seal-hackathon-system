@@ -6,11 +6,9 @@ import Button from '../components/shared/Button'
 import styles from './RegisterPage.module.css'
 
 function LoginPage() {
-
     const [form, setForm] = useState({ email: '', password: '' })
     const [showPassword, setShowPassword] = useState(false)
     const [errors, setErrors] = useState({})
-    const [loading, setLoading] = useState(false)
 
     function setField(key, value) {
         setForm(prev => ({ ...prev, [key]: value }))
@@ -25,33 +23,11 @@ function LoginPage() {
         return e
     }
 
-    async function handleSubmit(e) {
+    function handleSubmit(e) {
         e.preventDefault()
-
         const e2 = validate()
         if (Object.keys(e2).length > 0) { setErrors(e2); return }
-
-        setLoading(true)
-        try {
-            const res = await fetch('http://localhost:8080/api/auth/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(form),
-            })
-            const data = await res.json()
-
-            if (!data || data.error) {
-                setErrors({ submit: 'Email hoặc mật khẩu không đúng' })
-                return
-            }
-
-            localStorage.setItem('token', data.token)
-
-        } catch {
-            setErrors({ submit: 'Không thể kết nối tới máy chủ' })
-        } finally {
-            setLoading(false)
-        }
+        console.log('Đăng nhập:', form)
     }
 
     const isFormValid = form.email && form.password
@@ -97,7 +73,7 @@ function LoginPage() {
                             label="Đăng nhập"
                             variant="primary"
                             type="submit"
-                            // disabled={!isFormValid || loading}
+                        // disabled={!isFormValid || loading}
                         />
                         <button
                             type="button"
