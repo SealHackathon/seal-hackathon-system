@@ -1,14 +1,16 @@
 .title {
+  justify-content: center; /* Để align cái title mà có cả icon*/ 
+  text-align: center; /* Để align cái title không có icon*/ 
+  
   color: var(--color-primary-blue);
-  text-align: center;
   margin: 0 0 0.5em;
 }
 
 .wrapper {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 2.5em 1em;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2.5em 1em;
 }
 
 .divider {
@@ -35,16 +37,18 @@
   background: none;
   border: none;
   cursor: pointer;
-  
+
   color: var(--color-secondary-blue);
 
   font-size: 0.9em;
   font-weight: bold;
-  
+
   white-space: nowrap;
 }
 
-.forgotLink:hover { text-decoration: underline; }
+.forgotLink:hover {
+  text-decoration: underline;
+}
 
 .submitError {
   margin: 1em 0 0 1em;
@@ -84,4 +88,36 @@
   padding: 0;
 }
 
-.loginLink:hover { text-decoration: underline; }
+.loginLink:hover {
+  text-decoration: underline;
+}
+
+
+/* === VERIFY EMAIL PAGE === */
+.resendWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  margin: 3em 0 0;
+}
+
+.verifyText {
+  color: var(--color-dark-blue);
+  line-height: 1.7;
+}
+
+.resendSuccess {
+  font-size: 0.9rem;
+  color: var(--color-primary-green);
+  font-weight: bold;
+  margin: 1em 0 0 1em;
+}
+
+.orMessage {
+  margin-left: 1em;
+  
+  font-size: 0.9em;
+  font-weight: bold;
+
+  color: var(--color-secondary-blue);
+}

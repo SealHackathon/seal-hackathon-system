@@ -183,6 +183,6 @@
 .input:-webkit-autofill:active{
     -webkit-text-fill-color: var(--color-primary-blue) !important;
 border-radius: 6px;
-padding: 0.3em 0.5em !important; 
+padding: 0.3em 0.5em; 
 }
 
