@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { ArrowRight, ArrowLeft, PaperPlaneTilt, CrownSimple, Plus, ListPlus } from '@phosphor-icons/react'
 import Button from '../shared/Button'
 import FormTextarea from '../shared/FormTextarea'
+import TeamInfoPanel from './TeamInfoPanel'
 import styles from './TeamCard.module.css'
 import memberStyles from '../leaderView/MemberRow.module.css'
 import memberEmptyStyles from '../leaderView/EmptyMemberSlot.module.css'
@@ -39,39 +40,7 @@ function TeamCard({
                 {/* Panel 1: Xem thông tin đội */}
                 <div className={styles.panel}>
 
-                    <h2 className={styles.teamName}>{team.name}</h2>
-
-                    <span className={styles.memberBadge}>
-                        {team.members.length}/{team.maxSlots} thành viên
-                    </span>
-
-                    {/* Avatar row */}
-                    <div className={styles.avatarRow}>
-                        {Array.from({ length: team.members.length }, (_, i) => (
-                            <div key={i} className={memberStyles.avatar}>
-                                {i === 0 && (
-                                    <CrownSimple
-                                        size={32}
-                                        weight="fill"
-                                        className={memberStyles.crownIcon}
-                                    />
-                                )}
-                            </div>
-                        ))}
-                        
-                        {Array.from({ length: emptyCount }, (_, i) => (
-                            <div key={`empty-${i}`} className={memberEmptyStyles.avatar}>
-                                <Plus size={28} color="var(--color-border-blue)" />
-                            </div>
-                        ))}
-
-                    </div>
-
-
-                    <div className={styles.bio}>
-                        <p className={styles.bioLabel}>Mô tả</p>
-                        <p className={styles.bioText}>{team.description}</p>
-                    </div>
+                    <TeamInfoPanel team={team} />
 
                     <div className={styles.buttonWrapper}>
                         {cardState === 'requested' ? (
