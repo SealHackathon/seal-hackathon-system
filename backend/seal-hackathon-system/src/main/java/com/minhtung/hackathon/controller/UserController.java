@@ -37,7 +37,7 @@ public class UserController {
 
             return unauthorized();
         }
-        return ResponseEntity.ok().body(userService.getMemberNoTeam());
+        return ResponseEntity.ok().body(userService.getMemberNoTeam(uid));
     }
 
 

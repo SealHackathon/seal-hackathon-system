@@ -80,7 +80,7 @@ public class Team {
         return leaderID;
     }
 
-    public void setLeaderID(int leaderID) {
+    public void setLeaderID(long leaderID) {
         this.leaderID = leaderID;
     }
 

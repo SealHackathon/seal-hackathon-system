@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 public class LeaderInvitationResponse {
     private Long id;
+    private long memberId;
     private String name;
     private String email;
 }

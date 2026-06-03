@@ -179,19 +179,27 @@ public class TeamService {
 
     //ham nay leader xem nhung join team request
 
-    public List<JoinTeamResponse> viewJoinTeamRequest(long userId) {
-        Member leader = memberRepository.findByMemberID(userId).orElseThrow();
+    public List<JoinTeamResponse> viewJoinTeamRequest(long leaderId) {
+        Member leader = memberRepository.findByMemberID(leaderId).orElseThrow();
         if (leader == null || leader.getRole() != MemberRole.LEADER) {
             throw new IllegalArgumentException("Bạn không phải leader");
         }
-        List<TeamRequest> joinTeamRequests = teamRequestRepository.findByTypeAndStatusAndReceiverId(RequestType.JOIN_REQUEST, RequestStatus.PENDING, userId);
+        Team team = teamRepository.findByLeaderID(leaderId).orElse(null);
+        if (team == null || team.getStatus() != TeamStatus.OPEN) {
+            throw new IllegalArgumentException("team không tồn tại!");
+        }
+        List<TeamRequest> joinTeamRequests = teamRequestRepository.findByTypeAndStatusAndTeamId(RequestType.JOIN_REQUEST, RequestStatus.PENDING, team.getId());
 
         List<JoinTeamResponse> responseList = new ArrayList<>();
         for (TeamRequest teamRequest : joinTeamRequests) {
+            User user = userRepository.findById(teamRequest.getSenderId()).orElse(null);
+            if (user == null) {
+                continue;
+            }
             JoinTeamResponse joinTeamResponse = new JoinTeamResponse();
             joinTeamResponse.setId(teamRequest.getId());
-            joinTeamResponse.setName(userRepository.findById(teamRequest.getSenderId()).get().getFullName());
-            joinTeamResponse.setEmail(userRepository.findById(teamRequest.getSenderId()).get().getEmail());
+            joinTeamResponse.setName(user.getFullName());
+            joinTeamResponse.setEmail(user.getEmail());
             joinTeamResponse.setMessage(teamRequest.getMessage());
             responseList.add(joinTeamResponse);
         }
@@ -201,7 +209,7 @@ public class TeamService {
     //leader xem nhung invitation da gui di
     public List<LeaderInvitationResponse> leaderViewInvitation(long userId) {
         Member leader = memberRepository.findByMemberID(userId).orElseThrow();
-        if (leader.getRole() != MemberRole.LEADER ) {
+        if (leader.getRole() != MemberRole.LEADER) {
             throw new IllegalArgumentException("Bạn không phải leader");
         }
         List<TeamRequest> teamRequests = teamRequestRepository.findByTypeAndStatusAndSenderId(RequestType.INVITATION, RequestStatus.PENDING, userId);
@@ -214,6 +222,7 @@ public class TeamService {
             }
             leaderInvitationResponse.setId(user.getId());
             leaderInvitationResponse.setName(user.getFullName());
+            leaderInvitationResponse.setMemberId(user.getId());
             leaderInvitationResponse.setEmail(user.getEmail());
             responseList.add(leaderInvitationResponse);
         }
@@ -254,7 +263,7 @@ public class TeamService {
         return responseList;
     }
 
-    //leader xoa nhung invitation da gui
+    //leader xoa nhung invitation da gui by request Id
     public String deleteInvitation(long requestId, long leaderId) {
         Team team = teamRepository.findByLeaderID(leaderId).orElse(null);
         if (team == null) {
@@ -265,16 +274,40 @@ public class TeamService {
             return "ban ko co quyen thuc hien chuc nang nay";
         }
         TeamRequest teamRequest = teamRequestRepository.findById(requestId).orElse(null);
-        if(teamRequest == null){
+        if (teamRequest == null) {
             return "loi roi";
         }
-        if ( teamRequest.getStatus() != RequestStatus.PENDING ) {
+        if (teamRequest.getStatus() != RequestStatus.PENDING) {
             return "request da duoc xu ly hoac ko ton tai";
         }
         teamRequestRepository.delete(teamRequest);
         return "xoa thanh cong invitation!";
 
     }
+
+    //leader xoa nhung invitation da gui by Member id
+    // tim nhung invitation vao team cua leader den user do roi xoa
+    public String deleteInvitationByMemberId(long memberId, long leaderId) {
+        Team team = teamRepository.findByLeaderID(leaderId).orElse(null);
+        if (team == null) {
+            return "Team Khong Ton Tai";
+        }
+        Member leader = memberRepository.findByMemberID(leaderId).orElse(null);
+        if (leader == null || leader.getRole() != MemberRole.LEADER) {
+            return "ban ko co quyen thuc hien chuc nang nay";
+        }
+
+
+        TeamRequest teamRequest = teamRequestRepository.findBySenderIdAndReceiverIdAndTypeAndStatus(leaderId, memberId, RequestType.INVITATION,
+                RequestStatus.PENDING).orElse(null);
+        if (teamRequest == null) {
+            return "loi roi";
+        }
+        teamRequestRepository.delete(teamRequest);
+        return "xoa thanh cong invitation!";
+
+    }
+
 
     //sinh vien xoa nhung request da gui
     public String deleteRequest(long requestId) {
@@ -603,6 +636,10 @@ public class TeamService {
     //    trao quyen truong nhom cho user khac
 
     public String promoteMember(long userId, long leaderId) {
+        Team team = teamRepository.findByLeaderID(leaderId).orElse(null);
+        if (team == null) {
+            throw new IllegalArgumentException("Team không tồn tại");
+        }
         Member member = memberRepository.findById(userId).orElse(null);
         if (member == null) {
             throw new IllegalArgumentException("member không tồn tại");
@@ -619,6 +656,8 @@ public class TeamService {
         memberRepository.save(member);
         leader.setRole(MemberRole.MEMBER);
         memberRepository.save(leader);
+        team.setLeaderID(member.getMemberID());
+        teamRepository.save(team);
         return "đã trao vị trí leader cho " + member.getFullname() + "Thành Công !";
     }
 
@@ -653,13 +692,11 @@ public class TeamService {
 
 
     // lay tat ca nhung doi dang need member
+
     public List<NeedMemberTeamResponse> getNeedMemberTeams(
             long userId
     ) {
-//        Member user = memberRepository.findByMemberID(userId).orElse(null);
-//        if (user == null) {
-//            throw new IllegalArgumentException("MEMBER_NOT_FOUND");
-//        }
+
 
         List<Team> needMemberTeams = teamRepository.findTeamsWithLessThanFourMembers();
         List<NeedMemberTeamResponse> needMemberTeamResponseList = new ArrayList<>();
@@ -671,13 +708,13 @@ public class TeamService {
             List<Member> memberList = memberRepository.findByTeamId(team.getId()).orElse(null);
             //da gui request toi team nay chua
             TeamRequest teamRequest = teamRequestRepository.findBySenderIdAndTeamIdAndTypeAndStatus(
-                    userId,team.getId(),RequestType.JOIN_REQUEST,RequestStatus.PENDING
-            );
+                    userId, team.getId(), RequestType.JOIN_REQUEST, RequestStatus.PENDING
+            ).orElse(null);
             //da nhan invitation tu team nay chua
-            TeamRequest teamInvitation=teamRequestRepository.findByReceiverIdAndTeamIdAndTypeAndStatus(
-                    userId,team.getId(),RequestType.INVITATION,RequestStatus.PENDING
-            );
-            if(teamRequest!=null || teamInvitation!=null){
+            TeamRequest teamInvitation = teamRequestRepository.findByReceiverIdAndTeamIdAndTypeAndStatus(
+                    userId, team.getId(), RequestType.INVITATION, RequestStatus.PENDING
+            ).orElse(null);
+            if (teamRequest != null || teamInvitation != null) {
                 continue;
             }
             //neu user da co yeu cau toi team nay roi thi ko hien thi team nay nua
@@ -702,11 +739,14 @@ public class TeamService {
     }
 
     // get team info
-    public TeamInfoResponse  getTeamInfo(long userId) {
-        Team team=teamRepository.findById(userId).orElse(null);
-        Member member =memberRepository.findByMemberID(userId).orElse(null);
-        if (team == null || member == null || !member.isStatus()) {
-            throw new IllegalArgumentException("team not found or user not found");
+    public TeamInfoResponse getTeamInfo(long userId) {
+        Member member=memberRepository.findByMemberID(userId).orElse(null);
+        Team team = teamRepository.findByLeaderID(userId).orElse(null);
+        if (team == null) {
+            throw new IllegalArgumentException("team khong ton tai");
+        }
+        if(member == null || !member.isStatus()){
+            throw new IllegalArgumentException("Nguoi dung ko ton tai");
         }
         TeamInfoResponse teamInfoResponse = new TeamInfoResponse();
         teamInfoResponse.setTeamCode(team.getInviteCode());
@@ -720,12 +760,12 @@ public class TeamService {
 
     public String leaderSendInvitation(InvitationRequest invitationRequest, long senderId) {
 
-        Team team=teamRepository.findByLeaderID(senderId).orElse(null);
+        Team team = teamRepository.findByLeaderID(senderId).orElse(null);
         if (team == null) {
             return "ko tim thay team";
         }
-    TeamRequest teamRequest = new TeamRequest(senderId,invitationRequest.getId(), team.getId(),RequestType.INVITATION, invitationRequest.getMessage()
-    );
+        TeamRequest teamRequest = new TeamRequest(senderId, invitationRequest.getId(), team.getId(), RequestType.INVITATION, invitationRequest.getMessage()
+        );
         teamRequestRepository.save(teamRequest);
         return "invitation thành công";
     }

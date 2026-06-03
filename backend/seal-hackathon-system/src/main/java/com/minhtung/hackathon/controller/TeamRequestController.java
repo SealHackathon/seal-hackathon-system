@@ -23,7 +23,7 @@ public class TeamRequestController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
 
-    //leader view nhung request xin vao doi cua minh
+    //leader view nhung request xin vao doi cua team này
     //chuc nang cua leader
     @GetMapping("/joinrequest")
     public ResponseEntity<?> viewJoinRequest(@RequestHeader("Authorization") String auth) {
@@ -123,21 +123,33 @@ public class TeamRequestController {
     }
 
 
-    //Leader xoa nhung invitation da gui di
+    //Leader xoa nhung invitation da gui di thong qua requestId
     //chuc nang cua leader
     @Operation(summary = "Leader Xoa Nhung invitation da gui di")
     @DeleteMapping("/invitation")
     public ResponseEntity<String> deleteInvitation(
-            @RequestBody long requestId,
+            @RequestBody long memberId,
             @RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
         if (uid == null) return unauthorized();
-        return ResponseEntity.ok(teamService.deleteInvitation(requestId, uid));
+        return ResponseEntity.ok(teamService.deleteInvitationByMemberId(memberId, uid));
+    }
+
+    //Leader xoa nhung invitation da gui di thong qua memberId
+    //chuc nang cua leader
+    @Operation(summary = "Leader Xoa Nhung invitation da gui di")
+    @DeleteMapping("/invitation-bymember")
+    public ResponseEntity<String> deleteInvitationByUserId(
+            @RequestParam("memberId") long memberId,
+            @RequestHeader("Authorization") String auth) {
+        Integer uid = getUid(auth);
+        if (uid == null) return unauthorized();
+        return ResponseEntity.ok(teamService.deleteInvitationByMemberId(memberId, uid));
     }
 
     //sinh vien xoa nhung request da gui di
     //chuc nang cua member
-    @Operation(summary = "Member Xoa Nhung invitation da gui di")
+    @Operation(summary = "Member Xoa Nhung request da gui di")
     @DeleteMapping("/request")
     public ResponseEntity<String> deleteRequest(
             @RequestBody long requestId,
@@ -150,7 +162,7 @@ public class TeamRequestController {
     //sinh vien xoa nhung request den team id
     //chuc nang cua member
     @Operation(summary = "Member Xoa Nhung invitation da gui di")
-    @DeleteMapping("/request?{teamid}")
+    @DeleteMapping("/member-request")
     public ResponseEntity<String> deleteRequestByTeamId(
             @RequestParam("teamId") long teamId,
             @RequestHeader("Authorization") String auth) {

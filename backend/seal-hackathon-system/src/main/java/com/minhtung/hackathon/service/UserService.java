@@ -1,7 +1,11 @@
 package com.minhtung.hackathon.service;
 
 import com.minhtung.hackathon.dto.response.SearchMemberResponse;
+import com.minhtung.hackathon.entity.Team;
+import com.minhtung.hackathon.entity.TeamRequest;
 import com.minhtung.hackathon.entity.User;
+import com.minhtung.hackathon.enums.RequestStatus;
+import com.minhtung.hackathon.enums.RequestType;
 import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.repository.MemberRepository;
 import com.minhtung.hackathon.repository.TeamRepository;
@@ -23,13 +27,24 @@ public class UserService {
     private final UserRepository userRepository;
 
     //ham get nhung user chua co team
-    public List<SearchMemberResponse> getMemberNoTeam() {
+    //những ai đã có request tới team hoặc đã đc team invitation thì ko get
+    public List<SearchMemberResponse> getMemberNoTeam(long leaderId) {
         List<User> freeUsers = userRepository.findUsersWithoutTeam(Role.USER);
+        Team team = teamRepository.findByLeaderID(leaderId).orElse(null);
+        if (team == null) {
+            return Collections.emptyList();
+        }
         if (freeUsers.isEmpty()) {
             return Collections.emptyList();
         }
         List<SearchMemberResponse> members = new ArrayList<>();
         for (User user : freeUsers) {
+            TeamRequest invitation=teamRequestRepository.findByReceiverIdAndTeamIdAndTypeAndStatus(user.getId(),team.getId(), RequestType.INVITATION, RequestStatus.PENDING).orElse(null);
+
+            TeamRequest joinRequest =teamRequestRepository.findBySenderIdAndTeamIdAndTypeAndStatus(user.getId(),team.getId(), RequestType.JOIN_REQUEST, RequestStatus.PENDING).orElse(null);
+             if(joinRequest!=null || invitation!=null){
+                 continue;
+             }
             SearchMemberResponse response = new SearchMemberResponse();
             response.setId(user.getId());
             response.setEmail(user.getEmail());

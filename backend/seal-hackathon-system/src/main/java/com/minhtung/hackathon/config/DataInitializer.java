@@ -33,7 +33,7 @@ public class DataInitializer implements CommandLineRunner {
             user1.setEmail("user1@gmail.com");
             user1.setPassword("123456");
             user1.setRole(Role.USER);
-            user1.setSchoolName("fpt");
+            user1.setSchoolName("Trường đại học Hoa Sen");
             user1.setActive(true);
             user1.setFullName("Bui Thien Khanh");
             userRepository.save(user1);
@@ -42,7 +42,7 @@ public class DataInitializer implements CommandLineRunner {
             user2.setEmail("user2@gmail.com");
             user2.setPassword("123456");
             user2.setRole(Role.USER);
-            user2.setSchoolName("fpt");
+            user2.setSchoolName("Khoa Học Xã Hội và Nhân Văn");
             user2.setActive(true);
             user2.setFullName("Mac Minh Tung");
             userRepository.save(user2);
@@ -51,7 +51,7 @@ public class DataInitializer implements CommandLineRunner {
             user3.setEmail("user3@gmail.com");
             user3.setPassword("123456");
             user3.setRole(Role.USER);
-            user3.setSchoolName("fpt");
+            user3.setSchoolName("Trường đại học FPT");
             user3.setActive(true);
             user3.setFullName("Pham Khac Dang Khoa");
             userRepository.save(user3);
@@ -60,7 +60,7 @@ public class DataInitializer implements CommandLineRunner {
             user4.setEmail("user4@gmail.com");
             user4.setPassword("123456");
             user4.setRole(Role.USER);
-            user4.setSchoolName("fpt");
+            user4.setSchoolName("Trường đại học Công Nghiệp");
             user4.setActive(true);
             user4.setFullName("Nguyen Thanh Thai");
             userRepository.save(user4);
@@ -70,7 +70,7 @@ public class DataInitializer implements CommandLineRunner {
             user5.setEmail("user5@gmail.com");
             user5.setPassword("123456");
             user5.setRole(Role.USER);
-            user5.setSchoolName("fpt");
+            user5.setSchoolName("Trường đại học Bách Khoa HCM");
             user5.setActive(true);
             userRepository.save(user5);
             List<String> emails = new ArrayList<>();
@@ -79,21 +79,21 @@ public class DataInitializer implements CommandLineRunner {
             teamService.createTeam(new CreateTeamDto(
                     "Team của Bảo Trân","Đây là team của Bảo Trân ạ.",emails
                     ), user5.getId());
-
-            teamService.createTeam(new CreateTeamDto(
-                    "Team của Khanh","Đây là team của Khanh ạ.", Collections.emptyList()
-            ), user1.getId());
+//
+//            teamService.createTeam(new CreateTeamDto(
+//                    "Team của Khanh","Đây là team của Khanh ạ.", Collections.emptyList()
+//            ), user1.getId());
             //hard code cho user2 vào team bằng mã team
-            teamService.joinTeamByCode(
-                    teamRepository.findByLeaderID(user5.getId()).get().getInviteCode(),
-                    user2.getId()
-            );
+//            teamService.joinTeamByCode(
+//                    teamRepository.findByLeaderID(user5.getId()).get().getInviteCode(),
+//                    user2.getId()
+//            );
 //            //hard code cho user4 send 1 join team request chờ ad duyệt
             teamService.sendJoinRequest(
                     new JoinTeamRequest(
                             teamRepository.findByLeaderID(user5.getId()).get().getId()
-                            , "Thái xin vào đội ạ"),
-                    user4.getId()
+                            , "Khoa xin vào đội ạ"),
+                    user3.getId()
             );
 
         }
