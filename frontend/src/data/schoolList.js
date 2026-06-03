@@ -2,7 +2,7 @@ export const schoolOptions = [
   {
     section: 'Đại học đối tác với FPT',
     items: [
-      { value: 'fpt',   label: 'Đại học FPT' },
+      { value: 'fpt',   label: 'Đại học FPT TP. HCM' },
       { value: 'bkdn',  label: 'Đại học Bách Khoa TP.HCM' },
       { value: 'hcmus', label: 'Đại học Khoa học Tự nhiên TP.HCM' },
       { value: 'ussh',  label: 'Đại học Khoa học Xã hội và Nhân văn TP.HCM' },

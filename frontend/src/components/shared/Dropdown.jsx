@@ -103,7 +103,7 @@ function Dropdown({
         </div>
       )}
 
-      <div className={styles.optionContainer}>
+      <div className={`${styles.optionContainer} ${'scrollbar'}`}>
         {normalizedOptions.map((group, gi) => {
           const filtered = filterItems(group.items)
           if (filtered.length === 0) return null

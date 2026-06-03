@@ -2,13 +2,12 @@ import { useState } from 'react'
 import DisclaimerStep from './DisclaimerStep'
 import ChooseOptionStep from './ChooseOptionStep'
 import CreateTeamStep from './CreateTeamStep'
-import NoTeamViews from '../../pages/NoTeamView'
+import JoinByCodeStep from './JoinByCodeStep'
+import FindTeamStep from './FindTeamStep'
 import axios from 'axios'
 function JoinTeamFlow({ onClose }) {
   const [step, setStep] = useState(1)
   const [option, setOption] = useState(null)  // 'create' | 'code' | 'search'
-
-
 
   if (step === 1) return (
     <DisclaimerStep
@@ -54,7 +53,28 @@ function JoinTeamFlow({ onClose }) {
       currentUserEmail={userInfo?.email}
     />
   )
-  if (step === 3 && option === 'code') return (<NoTeamViews />)
+  // if (step === 3 && option === 'code') return (<NoTeamViews />)
+  //       console.log('Tạo đội:', data)
+  //     }}
+  //     currentUserEmail="ntbi533@gmail.com"
+  //   />
+  // )
+
+  if (step === 3 && option === 'code') return (
+    <JoinByCodeStep
+      onClose={onClose}
+      onBack={() => setStep(2)}
+      onSubmit={(data) => console.log('Tham gia bằng mã:', data)}
+    />
+  )
+
+  if (step === 3 && option === 'search') return (
+    <FindTeamStep
+      onClose={onClose}
+      onBack={() => setStep(2)}
+      onSubmit={(data) => console.log('Xin vào đội:', data)}
+    />
+  )
 
   return null
 }

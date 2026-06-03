@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import TeamCard from './TeamCard'
 import CardSearchBase from '../shared/CardSearchBase'
-import styles from '../leaderView/FindMemberModal.module.css'
+// import styles from '../leaderView/FindMemberModal.module.css'
+import styles from '../shared/CardSearchBase.module.css'
 
 
 

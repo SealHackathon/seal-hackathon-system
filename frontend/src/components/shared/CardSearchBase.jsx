@@ -1,6 +1,6 @@
 import { MagnifyingGlass, CaretLeft, CaretRight } from '@phosphor-icons/react'
 import Button from '../shared/Button'
-import styles from '../leaderView/FindMemberModal.module.css'
+import styles from './CardSearchBase.module.css'
 
 function getPageItems(currentPage, totalPages) {
   if (totalPages <= 7) {

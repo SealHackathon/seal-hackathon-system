@@ -1,17 +1,28 @@
 import { useState } from 'react'
 import SideCard from '../leaderView/SideCard'
 import Button from '../shared/Button'
+import RequestDetailModal from '../leaderView/RequestDetailModal'
 import { EnvelopeSimple } from '@phosphor-icons/react'
 
-function InviteTeamCard({ invites, onAccept, onReject }) {
+function InviteTeamCard({ invites = [], onAccept, onReject }) {
   const [selectedInvite, setSelectedInvite] = useState(null)
 
+  // Map lại thông tin của invite cho đúng với các thông tin sẽ gửi đến cái RequestDetailModal
   const items = invites.map(inv => ({
+    ...inv,
     id: inv.id,
     name: inv.teamName,
     email: `${inv.memberCount}/${inv.maxSlots} thành viên`,
-    ...inv,
+    // Bên NoTeamView truyền invite vào chứa các dữ liệu liên quan tới một team
+    // Bên này map chúng thành một array để gửi quá bên RequestDetailModal
+    team: {                              
+      name: inv.teamName,
+      maxSlots: inv.maxSlots,
+      description: inv.description ?? '',
+      members: Array.from({ length: inv.memberCount }, (_, i) => ({ id: i })),
+    }
   }))
+
 
   return (
     <>
@@ -32,9 +43,15 @@ function InviteTeamCard({ invites, onAccept, onReject }) {
           />
         )}
       />
-      {selectedInvite && (
-        <div>Làm sau (Cái modal)</div>
-      )}
+
+      <RequestDetailModal
+        invite={selectedInvite}
+        isTeamInvite
+        onAccept={(id) => console.log('Đồng ý lời mời:', id)}
+        onReject={(id) => console.log('Từ chối lời mời:', id)}
+        onClose={() => setSelectedInvite(null)}
+      />
+
     </>
   )
 }

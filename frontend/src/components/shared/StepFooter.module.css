@@ -4,6 +4,11 @@
     justify-content: center;
     gap: 1.5em;
     width: 100%;
+<<<<<<< HEAD
+=======
+    max-width: 700px;
+    margin: auto;
+>>>>>>> 663d18bf264d16d7c7a8955f84820f06abe5f23a
 }
 
 /* Progress */

@@ -136,9 +136,12 @@
 .btn:disabled {
   transform: translateY(0.5em);
 
+  border: 0;;
+  
   background-color: var(--color-text-muted);
   box-shadow: 0 0 var(--color-text-secondary);
   color: var(--color-text-secondary);
+  
   cursor: default;
 }
 

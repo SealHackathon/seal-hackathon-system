@@ -11,9 +11,7 @@ const ROLE_OPTIONS = [
     { value: 'student_other', label: 'Sinh viên trường khác' },
 ]
 
-
 function RegisterPage() {
-
     const [form, setForm] = useState({
         role: 'student_fpt',
         studentId: '',
@@ -23,11 +21,10 @@ function RegisterPage() {
 
     const [showPassword, setShowPassword] = useState(false)
     const [errors, setErrors] = useState({})
-    const [loading, setLoading] = useState(false)
 
     function setField(key, value) {
         setForm(prev => ({ ...prev, [key]: value }))
-        setErrors(prev => ({ ...prev, [key]: '' }))   // xóa error khi user chỉnh
+        setErrors(prev => ({ ...prev, [key]: '' }))
     }
 
     function validate() {
@@ -141,7 +138,7 @@ function RegisterPage() {
                             label="Đăng kí"
                             variant="primary"
                             type="submit"
-                            // disabled={!isFormValid || loading}
+                        // disabled={!isFormValid || loading}
                         />
                         <button type="button" className={styles.forgotLink}>
                             Quên mật khẩu?

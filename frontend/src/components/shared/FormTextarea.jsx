@@ -2,9 +2,8 @@ import { WarningCircle } from '@phosphor-icons/react'
 import formInputStyles from './FormInput.module.css'
 import styles from './FormTextarea.module.css'
 
-
-
 function FormTextarea({
+  className,
   label,
   required,
   hint,
@@ -22,7 +21,7 @@ function FormTextarea({
   const IconLeft = iconLeft
 
   return (
-    <div className={formInputStyles.wrapper}>
+    <div className={`${formInputStyles.wrapper} ${className}`}>
 
       {label && (
         <label className={formInputStyles.label}>
@@ -40,7 +39,7 @@ function FormTextarea({
           </span>
         )}
         <textarea
-          className={styles.textarea}
+          className={`${styles.textarea} ${className} ${'scrollbar'}`}
           name={name}
           value={value}
           onChange={onChange}

@@ -58,8 +58,13 @@
   border-color: var(--color-secondary-blue);
 }
 
-.trigger.error   { border-color: var(--color-danger); }
-.trigger.success { border-color: var(--color-primary-green); }
+.trigger.error {
+  border-color: var(--color-danger);
+}
+
+.trigger.success {
+  border-color: var(--color-primary-green);
+}
 
 .trigger.disabled {
   background: var(--color-bg-blue);
@@ -94,7 +99,9 @@
   line-height: 1;
 }
 
-.clearBtn:hover { color: var(--color-danger); }
+.clearBtn:hover {
+  color: var(--color-danger);
+}
 
 .caret {
   display: flex;
@@ -115,9 +122,9 @@
   top: calc(100% + 0.6em);
   left: 0;
   right: 0;
-  background: white;
   border-radius: var(--inner-radius);
-  
+  background: #ffffff;
+
   z-index: 50;
 }
 
@@ -147,14 +154,17 @@
   display: flex;
   flex-direction: column;
   gap: 0.25em;
+
+  background: #ffffff; /* Background menu không cover hết phần options */
+
   overflow-y: auto;
-    border: 2px solid var(--color-secondary-blue);
-    border-radius: var(--inner-radius);
-    max-height: 200px;
+  border: 2px solid var(--color-secondary-blue);
+  border-radius: var(--inner-radius);
+  max-height: 200px;
 }
 
 /* Group + section */
-.group + .group {
+.group+.group {
   border-top: 1px solid var(--color-border-blue);
 }
 
@@ -176,10 +186,13 @@
   color: var(--color-text-primary);
   border-radius: 6px;
   cursor: pointer;
-  margin:0.25em 0.5em;
+  margin: 0.25em 0.5em;
 }
 
-.option:hover    { background: var(--color-bg-blue); }
+.option:hover {
+  background: var(--color-bg-blue);
+}
+
 .option.selected {
   color: var(--color-primary-blue);
   background: var(--color-bg-blue);
@@ -190,5 +203,10 @@
   font-size: 12px;
 }
 
-.message.error   { color: var(--color-danger); }
-.message.success { color: var(--color-primary-green); }
+.message.error {
+  color: var(--color-danger);
+}
+
+.message.success {
+  color: var(--color-primary-green);
+}

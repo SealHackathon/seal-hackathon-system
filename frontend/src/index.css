@@ -8,40 +8,42 @@ body {
   font-family: var(--body-font-main);
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--title-font-main);
   font-weight: 800;
   font-style: italic;
 }
 
 h1 {
-    font-size: 2.3rem;
+  font-size: 2.3rem;
 }
 
 h2 {
-    font-size: 1.5rem;
+  font-size: 1.5rem;
 }
 
 :root {
   /* ! Màu xanh dương */
-  --color-bg-blue: #F4F8FF; 
-  --color-border-blue: #C0D5FF; 
-  --color-secondary-blue: #7799E3; 
+  --color-bg-blue: #F4F8FF;
+  --color-border-blue: #C0D5FF;
+  --color-secondary-blue: #7799E3;
   --color-primary-blue: #084CDD;
   --color-dark-blue: #002572;
 
   /* ! Màu cam */
-  --color-bg-orange: #FFF8EE; 
+  --color-bg-orange: #FFF8EE;
   --color-border-orange: #FFD3AD;
-        /* Secondary orange (cho text) dùng màu đen */
+  /* Secondary orange (cho text) dùng màu đen */
   --color-primary-orange: #FF860C;
   --color-dark-orange: #F27125;
-  
+
   /* ! Màu xanh lá */
-  --color-bg-green: #F8FFEA; 
+  --color-bg-green: #F8FFEA;
   --color-primary-green: #0DB04B;
-        /* Border green dùng lại màu primary-green*/
-        /* Secondary green (cho text) dùng màu đen */
+  /* Border green dùng lại màu primary-green*/
+  /* Secondary green (cho text) dùng màu đen */
   --color-dark-green: #0F8B3E;
 
   /* ! Màu đen 
@@ -70,4 +72,9 @@ h2 {
   display: flex;
   align-items: center;
   gap: 0.5em;
+}
+
+.scrollbar {
+  /* scrollbar-gutter: stable both-edges; */
+  scrollbar-color: var(--color-secondary-blue) transparent;
 }

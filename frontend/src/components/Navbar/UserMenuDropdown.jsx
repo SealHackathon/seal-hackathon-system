@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { GearSix, Question, SignOut } from '@phosphor-icons/react'
 import styles from './UserMenuDropdown.module.css'
 import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
+import Button from '../shared/Button'
 
 function UserMenuDropdown({ name, email, avatar }) {
     const [isOpen, setIsOpen] = useState(false)
@@ -53,9 +54,15 @@ function UserMenuDropdown({ name, email, avatar }) {
 
                         <li className={styles.divider}></li>
 
-                        <li className={`icon-label ${styles.menuItem} ${styles.logout}`}>
-                            <SignOut size={24} color='var(--color-primary-orange)'/>
-                            <span>Đăng xuất</span>
+                        <li>
+                            <Button 
+                                label='Đăng xuất'
+                                labelSize={14}  
+                                icon={SignOut}
+                                variant='outline'
+                                color='orange' 
+                                onClick={() => {}}
+                            />
                         </li>
                     </ul>
 
