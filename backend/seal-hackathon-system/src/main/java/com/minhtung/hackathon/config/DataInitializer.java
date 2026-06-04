@@ -88,12 +88,12 @@ public class DataInitializer implements CommandLineRunner {
                     teamRepository.findByLeaderID(user5.getId()).get().getInviteCode(),
                     user2.getId()
             );
-            //hard code cho user4 send 1 join team request chờ ad duyệt
+            //hard code cho user4 send 1 join team request đến team của khánh
             teamService.sendJoinRequest(
                     new JoinTeamRequest(
-                            teamRepository.findByLeaderID(user5.getId()).get().getId()
+                            teamRepository.findByLeaderID(user1.getId()).get().getId()
                             , "Khoa xin vào đội ạ"),
-                    user3.getId()
+                    user4.getId()
             );
 
         }

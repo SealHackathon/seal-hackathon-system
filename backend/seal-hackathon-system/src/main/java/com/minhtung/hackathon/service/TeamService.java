@@ -295,15 +295,15 @@ public class TeamService {
     public String deleteInvitationByMemberId(long memberId, long leaderId) {
         Team team = teamRepository.findByLeaderID(leaderId).orElse(null);
         if (team == null) {
-            return "Team Khong Ton Tai";
+            throw new IllegalArgumentException("Team Khong Ton Tai");
         }
         Member leader = memberRepository.findByMemberID(leaderId).orElse(null);
         if (leader == null || leader.getRole() != MemberRole.LEADER) {
             return "ban ko co quyen thuc hien chuc nang nay";
         }
 
-
-        TeamRequest teamRequest = teamRequestRepository.findBySenderIdAndReceiverIdAndTypeAndStatus(leaderId, memberId, RequestType.INVITATION,
+           // sua lai la teamRequest phai lay theo teamId
+        TeamRequest teamRequest = teamRequestRepository.findByReceiverIdAndTeamIdAndTypeAndStatus(memberId, team.getId(), RequestType.INVITATION,
                 RequestStatus.PENDING).orElse(null);
         if (teamRequest == null) {
             return "loi roi";
