@@ -213,7 +213,7 @@ public class TeamService {
         if (leader.getRole() != MemberRole.LEADER) {
             throw new IllegalArgumentException("Bạn không phải leader");
         }
-        Team team = teamRepository.findByLeaderID(leader.getId()).orElse(null);
+        Team team = teamRepository.findByLeaderID(userId).orElse(null);
         if (team == null || team.getStatus() != TeamStatus.OPEN) {
             throw new IllegalArgumentException("leader ko ton tai hoac team ko open");
         }
