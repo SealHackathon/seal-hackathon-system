@@ -19,6 +19,7 @@ import com.minhtung.hackathon.repository.TeamRepository;
 import com.minhtung.hackathon.repository.TeamRequestRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -302,7 +303,7 @@ public class TeamService {
             return "ban ko co quyen thuc hien chuc nang nay";
         }
 
-           // sua lai la teamRequest phai lay theo teamId
+        // sua lai la teamRequest phai lay theo teamId
         TeamRequest teamRequest = teamRequestRepository.findByReceiverIdAndTeamIdAndTypeAndStatus(memberId, team.getId(), RequestType.INVITATION,
                 RequestStatus.PENDING).orElse(null);
         if (teamRequest == null) {
@@ -789,6 +790,19 @@ public class TeamService {
     }
 
 
-    //user chap nhan hoac tu choi loi moi
+    //check team name trong luc createTeam xem co bi trung k
+    public boolean checkName(long userId, String name) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("User khong ton tai");
+        }
+        Team team = teamRepository.findByNameContainingIgnoreCase(name).orElse(null);
+        // neu ten chua ton tai thi return ve true
+        if (team == null) {
+            return true;
+        }
+        //ton tai roi thi tra ve false
+        return false;
+    }
 
 }

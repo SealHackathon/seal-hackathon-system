@@ -5,10 +5,11 @@ import StepFooter from '../shared/StepFooter'
 import FormInput from '../shared/FormInput'
 import FormTextarea from '../shared/FormTextarea'
 import styles from './CreateTeamStep.module.css'
+import axios from 'axios'
 
 const MAX_MEMBERS = 4   // kể cả bản thân
 
-function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail =localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')).email : 'Email không xác định' }) {
+function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')).email : 'Email không xác định' }) {
     const [name, setName] = useState('')
     const [desc, setDesc] = useState('')
     const [emails, setEmails] = useState([''])  // danh sách email mời (không kể bản thân)
@@ -34,10 +35,25 @@ function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail =localStor
 
     // Sau này gọi API check tên trùng ở đây
     // Nếu trùng thì setNameStatus('error') và setNameMessage('Tên đội đã tồn tại')
+    const token = localStorage.getItem("accessToken")
     function handleNameBlur() {
         if (!name.trim()) return
         // TODO: GET /api/teams/check-name?name=...
+        axios.get(`http://localhost:8080/api/team/check-name?name=${name}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then((response) => {
+            if (response.data == false) {
+             setNameStatus('error')
+             setNameMessage('tên đội đã tồn tại') 
+            }
+        }).catch((error) => {
+            console.log(error)
+        })
+
     }
+
+
+
 
     const isFormValid = name.trim().length > 0 && desc.trim().length > 0 && nameStatus !== 'error'
 
@@ -51,7 +67,8 @@ function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail =localStor
                     totalSteps={3}
                     stepLabel="Tạo đội mới"
                     onBack={onBack}
-                    onNext={() => onSubmit({ name, description: desc, inviteEmails: emails.filter(e => e.trim()) })}
+                    onNext={() => onSubmit({ name: name, description: desc, inviteEmails: emails.filter(e => e.trim()) })}
+                    //    onNext={() => onSubmit({ name, description: desc, inviteEmails: emails.filter(e => e.trim()) })}
                     nextLabel="Xác nhận"
                     nextDisabled={!isFormValid}
                 />

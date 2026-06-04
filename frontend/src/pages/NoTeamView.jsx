@@ -202,12 +202,12 @@ import JoinByCodeStep from '../components/joinFlow/JoinByCodeStep'
 
 
 function NoTeamView() {
-    const [teamStatus, setTeamStatus] = useState('pending')
-    const token = localStorage.getItem("accessToken");
-    const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
-    const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
-    const [FAKE_TEAMS, setFAKE_TEAMS] = useState([]);
-    // api sinh vien xem những invitation gui toi minh
+  const [teamStatus, setTeamStatus] = useState('pending')
+  const token = localStorage.getItem("accessToken");
+  const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
+  const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
+  const [FAKE_TEAMS, setFAKE_TEAMS] = useState([]);
+  // api sinh vien xem những invitation gui toi minh
   useEffect(() => {
     axios
       .get('http://localhost:8080/api/teamrequest/member-invitation'
@@ -276,7 +276,7 @@ function NoTeamView() {
 
 
   // api sinh vien accept invitation
-  const userHandleInvitation = (requestId,isAccepted) => {
+  const userHandleInvitation = (requestId, isAccepted) => {
     axios
       .put('http://localhost:8080/api/teamrequest/invitation-response', {
         requestId: requestId,
@@ -296,7 +296,7 @@ function NoTeamView() {
         console.log(error);
         alert("Có lỗi xảy ra khi chấp nhận lời mời!");
       });
-}
+  }
 
 
 
@@ -331,42 +331,58 @@ function NoTeamView() {
       console.log("Đã dừng thao tác hủy lời mời.")
     }
   });
-    const [showCreateTeam, setShowCreateTeam] = useState(false)
-    const [showJoinByCode, setShowJoinByCode] = useState(false)
+  const [showCreateTeam, setShowCreateTeam] = useState(false)
+  const [showJoinByCode, setShowJoinByCode] = useState(false)
 
-  if (showCreateTeam) return <CreateTeamStep onClose={() => setShowCreateTeam(false)} />
+
+
+
+  if (showCreateTeam) return <CreateTeamStep onClose={() => setShowCreateTeam(false)}
+    onSubmit={(data) => {
+
+      axios.post('http://localhost:8080/api/team/create', data, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(() => {
+          // window.location.reload();
+        })
+        .catch((error) => {
+          console.log(error);
+        })
+    }}
+  />
   if (showJoinByCode) return <JoinByCodeStep onClose={() => setShowJoinByCode(false)} />
-    return (
-        <EventLayout>
-            <div className={styles.page}>
+  return (
+    <EventLayout>
+      <div className={styles.page}>
 
-                <NoTeamHeader onCreateTeam={() => setShowCreateTeam(true)} onEnterCode={() => setShowJoinByCode(true)} />
+        <NoTeamHeader onCreateTeam={() => setShowCreateTeam(true)} onEnterCode={() => setShowJoinByCode(true)} />
 
-                <div className={styles.content}>
+        <div className={styles.content}>
 
-                    <div className={styles.main}>
+          <div className={styles.main}>
 
-                        <FindTeamSection teams={FAKE_TEAMS} />
+            <FindTeamSection teams={FAKE_TEAMS} />
 
-                    </div>
+          </div>
 
-                    <div className={styles.side}>
-                        <InviteTeamCard
-                            invites={FAKE_INVITES}
-                            onAccept={(id) => userHandleInvitation(id, true)}
-                            onReject={(id) => userHandleInvitation(id, false)}
-                        />
+          <div className={styles.side}>
+            <InviteTeamCard
+              invites={FAKE_INVITES}
+              onAccept={(id) => userHandleInvitation(id, true)}
+              onReject={(id) => userHandleInvitation(id, false)}
+            />
 
-                        <RequestTeamCard
-                            requests={FAKE_REQUESTS}
-                            onCancel={(id) =>handleCancel(id)}
-                        />
-                    </div>
+            <RequestTeamCard
+              requests={FAKE_REQUESTS}
+              onCancel={(id) => handleCancel(id)}
+            />
+          </div>
 
-                </div>
-            </div>
-        </EventLayout>
-    )
+        </div>
+      </div>
+    </EventLayout>
+  )
 }
 
 

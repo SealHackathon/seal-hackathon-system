@@ -77,11 +77,11 @@ public class DataInitializer implements CommandLineRunner {
             emails.add("user3@gmail.com"); //gửi invitation đến user1
             emails.add("user2@gmail.com"); // gửi in..... đến user 2
             teamService.createTeam(new CreateTeamDto(
-                    "Team của Bảo Trân","Đây là team của Bảo Trân ạ.",emails
+                    "Data Flow","Đây là team của Bảo Trân ạ.",emails
                     ), user5.getId());
 
             teamService.createTeam(new CreateTeamDto(
-                    "Team của Khanh","Đây là team của Khanh ạ.", Collections.emptyList()
+                    "Team 2","Đây là team của Khanh ạ.", Collections.emptyList()
             ), user1.getId());
             //hard code cho user2 vào team bằng mã team
             teamService.joinTeamByCode(

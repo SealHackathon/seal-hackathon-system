@@ -240,6 +240,21 @@ public class TeamController {
         }
     }
 
+    @GetMapping("/check-name")
+    public ResponseEntity<?> checkname(@RequestHeader("Authorization") String auth, @RequestParam("name")  String name) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+        }
+
+        try {
+            return ResponseEntity.ok().body(teamService.checkName(uid, name));
+        } catch (IllegalArgumentException e) {
+            // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
 
 
 

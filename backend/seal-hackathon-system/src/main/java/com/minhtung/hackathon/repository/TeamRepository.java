@@ -32,4 +32,6 @@ public interface TeamRepository extends JpaRepository<Team,Long> {
             "HAVING COUNT(m.id) < 4")
     List<Team> findTeamsWithLessThanFourMembers();
 
+    //get team by Name ignore case
+    Optional<Team> findByNameContainingIgnoreCase(String teamName);
 }

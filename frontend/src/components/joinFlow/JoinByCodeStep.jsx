@@ -16,7 +16,7 @@ import styles from './JoinByCodeStep.module.css'
 //+type String: 'found' | 'full' | 'invalid'
 //+team Object: nếu type === 'found' thì có thêm team object chứa thông tin đội tìm được
 const FAKE_RESULTS = {
-    'ABCXYZ': {
+    teamCode: {
         type: 'found',
         team: {
             name: 'Tên đội',
@@ -35,13 +35,15 @@ const FAKE_RESULTS = {
 }
 
 function JoinByCodeStep({ onClose, onBack, onSubmit }) {
+    //team code
     const [code, setCode]     = useState('')
     const [result, setResult] = useState(null)
 
     function handleCheck() {
         if (!code.trim()) return
-        const found = FAKE_RESULTS[code.trim().toUpperCase()]
-        setResult(found ?? { type: 'invalid' })
+        const found = FAKE_RESULTS[code.trim().toUpperCase()] // truy cập thuộc tính của object bằng key
+        setResult(found ?? { type: 'invalid' }) // nếu found khác null khác undifined thì dùng found
+                                                // còn không dùng type: 'invalid'    
     }
 
     function handleCodeChange(e) {
