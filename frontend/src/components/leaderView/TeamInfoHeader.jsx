@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Button from '../shared/Button';
 import { UsersThree, Copy, MagnifyingGlass } from "@phosphor-icons/react";
 import styles from './TeamInfoHeader.module.css'
-import FindTeamStep from '../joinFlow/FindTeamStep';
+import FindMemberModal from './FindMemberModal'
 
 function TeamInfoHeader({ teamName, description, teamCode, showFindMember = true }) {
     const [showModal, setShowModal] = useState(false)
@@ -39,10 +39,7 @@ function TeamInfoHeader({ teamName, description, teamCode, showFindMember = true
                     />
 
                     {showModal && (
-                        <FindTeamStep
-                            onClose={() => setShowModal(false)}
-                            standalone
-                        />
+                        <FindMemberModal onClose={() => setShowModal(false)} />
                     )}
                 </div>
             )}

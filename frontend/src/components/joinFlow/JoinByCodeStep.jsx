@@ -6,23 +6,40 @@ import FormInput from '../shared/FormInput'
 import TeamInfoPanel from '../noTeamView/TeamInfoPanel'
 import styles from './JoinByCodeStep.module.css'
 
-const FAKE_RESULTS = {
-    'ABCXYZ': {
-        type: 'found',
-        team: {
-            name: 'Tên đội',
-            memberCount: 3,
-            maxSlots: 4,
-            description: 'Giới thiệu ngắn về đội của bạn và định hướng giải quyết bài toán. Giới thiệu ngắn về đội của bạn và định hướng giải quyết bài toán.',
-            members: [
-                { id: 1, isLeader: true },
-                { id: 2 },
-                { id: 3 },
-            ],
-        }
+const FAKE_TEAMS_BY_CODE = [
+    {
+        id: 1,
+        inviteCode: 'ABCXYZ',
+        name: 'Pixel Pioneers',
+        description: 'Team mình thiên về UI/UX và frontend, mong muốn tìm hướng tiếp cận bài toán từ góc độ trải nghiệm người dùng.',
+        maxSlots: 4,
+        members: [         
+            { id: 1, isLeader: true },
+            { id: 2 },
+            { id: 3 },
+        ],
     },
-    'FULL': { type: 'full' },
-    'INVALID': { type: 'invalid' },
+    {
+        id: 2,
+        inviteCode: 'XYZFULL',
+        name: 'Code Breakers',
+        description: 'Nhóm mình chủ yếu làm backend.',
+        maxSlots: 4,
+        members: [          
+            { id: 4, isLeader: true },
+            { id: 5 },
+            { id: 6 },
+            { id: 7 },
+        ],
+    },
+]
+
+function checkCode(code) {
+    const team = FAKE_TEAMS_BY_CODE[code.trim().toUpperCase()]
+
+    if (!team)                                      return { type: 'invalid' }
+    if (team.members.length >= team.maxSlots)       return { type: 'full', team }
+    return { type: 'found', team }
 }
 
 function JoinByCodeStep({ onClose, onBack, onSubmit }) {
