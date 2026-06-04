@@ -6,6 +6,15 @@ import FormInput from '../shared/FormInput'
 import TeamInfoPanel from '../noTeamView/TeamInfoPanel'
 import styles from './JoinByCodeStep.module.css'
 
+// find by code Results
+// teamCode:
+
+
+// chứa 1 mãng gồm 3 biến
+// const teamCode --> đây là biến lấy làm tên 1 attribute của object FAKE_RESULTS
+// team code sẽ chứa giá trị:
+//+type String: 'found' | 'full' | 'invalid'
+//+team Object: nếu type === 'found' thì có thêm team object chứa thông tin đội tìm được
 const FAKE_RESULTS = {
     'ABCXYZ': {
         type: 'found',

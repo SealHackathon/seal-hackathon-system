@@ -33,6 +33,7 @@ function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail =localStor
     }
 
     // Sau này gọi API check tên trùng ở đây
+    // Nếu trùng thì setNameStatus('error') và setNameMessage('Tên đội đã tồn tại')
     function handleNameBlur() {
         if (!name.trim()) return
         // TODO: GET /api/teams/check-name?name=...

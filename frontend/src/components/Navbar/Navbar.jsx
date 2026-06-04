@@ -1,9 +1,17 @@
 import NotificationDropdown from "./NotificationDropdown";
 import UserMenuDropdown from "./UserMenuDropdown";
 import styles from './Navbar.module.css';
-import Button from "../shared/Button"; 
-
+import Button from "../shared/Button";
+import { useState } from "react";
+import RegisterPage from "../../pages/RegisterPage";
+import LoginPage from "../../pages/LoginPage";
 function Navbar({ isLoggedIn, user }) {
+
+    
+  
+   
+  
+    
     return (
         <div className={styles.wrapper}>
             <img
@@ -12,8 +20,9 @@ function Navbar({ isLoggedIn, user }) {
                 alt="SEAL Hackathon typography logo"
             />
 
-    {/* chưa có chỗ để khởi động 2 button login  */}
-    {/* nếu chưa login hiện navbar này -- ko thì hiện user menu dropdown */}
+
+            {/* chưa có chỗ để khởi động 2 button login  */}
+            {/* nếu chưa login hiện navbar này -- ko thì hiện user menu dropdown */}
             <div className={styles.rightSection}>
                 {!isLoggedIn ? (
                     <div className={styles.rightSectionContent}>
@@ -25,6 +34,7 @@ function Navbar({ isLoggedIn, user }) {
                         <Button
                             label="Đăng nhập"
                             variant="outline"
+                        
                         />
                     </div>
                 ) : (

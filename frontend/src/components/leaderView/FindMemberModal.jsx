@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { X } from '@phosphor-icons/react'
 import MemberCard from './MemberCard'
 import CardSearchBase from '../shared/CardSearchBase'
-import styles from './FindMemberModal.module.css'
+import styles from '../shared/CardSearchBase.module.css'
 import axios from 'axios'
 import { useEffect } from 'react'
 
