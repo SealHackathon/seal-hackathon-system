@@ -1,7 +1,5 @@
-// <<<<<<< HEAD
 import { useState } from 'react';
 import axios from 'axios';
-import styles from './LoginPage.module.css'; // Import dưới dạng module
 
 // const LoginPage = () => {
 //   const [email, setEmail] = useState('');
@@ -107,7 +105,6 @@ import styles from './LoginPage.module.css'; // Import dưới dạng module
 
 
 
-import { useState } from 'react'
 import { EnvelopeSimple, Eye, EyeSlash } from '@phosphor-icons/react'
 import AuthLayout from '../layouts/AuthLayout'
 import FormInput from '../components/shared/FormInput'
@@ -133,10 +130,31 @@ function LoginPage() {
     }
 
     function handleSubmit(e) {
-        e.preventDefault()
-        const e2 = validate()
-        if (Object.keys(e2).length > 0) { setErrors(e2); return }
-        console.log('Đăng nhập:', form)
+
+        axios
+            .post('http://localhost:8080/api/auth/login', {
+                email: form.email,
+                password: form.password,
+            })
+            .then((response) => {
+                const data = response.data;
+
+                if (data.token) {
+                    localStorage.setItem('accessToken', data.token);
+                    const userInfo = {
+                        email: response.data.email,
+                        fullname: response.data.fullname
+                    };
+                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
+                    console.log('Access Token đã lưu:', data.token);
+                    window.location.href = '/';
+                }
+                e.preventDefault()
+                const e2 = validate()
+                if (Object.keys(e2).length > 0) { setErrors(e2); return }
+                console.log('Đăng nhập:', form)
+            })
+
     }
 
     const isFormValid = form.email && form.password
