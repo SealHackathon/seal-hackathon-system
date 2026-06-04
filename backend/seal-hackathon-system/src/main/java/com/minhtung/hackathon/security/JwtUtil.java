@@ -12,8 +12,10 @@ import java.util.Date;
 
 @Component
 public class JwtUtil {
+    //secret token
     private static  final String SECRET ="mySecretKey_SWP391_Hackathon_2024_MinhTung!";
-    private static final long EXPIRATION_MS = 86_400_000L; // thoi gia ton tai token la 24h
+    // thoi gia ton tai token la 24h
+    private static final long EXPIRATION_MS = 86_400_000L;
 
     private Key getKey(){
         return Keys.hmacShaKeyFor(SECRET.getBytes());

@@ -66,7 +66,7 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(user4);
 
             User user5 = new User();
-            user5.setFullName("Ho Ngoc Bao Tran");
+            user5.setFullName("Hồ Ngọc Bảo Trân");
             user5.setEmail("user5@gmail.com");
             user5.setPassword("123456");
             user5.setRole(Role.USER);
@@ -79,16 +79,16 @@ public class DataInitializer implements CommandLineRunner {
             teamService.createTeam(new CreateTeamDto(
                     "Team của Bảo Trân","Đây là team của Bảo Trân ạ.",emails
                     ), user5.getId());
-//
-//            teamService.createTeam(new CreateTeamDto(
-//                    "Team của Khanh","Đây là team của Khanh ạ.", Collections.emptyList()
-//            ), user1.getId());
+
+            teamService.createTeam(new CreateTeamDto(
+                    "Team của Khanh","Đây là team của Khanh ạ.", Collections.emptyList()
+            ), user1.getId());
             //hard code cho user2 vào team bằng mã team
-//            teamService.joinTeamByCode(
-//                    teamRepository.findByLeaderID(user5.getId()).get().getInviteCode(),
-//                    user2.getId()
-//            );
-//            //hard code cho user4 send 1 join team request chờ ad duyệt
+            teamService.joinTeamByCode(
+                    teamRepository.findByLeaderID(user5.getId()).get().getInviteCode(),
+                    user2.getId()
+            );
+            //hard code cho user4 send 1 join team request chờ ad duyệt
             teamService.sendJoinRequest(
                     new JoinTeamRequest(
                             teamRepository.findByLeaderID(user5.getId()).get().getId()

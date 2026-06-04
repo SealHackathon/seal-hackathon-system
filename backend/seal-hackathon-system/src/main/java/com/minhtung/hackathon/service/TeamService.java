@@ -369,8 +369,10 @@ public class TeamService {
 
             memberRepository.save(new Member(MemberRole.MEMBER, true, req.getTeamId(), userId, user.getSchoolName(), user.getFullName(), user.getEmail()));
             req.setStatus(RequestStatus.APPROVED);
+            teamRequestRepository.save(req);
         } else {
             req.setStatus(RequestStatus.REJECTED);
+            teamRequestRepository.save(req);
         }
         teamRequestRepository.save(req);
         return acp ? "Đã tham gia đội thành công!" : "Đã từ chối lời mời";
@@ -681,9 +683,13 @@ public class TeamService {
         member.setStatus(false);
         memberRepository.save(member);
         //dem so luong thanh vien trong team hien tai
+        Team team = teamRepository.findById(member.getTeamId()).orElse(null);
+        if (team == null) {
+            throw new IllegalArgumentException("TEAM NOT FOUND");
+        }
         int teamCurrentMembers = memberRepository.countByTeamIdAndStatus(member.getTeamId(), true);
         if (teamCurrentMembers == 0) {
-            Team team = teamRepository.findById(member.getTeamId()).orElse(null);
+            team = teamRepository.findById(member.getTeamId()).orElse(null);
             team.setStatus(TeamStatus.REJECTED);
             teamRepository.save(team);
         }
@@ -727,6 +733,10 @@ public class TeamService {
             needMemberTeamResponse.setTeamId(team.getId());
             needMemberTeamResponse.setTeamName(team.getName());
             for (Member member : memberList) {
+                //ai đã out rồi thì bỏ qua
+                if (!member.isStatus()) {
+                    continue;
+                }
                 TeamMemberResponse memberResponse = new TeamMemberResponse();
                 memberResponse.setId(member.getId());
                 memberResponse.setName(member.getFullname());
@@ -740,12 +750,12 @@ public class TeamService {
 
     // get team info
     public TeamInfoResponse getTeamInfo(long userId) {
-        Member member=memberRepository.findByMemberID(userId).orElse(null);
+        Member member = memberRepository.findByMemberID(userId).orElse(null);
         Team team = teamRepository.findByLeaderID(userId).orElse(null);
         if (team == null) {
             throw new IllegalArgumentException("team khong ton tai");
         }
-        if(member == null || !member.isStatus()){
+        if (member == null || !member.isStatus()) {
             throw new IllegalArgumentException("Nguoi dung ko ton tai");
         }
         TeamInfoResponse teamInfoResponse = new TeamInfoResponse();
@@ -769,5 +779,8 @@ public class TeamService {
         teamRequestRepository.save(teamRequest);
         return "invitation thành công";
     }
+
+
+    //user chap nhan hoac tu choi loi moi
 
 }

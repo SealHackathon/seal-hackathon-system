@@ -42,7 +42,7 @@ public class JwtAuthFilter  extends OncePerRequestFilter {
         String token = authHeader.substring(7);
         if (!jwtUtil.isTokenValid(token)) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.getWriter().write("token khong hop le hoac da het han");
+            response.getWriter().write("access Token ko hợp lệ | hết hạn");
             return;
         }
 

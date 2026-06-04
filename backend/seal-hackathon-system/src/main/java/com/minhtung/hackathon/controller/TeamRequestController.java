@@ -110,15 +110,16 @@ public class TeamRequestController {
         return ResponseEntity.ok(teamService.respondToJoinRequest(acceptJoinRequests.getRequestId(), acceptJoinRequests.isAccept(), uid));
     }
 
-    //Member duyet hoac tu choi invitation
+    //Member ACCEPT hoac REJECT invitation
     //chuc nang cua MEMBER
     @Operation(summary = "MEMBER duyet hoac tu choi Invitation")
-    @PutMapping("/invitation/respond")
+    @PutMapping("/invitation-response")
     public ResponseEntity<String> respondJoinInvitation(
             @RequestBody HandleJoinTeamRequest acceptJoinRequests,
             @RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
         if (uid == null) return unauthorized();
+        // truyen vao requestId dong y hoac tu choi, va userId
         return ResponseEntity.ok(teamService.respondToInvitation(acceptJoinRequests.getRequestId(), acceptJoinRequests.isAccept(), uid));
     }
 
@@ -175,6 +176,8 @@ public class TeamRequestController {
         }
 
     }
+
+
 
 
 //----------------------------------------------------------------------------------------  //Các task dưới đây chưa xử lý được
