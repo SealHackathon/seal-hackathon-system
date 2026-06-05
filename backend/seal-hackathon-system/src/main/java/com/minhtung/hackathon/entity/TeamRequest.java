@@ -21,10 +21,10 @@ public class TeamRequest {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 20, nullable = false)
     private RequestStatus status = RequestStatus.PENDING;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "sender",nullable = false)
     private User sender;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "receiver",nullable = false)
     private User receiver;
     @ManyToOne(fetch = FetchType.LAZY)

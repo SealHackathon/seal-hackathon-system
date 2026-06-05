@@ -30,7 +30,8 @@ public class UserService {
     //những ai đã có request tới team hoặc đã đc team invitation thì ko get
     public List<SearchMemberResponse> getMemberNoTeam(long leaderId) {
         List<User> freeUsers = userRepository.findUsersWithoutTeam(Role.USER);
-        Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
+        User leader=userRepository.findById(leaderId).orElse(null);
+        Team team = teamRepository.findByLeader(leader).orElse(null);
         int memberCount = memberRepository.countByTeamIdAndStatus(team.getId(), true);
         if (memberCount == 4) {
             return Collections.emptyList();

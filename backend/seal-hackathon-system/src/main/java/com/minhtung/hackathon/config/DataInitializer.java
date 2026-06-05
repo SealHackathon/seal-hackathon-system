@@ -113,11 +113,11 @@ public class DataInitializer implements CommandLineRunner {
                     "SEAL HACKER", "Chào bạn bọn mình là sinh viên năm 3 chuyên nghành ATTT.", Collections.emptyList()
             ), user6.getId());
             teamService.joinTeamByCode(
-                    teamRepository.findByLeaderId(user6.getId()).get().getInviteCode(),user7.getId());
+                    teamRepository.findByLeader(user6).get().getInviteCode(),user7.getId());
             teamService.joinTeamByCode(
-                    teamRepository.findByLeaderId(user6.getId()).get().getInviteCode(),user8.getId());
+                    teamRepository.findByLeader(user6).get().getInviteCode(),user8.getId());
             teamService.joinTeamByCode(
-                    teamRepository.findByLeaderId(user6.getId()).get().getInviteCode(),user9.getId());
+                    teamRepository.findByLeader(user6).get().getInviteCode(),user9.getId());
 
 //            ------team 2 đang có 2 thành viên-------
                     User user10 = new User();
@@ -140,7 +140,7 @@ public class DataInitializer implements CommandLineRunner {
                     "FPT CÓC CAM", "Nhóm mình tìm kiếm 1 bạn nữ frontend (không frontend cũng được), để quản lý tụi mình ạ.", Collections.emptyList()
             ), user10.getId());
             teamService.joinTeamByCode(
-                    teamRepository.findByLeaderId(user10.getId()).get().getInviteCode(),user11.getId());
+                    teamRepository.findByLeader(user10).get().getInviteCode(),user11.getId());
 
 
 
