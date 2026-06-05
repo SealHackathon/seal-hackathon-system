@@ -12,8 +12,8 @@ function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail = 'ntbi533
     const [name, setName] = useState('')
     const [desc, setDesc] = useState('')
     const [emails, setEmails] = useState([''])  // danh sách email mời (không kể bản thân)
-    const [nameStatus, setNameStatus] = useState('default')
-    const [nameMessage, setNameMessage] = useState('')
+    const [nameStatus, setNameStatus] = useState('default') // "default", "error", "success"
+    const [nameMessage, setNameMessage] = useState('') // message thông báo trạng thái tên hợp hay không (trùng/ đã tồn tại)
 
     // Thêm ô email mới
     function handleAddEmail() {

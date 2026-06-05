@@ -8,19 +8,20 @@ import styles from './LeaderView.module.css'
 
 // Data tạm — sau này thay bằng API
 const FAKE_MEMBERS = [
-  { id: 1, name: 'Nguyễn Thành Thái', email: 'ntbi533@gmail.com',    school: 'Đại học FPT', isLeader: true,  isCurrentUser: true  },
-  { id: 2, name: 'Hồ Ngọc Bảo Trân',  email: 'tranhngb@gmail.com',   school: 'Đại học FPT', isLeader: false, isCurrentUser: false },
-  { id: 3, name: 'Mạc Minh Tùng',     email: 'mtung638@gmail.com',   school: 'Đại học FPT', isLeader: false, isCurrentUser: false },
+  { id: 1, name: 'Hồ Ngọc Bảo Trân',  email: 'tranhngb@gmail.com',   school: 'Đại học FPT', isLeader: true, isCurrentUser: true },
+  // { id: 2, name: 'Nguyễn Thành Thái', email: 'ntbi533@gmail.com',    school: 'Đại học FPT', isLeader: false,  isCurrentUser: false  },
+  // { id: 3, name: 'Mạc Minh Tùng',     email: 'mtung638@gmail.com',   school: 'Đại học FPT', isLeader: false, isCurrentUser: false },
 ]
 
 const FAKE_REQUESTS = [
-  { id: 1, name: 'Hồ Ngọc Bảo Trân', email: 'hngbtran@gmail.com', message: 'Xin chào, mình rất ấn tượng với định hướng của Team bạn. Rất mong được tham gia vào Team của bạn.' },
+  { id: 1, name: 'Nguyễn Thành Thái',     email: 'ntbi533@gmail.com'  },
+  // { id: 1, name: 'Hồ Ngọc Bảo Trân', email: 'hngbtran@gmail.com', message: 'Xin chào, mình rất ấn tượng với định hướng của Team bạn. Rất mong được tham gia vào Team của bạn.' },
 ]
 
 const FAKE_INVITES = [
-  { id: 1, name: 'Bùi Thiên Khánh',     email: 'btkhanh123@gmail.com'  },
-  { id: 2, name: 'Phạm Khắc Đăng Khoa', email: 'khoapham4676@gmail.com' },
-  { id: 3, name: 'Mạc Minh Tùng',       email: 'mtung638@gmail.com'     },
+  { id: 1, name: 'Nguyễn Thành Thái',     email: 'ntbi533@gmail.com'  },
+  // { id: 2, name: 'Phạm Khắc Đăng Khoa', email: 'khoapham4676@gmail.com' },
+  // { id: 3, name: 'Mạc Minh Tùng',       email: 'mtung638@gmail.com'     },
 ]
 
 function LeaderView() {

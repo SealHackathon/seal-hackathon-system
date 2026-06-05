@@ -1,16 +1,17 @@
 import { CrownSimple, X, SignOut } from '@phosphor-icons/react'
 import styles from './MemberRow.module.css'
+import Tooltip from '../shared/Tooltip'
 
-function MemberRow({ 
-  index, 
-  name, 
-  email, 
-  school, 
-  isLeader, 
-  isCurrentUser, 
-  onKick, 
-  onPromote, 
-  onLeave 
+function MemberRow({
+  index,
+  name,
+  email,
+  school,
+  isLeader,
+  isCurrentUser,
+  onKick,
+  onPromote,
+  onLeave
 }) {
   return (
     <div className={styles.row}>
@@ -23,7 +24,7 @@ function MemberRow({
         )}
       </div>
 
-      
+
       <div className={styles.info}>
         <div className={styles.nameRow}>
           <span className={styles.name}>{name}</span>
@@ -33,24 +34,30 @@ function MemberRow({
         <span className={styles.school}>{school}</span>
       </div>
 
-     
+
       <div className={styles.actions}>
 
         {isCurrentUser ? (
-          
-          
-          <button className={styles.actionBtn} onClick={onLeave} title="Rời đội">
-            <SignOut size={28} weight='bold' color="var(--color-secondary-blue)" />
-          </button>
+
+          <Tooltip content='Rời đội' position='top'>
+            <button className={styles.actionBtn} onClick={onLeave}>
+              <SignOut size={28} weight='bold' color="var(--color-secondary-blue)" />
+            </button>
+          </Tooltip>
         ) : (onKick || onPromote) ? (
-          
+
           <>
-            <button className={styles.actionBtn} onClick={onPromote} title="Phong làm trưởng nhóm">
-              <CrownSimple size={28} weight='bold' color="var(--color-border-orange)" />
-            </button>
-            <button className={styles.actionBtn} onClick={onKick} title="Kick khỏi đội">
-              <X size={28} weight='bold' color="var(--color-border-orange)" />
-            </button>
+            <Tooltip content='Trao quyền' position='top' color='orange'>
+              <button className={styles.actionBtn} onClick={onPromote}>
+                <CrownSimple size={28} weight='bold' color="var(--color-border-orange)" />
+              </button>
+            </Tooltip>
+
+            <Tooltip content='Mời ra khỏi đội' position='top' color='orange'>
+              <button className={styles.actionBtn} onClick={onKick}>
+                <X size={28} weight='bold' color="var(--color-border-orange)" />
+              </button>
+            </Tooltip>
           </>
         ) : null}
 
