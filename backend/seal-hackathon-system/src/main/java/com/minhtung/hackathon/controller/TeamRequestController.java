@@ -183,16 +183,16 @@ public class TeamRequestController {
 //----------------------------------------------------------------------------------------  //Các task dưới đây chưa xử lý được
 
     //thanh vien gui yeu cau xin roi doi chưa xử lý được task này
-    @Operation(summary = "thanh vien gui yeu cau xin roi doi ")
-    @PostMapping("{teamId}/leave-request")
-    public ResponseEntity<String> leaveRequest(
-            @PathVariable Long teamId,
-
-            @RequestHeader("Authorization") String auth) {
-        Integer uid = getUid(auth);
-        if (uid == null) return unauthorized();
-        return ResponseEntity.ok(teamService.requestLeave(teamId, uid));
-    }
+//    @Operation(summary = "thanh vien gui yeu cau xin roi doi ")
+//    @PostMapping("{teamId}/leave-request")
+//    public ResponseEntity<String> leaveRequest(
+//            @PathVariable Long teamId,
+//
+//            @RequestHeader("Authorization") String auth) {
+//        Integer uid = getUid(auth);
+//        if (uid == null) return unauthorized();
+//        return ResponseEntity.ok(teamService.requestLeave(teamId, uid));
+//    }
 
     //leader duyet hoac tu choi leave_request
     //chuc nang cua leader

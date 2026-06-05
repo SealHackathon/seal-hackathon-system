@@ -7,105 +7,40 @@ import TeamInfoPanel from '../noTeamView/TeamInfoPanel'
 import styles from './JoinByCodeStep.module.css'
 import axios from 'axios'
 
-// find by code Results
-// teamCode:
-
-
-// chứa 1 mãng gồm 3 biến
-// const teamCode --> đây là biến lấy làm tên 1 attribute của object FAKE_RESULTS
-// team code sẽ chứa giá trị:
-//+type String: 'found' | 'full' | 'invalid'
-//+team Object: nếu type === 'found' thì có thêm team object chứa thông tin đội tìm được
-// const FAKE_RESULTS = {
-//     teamCode: {
-//         type: 'found',
-//         team: {
-//             name: 'Tên đội',
-//             memberCount: 3,
-//             maxSlots: 4,
-//             description: 'Giới thiệu ngắn về đội của bạn và định hướng giải quyết bài toán. Giới thiệu ngắn về đội của bạn và định hướng giải quyết bài toán.',
-//             members: [
-//                 { id: 1, isLeader: true },
-//                 { id: 2 },
-//                 { id: 3 },
-//             ],
-//         }
-//     },
-//     'FULL': { type: 'full' },
-//     'INVALID': { type: 'invalid' },
-// }
-
-
-
-
 function JoinByCodeStep({ onClose, onBack, onSubmit }) {
     const token = localStorage.getItem("accessToken")
     //team code
     const [code, setCode] = useState('')
     const [result, setResult] = useState(null)
-    const [FAKE_RESULTS, setFAKE_RESULTS] = useState({})
-    //hàm này truyền 1 code lấy từ ô input --> gửi xún backend nhận lên 1 FAKE_RESULTS
-    // function handleCheck() {
-    //     if (!code.trim()) return
-    //     axios.get(`http://localhost:8080/api/team/check-code?code=${code}`, {
-    //         headers: {
-    //             'Content-Type': 'application/json',
-    //             Authorization: `Bearer ${token}` // nếu có JWT
-    //         }
-    //     }).then((response) => {
-    //         const responseData = {
+    // const [FAKE_RESULTS, setFAKE_RESULTS] = useState({})
+    // hàm này truyền 1 code lấy từ ô input --> gửi xún backend nhận lên 1 FAKE_RESULTS
+    function handleCheck() {
+        if (!code.trim()) return
+        axios.get(`http://localhost:8080/api/team/check-code?code=${code}`, {
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}` // nếu có JWT
+            }
+        }).then((response) => {
+            const responseData = {
 
-    //             [response.data.teamCode]: {
-    //                 type: response.data.type,
-    //                 team: response.data.team
-    //                 ,
-    //                 'FULL': { type: 'full' },
-    //                 'INVALID': { type: 'invalid' },
-    //             }
-    //         };
-    //         setFAKE_RESULTS(responseData)
-                
+                [response.data.teamCode]: {
+                    type: response.data.type,
+                    team: response.data.team
+                    ,
+                    'FULL': { type: 'full' },
+                    'INVALID': { type: 'invalid' },
+                }
+            };
+            const FAKE_RESULTS = responseData;
+            const found = FAKE_RESULTS[code.trim().toUpperCase()] // truy cập thuộc tính của object bằng key
+            setResult(found ?? { type: 'invalid' })
 
-    //     })
-    //     const found = FAKE_RESULTS[code.trim().toUpperCase()] // truy cập thuộc tính của object bằng key
-    //     setResult(found ?? { type: 'invalid' }) // nếu found khác null khác undifined thì dùng found
-    //     // còn không dùng type: 'invalid'    
-    // }
+        })
+ 
+    }
 
-  const handleCheck = async () => {
-  if (!code.trim()) return;
-
-  try {
-    const response = await axios.get(
-      `http://localhost:8080/api/team/check-code?code=${code}`,
-      {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const responseData = {
-      [response.data.teamCode]: {
-        type: response.data.type,
-        team: response.data.team,
-      },
-      FULL: { type: "full" },
-      INVALID: { type: "invalid" },
-    };
-
-    setFAKE_RESULTS(responseData);
-
-    const found = responseData[code.trim().toUpperCase()];
-    setResult(found ?? { type: "invalid" });
-
-  } catch (error) {
-    console.error(error);
-    setResult({ type: "invalid" });
-  }
-};
-
+   
 
     function handleCodeChange(e) {
         setCode(e.target.value)

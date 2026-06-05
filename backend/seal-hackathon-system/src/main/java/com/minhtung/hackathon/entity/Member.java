@@ -2,128 +2,50 @@ package com.minhtung.hackathon.entity;
 
 import com.minhtung.hackathon.enums.MemberRole;
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
+@Data
 public class Member {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-     @Id
-    private Long id ;
-    @Column(name="email")
-    private String email;
-    @Column(name = "fullname " , nullable = false)
-    private String fullname ;
+    @Id
+    private Long id;
     @Enumerated(EnumType.STRING)
-    @Column(name = "Role " , nullable = false)
-    private MemberRole role ;
-
-
-    public String getFullname() {
-        return fullname;
-    }
-
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setMemberID(long memberID) {
-        this.memberID = memberID;
-    }
-
+    @Column(name = "Role ", nullable = false)
+    private MemberRole role;
     //true la dang o trong doi , false da roi di
-    @Column(name = "Status" , nullable = false)
-    private boolean status ;
-     @Column(name = "TeamId" , nullable = false)
-    private long teamId ;
-      @Column(name = "MemberId",nullable = false)
-    private long memberID ;
-    @Column(name = "school",nullable = false)
-     private String schoolName ;
-
+    @Column(name = "Status", nullable = false)
+    private boolean status;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team", nullable = false)
+    private Team team;
+    @OneToOne
+    @JoinColumn(name = "member")
+    private User member;
     public Member() {
     }
 
-    public void setTeamId(long teamId) {
-        this.teamId = teamId;
-    }
-
-    public String getSchoolName() {
-        return schoolName;
-    }
-
-    public void setSchoolName(String schoolName) {
-        this.schoolName = schoolName;
-    }
-
-    public Member(MemberRole role, boolean status, long teamId, long memberID,String schoolName,String fullname,String email) {
-
+    public Member(MemberRole role, boolean status, Team team, User member) {
         this.role = role;
         this.status = status;
-        this.teamId = teamId;
-        this.memberID = memberID;
-        this.schoolName = schoolName;
-        this.fullname = fullname;
-        this.email = email;
+        this.team = team;
+        this.member = member;
     }
 
-    public Long getId() {
-        return id;
+    public User getMember() {
+        return member;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setMember(User member) {
+        this.member = member;
     }
 
-    public MemberRole getRole() {
-        return role;
+    public Team getTeam() {
+        return team;
     }
 
-    public void setRole(MemberRole role) {
-        this.role = role;
-    }
-
-    public boolean isStatus() {
-        return status;
-    }
-
-    public void setStatus(boolean status) {
-        this.status = status;
-    }
-
-    public long getTeamId() {
-        return teamId;
-    }
-
-    public void setTeamId(int teamId) {
-        this.teamId = teamId;
-    }
-
-    public long getMemberID() {
-        return memberID;
-    }
-
-    public void setMemberID(int memberID) {
-        this.memberID = memberID;
-    }
-
-
-
-    @Override
-    public String toString() {
-        return "Member{" +
-                "id=" + id +
-                ", role=" + role +
-                ", status=" + status +
-                ", teamId=" + teamId +
-                ", memberID=" + memberID +
-                '}';
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }

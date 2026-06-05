@@ -16,19 +16,19 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
     List<Member> findByTeamIdAndStatus(long teamId, boolean status);
 
 
-    Optional<Member> findByTeamIdAndMemberID(Long teamId , long MemberID);
+    Optional<Member> findByTeamIdAndMemberId(Long teamId , long MemberID);
 
-    boolean existsByTeamIdAndMemberIDAndStatus(Long teamId , long MemberId , boolean status) ;
+    boolean existsByTeamIdAndMemberIdAndStatus(Long teamId , long MemberId , boolean status) ;
     //tim member by id
     //tim leader by id
-    Optional<Member> findByMemberIDAndStatus(long MemberId,boolean status );
+    Optional<Member> findByMemberIdAndStatus(long MemberId,boolean status );
     Optional<List<Member>> findByTeamId(Long teamId );
 
     //đếm số lượng thành viên trong team trạng thái active
     int countByTeamIdAndStatus(long teamId , boolean status);
 
-    boolean existsByMemberIDAndStatus(long memberID , boolean status);
+    boolean existsByMemberIdAndStatus(long memberID , boolean status);
 
-    Member findByMemberIDAndRole(long leaderId, MemberRole role);
+    Member findByMemberIdAndRole(long leaderId, MemberRole role);
 
 }
