@@ -12,24 +12,24 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
 @Table(name = "TeamRequest")
 public class TeamRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 20, nullable = false)
     private RequestStatus status = RequestStatus.PENDING;
-    @Column(name = "SenderId", nullable = false)
-    private long senderId;
-    @Column(name = "ReceiverID", nullable = false)
-    private Long receiverId;
-
-    @Column(name = "TeamId", nullable = false)
-    private Long teamId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "sender",nullable = false)
+    private User sender;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "receiver",nullable = false)
+    private User receiver;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team",nullable = false)
+    private Team team;
     //JOIN_REQUEST , INVATION ,  LEAVE_REQUEST, TEAM_SUBMISSION
     @Enumerated(EnumType.STRING)
     @Column(name = "Type", length = 255, nullable = false)
@@ -38,13 +38,36 @@ public class TeamRequest {
     private String message;
 
 
-    public TeamRequest(long senderId, long receiverId, long teamId, RequestType type,String message) {
-        this.senderId = senderId;
-        this.receiverId = receiverId;
-        this.teamId = teamId;
+    public TeamRequest(RequestStatus status, User sender, User receiver, Team team, RequestType type, String message) {
+        this.status = status;
+        this.sender = sender;
+        this.receiver = receiver;
+        this.team = team;
         this.type = type;
         this.message = message;
     }
 
+    public User getReceiver() {
+        return receiver;
+    }
 
+    public void setReceiver(User receiver) {
+        this.receiver = receiver;
+    }
+
+    public User getSender() {
+        return sender;
+    }
+
+    public void setSender(User sender) {
+        this.sender = sender;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
+    }
 }

@@ -12,18 +12,26 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long>{
+public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
-    Optional<User>findByToken(String token);
+
+    Optional<User> findByToken(String token);
 
     boolean existsByEmail(String email);
 
 
     // Tìm các User có Role là USER và ID của họ KHÔNG NẰM TRONG danh sách memberID đang có team (status = true)
-    @Query("SELECT u FROM User u WHERE u.role = :role " +
-            "AND u.id NOT IN (SELECT m.memberID FROM Member m WHERE m.status = true)")
-    List<User> findUsersWithoutTeam(@Param("role") Role role);
-
+    @Query("""
+                SELECT u
+                FROM User u
+                WHERE u.role = :role
+                AND u.id NOT IN (
+                    SELECT m.member.id
+                    FROM Member m
+                    WHERE m.status = true
+                )
+            """)
+    List<User> findUsersWithoutTeam(Role role);
 
 
 }

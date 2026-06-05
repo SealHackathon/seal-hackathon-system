@@ -146,21 +146,21 @@ public class TeamController {
     }
 
 
-    @Operation(summary = "Leader chốt đội gửi Admin phê duyệt (TEAM_SUBMISSION)",
-            description = "Team status chuyển sang PENDING_APPROVAL")
-    @PostMapping("/{teamId}/submit")
-
-
-    public ResponseEntity<String> sumbit(
-            @PathVariable int teamId,
-
-            @RequestHeader("Authorization") String auth) {
-        Integer uid = getUid(auth);
-        if (uid == null) return unauthorized();
-        return ResponseEntity.ok(teamService.submitTeamForApporal(teamId, uid));
-
-
-    }
+//    @Operation(summary = "Leader chốt đội gửi Admin phê duyệt (TEAM_SUBMISSION)",
+//            description = "Team status chuyển sang PENDING_APPROVAL")
+//    @PostMapping("/{teamId}/submit")
+//
+//
+//    public ResponseEntity<String> sumbit(
+//            @PathVariable int teamId,
+//
+//            @RequestHeader("Authorization") String auth) {
+//        Integer uid = getUid(auth);
+//        if (uid == null) return unauthorized();
+//        return ResponseEntity.ok(teamService.submitTeamForApporal(teamId, uid));
+//
+//
+//    }
 
     @Operation(summary = "Admin duyệt hoặc từ chối TEAM_SUBMISSION",
             description = "APPROVED → Team.status=APPROVED, mã mời bị vô hiệu hoá")
