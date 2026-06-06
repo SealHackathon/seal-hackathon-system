@@ -1,0 +1,36 @@
+.counter {
+    width: 3rem;
+    height: 4rem;
+    border-radius: var(--inner-radius);
+    overflow: hidden;
+    background: var(--color-primary-orange);
+}
+
+.scene {
+    width: 100%;
+    height: 100%;
+    perspective: 10rem; 
+}
+
+.rotator {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 1.5rem;
+    font-weight: bold;
+    font-family: var(--title-font-main);
+    color: #ffffff;
+
+    backface-visibility: hidden; 
+}
