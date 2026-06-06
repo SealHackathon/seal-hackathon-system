@@ -4,7 +4,7 @@
 
 .wrapper {
     display: grid;
-    grid-template-columns: 24fr 1fr 6fr;
+    grid-template-columns: 40fr 1fr 12fr;
     gap: 5em;
 
     position: relative;

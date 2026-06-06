@@ -2,6 +2,7 @@ import Tooltip from '../shared/Tooltip'
 import { CrownSimple, X, SignOut } from '@phosphor-icons/react'
 import styles from './MemberRow.module.css'
 import Button from '../shared/Button'
+import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 
 function MemberRow({ 
   index, 
@@ -23,6 +24,7 @@ function MemberRow({
       <span className={styles.index}>{index}</span>
 
       <div className={styles.avatar}>
+        <img src={avatarPlaceholder} alt="user avatar placeholder" className={styles.avatarImg}/>
         {isLeader && (
           <CrownSimple size={32} weight="fill" className={styles.crownIcon} />
         )}

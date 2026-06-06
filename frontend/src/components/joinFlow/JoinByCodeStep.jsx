@@ -35,7 +35,6 @@ function JoinByCodeStep({ onClose, onBack, onSubmit }) {
             const FAKE_RESULTS = responseData;
             const found = FAKE_RESULTS[code.trim().toUpperCase()] // truy cập thuộc tính của object bằng key
             setResult(found ?? { type: 'invalid' })
-
         })
  
     }

@@ -1,5 +1,5 @@
 import Navbar from '../components/Navbar/Navbar'
-import Sidebar from '../components/sidebar/Sidebar'
+import Sidebar from '../components/Sidebar/Sidebar'
 import styles from './EventLayout.module.css'
 
 function EventLayout({ children }) {

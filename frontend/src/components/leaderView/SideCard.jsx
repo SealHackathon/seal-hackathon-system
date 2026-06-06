@@ -1,4 +1,5 @@
 import styles from './SideCard.module.css'
+import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 
 function SideCard({ 
     color = 'green', 
@@ -25,7 +26,7 @@ function SideCard({
         <ul className={styles.list}>
           {items.map((item) => (
             <li key={item.id} className={styles.item}>
-              <div className={styles.avatar} />
+              <img src={avatarPlaceholder} alt="user avatar placeholder" className={styles.avatar}/>
               <div className={styles.info}>
                 <span className={styles.name}>{item.name}</span>
                 <span className={styles.email}>{item.email}</span>

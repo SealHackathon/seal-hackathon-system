@@ -48,7 +48,7 @@ function NoTeamView() {
         }
       )
       .then((response) => {
-        const teams = response.data.map(team => ({
+        const teams = response.data.map(team => ({ 
           id: team.id,
           name: team.name,
           description: team.description,
@@ -56,11 +56,11 @@ function NoTeamView() {
           members: team.members.map(m => ({
             id: m.id,
             name: m.name,
-            school: m.school
+            school: m.school,
           })),
           isRequested: false, // mặc định chưa gửi request tham gia
         }))
-        setFAKE_TEAMS(teams);
+        setFAKE_TEAMS(teams); 
       })
       .catch((error) => console.log(error));
   }, []);

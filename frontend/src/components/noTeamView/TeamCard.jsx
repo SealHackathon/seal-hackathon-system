@@ -13,7 +13,6 @@ function TeamCard({
     onCancel    // 'view' | 'compose' | 'requested'
 }) {
     const emptyCount = team.maxSlots - team.members.length
-
     const [cardState, setCardState] = useState(
         team.isRequested ? 'requested' : 'view'
     )

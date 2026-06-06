@@ -48,3 +48,18 @@
     line-height: 1.5;
     overflow: hidden;
 }
+
+.memberName {
+    color: var(--color-primary-blue);
+}
+
+.leaderBadge {
+    color: var(--color-primary-blue);
+    font-weight: normal;
+    font-size: 0.8rem;
+}
+
+.memberSchool {
+    color: var(--color-primary-orange);
+    font-size: 0.85rem;
+}

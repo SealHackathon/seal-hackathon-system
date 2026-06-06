@@ -4,6 +4,7 @@ import ModalShell from '../shared/ModalShell'
 import FormTextarea from '../shared/FormTextarea'
 import TeamInfoPanel from '../noTeamView/TeamInfoPanel'
 import styles from './RequestDetailModal.module.css'
+import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 
 function RequestDetailModal({
   request,
@@ -46,7 +47,7 @@ function RequestDetailModal({
         {/* Là lời nhắn từ thí sinh sẽ hiện thị cái này (Thông tin thí sinh)*/}
         {!isTeamInvite && (
           <div className={styles.userInfo}>
-            <div className={styles.avatar} />
+            <img src={avatarPlaceholder} alt="user avatar placeholder" className={styles.avatar}/>
             <div>
               <p className={styles.name}>{data.name}</p>
               <p className={styles.email}>{data.email}</p>
