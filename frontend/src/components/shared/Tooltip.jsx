@@ -58,7 +58,7 @@ function Tooltip({
                         zIndex: 9999,
                     }}
                 >
-                    <p className={styles[textColor]} style={{ fontSize: `${contentSize}px` }}>{content}</p>
+                    <div className={styles[textColor]} style={{ fontSize: `${contentSize}px` }}>{content}</div>
                     <span className={styles.arrow} />
                 </div>,
 

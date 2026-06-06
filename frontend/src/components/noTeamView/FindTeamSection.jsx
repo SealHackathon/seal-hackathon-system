@@ -30,7 +30,7 @@ function FindTeamSection({ teams = [] }) {
     currentPage * PAGE_SIZE
   )
 
-  console.log(teams)
+  
 
   return (
     <div className={styles.wrapper}>
