@@ -24,7 +24,7 @@ function TeamInfoPanel({ team }) {
                         key={i} 
                         content={
                             <div>
-                                {team.members[i].memberIsLeader && (<span className={styles.leaderBadge}>(Đội trưởng)</span>)} 
+                                {team.members[i].isLeader && (<span className={styles.leaderBadge}>(Đội trưởng)</span>)} 
                                 <p className={styles.memberName}>{team.members[i].name}</p>
                                 <p className={styles.memberSchool}>{team.members[i].school}</p>
                             </div>
