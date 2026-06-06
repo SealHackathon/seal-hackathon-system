@@ -14,4 +14,6 @@ public class MemberByCodeResponse {
     private long memberId;
     @JsonProperty("isLeader")
     private boolean leader=false;
+    private String name;
+    private String school;
 }

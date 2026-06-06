@@ -85,11 +85,11 @@ public class TeamService {
                 // lay user duoc moi neu khong thi tra ve message
                 User invitedUsers = userRepository.findByEmail(email.trim()).orElse(null);
                 if(invitedUsers == null) {
-                    throw new IllegalArgumentException("user email ban moi khong ton tai");
+                    throw new IllegalArgumentException("user email bạn mời không tồn tại");
                 }
                 Member member=memberRepository.findByMemberIdAndStatus(invitedUsers.getId(),true).orElse(null);
                 if(member!=null) {
-                    throw new IllegalArgumentException("user email ban moi da tham gia doi khac roi");
+                    throw new IllegalArgumentException("user email bạn mời đã ở trong đội khác rồi");
                 }
 
 
@@ -785,12 +785,13 @@ public class TeamService {
             needMemberTeamResponse.setTeamId(team.getId());
             needMemberTeamResponse.setTeamName(team.getName());
             needMemberTeamResponse.setDescription(team.getDescription());
+
             for (Member member : memberList) {
                 //ai đã out rồi thì bỏ qua
                 if (!member.isStatus()) {
                     continue;
                 }
-                User user = userRepository.findById(userId).orElse(null);
+                User user = userRepository.findById(member.getMember().getId()).orElse(null);
                 if (user == null) {
                   continue;
                 }
@@ -798,7 +799,11 @@ public class TeamService {
                 memberResponse.setId(member.getId());
                 memberResponse.setName(user.getFullName());
                 memberResponse.setSchool(user.getSchoolName());
+                if(member.getRole() == MemberRole.LEADER){
+                    memberResponse.setLeader(true);
+                }
                 needMemberTeamResponse.addMember(memberResponse);
+
             }
             needMemberTeamResponseList.add(needMemberTeamResponse);
         }
@@ -886,6 +891,8 @@ public class TeamService {
             if (member.getRole() == MemberRole.LEADER) {
                 memberByCodeResponse.setLeader(true);
             }
+            memberByCodeResponse.setName(member.getMember().getFullName());
+            memberByCodeResponse.setSchool(member.getMember().getSchoolName());
             teamByCodeResponse.addMember(memberByCodeResponse);
         }
         searchTeamByCodeResponse.setTeamCode(team.getInviteCode());

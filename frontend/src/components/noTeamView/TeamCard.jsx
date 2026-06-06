@@ -4,8 +4,8 @@ import Button from '../shared/Button'
 import FormTextarea from '../shared/FormTextarea'
 import TeamInfoPanel from './TeamInfoPanel'
 import styles from './TeamCard.module.css'
-import memberStyles from '../leaderView/MemberRow.module.css'
-import memberEmptyStyles from '../leaderView/EmptyMemberSlot.module.css'
+// import memberStyles from '../leaderView/MemberRow.module.css'
+// import memberEmptyStyles from '../leaderView/EmptyMemberSlot.module.css'
 import axios from 'axios'
 function TeamCard({ 
     team, 
