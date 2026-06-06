@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { ArrowRight, ArrowLeft, PaperPlaneTilt, X } from '@phosphor-icons/react'
 import Button from '../shared/Button'
 import styles from './MemberCard.module.css'
+import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 import axios from 'axios'
+
 function MemberCard({ member, onInvite, onCancel }) {
     // 'view' | 'compose' | 'invited'
     const [cardState, setCardState] = useState(
@@ -63,7 +65,7 @@ function MemberCard({ member, onInvite, onCancel }) {
                 {/* Panel 1: Xem thông tin */}
                 <div className={styles.panel}>
                     <div className={styles.userInfo}>
-                        <div className={styles.avatar} />
+                        <img src={avatarPlaceholder} alt="user avatar placeholder" className={styles.avatar}/>
                         <div>
                             <p className={styles.name}>{member.name}</p>
                             <p className={styles.email}>{member.email}</p>

@@ -10,8 +10,7 @@ const NAV_ITEMS = [
 ]
 
 function Sidebar({ onGoBack }) {
-  const [activePage, setActivePage] = useState('event')
-
+  const [activePage, setActivePage] = useState('team') // ! Set tạm
   return (
     <aside className={styles.sidebar}>
       <button className={styles.backBtn} onClick={onGoBack}>

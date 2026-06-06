@@ -24,7 +24,7 @@ function TeamInfoHeader({ teamId, teamName, description, teamCode, isLeader, onE
                     </div>
 
                     {isLeader && (
-                        <Tooltip content="Chỉnh sửa" bgColor="white" textColor="blue">
+                        <Tooltip content="Chỉnh sửa" bgColor="white" textColor="blue" position='right'>
                             <button
                                 className={styles.edit}
                                 onClick={() => { setShowEditModal(true) }}

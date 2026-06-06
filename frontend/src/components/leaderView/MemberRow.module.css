@@ -36,6 +36,17 @@
     background-color: var(--color-bg-blue);
 }
 
+.avatarImg {
+    flex-shrink: 0;
+    
+    position: relative;
+
+    border-radius: var(--radius-circle);
+    
+    width: 3.5em;
+    height: 3.5em;
+}
+
 .crownIcon {
     position: absolute;
     top: -1em;

@@ -2,9 +2,12 @@ import { CrownSimple, Plus } from '@phosphor-icons/react'
 import styles from './TeamInfoPanel.module.css'
 import memberStyles from '../leaderView/MemberRow.module.css'
 import memberEmptyStyles from '../leaderView/EmptyMemberSlot.module.css'
+import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
+import Tooltip from '../shared/Tooltip'
 
 function TeamInfoPanel({ team }) {
     const emptyCount = team.maxSlots - team.members.length
+    
 
     return (
         <div className={styles.wrapper}>
@@ -16,15 +19,30 @@ function TeamInfoPanel({ team }) {
 
             <div className={styles.avatarRow}>
                 {Array.from({ length: team.members.length }, (_, i) => (
-                    <div key={i} className={memberStyles.avatar}>
-                        {i === 0 && (
-                            <CrownSimple
-                                size={32}
-                                weight="fill"
-                                className={memberStyles.crownIcon}
-                            />
-                        )}
-                    </div>
+                    <Tooltip 
+                        bgColor='white'
+                        key={i} 
+                        content={
+                            <div>
+                                {team.members[i].memberIsLeader && (<span className={styles.leaderBadge}>(Đội trưởng)</span>)} 
+                                <p className={styles.memberName}>{team.members[i].name}</p>
+                                <p className={styles.memberSchool}>{team.members[i].school}</p>
+                            </div>
+                                
+                        } 
+                        position='bottom'
+                    >
+                        <div className={memberStyles.avatar}>
+                            <img src={avatarPlaceholder} alt="user avatar placeholder" className={memberStyles.avatarImg} />
+                            {i === 0 && (
+                                <CrownSimple
+                                    size={32}
+                                    weight="fill"
+                                    className={memberStyles.crownIcon}
+                                />
+                            )}
+                        </div>
+                    </Tooltip>
                 ))}
 
                 {Array.from({ length: emptyCount }, (_, i) => (
