@@ -56,7 +56,8 @@ function NoTeamView() {
           members: team.members.map(m => ({
             id: m.id,
             name: m.name,
-            school: m.school
+            school: m.school,
+            isLeader:m.isLeader
           })),
           isRequested: false, // mặc định chưa gửi request tham gia
         }))

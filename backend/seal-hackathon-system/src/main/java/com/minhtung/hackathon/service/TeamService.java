@@ -801,6 +801,8 @@ public class TeamService {
                 memberResponse.setSchool(user.getSchoolName());
                 if(member.getRole() == MemberRole.LEADER){
                     memberResponse.setLeader(true);
+                }else{
+                    memberResponse.setLeader(false);
                 }
                 needMemberTeamResponse.addMember(memberResponse);
 

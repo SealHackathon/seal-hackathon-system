@@ -14,5 +14,5 @@ public class TeamMemberResponse {
     private String name;
     private String school;
     @JsonProperty("isLeader")
-    private boolean leader=false;
+    private boolean leader;
 }
