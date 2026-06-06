@@ -8,6 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
+
 //bang user xac nhan
 public class User {
     @Id

@@ -30,5 +30,6 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
     boolean existsByMemberIdAndStatus(long memberID , boolean status);
 
     Member findByMemberIdAndRole(long leaderId, MemberRole role);
-
+    //find by id and status
+    void deleteAllByTeamId(long teamId);
 }

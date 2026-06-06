@@ -4,12 +4,15 @@ package com.minhtung.hackathon.entity;
 import com.minhtung.hackathon.enums.TeamStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,6 +27,7 @@ public class Team {
     @Column(name = "CreateAt" , nullable = false )
     private LocalDate createAt = LocalDate.now() ;
 
+    // nếu muon xóa mềm thì cột này phải là ManyToOne
     @OneToOne
     @JoinColumn (name = "leader",nullable = false )
     private  User leader ;

@@ -107,7 +107,13 @@ public class TeamRequestController {
             @RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
         if (uid == null) return unauthorized();
-        return ResponseEntity.ok(teamService.respondToJoinRequest(acceptJoinRequests.getRequestId(), acceptJoinRequests.isAccept(), uid));
+        try{
+            return ResponseEntity.ok(teamService.respondToJoinRequest(acceptJoinRequests.getRequestId(), acceptJoinRequests.isAccept(), uid));
+        }
+        catch (IllegalArgumentException e){
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+
     }
 
     //Member ACCEPT hoac REJECT invitation

@@ -3,9 +3,12 @@ package com.minhtung.hackathon.entity;
 import com.minhtung.hackathon.enums.MemberRole;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class Member {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +23,7 @@ public class Member {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team", nullable = false)
     private Team team;
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "member")
     private User member;
     public Member() {

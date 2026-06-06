@@ -4,13 +4,12 @@ package com.minhtung.hackathon.entity;
 import com.minhtung.hackathon.enums.RequestStatus;
 import com.minhtung.hackathon.enums.RequestType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 @Table(name = "TeamRequest")
 public class TeamRequest {
@@ -21,10 +20,10 @@ public class TeamRequest {
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 20, nullable = false)
     private RequestStatus status = RequestStatus.PENDING;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "sender",nullable = false)
     private User sender;
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "receiver",nullable = false)
     private User receiver;
     @ManyToOne(fetch = FetchType.LAZY)
