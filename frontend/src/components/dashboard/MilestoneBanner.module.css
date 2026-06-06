@@ -1,0 +1,53 @@
+.banner {
+    display: flex;
+
+    justify-content: space-between;
+    gap: 2em;
+
+    margin: 0 auto;
+
+    max-width: 1400px;
+
+    background: var(--color-bg-orange);
+    border: 1.5px solid var(--color-border-orange);
+    border-radius: var(--radius);
+    padding: 1.5em;
+
+    transition: background 0.3s ease;
+}
+
+/* 
+.urgent {
+    background: var(--color-primary-orange);
+}
+
+.urgent .title {
+    color: white;
+} */
+
+.left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+}
+
+.note {
+    margin: 0;
+    color: var(--color-text-primary);
+    opacity: 0.8;
+    background-color: var(--color-bg-white);
+    padding: 0.5em;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-primary-orange);
+}
+
+.name,
+.date,
+.title {
+    font-size: 2rem;
+    color: var(--color-primary-orange);
+}
+
+.note svg {
+    color: var(--color-primary-orange);
+}

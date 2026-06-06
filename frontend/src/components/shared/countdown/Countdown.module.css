@@ -19,7 +19,7 @@
 .label {
     margin: 0;
     font-family: var(--title-font-main);
-    color: var(--color-secondary-blue);
+    color: var(--color-primary-orange);
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -27,6 +27,6 @@
 .sep {
     font-size: 2rem;
     font-weight: 900;
-    color: var(--color-primary-blue);
+    color: var(--color-dark-orange);
     margin-bottom: 1.5rem;   /* bù phần label bên dưới */
 }
