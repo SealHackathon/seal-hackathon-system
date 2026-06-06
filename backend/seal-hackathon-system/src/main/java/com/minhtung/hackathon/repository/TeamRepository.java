@@ -3,6 +3,7 @@ package com.minhtung.hackathon.repository;
 import com.minhtung.hackathon.dto.response.CreateTeamResponse;
 import com.minhtung.hackathon.dto.response.NeedMemberTeamResponse;
 import com.minhtung.hackathon.entity.Team;
+import com.minhtung.hackathon.entity.User;
 import com.minhtung.hackathon.enums.TeamStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,7 +23,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     List<Team> findByStatus(TeamStatus status);
 
-    Optional<Team> findByLeaderId(Long leaderId);
+    Optional<Team> findByLeader(User leaderId);
 
 //    Optional<Team> findByTeamCountCodeAndStatus(String inviteCode, TeamStatus status);
 

@@ -31,4 +31,5 @@ public interface MemberRepository extends JpaRepository<Member,Long> {
 
     Member findByMemberIdAndRole(long leaderId, MemberRole role);
 
+    void deleteAllByTeamId(long teamId);
 }

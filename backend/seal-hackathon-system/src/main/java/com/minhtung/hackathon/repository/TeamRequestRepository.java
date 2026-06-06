@@ -60,4 +60,7 @@ public interface TeamRequestRepository  extends JpaRepository<TeamRequest,Long> 
      //
 
      Optional<TeamRequest> findByReceiverIdAndTeamIdAndTypeAndStatus(long receiverId,long teamId, RequestType requestType, RequestStatus requestStatus);
+
+     //delete all By team id
+     void deleteAllByTeamId(long teamId);
 }
