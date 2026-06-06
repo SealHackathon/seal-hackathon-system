@@ -10,11 +10,12 @@ function TeamMemberPanel({
     members,
     maxSlots = 4,
     teamStatus,
-    isLeader ,
+    isLeader,
     onKick,
     onPromote,
     onLeave,
     onLockTeam,
+    onApproveLeave,
     rejectionReasons }) {
 
     const emptyCount = maxSlots - members.length
@@ -26,7 +27,9 @@ function TeamMemberPanel({
                 <NoticeBox
                     color="orange"
                     icon={Warning}
-                    message="Sau khi chốt đội, danh sách thành viên sẽ bị khóa và không thể thay đổi. Hãy chắc chắn trước khi tiếp tục."
+                    message= {(isLeader) 
+                        ? "Sau khi chốt đội, danh sách thành viên sẽ bị khóa và không thể thay đổi. Hãy chắc chắn trước khi tiếp tục." 
+                        : "Đội chưa được chốt. Vui lòng chờ đội trưởng xác nhận danh sách thành viên."}
                     button={isLeader
                         ?
                         <Button
@@ -48,7 +51,9 @@ function TeamMemberPanel({
                 <NoticeBox
                     color="orange"
                     icon={Warning}
-                    message="Sau khi chốt đội, danh sách thành viên sẽ bị khóa và không thể thay đổi. Hãy chắc chắn trước khi tiếp tục."
+                    message= {(isLeader) 
+                        ? "Đội đã được yêu cầu chốt và đang chờ BTC xét duyệt. Bạn sẽ nhận thông báo khi có kết quả." 
+                        : "Đội đang chờ BTC xét duyệt. Bạn sẽ nhận thông báo khi có kết quả."}
                     button={isLeader
                         ?
                         <Button
@@ -69,7 +74,7 @@ function TeamMemberPanel({
                 <NoticeBox
                     color="green"
                     icon={Check}
-                    message="Đội của bạn đã được phê duyệt để tham gia cuộc thi."
+                    message="Đội đã được BTC chấp thuận. Chúc bạn thi đấu tốt!"
                     button={isLeader
                         ?
                         <Button
@@ -91,7 +96,9 @@ function TeamMemberPanel({
                 <NoticeBox
                     color="orange"
                     icon={Warning}
-                    message="Yêu cầu chốt đội bị từ chối"
+                    message= {(isLeader) 
+                        ? "Đội chưa đáp ứng yêu cầu. Vui lòng kiểm tra lại thông tin và nộp lại." 
+                        : "Đội chưa đáp ứng yêu cầu của BTC. Hãy liên hệ đội trưởng để biết thêm chi tiết."}
                     button={isLeader
                         ?
                         <Button
@@ -151,6 +158,7 @@ function TeamMemberPanel({
                         isCurrentUser={member.isCurrentUser}
                         onKick={onKick ? () => onKick(member.id) : undefined}
                         onPromote={onPromote ? () => onPromote(member.id) : undefined}
+                        onApproveLeave={onApproveLeave ? () => onApproveLeave(member.id) : undefined}
                         onLeave={onLeave}
                     />
                 ))}

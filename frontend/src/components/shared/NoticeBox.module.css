@@ -9,7 +9,7 @@
 
 .main {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 5fr 4fr;
   padding: 1.5em 1.25em 1.75em;
   gap: 1em;
 }

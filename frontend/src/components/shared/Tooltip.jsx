@@ -67,3 +67,5 @@ function Tooltip({
         </div>
     )
 }
+
+export default Tooltip

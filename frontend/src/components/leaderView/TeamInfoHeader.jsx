@@ -4,10 +4,11 @@ import { UsersThree, Copy, MagnifyingGlass, PencilSimple } from "@phosphor-icons
 import styles from './TeamInfoHeader.module.css'
 import FindMemberModal from './FindMemberModal'
 import EditTeamInformationModal from './EditTeamInformationModal';
-function TeamInfoHeader({ teamName, description, teamCode, showFindMember = true }) {
+import Tooltip from '../shared/Tooltip';
+
+function TeamInfoHeader({ teamId, teamName, description, teamCode, isLeader = true, onEdit }) {
     const [showModal, setShowModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
-
     function handleCopyCode() {
         navigator.clipboard.writeText(teamCode)
     }
@@ -22,57 +23,67 @@ function TeamInfoHeader({ teamName, description, teamCode, showFindMember = true
                         <h1>{teamName}</h1>
                     </div>
 
-                    <button
-                        className={styles.edit}
-                        onClick={() => { setShowEditModal(true) }}
-                        type='button'
-                    >
-                        <PencilSimple size={24} weight='fill' ></PencilSimple>
-                    </button>
+                    {isLeader && (
+                        <Tooltip content="Chỉnh sửa" bgColor="white" textColor="blue">
+                            <button
+                                className={styles.edit}
+                                onClick={() => { setShowEditModal(true) }}
+                                type='button'
+                            >
+                                <PencilSimple size={24} weight='fill' ></PencilSimple>
+                            </button>
+                        </Tooltip>
+                    )}
+                    
 
                 </div>
-
                 <p>{description}</p>
             </div>
 
-                        {showEditModal && (
-                <EditTeamInformationModal
-                    teamId={teamId}
-                    teamName={teamName}
-                    description={description}
-                    onClose={() => setShowEditModal(false)}
-                    onEdit={onEdit}
-                />
-            )}
 
-            {showFindMember && (<div className={styles.divider}></div>)}
+            {
+                showEditModal && (
+                    <EditTeamInformationModal
+                        teamId={teamId}
+                        teamName={teamName}
+                        description={description}
+                        onClose={() => setShowEditModal(false)}
+                        onEdit={onEdit}
+                    />
+                )
+            }
+
+            {isLeader && (<div className={styles.divider}></div>)}
 
             {/* ấm vào tìm member thì sẽ show ra list này */}
-            {showFindMember && (
-                <div>
-                    <div className={styles.codeBox}>
-                        <span>Mã đội:</span>
-                        <Button className={styles.btn} icon={Copy} label={teamCode} variant="outline" color='blue' onClick={handleCopyCode} />
-                    </div>
-                    <Button
-                        className={styles.btn}
-                        icon={MagnifyingGlass}
-                        label="Tìm thành viên"
-                        variant="outline"
-                        color='blue'
-                        onClick={() => setShowModal(true)}
-                    />
+            {
+                isLeader && (
 
-                    {showModal && (
-                        <FindMemberModal
-                            onClose={() => setShowModal(false)}
+                    <div>
+                        <div className={styles.codeBox}>
+                            <span>Mã đội:</span>
+                            <Button className={styles.btn} icon={Copy} label={teamCode} variant="outline" color='blue' onClick={handleCopyCode} />
+                        </div>
+                        <Button
+                            className={styles.btn}
+                            icon={MagnifyingGlass}
+                            label="Tìm thành viên"
+                            variant="outline"
+                            color='blue'
+                            onClick={() => setShowModal(true)}
                         />
-                    )}
-                </div>
-            )}
+
+                        {showModal && (
+                            <FindMemberModal
+                                onClose={() => setShowModal(false)}
+                            />
+                        )}
+                    </div>
+                )
+            }
 
 
-        </div>
+        </div >
     )
 }
 
