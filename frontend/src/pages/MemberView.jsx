@@ -11,12 +11,24 @@ import axios from 'axios'
 //   { id: 3, name: 'Mạc Minh Tùng',     email: 'mtung638@gmail.com', school: 'Đại học FPT', isLeader: false, isCurrentUser: false },
 // ]
 
+
+
+const FAKE_LEAVE_REQUESTS = [
+    // {
+    //     id: 101,
+    //     memberId: 8,
+    //     name: "Nguyễn Thành Thái",   
+    //     message: "Mình muốn rời đội để tìm team phù hợp hơn.",
+    // }
+]
+
+
 function MemberView() {
   const [teamStatus] = useState('pending')
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const token = localStorage.getItem("accessToken")
   const [teamInfo, setTeamInfo] = useState({ teamName: '', description: '', teamCode: '' });
-  const [leaveRequest, setLeaveRequest] = useState()
+  const [leaveRequest, setLeaveRequest] = useState([])
   // api lấy team info
   useEffect(() => {
     axios
@@ -55,13 +67,13 @@ function MemberView() {
 
 
 
-  const handleOnLeave = () => {
+  const handleOnLeave = (message) => {
 
-    const isConfirmed = window.confirm("Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!");
+    // const isConfirmed = window.confirm("Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!");
 
-    if (isConfirmed) {
+    // if (isConfirmed) {
       axios
-        .post('http://localhost:8080/api/teamrequest/out-team', {}, {
+        .post('http://localhost:8080/api/teamrequest/out-team', {message : message}, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}` // nếu có JWT
@@ -69,20 +81,20 @@ function MemberView() {
         })
         .then((response) => {
           console.log(response.data);
-          alert("Bạn đã gui yeu cau roi nhóm thành công!");
+          // alert("Bạn đã gui yeu cau roi nhóm thành công!");
           const responseData = {
             id: response.id, name: response.name, message: response.message
           }
-          setLeaveRequest(responseData)
+          setLeaveRequest([response.data])
           // window.location.reload();
         })
         .catch((error) => {
           console.log(error);
           alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
         });
-    } else {
-      console.log("Người dùng đã hủy bỏ yêu cầu rời nhóm.");
-    }
+    // } else {
+    //   console.log("Người dùng đã hủy bỏ yêu cầu rời nhóm.");
+    // }
   };
 
 
@@ -121,9 +133,10 @@ function MemberView() {
           maxSlots={4}
           teamStatus={teamStatus}
           isLeader={false}
-          leaveRequest={leaveRequest}
+          leaveRequests={FAKE_LEAVE_REQUESTS}
           onLeave={handleOnLeave}
           onCancelLeave={(id) => handleOnCancelLeave(id)}
+          leaveRequests={leaveRequest}
         // Không truyền onKick, onPromote, onLockTeam → member không thấy các nút đó
         />
 
