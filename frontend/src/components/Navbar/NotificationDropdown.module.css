@@ -1,0 +1,44 @@
+.wrapper {
+  position: relative;
+  height: 100%;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+
+  background: none;
+  
+  border: none;
+  border-radius: var(--radius-circle);
+  
+  padding: 0.5em;
+  
+  cursor: pointer;
+}
+
+.trigger:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 3.5em;
+  
+  min-width: 320px;
+  
+  background: var(--color-bg-white);
+  
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  
+  padding: 1.5em;
+  
+  z-index: 1;
+}
+
+.title {
+  font-size: 1.3rem;
+  color: var(--color-primary-blue);
+}

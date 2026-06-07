@@ -1,0 +1,64 @@
+/* Options list */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  width: 100%;
+  padding: 1.1em 1.25em;
+  background: white;
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s;
+}
+
+.option:hover {
+  border-color: var(--color-primary-blue);
+  background: var(--color-bg-blue);
+}
+
+.option.selected {
+  border-color: var(--color-primary-blue);
+  background: var(--color-bg-blue);
+}
+
+.optionIcon {
+  color: var(--color-primary-blue);
+  flex-shrink: 0;
+}
+
+.optionText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.optionTitle {
+    font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--color-primary-blue);
+}
+
+.optionDesc {
+  font-size: 0.9rem;
+  color: var(--color-secondary-blue);
+}
+
+.arrow {
+  color: var(--color-secondary-blue);
+  flex-shrink: 0;
+
+  transition: all 0.25s ease;
+}
+
+.option:hover .arrow {
+  transform: translateX(0.25em);
+}

@@ -1,0 +1,48 @@
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+  
+  border-radius: var(--radius);
+  
+  padding: 1em;
+  
+  cursor: pointer;
+
+}
+
+.item:hover {
+  background-color: var(--color-bg-blue);
+}
+
+.avatar {
+  width: 2em;
+  height: 2em;
+
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius-circle);
+
+  background-color: var(--color-primary-blue);
+}
+
+.content {
+  flex: 1;
+}
+
+.message {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--color-text-primary);
+}
+
+.time {
+  font-size: 0.66rem;
+  color: var(--color-text-secondary);
+}
+
+.dot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: var(--radius-circle);
+  background-color: var(--color-primary-blue);
+}

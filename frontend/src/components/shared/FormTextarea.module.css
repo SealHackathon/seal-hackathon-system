@@ -1,0 +1,24 @@
+.textarea {
+    font-family: var(--body-font-main);
+    flex: 1;
+    border: none;
+    outline: none;
+    color: var(--color-primary-blue);
+    font-weight: bold;
+    background: transparent;
+    min-width: 0;
+    field-sizing: content; 
+}
+
+.textarea::placeholder {
+    font-weight: normal;
+    color: var(--color-secondary-blue);
+}
+
+.textarea:disabled {
+    color: var(--color-secondary-blue);
+}
+
+.boxOverride.boxOverride {
+    align-items: flex-start;
+}

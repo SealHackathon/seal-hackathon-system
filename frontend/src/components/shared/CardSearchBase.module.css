@@ -1,0 +1,151 @@
+.backdrop {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(51, 55, 50, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+}
+
+.wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+    
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border-blue);
+    
+    padding: 3.5em 5.5em;
+}
+
+.modalScroll {
+    overflow-y: auto;
+    width: 82vw;
+    max-height: 80vh;
+}
+
+.closeBtn {
+    position: absolute;
+    
+    top: 2em;
+    right: 1em;
+    
+    background: none;
+    border: none;
+    border-radius: var(--inner-radius);
+    
+    cursor: pointer;
+    padding: 0.8em;
+    display: flex;
+}
+
+.closeBtn:hover {
+    background: var(--color-bg-blue);
+}
+
+.title {
+    color: var(--color-primary-blue);
+    text-align: center;
+    margin: 0;
+}
+
+.subtitle {
+    text-align: center;
+    
+    color: var(--color-secondary-blue);
+    background: var(--color-bg-blue);
+    
+    border-radius: var(--radius);
+    
+    padding: 0.5em 1.5em;
+}
+
+/* Search */
+.searchBar {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    
+    padding: 1em 1.25em;
+}
+
+.searchInput {
+    flex: 1;
+    
+    border: none;
+    outline: none;
+    
+    font-family: var(--body-font-main);
+    
+    color: var(--color-text-primary);
+    background: transparent;
+}
+
+.filter {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    
+    color: var(--color-bg-blue);
+    background-color: var(--color-primary-blue);
+
+    border-radius: var(--inner-radius);
+
+    cursor: pointer;
+    width: fit-content;
+
+    padding: 0.5em 1em;
+}
+
+.filter span {
+    font-size: 0.9rem;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    padding-top: 0.5em;
+}
+
+.pageBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+    
+    border-radius: var(--radius);
+    
+    cursor: pointer;
+    
+    padding: 0.4em 1em;
+}
+
+.pageBtn:hover:not(:disabled) {
+    background: var(--color-bg-blue);
+}
+
+.pageBtn:disabled {
+    opacity: 0.4;
+}
+
+.dots {
+    font-weight: bold;
+    color: var(--color-text-secondary);
+    padding: 0 0.2em;
+}
+
+/* === FindTeamStep === */
+
+.findTeamContent {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}

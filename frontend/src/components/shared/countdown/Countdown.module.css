@@ -1,0 +1,32 @@
+.countdown {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5em;
+}
+
+.rollers {
+    display: flex;
+    gap: 0.25rem;
+}
+
+.label {
+    margin: 0;
+    font-family: var(--title-font-main);
+    color: var(--color-primary-orange);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.sep {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--color-dark-orange);
+    margin-bottom: 1.5rem;   /* bù phần label bên dưới */
+}

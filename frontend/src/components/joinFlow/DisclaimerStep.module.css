@@ -1,0 +1,81 @@
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.title {
+  font-weight: bold;
+  font-style: italic;
+  color: var(--color-primary-blue);
+  margin: 0.25em 0;
+  text-align: center;
+}
+
+.banner {
+  background: var(--color-bg-blue);
+  border-radius: var(--inner-radius);
+  padding: 0.85em 1.25em;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  margin-bottom: 1.5em;
+  line-height: 1.6;
+}
+
+.banner p { margin: 0; }
+
+.list {
+  padding-left: 1.25em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+  margin: 0 0 1.25em;
+}
+
+.list li .ruleTitle {
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  margin: 0 0 0.5em;
+}
+
+.rule {
+  border-left: 3px solid var(--color-secondary-blue);
+  padding-left: 1em;
+}
+
+.rule p {
+  margin: 0;
+  line-height: 1.7;
+  color: var(--color-text-primary);
+}
+
+.rulesLink {
+  margin: 0 0 1.25em;
+}
+
+.rulesLink a {
+  color: var(--color-primary-blue);
+  font-weight: bold;
+  text-decoration: underline;
+  display: inline-flex;
+  align-items: center;
+}
+
+.agreeRow {
+  display: flex;
+  align-items: center;
+  gap: 0.65em;
+  font-size: 0.8rem;
+  color: var(--color-primary-blue);
+  cursor: pointer;
+}
+
+.agreeRow input[type='checkbox'] {
+  width: 1.2em;
+  height: 1.2em;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--color-primary-blue);
+}

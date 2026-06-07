@@ -1,0 +1,122 @@
+.title {
+  justify-content: center; /* Để align cái title mà có cả icon*/ 
+  text-align: center; /* Để align cái title không có icon*/ 
+  
+  color: var(--color-primary-blue);
+  margin: 0 0 0.5em;
+}
+
+.wrapper {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 2.5em 1em;
+}
+
+.divider {
+  border: none;
+  border-top: 1.5px solid var(--color-border-blue);
+  margin: 2em 0;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.submitRow {
+  display: grid;
+  grid-template-columns: 5fr 1fr;
+  align-items: center;
+  gap: 1.5em;
+  margin-top: 0.25em;
+}
+
+.forgotLink {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-secondary-blue);
+
+  font-size: 0.9em;
+  font-weight: bold;
+
+  white-space: nowrap;
+}
+
+.forgotLink:hover {
+  text-decoration: underline;
+}
+
+.submitError {
+  margin: 1em 0 0 1em;
+  font-size: 0.9rem;
+  color: var(--color-primary-orange);
+}
+
+/* Or divider */
+.orRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  color: var(--color-secondary-blue);
+  margin: 1.5em 0;
+}
+
+.orRow hr {
+  flex: 1;
+  border: none;
+  border-top: 2px solid var(--color-border-blue);
+}
+
+/* Login link */
+.loginPrompt {
+  margin: 0;
+  text-align: center;
+  color: var(--color-dark-blue);
+}
+
+.loginLink {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-primary-green);
+  padding: 0;
+}
+
+.loginLink:hover {
+  text-decoration: underline;
+}
+
+
+/* === VERIFY EMAIL PAGE === */
+.resendWrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  margin: 3em 0 0;
+}
+
+.verifyText {
+  color: var(--color-dark-blue);
+  line-height: 1.7;
+}
+
+.resendSuccess {
+  font-size: 0.9rem;
+  color: var(--color-primary-green);
+  font-weight: bold;
+  margin: 1em 0 0 1em;
+}
+
+.orMessage {
+  margin-left: 1em;
+  
+  font-size: 0.9em;
+  font-weight: bold;
+
+  color: var(--color-secondary-blue);
+}

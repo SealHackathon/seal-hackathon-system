@@ -1,0 +1,32 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+
+  padding: 0.3em 1em;
+  border-radius: var(--radius);
+  border: 1.5px solid transparent;
+
+  font-family: var(--body-font-main);
+  font-size: 0.9rem;
+  font-weight: bold;
+
+  white-space: nowrap;
+}
+
+.pending, .rejected {
+  background-color: var(--color-primary-orange);
+  color: white;
+  border-color: var(--color-primary-orange);
+}
+
+.waiting {
+  background-color: white;
+  color: var(--color-primary-orange);
+  border-color: var(--color-border-orange);
+}
+
+.approved {
+  background-color: white;
+  color: var(--color-primary-green);
+  border-color: var(--color-primary-green);
+}

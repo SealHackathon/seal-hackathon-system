@@ -1,0 +1,32 @@
+.pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    width: 5.5em;
+    height: 5.5em;
+    
+    color: var(--color-secondary-blue);
+    background-color: var(--color-bg-white);
+
+    border: none;
+    border-radius: var(--inner-radius);
+
+    padding: 1em;
+    cursor: pointer;
+}
+
+.pill:hover {
+    border: 2px solid var(--color-border-blue);
+}
+
+.active {
+    background-color: var(--color-primary-blue);
+    color: white;
+}
+
+.label {
+    font-size: 0.8rem;
+    font-weight: bolder;
+}

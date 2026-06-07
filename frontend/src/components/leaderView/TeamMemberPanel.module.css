@@ -1,0 +1,33 @@
+.panel {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+
+    background-color: var(--color-bg-white);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border-blue);
+
+    padding: 1.25em 1.5em;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+}
+
+.memberCount {
+    font-size: 0.9rem;
+    color: var(--color-secondary-blue);
+    font-weight: bold;
+
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--radius);
+
+    padding: 0.2em 0.9em;
+}
+
+.memberList {
+    display: flex;
+    flex-direction: column;
+}

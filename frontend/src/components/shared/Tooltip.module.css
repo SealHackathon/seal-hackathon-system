@@ -1,0 +1,266 @@
+.wrapper {
+    position: relative;
+    display: inline-flex;
+}
+
+.tooltip {
+    position: fixed;
+    z-index: 9999;
+    white-space: nowrap;
+
+    background: var(--color-primary-blue);
+    color: white;
+    border: 1.5px solid color-mix(in srgb, var(--color-primary-blue) 60%, white);
+    border-radius: var(--inner-radius);
+    padding: 0.4em 0.75em;
+
+    font-weight: bold;
+    pointer-events: none;
+
+    transform: translateX(-50%);
+    animation: fadeIn 0.15s ease;
+}
+
+
+/* ! === ARROW dùng ::before (border) + ::after (fill) === */
+
+/* -- BOTTOM (arrow trỏ lên) -- */
+.bottom::before,
+.bottom::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.bottom::before {
+    /* arrow border — to hơn 1px */
+    bottom: 100%;
+    border-width: 0 7px 7px 7px;
+    border-color: transparent transparent color-mix(in srgb, var(--color-primary-blue) 60%, white) transparent;
+}
+
+.bottom::after {
+    /* arrow fill — che border bên trong */
+    bottom: calc(100% - 1.5px);
+    border-width: 0 6px 6px 6px;
+    border-color: transparent transparent var(--color-primary-blue) transparent;
+}
+
+/* -- TOP (arrow trỏ xuống) -- */
+.top::before,
+.top::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+
+.top::before {
+    top: 100%;
+    border-width: 7px 7px 0 7px;
+    border-color: color-mix(in srgb, var(--color-primary-blue) 60%, white) transparent transparent transparent;
+}
+
+.top::after {
+    top: calc(100% - 1.5px);
+    border-width: 6px 6px 0 6px;
+    border-color: var(--color-primary-blue) transparent transparent transparent;
+}
+
+
+
+
+/* ! === ANIMATION === */
+.top {
+    transform: translateX(-50%) translateY(-100%);
+    animation: fadeFromBottom 0.15s ease both;  /* thêm 'both' */
+}
+
+.bottom {
+    transform: translateX(-50%);
+    animation: fadeFromTop 0.15s ease both;
+}
+
+.left {
+    transform: translateX(-100%) translateY(-50%);
+    animation: fadeFromRight 0.15s ease both;
+}
+
+.right {
+    transform: translateY(-50%);
+    animation: fadeFromLeft 0.15s ease both;
+}
+
+
+/* Animation phải giữ đúng transform base của từng position */
+@keyframes fadeFromBottom {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(calc(-100% + 6px));
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(-100%);
+    }
+}
+
+@keyframes fadeFromTop {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-6px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
+}
+
+@keyframes fadeFromRight {
+    from {
+        opacity: 0;
+        transform: translateX(calc(-100% + 6px)) translateY(-50%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-100%) translateY(-50%);
+    }
+}
+
+@keyframes fadeFromLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-6px) translateY(-50%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0) translateY(-50%);
+    }
+}
+
+/* ! === VARIANTS === */
+
+/* -- white -- */
+.tooltip.white {
+    background: white;
+    color: var(--color-text-primary);
+    border-color: var(--color-border-blue);
+}
+
+.white.bottom::before {
+    border-color: transparent transparent var(--color-border-blue) transparent;
+}
+
+.white.bottom::after {
+    border-color: transparent transparent white transparent;
+}
+
+.white.top::before {
+    border-color: var(--color-border-blue) transparent transparent transparent;
+}
+
+.white.top::after {
+    border-color: white transparent transparent transparent;
+}
+
+.white.right::before {
+    border-color: var(--color-border-blue) transparent transparent transparent;
+}
+
+.white.right::after {
+    border-color: white transparent transparent transparent;
+}
+
+.white.left::before {
+    border-color: var(--color-border-blue) transparent transparent transparent;
+}
+
+.white.left::after {
+    border-color: white transparent transparent transparent;
+}
+
+/* -- orange -- */
+.tooltip.orange {
+    background: var(--color-primary-orange);
+    border-color: color-mix(in srgb, var(--color-primary-orange) 60%, white);
+}
+
+.orange.bottom::before {
+    border-color: transparent transparent color-mix(in srgb, var(--color-primary-orange) 60%, white) transparent;
+}
+
+.orange.bottom::after {
+    border-color: transparent transparent var(--color-primary-orange) transparent;
+}
+
+.orange.top::before {
+    border-color: color-mix(in srgb, var(--color-primary-orange) 60%, white) transparent transparent transparent;
+}
+
+.orange.top::after {
+    border-color: var(--color-primary-orange) transparent transparent transparent;
+}
+
+.orange.right::before {
+    border-color: color-mix(in srgb, var(--color-primary-orange) 60%, white) transparent transparent transparent;
+}
+
+.orange.right::after {
+    border-color: var(--color-primary-orange) transparent transparent transparent;
+}
+
+.orange.left::before {
+    border-color: color-mix(in srgb, var(--color-primary-orange) 60%, white) transparent transparent transparent;
+}
+
+.orange.left::after {
+    border-color: var(--color-primary-orange) transparent transparent transparent;
+}
+
+/* -- green -- */
+.tooltip.green {
+    background: var(--color-primary-green);
+    border-color: color-mix(in srgb, var(--color-primary-green) 60%, white);
+}
+
+.green.bottom::before {
+    border-color: transparent transparent color-mix(in srgb, var(--color-primary-green) 60%, white) transparent;
+}
+
+.green.bottom::after {
+    border-color: transparent transparent var(--color-primary-green) transparent;
+}
+
+.green.top::before {
+    border-color: color-mix(in srgb, var(--color-primary-green) 60%, white) transparent transparent transparent;
+}
+
+.green.top::after {
+    border-color: var(--color-primary-green) transparent transparent transparent;
+}
+
+.green.right::before {
+    border-color: color-mix(in srgb, var(--color-primary-green) 60%, white) transparent transparent transparent;
+}
+
+.green.right::after {
+    border-color: var(--color-primary-green) transparent transparent transparent;
+}
+
+.green.left::before {
+    border-color: color-mix(in srgb, var(--color-primary-green) 60%, white) transparent transparent transparent;
+}
+
+.green.left::after {
+    border-color: var(--color-primary-green) transparent transparent transparent;
+}

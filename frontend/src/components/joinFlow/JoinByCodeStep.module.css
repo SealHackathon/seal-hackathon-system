@@ -1,0 +1,42 @@
+.title {
+    font-size: 1.8rem;
+    font-weight: 900;
+    font-style: italic;
+    color: var(--color-primary-blue);
+    text-align: center;
+    margin: 0 0 1em;
+}
+
+.banner {
+    background: var(--color-bg-blue);
+    border-radius: var(--radius);
+    padding: 0.85em 1.25em;
+    text-align: center;
+    font-size: 0.9rem;
+    color: var(--color-dark-blue);
+    line-height: 1.6;
+    margin-bottom: 1.5em;
+}
+
+.banner p { margin: 0; }
+
+.previewWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    margin-top: 1.5em;
+}
+
+.previewLabel {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--color-secondary-blue);
+}
+
+.previewCard {
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    padding: 1.25em;
+    background: var(--color-bg-blue);
+}
