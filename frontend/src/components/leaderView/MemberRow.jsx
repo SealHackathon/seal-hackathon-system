@@ -6,7 +6,7 @@ import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 
 function MemberRow({ 
   index, 
-  name, 
+ name,  
   email, 
   school, 
   isLeader, 
@@ -14,8 +14,8 @@ function MemberRow({
   onKick, 
   onPromote, 
   onLeave,
-  onCancelLeave,
-  onApproveLeave,
+  onCancelLeave // day la member 
+  ,onApproveLeave,
   leaveRequest, 
 }) {
   return (

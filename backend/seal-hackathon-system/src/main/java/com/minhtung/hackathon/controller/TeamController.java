@@ -191,20 +191,7 @@ public class TeamController {
         }
     }
 
-    //member out team
-    @PutMapping("/out-team")
-    public ResponseEntity<?> outTeam(@RequestHeader("Authorization") String auth) {
-        Integer uid = getUid(auth);
-        if (uid == null) {
-            return unauthorized();
-        }
 
-        try {
-            return ResponseEntity.ok().body(teamService.outTeam(uid));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
 
 
     private Integer getUid(String authHeader) {

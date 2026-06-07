@@ -17,7 +17,9 @@ function TeamMemberPanel({
     onLockTeam,
     onApproveLeave,
     onCancelLeave,
-    rejectionReasons }) {
+    rejectionReasons,
+    leaveRequest
+}) {
 
     const emptyCount = maxSlots - members.length
 
@@ -162,6 +164,7 @@ function TeamMemberPanel({
                         onApproveLeave={onApproveLeave ? () => onApproveLeave(member.id) : undefined}
                         onCancelLeave={onCancelLeave ? () => onCancelLeave(member.id) : undefined}
                         onLeave={onLeave}
+                        leaveRequest={leaveRequest}
                     />
                 ))}
 

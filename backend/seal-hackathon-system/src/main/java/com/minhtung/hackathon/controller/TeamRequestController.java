@@ -9,6 +9,7 @@ import com.minhtung.hackathon.service.TeamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -183,6 +184,36 @@ public class TeamRequestController {
 
     }
 
+
+    //member out team gui 1 leave request
+    @PostMapping("/out-team")
+    public ResponseEntity<?> outTeam(@RequestHeader("Authorization") String auth) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return unauthorized();
+        }
+
+        try {
+            return ResponseEntity.ok().body(teamService.outTeam(uid));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+    //member cancel LEAVE_TEAM_REQUEST
+    @PostMapping("/out-team/cancle")
+    public ResponseEntity<?> outTeamCancle(@RequestHeader("Authorization") String auth) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return unauthorized();
+        }
+
+        try {
+            return ResponseEntity.ok().body(teamService.outTeamCancle(uid));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 
 
 

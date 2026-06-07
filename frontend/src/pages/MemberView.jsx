@@ -16,24 +16,24 @@ function MemberView() {
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const token = localStorage.getItem("accessToken")
   const [teamInfo, setTeamInfo] = useState({ teamName: '', description: '', teamCode: '' });
-
+  const [leaveRequest, setLeaveRequest] = useState()
   // api lấy team info
-    useEffect(() => {
-      axios
-        .get('http://localhost:8080/api/team/team-info'
-          , {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}` // nếu có JWT
-            }
+  useEffect(() => {
+    axios
+      .get('http://localhost:8080/api/team/team-info'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
           }
-        )
-        .then((response) => {
-          setTeamInfo(response.data);
-        })
-        .catch((error) => console.log(error));
-    }, []);
-  
+        }
+      )
+      .then((response) => {
+        setTeamInfo(response.data);
+      })
+      .catch((error) => console.log(error));
+  }, []);
+
 
   // api lấy team members thành viên đội 
   useEffect(() => {
@@ -53,13 +53,43 @@ function MemberView() {
   }, []);
 
 
+
+
   const handleOnLeave = () => {
 
-  const isConfirmed = window.confirm("Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!");
+    const isConfirmed = window.confirm("Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!");
 
-  if (isConfirmed) {
+    if (isConfirmed) {
+      axios
+        .post('http://localhost:8080/api/teamrequest/out-team', {}, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        })
+        .then((response) => {
+          console.log(response.data);
+          alert("Bạn đã gui yeu cau roi nhóm thành công!");
+          const responseData = {
+            id: response.id, name: response.name, message: response.message
+          }
+          setLeaveRequest(responseData)
+          // window.location.reload();
+        })
+        .catch((error) => {
+          console.log(error);
+          alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+        });
+    } else {
+      console.log("Người dùng đã hủy bỏ yêu cầu rời nhóm.");
+    }
+  };
+
+
+
+  const handleOnCancelLeave = (id) => {
     axios
-      .put('http://localhost:8080/api/team/out-team', {}, {
+      .post('http://localhost:8080/api/teamrequest/out-team/cancle', id, {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${token}` // nếu có JWT
@@ -67,19 +97,14 @@ function MemberView() {
       })
       .then((response) => {
         console.log(response.data);
-        alert("Bạn đã rời nhóm thành công!");
-          window.location.reload();
+        alert("Bạn đã gui yeu cau roi nhóm thành công!");
+        window.location.reload();
       })
       .catch((error) => {
         console.log(error);
         alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
       });
-  } else {
-    console.log("Người dùng đã hủy bỏ yêu cầu rời nhóm.");
   }
-};
-
-const handleOnCancelLeave = (id) => { }
 
   return (
     <EventLayout>
@@ -96,6 +121,7 @@ const handleOnCancelLeave = (id) => { }
           maxSlots={4}
           teamStatus={teamStatus}
           isLeader={false}
+          leaveRequest={leaveRequest}
           onLeave={handleOnLeave}
           onCancelLeave={(id) => handleOnCancelLeave(id)}
         // Không truyền onKick, onPromote, onLockTeam → member không thấy các nút đó
