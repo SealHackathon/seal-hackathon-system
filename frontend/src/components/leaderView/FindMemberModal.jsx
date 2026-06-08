@@ -8,6 +8,8 @@ import { useEffect } from 'react'
 import ModalShell from '../shared/ModalShell'
 
 
+const PAGE_SIZE = 6
+
 function FindMemberModal({ onClose }) {
   const [search, setSearch] = useState('')
   const [fptOnly, setFptOnly] = useState(false)
@@ -16,6 +18,9 @@ function FindMemberModal({ onClose }) {
 
   // trang leader thì lấy danh sách lời mời để show bằng request id của teamRequest
   // nhưng ở đây là trang tìm kiếm thành viên mời vào team nên lấy cái id lên là id của user
+
+
+  
 
 
   // lay danh sach free user trong he thong
@@ -41,6 +46,18 @@ function FindMemberModal({ onClose }) {
       .catch((error) => console.log(error));
   }, []);
 
+
+  const filtered = FAKE_MEMBERS.filter(team =>
+    team.name.toLowerCase().includes(search.toLowerCase())
+  )
+
+  const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
+
+  const paged = filtered.slice(
+    (currentPage - 1) * PAGE_SIZE,
+    currentPage * PAGE_SIZE
+  )
+
   return (
     <ModalShell
       onClose={() => { onClose(), window.location.reload() }}
@@ -62,7 +79,7 @@ function FindMemberModal({ onClose }) {
           -Anh thắc mắc cái onCancle này có link với onCancel ở InviteCard trong LeaderView không
       ) */}
         <CardSearchBase
-          items={FAKE_MEMBERS}
+          items={paged}
           renderCard={(member) => (
             <MemberCard
               key={member.id}
@@ -77,7 +94,7 @@ function FindMemberModal({ onClose }) {
           fptOnly={fptOnly}
           onFptChange={setFptOnly}
           currentPage={currentPage}
-          totalPages={8}
+          totalPages={totalPages}
           onPageChange={setCurrentPage}
         />
       </div>
