@@ -747,7 +747,7 @@ public class TeamService {
         teamRequestRepository.save(teamRequest);
         OutTeamResponse outTeamResponse = new OutTeamResponse();
         outTeamResponse.setId(teamRequest.getId());
-        outTeamResponse.setMemberId(member.getId());
+        outTeamResponse.setMemberId(member.getMember().getId());
         outTeamResponse.setName(sender.getFullName());
         outTeamResponse.setMessage("Thành viên " + sender.getFullName() + " xin rời đội.");
 
