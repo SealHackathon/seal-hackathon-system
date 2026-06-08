@@ -9,6 +9,7 @@ import styles from './TeamMemberPanel.module.css'
 function TeamMemberPanel({
     members,
     maxSlots = 4,
+    minSlots = 3,
     teamStatus,
     isLeader,
     onKick,
@@ -25,7 +26,7 @@ function TeamMemberPanel({
 
 
     function renderNoticeBox() {
-        if (teamStatus === 'pending') {
+        if (teamStatus === 'OPEN') {
             return (
                 <NoticeBox
                     color="orange"
@@ -42,6 +43,7 @@ function TeamMemberPanel({
                             variant="primary"
                             color='orange'
                             onClick={onLockTeam}
+                            disabled={members.length < minSlots}
                         />
                         : undefined
                     }
@@ -49,7 +51,7 @@ function TeamMemberPanel({
             )
         }
 
-        if (teamStatus === 'waiting') {
+        if (teamStatus === 'PENDING_APPROVAL') {
             return (
                 <NoticeBox
                     color="orange"
@@ -72,7 +74,7 @@ function TeamMemberPanel({
             )
         }
 
-        if (teamStatus === 'approved') {
+        if (teamStatus === 'APPROVED') {
             return (
                 <NoticeBox
                     color="green"
@@ -94,7 +96,7 @@ function TeamMemberPanel({
             )
         }
 
-        if (teamStatus === 'rejected') {
+        if (teamStatus === 'REJECTED') {
             return (
                 <NoticeBox
                     color="orange"
@@ -153,6 +155,7 @@ function TeamMemberPanel({
                 {members.map((member, i) => (
                     <MemberRow
                         key={member.id}
+                        teamStatus={teamStatus}
                         index={i + 1}
                         name={member.name}
                         email={member.email}

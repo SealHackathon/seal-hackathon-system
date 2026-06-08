@@ -51,7 +51,7 @@ function LeaderView() {
   //gia lap login luu accesstoken vao localStorage
   const [confirmModal, setConfirmModal] = useState(null)
 
-  const [teamStatus, setTeamStatus] = useState('pending')
+  const [teamStatus, setTeamStatus] = useState('OPEN')
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
@@ -361,7 +361,7 @@ function LeaderView() {
           })
 
           // alert("Bạn đã rời nhóm thành công!");
-          window.location.reload();
+          // window.location.reload();
         })
         .catch((error) => {
           console.log(error);
@@ -387,12 +387,12 @@ function LeaderView() {
       .then((response) => {
         console.log(response.data);
 
-        setConfirmModal({
-          message: 'Bạn đã duyệt yêu cầu rời nhóm thành công!',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          onConfirm: () => { window.location.reload() }
-        })
+        // setConfirmModal({
+        //   message: 'Bạn đã duyệt yêu cầu rời nhóm thành công!',
+        //   confirmLabel: 'Xác nhận',
+        //   isNotification: true,
+        //   onConfirm: () => { window.location.reload() }
+        // })
 
         // alert("Bạn đã duyet yeu cau roi nhóm thành công!");
         window.location.reload();
@@ -482,7 +482,7 @@ function LeaderView() {
               maxSlots={MAX_SLOTS}
               teamStatus={teamStatus}
               isLeader
-              onLockTeam={() => setTeamStatus('waiting')}
+              onLockTeam={() => setTeamStatus('PENDING_APPROVAL')}
               onKick={(id) => handleOnKick(id)}
               onPromote={(id) => handleOnPromote(id)}
               onApproveLeave={(id) => handleOnApproveLeave(id)}

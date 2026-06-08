@@ -1,13 +1,13 @@
 import styles from './TeamStatusTag.module.css'
 
 const STATUS_CONFIG = {
-  pending:  { label: 'Chưa chốt đội' },
-  rejected:  { label: 'Chưa chốt đội' },
-  waiting:  { label: 'Chờ BTC duyệt' },
-  approved: { label: 'Đã chốt đội'   },
+  OPEN:  { label: 'Chưa chốt đội' },
+  REJECTED:  { label: 'Chưa chốt đội' },
+  PENDING_APPROVAL:  { label: 'Chờ BTC duyệt' },
+  APPROVED: { label: 'Đã chốt đội'   },
 }
 
-function TeamStatusTag({ status = 'pending' }) {
+function TeamStatusTag({ status = 'OPEN' }) {
   const config = STATUS_CONFIG[status]
 
   return (

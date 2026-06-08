@@ -8,6 +8,7 @@ import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 
 function MemberRow({
   index,
+  teamStatus,
   name,
   email,
   school,
@@ -45,13 +46,14 @@ function MemberRow({
       </div>
 
 
-      <div className={styles.actions}>
+      {teamStatus === "OPEN" && (
+        <div className={styles.actions}>
 
-        {
-          isCurrentUser ? (
-            
-            (leaveRequest && onCancelLeave) ? (
-                
+          {
+            isCurrentUser ? (
+
+              (leaveRequest && onCancelLeave) ? (
+
                 <Button
                   label="Hủy yêu cầu rời đội"
                   labelSize={16}
@@ -61,54 +63,56 @@ function MemberRow({
                 </Button>
 
               ) : (
-                
+
                 <Tooltip content="Rời đội">
                   <button
                     className={styles.actionBtn}
                     onClick={isLeader ? onLeave : () => setSelectedRequest({ compose: true })}
-                    // thêm một trường compose vào request gốc để phân biệt việc gửi leave request của member
-                    >
+                  // thêm một trường compose vào request gốc để phân biệt việc gửi leave request của member
+                  >
                     <SignOut size={28} weight='bold' color="var(--color-secondary-blue)" />
                   </button>
                 </Tooltip>
 
               )
-          ) : (leaveRequest && onApproveLeave) ? (
-            
-            <Button
-              label="Xử lý yêu cầu rời đội"
-              labelSize={16} 
-              variant="outline"
-              icon={HandPalm}
-              color="blue"
-              onClick={() => setSelectedRequest(leaveRequest)} 
-            >
+            ) : (leaveRequest && onApproveLeave) ? (
 
-            </Button>
-          ) : (onKick || onPromote) ? (
-            
-            <>
-            
-              <Tooltip content="Trao quyền" bgColor="orange">
-                <button
-                  className={styles.actionBtn}
-                  onClick={onPromote}> 
-                  <CrownSimple size={28} weight='bold' color="var(--color-border-orange)" />
-                </button>
-              </Tooltip>
+              <Button
+                label="Xử lý yêu cầu rời đội"
+                labelSize={16}
+                variant="outline"
+                icon={HandPalm}
+                color="blue"
+                onClick={() => setSelectedRequest(leaveRequest)}
+              >
 
-              <Tooltip content="Yêu cầu rời đội" bgColor="orange">
-                <button
-                  className={styles.actionBtn}
-                  onClick={onKick}>
-                  <X size={28} weight='bold' color="var(--color-border-orange)" />
-                </button>
-              </Tooltip>
+              </Button>
+            ) : (onKick || onPromote) ? (
 
-            </>
+              <>
 
-          ) : null}
-      </div>
+                <Tooltip content="Trao quyền" bgColor="orange">
+                  <button
+                    className={styles.actionBtn}
+                    onClick={onPromote}>
+                    <CrownSimple size={28} weight='bold' color="var(--color-border-orange)" />
+                  </button>
+                </Tooltip>
+
+                <Tooltip content="Yêu cầu rời đội" bgColor="orange">
+                  <button
+                    className={styles.actionBtn}
+                    onClick={onKick}>
+                    <X size={28} weight='bold' color="var(--color-border-orange)" />
+                  </button>
+                </Tooltip>
+
+              </>
+
+            ) : null}
+        </div>
+      )}
+
 
 
       <LeaveRequestDetailModal
@@ -119,8 +123,8 @@ function MemberRow({
         onCancel={onCancelLeave}
         onClose={() => setSelectedRequest(null)}
       />
-      
-        
+
+
     </div>
   )
 }

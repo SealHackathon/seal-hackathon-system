@@ -24,7 +24,7 @@ const FAKE_LEAVE_REQUESTS = [
 
 
 function MemberView() {
-  const [teamStatus] = useState('pending')
+  const [teamStatus] = useState('OPEN')
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const token = localStorage.getItem("accessToken")
   const [teamInfo, setTeamInfo] = useState({ teamName: '', description: '', teamCode: '' });
@@ -111,18 +111,18 @@ function MemberView() {
         console.log(response.data);
 
         setConfirmModal({
-              message: 'Bạn đã gửi yêu cầu rời nhóm thành công!',
+              message: 'Bạn đã hủy yêu cầu rời nhóm thành công!',
               confirmLabel: 'Xác nhận',
               isNotification: true,
               onConfirm: () => {window.location.reload()}
         })
 
         // alert("Bạn đã gui yeu cau roi nhóm thành công!");
-        window.location.reload();
+        // window.location.reload();
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+        alert("Có lỗi xảy ra, không thể hủy rời nhóm lúc này.");
       });
   }
 
