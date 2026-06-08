@@ -402,6 +402,8 @@ function LeaderView() {
           teamName={teamInfo.teamName}
           description={teamInfo.description}
           teamCode={teamInfo.teamCode}
+          members={FAKE_MEMBERS}
+          maxSlots={4}
           isLeader
           // onEdit={() => console.log('mở popup chỉnh sửa thông tin đội')}
           onFindMember={() => console.log('mở popup tìm thành viên')}

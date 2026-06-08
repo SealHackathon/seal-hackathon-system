@@ -107,7 +107,7 @@ function NoTeamView() {
       })
       .then((response) => {
         console.log(response.data);
-          setFAKE_INVITES(response.data)
+        setFAKE_INVITES(response.data)
         window.location.reload();
       })
       .catch((error) => {
