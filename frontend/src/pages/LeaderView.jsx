@@ -51,7 +51,7 @@ function LeaderView() {
   //gia lap login luu accesstoken vao localStorage
   const [confirmModal, setConfirmModal] = useState(null)
 
-  const [teamStatus, setTeamStatus] = useState('pending')
+  const [teamStatus, setTeamStatus] = useState('OPEN')
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
@@ -442,7 +442,7 @@ function LeaderView() {
       .then((response) => {
         console.log(response.data);
 
-        setTeamStatus('waiting')
+        setTeamStatus('PENDING_APPROVAL')
 
         // alert("Bạn đã tu choi yeu cau roi nhóm thành công!");
         window.location.reload();
@@ -512,6 +512,7 @@ function LeaderView() {
               onCancelLeave={(id) => handleOnCancelLeave(id)}
               onLeave={handleOnLeave}
               leaveRequests={FAKE_LEAVE_REQUESTS}
+              onLock={handleOnLockTeam}
             />
           </div>
 
