@@ -48,7 +48,7 @@ function TeamInfoHeader({ teamId, teamName, description, teamCode, isLeader, onE
                         teamName={teamName}
                         description={description}
                         onClose={() => setShowEditModal(false)}
-                        onEdit={onEdit}
+                        // onEdit={onEdit}
                     />
                 )
             }

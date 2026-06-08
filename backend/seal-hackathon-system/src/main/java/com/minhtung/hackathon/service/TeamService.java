@@ -753,7 +753,7 @@ public class TeamService {
 
         //dem so luong thanh vien trong team hien tai
         int teamCurrentMembers = memberRepository.countByTeamIdAndStatus(team.getId(), true);
-        if (teamCurrentMembers == 0) {
+        if (teamCurrentMembers == 1) {
             teamRequestRepository.deleteAllByTeamId(team.getId());
             memberRepository.deleteAllByTeamId(team.getId());
             teamRepository.delete(team);

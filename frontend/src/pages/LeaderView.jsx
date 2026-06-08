@@ -326,7 +326,7 @@ function LeaderView() {
 
     if (isConfirmed) {
       axios
-        .put('http://localhost:8080/api/team/out-team', {}, {
+        .post('http://localhost:8080/api/teamrequest/out-team', {}, {
           headers: {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}` // nếu có JWT
