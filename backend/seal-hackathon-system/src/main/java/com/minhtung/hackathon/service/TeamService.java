@@ -57,6 +57,9 @@ public class TeamService {
             throw new IllegalArgumentException("Bạn thuộc team rồi nên không thể tham gia đăng kí vào team khác");
         }
         List<String> userEmails = newTeam.getInviteEmails();
+        if (userEmails.size() != new HashSet<>(userEmails).size()) {
+            throw new IllegalArgumentException("Danh sách email có thành viên bị trùng");
+        }
         for (String email : userEmails) {
             User member = userRepository.findByEmail(email).orElse(null);
             if (member == null) {
