@@ -923,10 +923,17 @@ public class TeamService {
 
 
     //check team name trong luc createTeam xem co bi trung k
-    public boolean checkName(String name) {
-        Team team = teamRepository.findByNameIgnoreCaseAndStatus(name, TeamStatus.OPEN).orElse(null);
+    // neu findTeamByLaederId nay da ton tai 1 team roi thi tra ve true luon de tan dung lam edit Team
+    public boolean checkName(String name,long leaderId) {
+        Team team1 =teamRepository.findByLeaderId(leaderId).orElse(null);
+       // leader nay da tao team roi nhung muon edit team thi cho phep edit trung lai ten cu~
+        if(team1!=null&&team1.getName().equals(name)){
+            return true;
+        }
+
+        Team team2 = teamRepository.findByNameIgnoreCaseAndStatus(name, TeamStatus.OPEN).orElse(null);
         // neu ten chua ton tai thi return ve true
-        if (team == null) {
+        if (team2 == null) {
             return true;
         }
         //ton tai roi thi tra ve false
