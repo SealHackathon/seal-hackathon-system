@@ -40,7 +40,7 @@ function LeaveRequestDetailModal({
                         }
                     />
                     <Button
-                        label={request.compose ? "Xác nhân" : "Đồng ý"}
+                        label={request.compose ? "Xác nhận" : "Đồng ý"}
                         variant="primary"
                         color='blue'
                         onClick={

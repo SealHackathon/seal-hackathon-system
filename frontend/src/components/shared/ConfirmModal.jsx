@@ -10,6 +10,7 @@ function ConfirmModal({
     onCancel, 
     confirmLabel = 'Đồng ý', 
     denyLabel = 'Hủy',
+    isNotification = false,
     }) {
     if (!isOpen) return null
 
@@ -19,7 +20,9 @@ function ConfirmModal({
             onClose={onCancel}
             footer={
                 <div className={styles.actions}>
-                    <Button label={denyLabel} variant="outline" color='orange' onClick={onCancel} />
+                    {!isNotification && (
+                        <Button label={denyLabel} variant="outline" color='orange' onClick={onCancel} />
+                    )}
                     <Button label={confirmLabel} color='orange' onClick={onConfirm} />
                 </div>
             }

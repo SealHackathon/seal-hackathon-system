@@ -8,10 +8,11 @@ import MemberView from './pages/MemberView'
 import NoTeamViews from './pages/NoTeamView';
 import LoginPage from './pages/LoginPage';
 import JoinTeamFlow from './components/joinFlow/JoinTeamFlow';
+import UserDashboard from './pages/UserDashboard';
 function App() {
   const [role, setRole] = useState(null);
   const token = localStorage.getItem("accessToken");
-
+  const [screen, setScreen] = useState('dashboard')
   
 
   useEffect(() => {
@@ -33,14 +34,19 @@ function App() {
   if (!token) {
     return <LoginPage />;
   }
-  if (role === "LEADER") {
-    return <LeaderView />;
-  }else if(role==='MEMBER')
-   {
-    return <MemberView />;
-  }else{
-    return <NoTeamViews />;
-  }
+  if (screen === 'team') {
+        if (role === "LEADER") {
+          return <LeaderView/>
+        }
+        if (role === 'MEMBER') {
+          return <MemberView/>
+        }
+        else {
+          return <NoTeamViews/>
+        }
+    }
+
+  return <UserDashboard onNavigate={(page) => setScreen(page)} />
 
  
 

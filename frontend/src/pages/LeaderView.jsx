@@ -6,7 +6,9 @@ import RequestCard from '../components/leaderView/RequestCard'
 import InviteCard from '../components/leaderView/InviteCard'
 import ConfirmModal from '../components/shared/ConfirmModal'
 import styles from './LeaderView.module.css'
+import NoticeBox from '../components/shared/NoticeBox'
 import axios from 'axios'
+import { Bell } from '@phosphor-icons/react'
 
 // Data tạm — sau này thay bằng API
 // const FAKE_MEMBERS = [
@@ -40,7 +42,7 @@ import axios from 'axios'
 // ]
 
 
-
+const MAX_SLOTS = 4 // ! Sau này sẽ cho BTC config
 
 
 
@@ -56,7 +58,7 @@ function LeaderView() {
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
   const token = localStorage.getItem("accessToken")
   const [teamInfo, setTeamInfo] = useState({ teamName: '', description: '', teamCode: '' });
-
+  const emptyCount = MAX_SLOTS - FAKE_MEMBERS.length
   // api lấy team members thành viên đội 
   useEffect(() => {
     axios
@@ -270,7 +272,15 @@ function LeaderView() {
           .then((response) => {
             console.log(response.data);
             //thêm reload trang
-            alert("Đã kick thành viên thành công!");
+
+            setConfirmModal({
+              message: 'Đã kick thành viên thành công!',
+              confirmLabel: 'Xác nhận',
+              isNotification: true,
+              onConfirm: () => { window.location.reload() }
+            })
+
+            // alert("Đã kick thành viên thành công!");
             //reload trang
             window.location.reload();
           })
@@ -301,10 +311,18 @@ function LeaderView() {
           })
           .then((response) => {
             console.log(response.data);
-            alert("Đã chuyển giao quyền Trưởng nhóm thành công!");
+
+            setConfirmModal({
+              message: 'Đã chuyển giao quyền Trưởng nhóm thành công!',
+              confirmLabel: 'Xác nhận',
+              isNotification: true,
+              onConfirm: () => { window.location.reload() }
+            })
+
+            // alert("Đã chuyển giao quyền Trưởng nhóm thành công!");
 
             // 2. Tải lại trang để cập nhật lại giao diện (Ẩn các nút quản lý của Leader cũ)
-            window.location.reload();
+
           })
           .catch((error) => {
             console.log(error);
@@ -334,7 +352,15 @@ function LeaderView() {
         })
         .then((response) => {
           console.log(response.data);
-          alert("Bạn đã rời nhóm thành công!");
+
+          setConfirmModal({
+            message: 'Bạn đã rời nhóm thành công!',
+            confirmLabel: 'Xác nhận',
+            isNotification: true,
+            onConfirm: () => { window.location.reload() }
+          })
+
+          // alert("Bạn đã rời nhóm thành công!");
           window.location.reload();
         })
         .catch((error) => {
@@ -346,7 +372,7 @@ function LeaderView() {
     }
   };
 
- 
+
 
   // TODO: Xử lí chỉnh sửa thông tin đội
 
@@ -360,7 +386,15 @@ function LeaderView() {
       })
       .then((response) => {
         console.log(response.data);
-        alert("Bạn đã duyet yeu cau roi nhóm thành công!");
+
+        setConfirmModal({
+          message: 'Bạn đã duyệt yêu cầu rời nhóm thành công!',
+          confirmLabel: 'Xác nhận',
+          isNotification: true,
+          onConfirm: () => { window.location.reload() }
+        })
+
+        // alert("Bạn đã duyet yeu cau roi nhóm thành công!");
         window.location.reload();
       })
       .catch((error) => {
@@ -380,7 +414,15 @@ function LeaderView() {
       })
       .then((response) => {
         console.log(response.data);
-        alert("Bạn đã tu choi yeu cau roi nhóm thành công!");
+
+        setConfirmModal({
+          message: 'Bạn đã từ chối yêu cầu rời nhóm thành công!',
+          confirmLabel: 'Xác nhận',
+          isNotification: true,
+          onConfirm: () => { window.location.reload() }
+        })
+
+        // alert("Bạn đã tu choi yeu cau roi nhóm thành công!");
         window.location.reload();
       })
       .catch((error) => {
@@ -388,6 +430,27 @@ function LeaderView() {
         alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
       });
   }
+
+  // function renderNoticeBox() {
+  //   if (teamStatus == 'pending' && emptyCount <= 1) { // ! mốt chỉnh lại chỗ này là emptyCount == minSlots
+  //     return (
+  //       <NoticeBox
+  //         color="green"
+  //         icon={Bell}
+  //         message={
+  //           <div>
+  //             <p>Đội của bạn đã đủ thành viên.</p>
+  //           </div>
+  //         }
+  //         detail={
+  //           <div>
+  //             <p>Vì số lượng mỗi track có hạn, bạn hãy nhanh chóng chọn bảng và chốt đội nhé.</p>
+  //           </div>
+  //         }
+  //       />
+  //     )
+  //   }
+  // }
 
 
   return (
@@ -402,12 +465,13 @@ function LeaderView() {
           teamName={teamInfo.teamName}
           description={teamInfo.description}
           teamCode={teamInfo.teamCode}
-          members={FAKE_MEMBERS}
-          maxSlots={4}
+          emptyCount={emptyCount}
           isLeader
           // onEdit={() => console.log('mở popup chỉnh sửa thông tin đội')}
           onFindMember={() => console.log('mở popup tìm thành viên')}
         />
+
+        {/* {renderNoticeBox()} */}
 
         {/* 2 cột bên dưới */}
         <div className={styles.content}>
@@ -415,7 +479,7 @@ function LeaderView() {
           <div className={styles.main}>
             <TeamMemberPanel
               members={FAKE_MEMBERS}
-              maxSlots={4}
+              maxSlots={MAX_SLOTS}
               teamStatus={teamStatus}
               isLeader
               onLockTeam={() => setTeamStatus('waiting')}
@@ -455,6 +519,7 @@ function LeaderView() {
         confirmColor={confirmModal?.confirmColor}
         onConfirm={confirmModal?.onConfirm}
         onCancel={() => setConfirmModal(null)}
+        isNotification={confirmModal?.isNotification}
       />
 
     </EventLayout>

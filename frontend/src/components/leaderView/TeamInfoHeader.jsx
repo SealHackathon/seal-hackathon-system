@@ -6,7 +6,7 @@ import FindMemberModal from './FindMemberModal'
 import EditTeamInformationModal from './EditTeamInformationModal';
 import Tooltip from '../shared/Tooltip';
 
-function TeamInfoHeader({ teamId, teamName, description, teamCode, members, maxSlots, isLeader, onEdit }) {
+function TeamInfoHeader({ teamId, teamName, description, teamCode, emptyCount, isLeader, onEdit }) {
     const [showModal, setShowModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     function handleCopyCode() {
@@ -14,7 +14,6 @@ function TeamInfoHeader({ teamId, teamName, description, teamCode, members, maxS
     }
 
     // check xem team đủ thành viên chưa, đủ thì disable cái nút tìm thành viên bên LeaderView
-    const emptyCount = (isLeader) ? maxSlots - members.length : null
 
     return (
         <div className={styles.wrapper}>

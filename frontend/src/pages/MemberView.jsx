@@ -109,7 +109,15 @@ function MemberView() {
       })
       .then((response) => {
         console.log(response.data);
-        alert("Bạn đã gui yeu cau roi nhóm thành công!");
+
+        setConfirmModal({
+              message: 'Bạn đã gửi yêu cầu rời nhóm thành công!',
+              confirmLabel: 'Xác nhận',
+              isNotification: true,
+              onConfirm: () => {window.location.reload()}
+        })
+
+        // alert("Bạn đã gui yeu cau roi nhóm thành công!");
         window.location.reload();
       })
       .catch((error) => {
