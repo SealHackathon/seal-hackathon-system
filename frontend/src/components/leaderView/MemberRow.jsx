@@ -116,7 +116,7 @@ function MemberRow({
         compose
         onAccept={onApproveLeave}
         onLeave={onLeave}
-        onCancelLeave={onCancelLeave}
+        onCancel={onCancelLeave}
         onClose={() => setSelectedRequest(null)}
       />
       

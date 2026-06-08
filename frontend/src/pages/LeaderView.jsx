@@ -204,7 +204,7 @@ function LeaderView() {
             // alert("Đã từ chối yêu cầu gia nhập!");
 
             // 2. Reload lại trang để yêu cầu biến mất khỏi danh sách chờ
-            window.location.reload();
+            // window.location.reload();
           })
           .catch((error) => {
             console.log(error);
@@ -378,7 +378,7 @@ function LeaderView() {
       })
       .then((response) => {
         console.log(response.data);
-        alert("Bạn đã gui yeu cau roi nhóm thành công!");
+        alert("Bạn đã tu choi yeu cau roi nhóm thành công!");
         window.location.reload();
       })
       .catch((error) => {

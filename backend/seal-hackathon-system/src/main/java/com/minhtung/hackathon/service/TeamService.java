@@ -500,7 +500,7 @@ public class TeamService {
     @Transactional
     public String respondToLeaveRequest(long memberId, long leaderId) {
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
-        Member memberSender= memberRepository.findByIdAndStatus(memberId, true).orElse(null);
+        Member memberSender = memberRepository.findByIdAndStatus(memberId, true).orElse(null);
         User user = memberSender.getMember();
         if (team == null) {
             throw new IllegalArgumentException("Team not found");
@@ -753,6 +753,19 @@ public class TeamService {
         // gui 1 leave request den team
         Team team = member.getTeam();
         List<TeamRequest> teamRequests = new ArrayList<>(team.getTeamRequest());
+        if (member.getMember().equals(team.getLeader())) {
+            for (TeamRequest teamRequest : teamRequests) {
+                if (teamRequest.getReceiver().equals(member.getMember())
+                        && teamRequest.getType() == RequestType.LEAVE_REQUEST &&
+                        teamRequest.getStatus() == RequestStatus.PENDING
+                ) {
+                    teamRequest.setStatus(RequestStatus.REJECTED);
+                    teamRequestRepository.save(teamRequest);
+                    return "đã tu choi cầu rời đội thành công";
+                }
+            }
+        }
+
         for (TeamRequest teamRequest : teamRequests) {
             if (teamRequest.getSender().equals(member.getMember())
                     && teamRequest.getType() == RequestType.LEAVE_REQUEST &&
