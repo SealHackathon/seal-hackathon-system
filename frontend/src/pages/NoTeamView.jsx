@@ -107,7 +107,7 @@ function NoTeamView() {
       })
       .then((response) => {
         console.log(response.data);
-        // alert("thành công!");
+          setFAKE_INVITES(response.data)
         window.location.reload();
       })
       .catch((error) => {

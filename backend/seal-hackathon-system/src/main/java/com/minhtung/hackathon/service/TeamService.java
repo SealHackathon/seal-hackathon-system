@@ -264,6 +264,21 @@ public class TeamService {
             memberInvitationResponse.setMemberCount(memberRepository.countByTeamIdAndStatus(teamRequest.getTeam().getId(), true));
             memberInvitationResponse.setMaxSlots(4);
             memberInvitationResponse.setMessage(teamRequest.getMessage());
+
+            List<Member> members = teamRequest.getTeam().getMembers();
+            for (Member member : members) {
+                TeamMemberResponse teamMemberResponse = new TeamMemberResponse();
+                teamMemberResponse.setId(member.getId());
+                teamMemberResponse.setName(member.getMember().getFullName());
+                teamMemberResponse.setSchool(member.getMember().getSchoolName());
+                if (member.getRole() == MemberRole.LEADER) {
+                    teamMemberResponse.setLeader(true);
+                } else {
+                    teamMemberResponse.setLeader(false);
+                }
+                memberInvitationResponse.addMember(teamMemberResponse);
+            }
+
             responseList.add(memberInvitationResponse);
         }
         return responseList;
