@@ -114,7 +114,7 @@ function MemberRow({
       <LeaveRequestDetailModal
         request={selectedRequest}
         compose
-        onApproveLeave={onApproveLeave}
+        onAccept={onApproveLeave}
         onLeave={onLeave}
         onCancelLeave={onCancelLeave}
         onClose={() => setSelectedRequest(null)}

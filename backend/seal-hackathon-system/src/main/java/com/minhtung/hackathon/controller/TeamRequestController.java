@@ -216,6 +216,21 @@ public class TeamRequestController {
     }
 
 
+    // leader get list LEAVE_REQUEST
+    @GetMapping("/leave_request")
+    public ResponseEntity<?> getLeaveRequestList(@RequestHeader("Authorization") String auth) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return unauthorized();
+        }
+
+        try {
+            return ResponseEntity.ok().body(teamService.getLeaveRequestList(uid));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
 
 //----------------------------------------------------------------------------------------  //Các task dưới đây chưa xử lý được
 
@@ -235,13 +250,13 @@ public class TeamRequestController {
     //chuc nang cua leader
 
     @Operation(summary = "leader duyet hoac tu choi leave_request")
-    @PutMapping("/Leave-request/{userId}/respond")
+    @PutMapping("/Leave-request/{memberId}/respond")
     public ResponseEntity<String> respondLeaveRequest(
-            @PathVariable long userId,
+            @PathVariable long memberId,
             @RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
         if (uid == null) return unauthorized();
-        return ResponseEntity.ok(teamService.respondToLeaveRequest(userId,uid));
+        return ResponseEntity.ok(teamService.respondToLeaveRequest(memberId,uid));
     }
 
 

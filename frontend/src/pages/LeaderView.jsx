@@ -27,9 +27,9 @@ import axios from 'axios'
 //    { id: 1, name: 'Hồ Ngọc Bảo Trân', email: 'hngbtran@gmail.com', message: 'Xin chào, mình rất ấn tượng với định hướng của Team bạn. Rất mong được tham gia vào Team của bạn.' },
 // ]
 
-const FAKE_LEAVE_REQUESTS = [
-  { id: 1, name: 'Hồ Ngọc Bảo Trân', message: 'Backend generate ra thành viên "Name" xin rời đội.' },
-]
+// const FAKE_LEAVE_REQUESTS = [
+//   { id: 1, name: 'Hồ Ngọc Bảo Trân', message: 'Backend generate ra thành viên "Name" xin rời đội.' },
+// ]
 
 
 
@@ -53,7 +53,7 @@ function LeaderView() {
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
-  // const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
+  const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
   const token = localStorage.getItem("accessToken")
   const [teamInfo, setTeamInfo] = useState({ teamName: '', description: '', teamCode: '' });
 
@@ -122,6 +122,23 @@ function LeaderView() {
       )
       .then((response) => {
         setFAKE_INVITES(response.data);
+      })
+      .catch((error) => console.log(error));
+  }, []);
+
+   // api teamLeader xem những leave request da gui di 
+  useEffect(() => {
+    axios
+      .get('http://localhost:8080/api/teamrequest/leave_request'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
+      )
+      .then((response) => {
+        setFAKE_LEAVE_REQUESTS(response.data);
       })
       .catch((error) => console.log(error));
   }, []);

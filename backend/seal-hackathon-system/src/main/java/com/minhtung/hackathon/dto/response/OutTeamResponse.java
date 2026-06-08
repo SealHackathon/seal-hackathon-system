@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 public class OutTeamResponse {
     private long id;
+    private long memberId;
     private String name;
     private String message;
 }

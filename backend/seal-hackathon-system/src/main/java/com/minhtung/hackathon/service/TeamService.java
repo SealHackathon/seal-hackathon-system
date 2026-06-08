@@ -498,13 +498,14 @@ public class TeamService {
     //8 day la ham dung de leadder duyet vuec leave_request trong team
 
     @Transactional
-    public String respondToLeaveRequest(long userId, long leaderId) {
+    public String respondToLeaveRequest(long memberId, long leaderId) {
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
-        User user = userRepository.findById(userId).orElse(null);
+        Member memberSender= memberRepository.findByIdAndStatus(memberId, true).orElse(null);
+        User user = memberSender.getMember();
         if (team == null) {
             throw new IllegalArgumentException("Team not found");
         }
-        TeamRequest teamRequest = teamRequestRepository.findBySenderIdAndTeamIdAndTypeAndStatus(userId, team.getId(), RequestType.LEAVE_REQUEST, RequestStatus.PENDING).orElse(null);
+        TeamRequest teamRequest = teamRequestRepository.findBySenderIdAndTeamIdAndTypeAndStatus(user.getId(), team.getId(), RequestType.LEAVE_REQUEST, RequestStatus.PENDING).orElse(null);
         if (teamRequest == null) {
             throw new IllegalArgumentException("Leave Request not found");
         }
@@ -730,6 +731,7 @@ public class TeamService {
         teamRequestRepository.save(teamRequest);
         OutTeamResponse outTeamResponse = new OutTeamResponse();
         outTeamResponse.setId(teamRequest.getId());
+        outTeamResponse.setMemberId(member.getId());
         outTeamResponse.setName(sender.getFullName());
         outTeamResponse.setMessage("Thành viên " + sender.getFullName() + " xin rời đội.");
 
@@ -762,6 +764,32 @@ public class TeamService {
             }
         }
         return "Ko tìm thấy yêu cầu rời đội";
+    }
+
+
+    //out team neu so luong active trong team hien tai chi la 1 xoa lun team
+    @Transactional
+    public List<OutTeamResponse> getLeaveRequestList(long leaderId) {
+        Member member = memberRepository.findByMemberIdAndStatus(leaderId, true)
+                .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND")); // Ném ra ngoại lệ rõ ràng
+        // gui 1 leave request den team
+        Team team = member.getTeam();
+        List<TeamRequest> teamRequests = new ArrayList<>(team.getTeamRequest());
+        List<OutTeamResponse> outTeamResponses = new ArrayList<>(teamRequests.size());
+        for (TeamRequest teamRequest : teamRequests) {
+            if (teamRequest.getReceiver().equals(member.getMember()) &&
+                    teamRequest.getType() == RequestType.LEAVE_REQUEST &&
+                    teamRequest.getStatus() == RequestStatus.PENDING
+            ) {
+                OutTeamResponse outTeamResponse = new OutTeamResponse();
+                outTeamResponse.setId(teamRequest.getId());
+                outTeamResponse.setMemberId(teamRequest.getSender().getId());
+                outTeamResponse.setName(teamRequest.getSender().getFullName());
+                outTeamResponse.setMessage(teamRequest.getMessage());
+                outTeamResponses.add(outTeamResponse);
+            }
+        }
+        return outTeamResponses;
     }
 
 
@@ -831,7 +859,7 @@ public class TeamService {
     // get team info
     public TeamInfoResponse getTeamInfo(long userId) {
         Member member = memberRepository.findByMemberIdAndStatus(userId, true).orElse(null);
-        Team team = teamRepository.findByLeaderId(userId).orElse(null);
+        Team team = member.getTeam();
         if (team == null) {
             throw new IllegalArgumentException("team khong ton tai");
         }
