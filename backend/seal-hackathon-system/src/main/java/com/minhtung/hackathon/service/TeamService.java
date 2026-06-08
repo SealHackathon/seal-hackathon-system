@@ -900,6 +900,7 @@ public class TeamService {
         teamInfoResponse.setTeamCode(team.getInviteCode());
         teamInfoResponse.setTeamName(team.getName());
         teamInfoResponse.setDescription(team.getDescription());
+        teamInfoResponse.setTeamStatus(team.getStatus().toString());
         return teamInfoResponse;
     }
 
