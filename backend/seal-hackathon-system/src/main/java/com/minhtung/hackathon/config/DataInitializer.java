@@ -143,7 +143,13 @@ public class DataInitializer implements CommandLineRunner {
                     teamRepository.findByLeaderId(user10.getId()).get().getInviteCode(),user11.getId());
 
 
-
+            User user12 = new User();
+            user12.setFullName("ADMIN");
+            user12.setEmail("admin@gmail.com");
+            user12.setPassword("123456");
+            user12.setRole(Role.USER);
+            user12.setActive(true);
+            userRepository.save(user12);
         }
     }
 }

@@ -925,10 +925,10 @@ public class TeamService {
 
     //check team name trong luc createTeam xem co bi trung k
     // neu findTeamByLaederId nay da ton tai 1 team roi thi tra ve true luon de tan dung lam edit Team
-    public boolean checkName(String name,long leaderId) {
-        Team team1 =teamRepository.findByLeaderId(leaderId).orElse(null);
-       // leader nay da tao team roi nhung muon edit team thi cho phep edit trung lai ten cu~
-        if(team1!=null&&team1.getName().equals(name)){
+    public boolean checkName(String name, long leaderId) {
+        Team team1 = teamRepository.findByLeaderId(leaderId).orElse(null);
+        // leader nay da tao team roi nhung muon edit team thi cho phep edit trung lai ten cu~
+        if (team1 != null && team1.getName().equals(name)) {
             return true;
         }
 
@@ -1006,5 +1006,22 @@ public class TeamService {
             return "edit team success";
         }
         return "edit team fail";
+    }
+
+    @Transactional
+    public String lockTeam(long leaderId) {
+        Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
+        if (team == null) {
+            throw new IllegalArgumentException("team khong ton tai");
+        }
+        teamRequestRepository.deleteAllByTeamId(team.getId());
+        team.setStatus(TeamStatus.PENDING_APPROVAL);
+        teamRepository.save(team);
+        User admin = userRepository.findByEmail("admin@gmail.com").orElse(null);
+        if (admin == null) {
+            throw new IllegalArgumentException("admin khong ton tai");
+        }
+        TeamRequest teamRequest = new TeamRequest(RequestStatus.PENDING, team.getLeader(), admin, team, RequestType.TEAM_SUBMISSION, team.getName() + " gui yeu cau xin duyet doi");
+        return "gui yeu cau duyet doi thanh cong";
     }
 }

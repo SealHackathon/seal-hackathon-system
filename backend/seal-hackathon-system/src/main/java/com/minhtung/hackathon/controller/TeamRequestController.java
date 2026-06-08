@@ -232,6 +232,23 @@ public class TeamRequestController {
     }
 
 
+    // leader get list LEAVE_REQUEST
+    @PostMapping("/lock-team")
+    public ResponseEntity<?> lockTeam(@RequestHeader("Authorization") String auth) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return unauthorized();
+        }
+
+        try {
+            return ResponseEntity.ok().body(teamService.lockTeam(uid));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
+
+
+
 //----------------------------------------------------------------------------------------  //Các task dưới đây chưa xử lý được
 
     //thanh vien gui yeu cau xin roi doi chưa xử lý được task này
