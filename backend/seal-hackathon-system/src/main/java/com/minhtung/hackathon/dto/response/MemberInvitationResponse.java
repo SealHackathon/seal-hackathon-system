@@ -16,7 +16,8 @@ public class MemberInvitationResponse {
     private String teamName;
     private int memberCount;
     private int maxSlots;
-    String message;
+    private String message;
+    private String description;
     private List<TeamMemberResponse> members = new ArrayList<>();
 
     public void addMember(TeamMemberResponse member) {

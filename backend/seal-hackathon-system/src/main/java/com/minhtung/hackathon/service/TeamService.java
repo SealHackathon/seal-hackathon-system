@@ -265,6 +265,7 @@ public class TeamService {
             memberInvitationResponse.setMemberCount(memberRepository.countByTeamIdAndStatus(teamRequest.getTeam().getId(), true));
             memberInvitationResponse.setMaxSlots(4);
             memberInvitationResponse.setMessage(teamRequest.getMessage());
+            memberInvitationResponse.setDescription(teamRequest.getTeam().getDescription());
 
             List<Member> members = teamRequest.getTeam().getMembers();
             for (Member member : members) {
