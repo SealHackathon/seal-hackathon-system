@@ -490,6 +490,7 @@ function LeaderView() {
           description={teamInfo.description}
           teamCode={teamInfo.teamCode}
           emptyCount={emptyCount}
+          teamStatus={teamStatus}
           isLeader
           // onEdit={() => console.log('mở popup chỉnh sửa thông tin đội')}
           onFindMember={() => console.log('mở popup tìm thành viên')}

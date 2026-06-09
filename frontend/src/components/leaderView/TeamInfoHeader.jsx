@@ -6,7 +6,7 @@ import FindMemberModal from './FindMemberModal'
 import EditTeamInformationModal from './EditTeamInformationModal';
 import Tooltip from '../shared/Tooltip';
 
-function TeamInfoHeader({ teamId, teamName, description, teamCode, emptyCount, isLeader, onEdit }) {
+function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, emptyCount, isLeader, onEdit }) {
     const [showModal, setShowModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     function handleCopyCode() {
@@ -73,7 +73,7 @@ function TeamInfoHeader({ teamId, teamName, description, teamCode, emptyCount, i
                             variant="outline"
                             color='blue'
                             onClick={() => setShowModal(true)}
-                            disabled={emptyCount==0}
+                            disabled={emptyCount==0 || teamStatus === 'PENDING_APPROVAL'}
                         />
 
                         {showModal && (
