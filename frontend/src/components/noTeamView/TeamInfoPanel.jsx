@@ -7,7 +7,6 @@ import Tooltip from '../shared/Tooltip'
 
 function TeamInfoPanel({ team }) {
     const emptyCount = team.maxSlots - team.members.length
-    
 
     return (
         <div className={styles.wrapper}>
@@ -18,32 +17,34 @@ function TeamInfoPanel({ team }) {
             </span>
 
             <div className={styles.avatarRow}>
-                {Array.from({ length: team.members.length }, (_, i) => (
-                    <Tooltip 
-                        bgColor='white'
-                        key={i} 
-                        content={
-                            <div>
-                                {team.members[i].isLeader && (<span className={styles.leaderBadge}>(Đội trưởng)</span>)} 
-                                <p className={styles.memberName}>{team.members[i].name}</p>
-                                <p className={styles.memberSchool}>{team.members[i].school}</p>
+                {[...team.members]
+                    .sort((a, b) => b.isLeader - a.isLeader)
+                    .map((member, i) => (
+                        <Tooltip
+                            bgColor='white'
+                            key={member.id}
+                            content={
+                                <div>
+                                    {member.isLeader && (<span className={styles.leaderBadge}>(Đội trưởng)</span>)}
+                                    <p className={styles.memberName}>{member.name}</p>
+                                    <p className={styles.memberSchool}>{member.school}</p>
+                                </div>
+
+                            }
+                            position='bottom'
+                        >
+                            <div className={memberStyles.avatar}>
+                                <img src={avatarPlaceholder} alt="user avatar placeholder" className={memberStyles.avatarImg} />
+                                {member.isLeader && (
+                                    <CrownSimple
+                                        size={32}
+                                        weight="fill"
+                                        className={memberStyles.crownIcon}
+                                    />
+                                )}
                             </div>
-                                
-                        } 
-                        position='bottom'
-                    >
-                        <div className={memberStyles.avatar}>
-                            <img src={avatarPlaceholder} alt="user avatar placeholder" className={memberStyles.avatarImg} />
-                            {i === 0 && (
-                                <CrownSimple
-                                    size={32}
-                                    weight="fill"
-                                    className={memberStyles.crownIcon}
-                                />
-                            )}
-                        </div>
-                    </Tooltip>
-                ))}
+                        </Tooltip>
+                    ))}
 
                 {Array.from({ length: emptyCount }, (_, i) => (
                     <div key={`empty-${i}`} className={memberEmptyStyles.avatar}>

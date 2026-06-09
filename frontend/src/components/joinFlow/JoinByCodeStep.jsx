@@ -7,6 +7,11 @@ import TeamInfoPanel from '../noTeamView/TeamInfoPanel'
 import styles from './JoinByCodeStep.module.css'
 import axios from 'axios'
 
+// thêm tạm xóa sau
+import Button from '../shared/Button'
+import { ArrowLeft, ArrowRight } from '@phosphor-icons/react'
+
+
 function JoinByCodeStep({ onClose, onBack, onSubmit }) {
     const token = localStorage.getItem("accessToken")
     //team code
@@ -36,10 +41,10 @@ function JoinByCodeStep({ onClose, onBack, onSubmit }) {
             const found = FAKE_RESULTS[code.trim().toUpperCase()] // truy cập thuộc tính của object bằng key
             setResult(found ?? { type: 'invalid' })
         })
- 
+
     }
 
-   
+
 
     function handleCodeChange(e) {
         setCode(e.target.value)
@@ -53,15 +58,37 @@ function JoinByCodeStep({ onClose, onBack, onSubmit }) {
             onClose={onClose}
             closeOnBackdrop={false}
             footer={
-                <StepFooter
-                    currentStep={3}
-                    totalSteps={3}
-                    stepLabel="Nhập mã mời"
-                    onBack={onBack}
-                    onNext={() => onSubmit({ inviteCode: code })}
-                    nextLabel="Xác nhận"
-                    nextDisabled={!canConfirm}
-                />
+                // <StepFooter
+                //     currentStep={3}
+                //     totalSteps={3}
+                //     stepLabel="Nhập mã mời"
+                //     onBack={onBack}
+                //     onNext={() => onSubmit({ inviteCode: code })}
+                //     nextLabel="Xác nhận"
+                //     nextDisabled={!canConfirm}
+                // />
+                <div className={styles.btns}>
+                    
+                    <Button
+                        className={styles.btn}
+                        label="Hủy"
+                        labelSize={16}
+                        iconPosition="left"
+                        variant="outline"
+                        onClick={onClose}
+                    />
+
+                    <Button
+                        className={styles.btn}
+                        label='Xác nhận'
+                        labelSize={16}
+                        iconPosition="right"
+                        variant="primary"
+                        disabled={!canConfirm}
+                        onClick={() => onSubmit({ inviteCode: code })}
+                    />
+                    
+                </div>
             }
         >
             <h1 className={styles.title}>Tham gia bằng mã mời</h1>

@@ -10,14 +10,19 @@ import { useEffect } from 'react'
 import axios from 'axios'
 import CreateTeamStep from '../components/joinFlow/CreateTeamStep'
 import JoinByCodeStep from '../components/joinFlow/JoinByCodeStep'
+import ConfirmModal from '../components/shared/ConfirmModal'
+
 // import { data } from 'react-router-dom'
 
 function NoTeamView() {
+
   const [teamStatus, setTeamStatus] = useState('pending')
   const token = localStorage.getItem("accessToken");
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_TEAMS, setFAKE_TEAMS] = useState([]);
+  const [confirmModal, setConfirmModal] = useState(null)
+
   // api sinh vien xem những invitation gui toi minh
   useEffect(() => {
     axios
@@ -31,7 +36,7 @@ function NoTeamView() {
       )
       .then((response) => {
         setFAKE_INVITES(response.data);
-      
+
       })
       .catch((error) => console.log(error));
   }, []);
@@ -57,7 +62,7 @@ function NoTeamView() {
             id: m.id,
             name: m.name,
             school: m.school,
-            isLeader : m.isLeader
+            isLeader: m.isLeader
           })),
           isRequested: false, // mặc định chưa gửi request tham gia
         }))
@@ -102,7 +107,7 @@ function NoTeamView() {
       })
       .then((response) => {
         console.log(response.data);
-        alert("thành công!");
+        setFAKE_INVITES(response.data)
         window.location.reload();
       })
       .catch((error) => {
@@ -117,74 +122,44 @@ function NoTeamView() {
 
   const handleCancel = ((requestId) => {
     //  Hiển thị hộp thoại xác nhận trước khi gửi yêu cầu hủy/xóa
-    if (confirm('Bạn có chắc chắn muốn hủy lời mời này không?')) {
-      axios
-        .delete('http://localhost:8080/api/teamrequest/request', {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`
-          },
-          data: requestId
-        })
-        .then((response) => {
-          console.log(response.data);
+    setConfirmModal({
+      title: 'Hủy lời mời',
+      message: 'Bạn có chắc chắn muốn hủy lời mời này không?',
+      confirmLabel: 'Xác nhận',
+      onConfirm: () => {
+        axios
+          .delete('http://localhost:8080/api/teamrequest/request', {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            data: requestId
+          })
+          .then((response) => {
+            console.log(response.data);
 
-          // Hiện thông báo thành công cho người dùng biết
-          alert("Đã hủy lời mời thành công!");
+            // Hiện thông báo thành công cho người dùng biết
+            // alert("Đã hủy lời mời thành công!");
 
-          //  Tải lại trang để cập nhật giao diện (mất lời mời vừa hủy)
-          window.location.reload();
-        })
-        .catch((error) => {
-          console.log(error);
-          alert("Có lỗi xảy ra khi hủy lời mời!");
-        });
-    } else {
-      // Người dùng bấm "Hủy" (Cancel) -> Không làm gì cả
-      console.log("Đã dừng thao tác hủy lời mời.")
-    }
+            //  Tải lại trang để cập nhật giao diện (mất lời mời vừa hủy)
+            window.location.reload();
+          })
+          .catch((error) => {
+            console.log(error);
+            alert("Có lỗi xảy ra khi hủy lời mời!");
+          });
+        setConfirmModal(null)
+      }
+    })
   });
+
   const [showCreateTeam, setShowCreateTeam] = useState(false)
   const [showJoinByCode, setShowJoinByCode] = useState(false)
   const [emailStatus, setEmailStatus] = useState('default')
   const [emailMessage, setEmailMessage] = useState('')
 
+console.log(FAKE_INVITES)
 
-
-  if (showCreateTeam) return <CreateTeamStep emailStatus={emailStatus} emailMessage={emailMessage} onClose={() => setShowCreateTeam(false)}
-    onSubmit={(data) => {
-
-      axios.post('http://localhost:8080/api/team/create', data, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then(() => {
-          setEmailMessage('Email hợp lệ')
-          setEmailStatus('default')
-                 window.location.reload();
-        })
-        .catch((error) => {
-          // lay data tu error 
-          setEmailMessage(error.response.data)
-          setEmailStatus('error')
-          console.log(error)
-        })
-    }}
-  />
-  if (showJoinByCode) return <JoinByCodeStep onClose={() => setShowJoinByCode(false)}
-    onSubmit={(data) => {
-
-      axios.post('http://localhost:8080/api/team/join-by-code', data, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-        .then((response) => {
-          console.log(response.data)
-        })
-        .catch((error) => {
-        console.log(error)
-        })
-    }}
-
-  />
   return (
     <EventLayout>
       <div className={styles.page}>
@@ -204,17 +179,72 @@ function NoTeamView() {
               invites={FAKE_INVITES}
               onAccept={(id) => userHandleInvitation(id, true)}
               onReject={(id) => userHandleInvitation(id, false)}
+              isFromTeam={true}
             />
 
             <RequestTeamCard
               requests={FAKE_REQUESTS}
               onCancel={(id) => handleCancel(id)}
+              isFromTeam={true}
             />
           </div>
 
         </div>
       </div>
-    </EventLayout>
+
+      {showCreateTeam && (
+        <CreateTeamStep emailStatus={emailStatus} emailMessage={emailMessage} onClose={() => setShowCreateTeam(false)}
+          onSubmit={(data) => {
+
+            axios.post('http://localhost:8080/api/team/create', data, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+              .then(() => {
+                setEmailMessage('Email hợp lệ')
+                setEmailStatus('default')
+                window.location.reload();
+              })
+              .catch((error) => {
+                // lay data tu error 
+                setEmailMessage(error.response.data)
+                setEmailStatus('error')
+                console.log(error)
+              })
+          }}
+        />
+      )}
+
+      {showJoinByCode && (
+        <JoinByCodeStep onClose={() => setShowJoinByCode(false)}
+          onSubmit={(data) => {
+
+            axios.post('http://localhost:8080/api/team/join-by-code', data, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
+              .then((response) => {
+                console.log(response.data)
+                window.location.reload()
+              })
+              .catch((error) => {
+                console.log(error)
+              })
+          }}
+
+        />
+      )}
+
+
+      <ConfirmModal
+        isOpen={!!confirmModal}
+        title={confirmModal?.title}
+        message={confirmModal?.message}
+        confirmLabel={confirmModal?.confirmLabel}
+        confirmColor={confirmModal?.confirmColor}
+        onConfirm={confirmModal?.onConfirm}
+        onCancel={() => setConfirmModal(null)}
+      />
+
+    </EventLayout >
   )
 }
 

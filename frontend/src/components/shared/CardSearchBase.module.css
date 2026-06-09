@@ -1,49 +1,18 @@
-.backdrop {
-    position: fixed;
-    inset: 0;
-    background-color: rgba(51, 55, 50, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 100;
-}
 
 .wrapper {
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: 2em;
+    gap: 1em;
     
-    background: white;
-    border-radius: var(--radius);
+    padding: 0.5em 2.5em;
+}
+
+.card {
+    padding: 3em 2em;
+    background-color: var(--color-bg-white);
     border: 1px solid var(--color-border-blue);
-    
-    padding: 3.5em 5.5em;
-}
-
-.modalScroll {
-    overflow-y: auto;
-    width: 82vw;
-    max-height: 80vh;
-}
-
-.closeBtn {
-    position: absolute;
-    
-    top: 2em;
-    right: 1em;
-    
-    background: none;
-    border: none;
-    border-radius: var(--inner-radius);
-    
-    cursor: pointer;
-    padding: 0.8em;
-    display: flex;
-}
-
-.closeBtn:hover {
-    background: var(--color-bg-blue);
+    border-radius: var(--radius);
 }
 
 .title {

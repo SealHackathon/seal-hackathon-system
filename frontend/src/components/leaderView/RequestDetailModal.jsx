@@ -16,7 +16,7 @@ function RequestDetailModal({
 }) {
   const data = isTeamInvite ? invite : request
   if (!data) return null
-
+  // console.log(data.members)
   return (
 
     <ModalShell
@@ -58,7 +58,7 @@ function RequestDetailModal({
         {/* Còn là lời nhắn từ Leader sẽ hiển thị thông tin Team của Leader đó */}
         {isTeamInvite && (
           <div className={styles.teamInfoCard}>
-            <TeamInfoPanel team={data.team} />
+            <TeamInfoPanel team={data} />
           </div>
         )}
 

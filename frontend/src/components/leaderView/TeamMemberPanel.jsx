@@ -9,6 +9,7 @@ import styles from './TeamMemberPanel.module.css'
 function TeamMemberPanel({
     members,
     maxSlots = 4,
+    minSlots = 3,
     teamStatus,
     isLeader,
     onKick,
@@ -17,13 +18,15 @@ function TeamMemberPanel({
     onLockTeam,
     onApproveLeave,
     onCancelLeave,
-    rejectionReasons }) {
+    rejectionReasons,
+    leaveRequests = [],
+}) {
 
     const emptyCount = maxSlots - members.length
 
 
     function renderNoticeBox() {
-        if (teamStatus === 'pending') {
+        if (teamStatus === 'OPEN') {
             return (
                 <NoticeBox
                     color="orange"
@@ -40,6 +43,7 @@ function TeamMemberPanel({
                             variant="primary"
                             color='orange'
                             onClick={onLockTeam}
+                            disabled={members.length < minSlots}
                         />
                         : undefined
                     }
@@ -47,7 +51,7 @@ function TeamMemberPanel({
             )
         }
 
-        if (teamStatus === 'waiting') {
+        if (teamStatus === 'PENDING_APPROVAL') {
             return (
                 <NoticeBox
                     color="orange"
@@ -70,7 +74,7 @@ function TeamMemberPanel({
             )
         }
 
-        if (teamStatus === 'approved') {
+        if (teamStatus === 'APPROVED') {
             return (
                 <NoticeBox
                     color="green"
@@ -92,7 +96,7 @@ function TeamMemberPanel({
             )
         }
 
-        if (teamStatus === 'rejected') {
+        if (teamStatus === 'REJECTED') {
             return (
                 <NoticeBox
                     color="orange"
@@ -151,6 +155,7 @@ function TeamMemberPanel({
                 {members.map((member, i) => (
                     <MemberRow
                         key={member.id}
+                        teamStatus={teamStatus}
                         index={i + 1}
                         name={member.name}
                         email={member.email}
@@ -162,9 +167,11 @@ function TeamMemberPanel({
                         onApproveLeave={onApproveLeave ? () => onApproveLeave(member.id) : undefined}
                         onCancelLeave={onCancelLeave ? () => onCancelLeave(member.id) : undefined}
                         onLeave={onLeave}
+                        // leaveRequest={leaveRequests.find(r => Number(r.memberId) === Number(member.id)) ?? null}
+                        leaveRequest={leaveRequests.find(r => r.name === member.name) ?? null}
                     />
                 ))}
-
+            
 
                 {Array.from({ length: emptyCount }).map((_, i) => (
                     <EmptyMemberSlot key={`empty-${i}`} index={members.length + i + 1} />

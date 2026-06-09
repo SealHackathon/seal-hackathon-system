@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { X } from '@phosphor-icons/react'
 import styles from './ModalShell.module.css'
 
@@ -7,6 +8,15 @@ function ModalShell({
     footer,
     size = 'md' // 'sm', 'md', 'lg', 'xl'
 }) {
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden'   // khóa scroll khi modal mở
+
+        return () => {
+            document.body.style.overflow = ''     // mở lại khi modal đóng
+        }
+    }, [])
+
     return (
         <div className={`${styles.backdrop} ${'scrollbar'}`} onClick={onClose}>
             <div

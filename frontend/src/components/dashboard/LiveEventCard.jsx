@@ -1,7 +1,7 @@
 import { CalendarBlank, Users, MapPin, Trophy } from '@phosphor-icons/react'
 import Button from '../shared/Button'
 import styles from './LiveEventCard.module.css'
-
+import coverPlaceholder from '../../assets/seal_hackathon_poster.png'
 const INFO_ITEMS = [
     { icon: CalendarBlank, label: 'Thời gian thi đấu',        value: '20/07/2026 - 21/07/2026' },
     { icon: Users,         label: 'Số lượng thành viên',      value: '3 - 5 người / đội'       },
@@ -17,10 +17,11 @@ function LiveEventCard({ event, onJoin, onViewRules }) {
             <div className={styles.leftSide}>
                 {/* Ảnh bìa */}
             <div className={styles.cover}>
-                {event.coverUrl
+                {/* {event.coverUrl
                     ? <img src={event.coverUrl} alt={event.name} />
                     : <div className={styles.coverPlaceholder} />
-                }
+                }  */}
+            <img src={coverPlaceholder}></img>
             </div>
             {/* Nút */}
                 <div className={styles.actions}>

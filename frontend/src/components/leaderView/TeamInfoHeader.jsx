@@ -6,12 +6,14 @@ import FindMemberModal from './FindMemberModal'
 import EditTeamInformationModal from './EditTeamInformationModal';
 import Tooltip from '../shared/Tooltip';
 
-function TeamInfoHeader({ teamId, teamName, description, teamCode, isLeader, onEdit }) {
+function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, emptyCount, isLeader, onEdit }) {
     const [showModal, setShowModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     function handleCopyCode() {
         navigator.clipboard.writeText(teamCode)
     }
+
+    // check xem team đủ thành viên chưa, đủ thì disable cái nút tìm thành viên bên LeaderView
 
     return (
         <div className={styles.wrapper}>
@@ -48,7 +50,7 @@ function TeamInfoHeader({ teamId, teamName, description, teamCode, isLeader, onE
                         teamName={teamName}
                         description={description}
                         onClose={() => setShowEditModal(false)}
-                        onEdit={onEdit}
+                        // onEdit={onEdit}
                     />
                 )
             }
@@ -71,6 +73,7 @@ function TeamInfoHeader({ teamId, teamName, description, teamCode, isLeader, onE
                             variant="outline"
                             color='blue'
                             onClick={() => setShowModal(true)}
+                            disabled={emptyCount==0 || teamStatus === 'PENDING_APPROVAL'}
                         />
 
                         {showModal && (

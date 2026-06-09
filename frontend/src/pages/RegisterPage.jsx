@@ -131,18 +131,12 @@ function RegisterPage() {
                         message={errors.password}
                     />
 
-                    {/* Submit row */}
-                    <div className={styles.submitRow}>
-                        <Button
-                            label="Đăng kí"
-                            variant="primary"
-                            type="submit"
-                        // disabled={!isFormValid || loading}
-                        />
-                        <button type="button" className={styles.forgotLink}>
-                            Quên mật khẩu?
-                        </button>
-                    </div>
+                    <Button
+                        label="Đăng kí"
+                        variant="primary"
+                        type="submit"
+                    // disabled={!isFormValid || loading}
+                    />
 
                     {errors.submit && (
                         <p className={styles.submitError}>{errors.submit}</p>

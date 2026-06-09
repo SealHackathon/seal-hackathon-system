@@ -12,4 +12,5 @@ public class TeamInfoResponse {
     private String teamName;
     private String description;
     private String teamCode;
+    private String teamStatus;
 }

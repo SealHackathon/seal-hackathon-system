@@ -2,6 +2,7 @@ package com.minhtung.hackathon.controller;
 
 
 import com.minhtung.hackathon.dto.request.CreateTeamDto;
+import com.minhtung.hackathon.dto.request.EdiTeamRequest;
 import com.minhtung.hackathon.dto.response.CreateTeamResponse;
 import com.minhtung.hackathon.dto.joinByCode;
 import com.minhtung.hackathon.repository.UserRepository;
@@ -191,20 +192,7 @@ public class TeamController {
         }
     }
 
-    //member out team
-    @PutMapping("/out-team")
-    public ResponseEntity<?> outTeam(@RequestHeader("Authorization") String auth) {
-        Integer uid = getUid(auth);
-        if (uid == null) {
-            return unauthorized();
-        }
 
-        try {
-            return ResponseEntity.ok().body(teamService.outTeam(uid));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        }
-    }
 
 
     private Integer getUid(String authHeader) {
@@ -250,7 +238,7 @@ public class TeamController {
         }
 
         try {
-            return ResponseEntity.ok().body(teamService.checkName(  name));
+            return ResponseEntity.ok().body(teamService.checkName(  name,uid));
         } catch (IllegalArgumentException e) {
             // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -267,6 +255,16 @@ public class TeamController {
         return ResponseEntity.ok().body(teamService.checkCode(code));
     }
 
+    //edit team
+    //lay FAKE RESULTS BY CODE check code
+    @PutMapping("/edit-team")
+    public ResponseEntity<?> editTeam(@RequestHeader("Authorization") String auth, @RequestBody EdiTeamRequest editTeamRequest) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return unauthorized();
+        }
+        return ResponseEntity.ok().body(teamService.editTeam(editTeamRequest,uid));
+    }
 
 }
 

@@ -1,0 +1,19 @@
+.title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--color-primary-orange);
+    font-family: var(--title-font-main);
+    margin: 1em 0 0.5rem 0;
+}
+
+.message {
+    color: var(--color-text-orange);
+    line-height: 1.5;
+    margin: 0;
+}
+
+.actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}

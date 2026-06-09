@@ -18,7 +18,9 @@
     margin-bottom: 1.5em;
 }
 
-.banner p { margin: 0; }
+.banner p {
+    margin: 0;
+}
 
 .previewWrapper {
     display: flex;
@@ -39,4 +41,16 @@
     border-radius: var(--radius);
     padding: 1.25em;
     background: var(--color-bg-blue);
+}
+
+.btns {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    width: 100%;
+    gap: 1em;
+}
+
+.btn {
+    width: 100%;
 }

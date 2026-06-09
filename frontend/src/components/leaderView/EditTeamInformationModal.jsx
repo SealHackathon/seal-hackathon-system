@@ -39,6 +39,29 @@ function EditTeamInformationModal({
         })
     }
 
+    const handleOnEdit = () => {
+        axios
+          .put('http://localhost:8080/api/team/edit-team', {
+            name:name,description:desc
+          }, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}` // nếu có JWT
+            }
+          })
+          .then((response) => {
+            console.log(response.data);
+            alert("Bạn đã edit nhóm thành công!");
+            window.location.reload();
+          })
+          .catch((error) => {
+            console.log(error);
+            alert("Có lỗi xảy ra, không thể edit nhóm lúc này.");
+          });
+      }
+
+      
+
 
     const isFormValid = name.trim().length > 0 && desc.trim().length > 0 && nameStatus !== 'error'
 
@@ -59,7 +82,7 @@ function EditTeamInformationModal({
                     <Button
                         label="Xác nhận"
                         variant="primary"
-                        onClick={() => { onEdit({ name: name, description: desc }); onClose() }}
+                        onClick={() => { handleOnEdit(); onClose() }}
                         disabled={!isFormValid}
                     />
                 </div>

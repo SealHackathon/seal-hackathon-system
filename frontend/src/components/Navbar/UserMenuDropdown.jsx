@@ -63,6 +63,7 @@ function UserMenuDropdown({ name, email, avatar }) {
                                 color='orange'
                                 onClick={() => {
                                     localStorage.removeItem('accessToken')
+                                    localStorage.removeItem('screen')
                                     localStorage.removeItem('userInfo')
                                     window.location.href = '/login'
 

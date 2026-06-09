@@ -7,6 +7,11 @@ import FormTextarea from '../shared/FormTextarea'
 import styles from './CreateTeamStep.module.css'
 import axios from 'axios'
 
+// thêm tạm xóa sau
+import Button from '../shared/Button'
+import { ArrowLeft, ArrowRight } from '@phosphor-icons/react'
+
+
 const MAX_MEMBERS = 4   // kể cả bản thân
 
 function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')).email : 'Email không xác định',
@@ -41,7 +46,7 @@ function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail = localSto
     // Nếu trùng thì setNameStatus('error') và setNameMessage('Tên đội đã tồn tại')
     const token = localStorage.getItem("accessToken")
     function handleNameBlur() {
-        if (!name.trim()) return
+        if (!name.trim()) return setNameMessage(''), setNameStatus('default')
         // TODO: GET /api/teams/check-name?name=...
         axios.get(`http://localhost:8080/api/team/check-name?name=${name}`, {
             headers: { Authorization: `Bearer ${token}` }
@@ -69,16 +74,38 @@ function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail = localSto
             onClose={onClose}
             closeOnBackdrop={false}
             footer={
-                <StepFooter
-                    currentStep={3}
-                    totalSteps={3}
-                    stepLabel="Tạo đội mới"
-                    onBack={onBack}
-                    onNext={() => onSubmit({ name: name, description: desc, inviteEmails: emails.filter(e => e.trim()) })}
-                    //    onNext={() => onSubmit({ name, description: desc, inviteEmails: emails.filter(e => e.trim()) })}
-                    nextLabel="Xác nhận"
-                    nextDisabled={!isFormValid}
-                />
+                // <StepFooter
+                //     currentStep={3}
+                //     totalSteps={3}
+                //     stepLabel="Tạo đội mới"
+                //     onBack={onBack}
+                //     onNext={() => onSubmit({ name: name, description: desc, inviteEmails: emails.filter(e => e.trim()) })}
+                //     //    onNext={() => onSubmit({ name, description: desc, inviteEmails: emails.filter(e => e.trim()) })}
+                //     nextLabel="Xác nhận"
+                //     nextDisabled={!isFormValid}
+                // />
+                <div className={styles.btns}>
+
+                    <Button
+                        className={styles.btn}
+                        label="Hủy"
+                        labelSize={16}
+                        iconPosition="left"
+                        variant="outline"
+                        onClick={onClose}
+                    />
+
+                    <Button
+                        className={styles.btn}
+                        label='Xác nhận'
+                        labelSize={16}
+                        iconPosition="right"
+                        variant="primary"
+                        disabled={!isFormValid}
+                        onClick={() => onSubmit({ name: name, description: desc, inviteEmails: emails.filter(e => e.trim()) })}
+                    />
+
+                </div>
             }
         >
             <h1 className={styles.title}>Tạo đội mới</h1>

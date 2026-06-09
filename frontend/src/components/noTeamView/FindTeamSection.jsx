@@ -33,7 +33,7 @@ function FindTeamSection({ teams = [] }) {
 
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${styles.card}`}>
       <CardSearchBase
         items={paged}
         renderCard={(team) => (

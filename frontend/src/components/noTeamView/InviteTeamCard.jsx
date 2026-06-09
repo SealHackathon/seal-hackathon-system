@@ -4,9 +4,9 @@ import Button from '../shared/Button'
 import RequestDetailModal from '../leaderView/RequestDetailModal'
 import { EnvelopeSimple } from '@phosphor-icons/react'
 
-function InviteTeamCard({ invites = [], onAccept, onReject }) {
+function InviteTeamCard({ invites = [], onAccept, onReject, isFromTeam = false }) {
   const [selectedInvite, setSelectedInvite] = useState(null)
-
+  
   // Map lại thông tin của invite cho đúng với các thông tin sẽ gửi đến cái RequestDetailModal
   const items = invites.map(inv => ({
     ...inv,
@@ -22,7 +22,6 @@ function InviteTeamCard({ invites = [], onAccept, onReject }) {
       members: Array.from({ length: inv.memberCount }, (_, i) => ({ id: i })),
     }
   }))
-
 
   return (
     <>
@@ -42,6 +41,7 @@ function InviteTeamCard({ invites = [], onAccept, onReject }) {
             onClick={() => setSelectedInvite(item)}
           />
         )}
+        isFromTeam={isFromTeam}
       />
 
       {/* ở đây chưa biết là invite hay request cần 1 props để truyền vào */}

@@ -40,4 +40,5 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     //get team by Name ignore case
     Optional<Team> findByNameIgnoreCaseAndStatus(String teamName, TeamStatus status);
+
 }
