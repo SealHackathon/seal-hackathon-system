@@ -2,7 +2,7 @@ import SideCard from '../leaderView/SideCard'
 import Button from '../shared/Button'
 import { Clock } from '@phosphor-icons/react'
 
-function RequestTeamCard({ requests, onCancel }) {
+function RequestTeamCard({ requests, onCancel, isFromTeam = false }) {
   const items = requests.map(req => ({
     id: req.id,
     name: req.teamName,
@@ -27,6 +27,7 @@ function RequestTeamCard({ requests, onCancel }) {
           onClick={() => onCancel(item.id)}
         />
       )}
+      isFromTeam={isFromTeam}
     />
   )
 }

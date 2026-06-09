@@ -158,7 +158,7 @@ function NoTeamView() {
   const [emailStatus, setEmailStatus] = useState('default')
   const [emailMessage, setEmailMessage] = useState('')
 
-
+console.log(FAKE_INVITES)
 
   return (
     <EventLayout>
@@ -179,11 +179,13 @@ function NoTeamView() {
               invites={FAKE_INVITES}
               onAccept={(id) => userHandleInvitation(id, true)}
               onReject={(id) => userHandleInvitation(id, false)}
+              isFromTeam={true}
             />
 
             <RequestTeamCard
               requests={FAKE_REQUESTS}
               onCancel={(id) => handleCancel(id)}
+              isFromTeam={true}
             />
           </div>
 
