@@ -25,6 +25,19 @@ public class User {
     @Column(name = "Active", nullable = false)
     private boolean active = false;
 
+    @Column(name = "studentCardImg")
+    private String studentCardImg;
+
+    @Column(name = "studentImg", columnDefinition = "varchar(255)")
+    private String studentImg;
+
+    @Column(name = "bio", columnDefinition = "varchar(11)")
+    private String bio;
+
+    @Column(name = "phoneNumber")
+    private String phoneNumber;
+
+
     public String getSchoolName() {
         return schoolName;
     }

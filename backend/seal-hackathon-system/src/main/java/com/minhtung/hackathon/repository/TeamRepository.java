@@ -24,21 +24,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     Optional<Team> findByLeaderId(Long leaderId);
 
-//    Optional<Team> findByTeamCountCodeAndStatus(String inviteCode, TeamStatus status);
 
-    // Lấy ra thực thể Team có số lượng thành viên (status = true) ít hơn 4
-    @Query("""
-            SELECT t
-            FROM Team t
-            LEFT JOIN Member m
-            ON m.team = t
-            AND m.status = true
-            GROUP BY t
-            HAVING COUNT(m.id) < 4
-            """)
-    List<Team> findTeamsWithLessThanFourMembers();
-
-    //get team by Name ignore case
     Optional<Team> findByNameIgnoreCaseAndStatus(String teamName, TeamStatus status);
 
 }

@@ -91,11 +91,11 @@ public class TeamController {
 
 
     //    tim kiem team by name
-    @Operation(summary = "Tim kiem doi OPEN theo ten")
-    @GetMapping("/search")
-    public ResponseEntity<List<CreateTeamResponse>> search(@RequestParam String keyword) {
-        return ResponseEntity.ok(teamService.searchTeam(keyword));
-    }
+//    @Operation(summary = "Tim kiem doi OPEN theo ten")
+//    @GetMapping("/search")
+//    public ResponseEntity<List<CreateTeamResponse>> search(@RequestParam String keyword) {
+//        return ResponseEntity.ok(teamService.searchTeam(keyword));
+//    }
 
     // xem team hien tai --- tra ve thong bao neu chua co team
 

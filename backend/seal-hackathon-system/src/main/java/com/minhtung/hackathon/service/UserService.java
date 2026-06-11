@@ -4,9 +4,7 @@ import com.minhtung.hackathon.dto.response.SearchMemberResponse;
 import com.minhtung.hackathon.entity.Team;
 import com.minhtung.hackathon.entity.TeamRequest;
 import com.minhtung.hackathon.entity.User;
-import com.minhtung.hackathon.enums.RequestStatus;
-import com.minhtung.hackathon.enums.RequestType;
-import com.minhtung.hackathon.enums.Role;
+import com.minhtung.hackathon.enums.*;
 import com.minhtung.hackathon.repository.MemberRepository;
 import com.minhtung.hackathon.repository.TeamRepository;
 import com.minhtung.hackathon.repository.TeamRequestRepository;
@@ -29,10 +27,10 @@ public class UserService {
     //ham get nhung user chua co team
     //những ai đã có request tới team hoặc đã đc team invitation thì ko get
     public List<SearchMemberResponse> getMemberNoTeam(long leaderId) {
-        List<User> freeUsers = userRepository.findUsersWithoutTeam(Role.USER);
+        List<User> freeUsers = userRepository.findUsersWithoutTeam(Role.USER, MemberStatus.OFFICAL);
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
-        int memberCount = memberRepository.countByTeamIdAndStatus(team.getId(), true);
-        if (memberCount == 4) {
+//        int memberCount = memberRepository.countByTeamIdAndStatus(team.getId(), true);
+        if (team.getStatus() != TeamStatus.OPEN) {
             return Collections.emptyList();
         }
         if (team == null) {
