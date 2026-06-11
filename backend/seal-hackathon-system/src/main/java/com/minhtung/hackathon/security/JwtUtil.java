@@ -17,6 +17,9 @@ public class JwtUtil {
     // thoi gia ton tai token la 24h
     private static final long EXPIRATION_MS = 86_400_000L;
 
+    public static long getExpiredTime() {
+        return EXPIRATION_MS;
+    }
     private Key getKey(){
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
