@@ -1,8 +1,9 @@
 package com.minhtung.hackathon.entity;
 
+import com.minhtung.hackathon.enums.JoinMethod;
 import com.minhtung.hackathon.enums.MemberRole;
+import com.minhtung.hackathon.enums.MemberStatus;
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -18,22 +19,29 @@ public class Member {
     @Column(name = "Role ", nullable = false)
     private MemberRole role;
     //true la dang o trong doi , false da roi di
-    @Column(name = "Status", nullable = false)
-    private boolean status;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "Status", length = 255, nullable = false)
+    private MemberStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "joinmethod", length = 255, nullable = false)
+    private JoinMethod joinMethod;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team", nullable = false)
     private Team team;
     @ManyToOne
     @JoinColumn(name = "member")
     private User member;
+
     public Member() {
     }
 
-    public Member(MemberRole role, boolean status, Team team, User member) {
+    public Member(MemberRole role, MemberStatus status, Team team, User member,JoinMethod joinMethod) {
         this.role = role;
         this.status = status;
         this.team = team;
         this.member = member;
+        this.joinMethod = joinMethod;
     }
 
     public User getMember() {
