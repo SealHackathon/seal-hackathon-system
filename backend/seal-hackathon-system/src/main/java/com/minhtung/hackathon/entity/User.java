@@ -16,25 +16,19 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "Password", nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "fullName")
     private String fullName;
-    @Column(name = "Email", nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
     @Column(name = "schoolName")
     private String schoolName;
-    @Column(name = "Active", nullable = false)
+    @Column(name = "active", nullable = false)
     private boolean active = false;
 
-    @Column(name = "studentCardImg")
-    private String studentCardImg;
-
-    @Column(name = "identity_card_img", columnDefinition = "varchar(255)")
-    private String identityCardImg;
-
-    @Column(name = "bio", columnDefinition = "varchar(11)")
-    private String bio;
+    @Column(name = "avt_img")
+    private String avtImg;
 
     @Column(name = "phoneNumber")
     private String phoneNumber;
@@ -51,28 +45,12 @@ public class User {
         this.status = status;
     }
 
-    public String getStudentCardImg() {
-        return studentCardImg;
+    public String getAvtImg() {
+        return avtImg;
     }
 
-    public void setStudentCardImg(String studentCardImg) {
-        this.studentCardImg = studentCardImg;
-    }
-
-    public String getIdentityCardImg() {
-        return identityCardImg;
-    }
-
-    public void setIdentityCardImg(String identityCardImg) {
-        this.identityCardImg = identityCardImg;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
+    public void setAvtImg(String studentCardImg) {
+        this.avtImg = studentCardImg;
     }
 
     public String getPhoneNumber() {

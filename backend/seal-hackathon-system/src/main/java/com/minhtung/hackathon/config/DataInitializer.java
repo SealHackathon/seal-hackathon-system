@@ -30,15 +30,15 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) {
         if (userRepository.count() == 0) {
-//           ----------------các thành viên chưa có team----------------------------------
-            User user1 = new User();
-            user1.setEmail("user1@gmail.com");
-            user1.setPassword("123456");
-            user1.setRole(Role.USER);
-            user1.setSchoolName("Trường đại học Hoa Sen");
-            user1.setActive(true);
-            user1.setFullName("Bùi Thiên Khánh");
-            userRepository.save(user1);
+////           ----------------các thành viên chưa có team----------------------------------
+//            User user1 = new User();
+//            user1.setEmail("user1@gmail.com");
+//            user1.setPassword("123456");
+//            user1.setRole(Role.USER);
+//            user1.setSchoolName("Trường đại học Hoa Sen");
+//            user1.setActive(true);
+//            user1.setFullName("Bùi Thiên Khánh");
+//            userRepository.save(user1);
 //
 //            User user2 = new User();
 //            user2.setEmail("user2@gmail.com");

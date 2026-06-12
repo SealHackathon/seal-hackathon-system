@@ -20,6 +20,9 @@ public class Track {
     @Column(length = 255)
     private String des;
 
+    @Column(name = "min_team_per_track")
+    private int minTeamPerTrack;
+
     @Column(name = "max_team_per_track")
     private int maxTeamPerTrack;
 
@@ -30,10 +33,11 @@ public class Track {
     @OneToMany(mappedBy = "track")
     private List<Team> teams;
 
-    public Track(String name, String des, int maxTeamPerTrack, Round round) {
+    public Track(String name, String des, int maxTeamPerTrack, int minTeamPerTrack, Round round) {
         this.name = name;
         this.des = des;
         this.maxTeamPerTrack = maxTeamPerTrack;
+        this.minTeamPerTrack = minTeamPerTrack;
         this.round = round;
     }
 }
