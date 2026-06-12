@@ -13,7 +13,7 @@ public class MentorAssignment {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "track_id", nullable = false)
+    @JoinColumn(name = "track_id")
     private Track track;
 
     @ManyToOne(fetch = FetchType.LAZY)
