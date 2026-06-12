@@ -7,8 +7,8 @@ import LeaderView from './pages/LeaderView'
 import MemberView from './pages/MemberView'
 import NoTeamViews from './pages/NoTeamView';
 import LoginPage from './pages/LoginPage';
-import JoinTeamFlow from './components/joinFlow/JoinTeamFlow';
 import UserDashboard from './pages/UserDashboard';
+import { Route } from 'react-router-dom';
 function App() {
   const [role, setRole] = useState(null);
   const token = localStorage.getItem("accessToken");
@@ -18,7 +18,6 @@ function App() {
     localStorage.setItem('screen', page)
     setScreen(page)
   }
-
 
   useEffect(() => {
     axios

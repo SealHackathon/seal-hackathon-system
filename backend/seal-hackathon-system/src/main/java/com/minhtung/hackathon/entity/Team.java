@@ -16,34 +16,34 @@ import java.util.List;
 public class Team {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id ;
+    private long id;
 
 
-    @Column(name = "Name",nullable = false , length = 100)
-    private String name ;
+    @Column(name = "Name", nullable = false, length = 100)
+    private String name;
 
-    @Column(name = "Status", length = 20 , nullable = false)
+    @Column(name = "Status", length = 20, nullable = false)
     private TeamStatus status = TeamStatus.OPEN;
-    @Column(name = "CreateAt" , nullable = false )
-    private LocalDate createAt = LocalDate.now() ;
+    @Column(name = "CreateAt", nullable = false)
+    private LocalDate createAt = LocalDate.now();
 
     // nếu muon xóa mềm thì cột này phải là ManyToOne
     @OneToOne
-    @JoinColumn (name = "leader",nullable = false )
-    private  User leader ;
+    @JoinColumn(name = "leader", nullable = false)
+    private User leader;
     @OneToMany(mappedBy = "team")
     private List<Member> members;
     @OneToMany(mappedBy = "team")
     private List<TeamRequest> teamRequest;
-   @Column(name = "InviteCode",nullable = false,unique = true)
-    private String inviteCode ;
-   @Column(name = "TrackInt")
-    private Integer trackint ;
-   @Column(name = "Description")
-    private String description ;
+    @Column(name = "InviteCode", nullable = false, unique = true)
+    private String inviteCode;
+    @Column(name = "Description")
+    private String description;
     @Column(name = "CompetitionStatus")
-    private Integer competitionStatus ;
-
+    private Integer competitionStatus;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "track_id")
+    private Track track;
 
 
     public Team() {

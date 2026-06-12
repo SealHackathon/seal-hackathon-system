@@ -39,7 +39,7 @@ public class Event {
     private String bannerImg;
 
     @Column(length = 255)
-    private String posterImg;
+    private String thumbnail_image;
 
     @Column
     private int maxTeamMember;
@@ -69,7 +69,7 @@ public class Event {
     public Event() {
     }
 
-    public Event(String name, LocalDateTime createAt, String description, String status, int minTeamMember, String topic, String bannerImg, String posterImg, int maxTeamMember, String rules, String participationBenefits) {
+    public Event(String name, LocalDateTime createAt, String description, String status, int minTeamMember, String topic, String bannerImg, String thumbnail_image, int maxTeamMember, String rules, String participationBenefits) {
         this.name = name;
         this.createAt = createAt;
         this.description = description;
@@ -77,7 +77,7 @@ public class Event {
         this.minTeamMember = minTeamMember;
         this.topic = topic;
         this.bannerImg = bannerImg;
-        this.posterImg = posterImg;
+        this.thumbnail_image = thumbnail_image;
         this.maxTeamMember = maxTeamMember;
         this.rules = rules;
         this.participationBenefits = participationBenefits;
