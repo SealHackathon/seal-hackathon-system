@@ -35,6 +35,12 @@ function LoginPage() {
                 const data = response.data;
 
                 if (data.token) {
+                    
+                    //TODO: lưu thêm hasTeam teamRole expiredTime
+                    
+
+
+
                     localStorage.setItem('accessToken', data.token);
                     const userInfo = {
                         email: response.data.email,

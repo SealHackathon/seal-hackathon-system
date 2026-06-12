@@ -3,6 +3,8 @@ package com.minhtung.hackathon.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.List;
+
 @Entity
 @Table(name = "track")
 @Data
@@ -24,6 +26,9 @@ public class Track {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "round_id", nullable = false)
     private Round round;
+
+    @OneToMany(mappedBy = "track")
+    private List<Team> teams;
 
     public Track(String name, String des, int maxTeamPerTrack, Round round) {
         this.name = name;

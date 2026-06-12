@@ -1,7 +1,9 @@
 package com.minhtung.hackathon.entity;
 
 
+import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.enums.Role;
+import com.minhtung.hackathon.enums.UserStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -28,8 +30,8 @@ public class User {
     @Column(name = "studentCardImg")
     private String studentCardImg;
 
-    @Column(name = "studentImg", columnDefinition = "varchar(255)")
-    private String studentImg;
+    @Column(name = "identity_card_img", columnDefinition = "varchar(255)")
+    private String identityCardImg;
 
     @Column(name = "bio", columnDefinition = "varchar(11)")
     private String bio;
@@ -37,6 +39,49 @@ public class User {
     @Column(name = "phoneNumber")
     private String phoneNumber;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 255, nullable = false)
+    private UserStatus status;
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public String getStudentCardImg() {
+        return studentCardImg;
+    }
+
+    public void setStudentCardImg(String studentCardImg) {
+        this.studentCardImg = studentCardImg;
+    }
+
+    public String getIdentityCardImg() {
+        return identityCardImg;
+    }
+
+    public void setIdentityCardImg(String identityCardImg) {
+        this.identityCardImg = identityCardImg;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     public String getSchoolName() {
         return schoolName;
