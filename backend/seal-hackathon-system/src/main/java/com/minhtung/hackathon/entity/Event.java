@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.entity;
 
+import com.minhtung.hackathon.enums.EventStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -23,11 +24,12 @@ public class Event {
     private LocalDateTime createAt;
 
     //sau nay doi ve enum
-    @Column(length = 255)
+    @Column(length = 255,columnDefinition = "text")
     private String description;
 
+    @Enumerated(EnumType.STRING)
     @Column(length = 20)
-    private String status;
+    private EventStatus status;
 
     @Column
     private int minTeamMember;
@@ -44,10 +46,10 @@ public class Event {
     @Column
     private int maxTeamMember;
 
-    @Column(length = 255)
+    @Column(length = 255,columnDefinition = "text")
     private String rules;
 
-    @Column(length = 255)
+    @Column(columnDefinition = "text")
     private String participationBenefits;
 
 
@@ -69,7 +71,7 @@ public class Event {
     public Event() {
     }
 
-    public Event(String name, LocalDateTime createAt, String description, String status, int minTeamMember, String topic, String bannerImg, String thumbnail_image, int maxTeamMember, String rules, String participationBenefits) {
+    public Event(String name, LocalDateTime createAt, String description, EventStatus status, int minTeamMember, String topic, String bannerImg, String thumbnail_image, int maxTeamMember, String rules, String participationBenefits) {
         this.name = name;
         this.createAt = createAt;
         this.description = description;

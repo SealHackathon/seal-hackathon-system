@@ -20,7 +20,7 @@ public class StudentProfile {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(length = 300)
+    @Column(columnDefinition = "text")
     private String bio;
 
     @Column(name = "cv_url", length = 500)
