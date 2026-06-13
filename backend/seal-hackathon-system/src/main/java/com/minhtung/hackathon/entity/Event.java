@@ -24,7 +24,7 @@ public class Event {
     private LocalDateTime createAt;
 
     //sau nay doi ve enum
-    @Column(length = 255,columnDefinition = "text")
+    @Column(length = 255, columnDefinition = "text")
     private String description;
 
     @Enumerated(EnumType.STRING)
@@ -46,7 +46,7 @@ public class Event {
     @Column
     private int maxTeamMember;
 
-    @Column(length = 255,columnDefinition = "text")
+    @Column(length = 255, columnDefinition = "text")
     private String rules;
 
     @Column(columnDefinition = "text")
@@ -67,6 +67,12 @@ public class Event {
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<Round> rounds = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "event",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Track> tracks = new ArrayList<>();
 
     public Event() {
     }
