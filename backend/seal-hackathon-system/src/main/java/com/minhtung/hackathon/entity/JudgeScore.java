@@ -23,11 +23,14 @@ public class JudgeScore {
     private Submission submission;
 
     @Column(nullable = false)
-    private double score;
+    private double totalScore;
 
     @Column(nullable = false)
     private LocalDateTime submitAt;
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column (columnDefinition = "TEXT")
+    private String comment;
 }

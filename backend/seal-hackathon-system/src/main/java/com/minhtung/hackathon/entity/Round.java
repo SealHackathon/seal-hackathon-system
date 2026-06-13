@@ -25,6 +25,8 @@ public class Round {
 
     private boolean hasSubmission;
 
+    private boolean hasPresetiontation;
+
     private int topTeamPass;
 
     private LocalDateTime submissionDeadline;
@@ -36,11 +38,6 @@ public class Round {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "scoring_template_id")
     private ScoringTemplate scoringTemplate;
-
-    @OneToMany(mappedBy = "round",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true)
-    private List<Track> tracks = new ArrayList<>();
 
 
     public Round() {

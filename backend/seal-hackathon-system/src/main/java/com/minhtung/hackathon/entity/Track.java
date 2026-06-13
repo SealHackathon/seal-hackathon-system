@@ -26,18 +26,18 @@ public class Track {
     @Column(name = "max_team_per_track")
     private int maxTeamPerTrack;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "round_id", nullable = false)
-    private Round round;
-
     @OneToMany(mappedBy = "track")
     private List<Team> teams;
 
-    public Track(String name, String des, int maxTeamPerTrack, int minTeamPerTrack, Round round) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
+    private Event event;
+
+
+    public Track(String name, String des, int maxTeamPerTrack, int minTeamPerTrack) {
         this.name = name;
         this.des = des;
         this.maxTeamPerTrack = maxTeamPerTrack;
         this.minTeamPerTrack = minTeamPerTrack;
-        this.round = round;
     }
 }
