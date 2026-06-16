@@ -24,7 +24,7 @@ public class User {
     private String email;
     @Column(name = "schoolName")
     private String schoolName;
-    @Column(name = "Active", nullable = false)
+    @Column(name = "Active", nullable = false) // gio duoc hieu la da xac nhan gmail
     private boolean active = false;
 
     @Column(name = "studentCardImg")
@@ -45,7 +45,7 @@ public class User {
 
     public UserStatus getStatus() {
         return status;
-    }
+    } // trang thai ho so va quyen tham gia
 
     public void setStatus(UserStatus status) {
         this.status = status;

@@ -4,6 +4,7 @@ import com.minhtung.hackathon.dto.request.CreateTeamDto;
 import com.minhtung.hackathon.dto.request.JoinTeamRequest;
 import com.minhtung.hackathon.entity.User;
 import com.minhtung.hackathon.enums.Role;
+import com.minhtung.hackathon.enums.UserStatus;
 import com.minhtung.hackathon.repository.TeamRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.service.TeamService;
@@ -38,17 +39,20 @@ public class DataInitializer implements CommandLineRunner {
             user1.setSchoolName("Trường đại học Hoa Sen");
             user1.setActive(true);
             user1.setFullName("Bùi Thiên Khánh");
+            user1.setStatus(UserStatus.ACCEPTED);
             userRepository.save(user1);
-//
-//            User user2 = new User();
-//            user2.setEmail("user2@gmail.com");
-//            user2.setPassword("123456");
-//            user2.setRole(Role.USER);
-//            user2.setSchoolName("Khoa Học Xã Hội và Nhân Văn");
-//            user2.setActive(true);
-//            user2.setFullName("Mạc Minh Tùng");
-//            userRepository.save(user2);
-//
+
+            User user2 = new User();
+            user2.setEmail("user2@gmail.com");
+            user2.setPassword("123456");
+            user2.setRole(Role.USER);
+            user2.setSchoolName("Khoa Học Xã Hội và Nhân Văn");
+            user2.setActive(true);
+            user2.setFullName("Mạc Minh Tùng");
+            user2.setStatus(UserStatus.PROFILE_PENDING);
+
+            userRepository.save(user2);
+
 //            User user3 = new User();
 //            user3.setEmail("user3@gmail.com");
 //            user3.setPassword("123456");
@@ -56,6 +60,7 @@ public class DataInitializer implements CommandLineRunner {
 //            user3.setSchoolName("Trường đại học FPT");
 //            user3.setActive(true);
 //            user3.setFullName("Phạm Khắc Đăng Khoa");
+//
 //            userRepository.save(user3);
 //
 //            User user4 = new User();
@@ -141,15 +146,16 @@ public class DataInitializer implements CommandLineRunner {
 //            ), user10.getId());
 //            teamService.joinTeamByCode(
 //                    teamRepository.findByLeaderId(user10.getId()).get().getInviteCode(),user11.getId());
-//
-//
-//            User user12 = new User();
-//            user12.setFullName("ADMIN");
-//            user12.setEmail("admin@gmail.com");
-//            user12.setPassword("123456");
-//            user12.setRole(Role.USER);
-//            user12.setActive(true);
-//            userRepository.save(user12);
+
+
+            User user12 = new User();
+            user12.setFullName("ADMIN");
+            user12.setEmail("admin@gmail.com");
+            user12.setPassword("123456");
+            user12.setRole(Role.USER);
+            user12.setActive(true);
+            user12.setStatus(UserStatus.ACCEPTED);
+            userRepository.save(user12);
         }
     }
 }

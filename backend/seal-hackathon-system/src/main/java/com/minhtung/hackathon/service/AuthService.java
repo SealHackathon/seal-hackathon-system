@@ -12,6 +12,7 @@ import com.minhtung.hackathon.entity.User;
 import com.minhtung.hackathon.enums.MemberRole;
 import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.enums.Role;
+import com.minhtung.hackathon.enums.UserStatus;
 import com.minhtung.hackathon.repository.MemberRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
@@ -51,6 +52,7 @@ public class AuthService {
         user.setActive(false);//chua an xac nhan
         user.setToken(UUID.randomUUID().toString());
         user.setExpiredAt(LocalDateTime.now().plusMinutes(15));
+        user.setStatus(UserStatus.PROFILE_PENDING);
         user.setRole(Role.USER);
         userRepository.save(user);
         RegisterResponse registerResponse = new RegisterResponse();
@@ -91,6 +93,7 @@ public class AuthService {
 
         user.setActive(true);
         user.setToken(null);
+        user.setStatus(UserStatus.PROFILE_PENDING);
         user.setExpiredAt(null);
         userRepository.save(user);
 
@@ -116,19 +119,11 @@ public class AuthService {
 
     public LoginResponse login(LoginRequest req) {
         User user = userRepository.findByEmail((req.getEmail())).orElse(null);
-        Member member = memberRepository.findByMemberIdAndStatusIn(user.getId(), List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE)).orElse(null);
+
         String teamRole = "";
         boolean hasTeam = false;
-        if (member == null) {
-            teamRole = "NOTEAMROLE";
-            hasTeam = false;
-        } else if (member.getRole() == MemberRole.LEADER) {
-            teamRole = "LEADER";
-            hasTeam = true;
-        } else if (member.getRole() == MemberRole.MEMBER) {
-            teamRole = "MEMBER";
-            hasTeam = true;
-        }
+
+
 
         if (user == null) {
             return new LoginResponse(null, null, null, "tai khoan khong ton tai ", null, false, null,0);
@@ -137,7 +132,8 @@ public class AuthService {
         if (!user.isActive()) {
             return new LoginResponse(null, null, null, "tai khoan chua duoc kich hoat email ", null, false, null,0);
         }
-        if (!req.getPassword().equals(user.getPassword())) {
+        if (!req.getPassword().equals(user.getPassword())){
+            //passwordEncoder.encode(req.getPassword())
             return new LoginResponse(null, null, null, "Mat khau khong chinh xac", null, false, null,0);
         }
         String jwt = jwtUtil.generateToken(user.getEmail(), user.getRole().name());

@@ -27,7 +27,7 @@ public class EmailService {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-      helper.setFrom("thainguyenthanh504@gmail.com");
+      helper.setFrom("mtung638@gamil.com");
       helper.setTo(email);
       helper.setSubject("Xác  nhận đăng kí tài khoản");
 
@@ -75,6 +75,29 @@ public class EmailService {
     } catch (Exception e) {
       e.printStackTrace();
         return false;
+    }
+  }
+  public boolean  emailxacnhantuadmin(String email){
+//    String verifLink = baseUrl + "/api/auth/verify?email" + email;
+
+    try {
+      MimeMessage message = mailSender.createMimeMessage();
+      MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+      helper.setFrom("mtung638@gmail.com");
+      helper.setTo(email);
+      helper.setSubject("Xác  nhận đăng kí tài khoản");
+
+      helper.setText(
+              "<p>Tài khoản của bạn đã được phê duyệt thành công. Hãy nhanh chóng đăng nhập và tham gia một đội thi để không bỏ lỡ cơ hội đồng hành cùng các thành viên khác trong cuộc thi!</p>",
+              true
+      );
+      mailSender.send(message);
+      return true;
+
+
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
     }
   }
 }
