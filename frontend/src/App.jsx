@@ -2,7 +2,7 @@
 
 import './App.css'
 import { useState, useEffect } from 'react';
-import axios from 'axios';
+import axiosClient from "./api/axiosClient";
 import LeaderView from './pages/LeaderView'
 import MemberView from './pages/MemberView'
 import NoTeamViews from './pages/NoTeamView';
@@ -20,12 +20,8 @@ function App() {
   }
 
   useEffect(() => {
-    axios
-      .get("http://localhost:8080/api/team/my-role", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+    axiosClient
+      .get("/team/my-role")
       .then((res) => {
         setRole(res.data);
       })

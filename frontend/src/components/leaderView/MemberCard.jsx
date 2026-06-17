@@ -3,7 +3,7 @@ import { ArrowRight, ArrowLeft, PaperPlaneTilt, X } from '@phosphor-icons/react'
 import Button from '../shared/Button'
 import styles from './MemberCard.module.css'
 import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
-import axios from 'axios'
+import axiosClient from "../../api/axiosClient";
 
 function MemberCard({ member, onInvite, onCancel }) {
     // 'view' | 'compose' | 'invited'
@@ -14,13 +14,11 @@ function MemberCard({ member, onInvite, onCancel }) {
         `Xin chào! Mình là đội trưởng của [Tên đội]. Mình thấy profile của bạn rất phù hợp và muốn mời bạn gia nhập đội. Rất mong được cùng bạn thi đấu!`
     )
     //ham invinte
-    const token = localStorage.getItem("accessToken");
     function handleSend() {
         console.log("member =", member);
         console.log("sending id =", member.id);
-        axios.post('http://localhost:8080/api/teamrequest/invitation',
-            { id: member.id, message: message },
-            { headers: { Authorization: `Bearer ${token}` } }
+        axiosClient.post('/teamrequest/invitation',
+            { id: member.id, message: message }
         )
             .then(() => {
                 onInvite(member.id, message)
@@ -36,8 +34,7 @@ function MemberCard({ member, onInvite, onCancel }) {
     // ham cancel invite
 
     function handleCancel() {
-        axios.delete(`http://localhost:8080/api/teamrequest/invitation-bymember?memberId=${member.id}`,
-            { headers: { Authorization: `Bearer ${token}` } }
+        axiosClient.delete(`/teamrequest/invitation-bymember?memberId=${member.id}`
         )
             .then(() => {
                 onCancel(member.id)
@@ -65,7 +62,7 @@ function MemberCard({ member, onInvite, onCancel }) {
                 {/* Panel 1: Xem thông tin */}
                 <div className={styles.panel}>
                     <div className={styles.userInfo}>
-                        <img src={avatarPlaceholder} alt="user avatar placeholder" className={styles.avatar}/>
+                        <img src={avatarPlaceholder} alt="user avatar placeholder" className={styles.avatar} />
                         <div>
                             <p className={styles.name}>{member.name}</p>
                             <p className={styles.email}>{member.email}</p>
