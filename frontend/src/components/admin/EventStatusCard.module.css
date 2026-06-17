@@ -1,0 +1,134 @@
+.card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: #E8E8E8;
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  gap: 12px;
+}
+
+.title {
+  font-size: 12px;
+  font-weight: 600;
+  color: #b0b0b0;
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
+  letter-spacing: 0.5px;
+}
+
+.eventName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #343330;
+  margin: 0;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  background-color: #FF860C;
+  color: white;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.section {
+  padding: 12px 0;
+}
+
+.label {
+  font-size: 12px;
+  color: #b0b0b0;
+  margin: 0 0 6px 0;
+  font-weight: 500;
+}
+
+.roundName {
+  font-size: 16px;
+  font-weight: 700;
+  color: #084CDD;
+  margin: 0 0 12px 0;
+}
+
+.progressContainer {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progressBar {
+  flex: 1;
+  height: 8px;
+  background-color: #F0F0F0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background-color: #0DB04B;
+  transition: width 0.3s ease;
+}
+
+.progressText {
+  font-size: 12px;
+  font-weight: 600;
+  color: #343330;
+  min-width: 35px;
+  text-align: right;
+}
+
+.dateGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #F0F0F0;
+}
+
+.dateItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.dateLabel {
+  font-size: 11px;
+  color: #b0b0b0;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.dateValue {
+  font-size: 14px;
+  font-weight: 600;
+  color: #343330;
+}
+
+@media (max-width: 640px) {
+  .dateGrid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,154 @@
+.card {
+  background: #FFFFFF;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  border-color: #E8E8E8;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #343330;
+  margin: 0;
+}
+
+.period {
+  font-size: 12px;
+  color: #b0b0b0;
+  background-color: #F9F9F9;
+  padding: 6px 12px;
+  border-radius: 6px;
+}
+
+.chartContainer {
+  display: flex;
+  gap: 12px;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: center;
+  min-height: 250px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.yAxis {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  margin-right: 12px;
+}
+
+.yLabel {
+  font-size: 11px;
+  color: #b0b0b0;
+  text-align: right;
+  width: 30px;
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 16px;
+  flex: 1;
+  margin-left: 40px;
+  height: 100%;
+}
+
+.barGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 60px;
+}
+
+.barWrapper {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.bar {
+  width: 100%;
+  background: linear-gradient(180deg, #084CDD 0%, #0066CC 100%);
+  border-radius: 6px 6px 0 0;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  min-height: 8px;
+}
+
+.bar:hover {
+  opacity: 0.85;
+  box-shadow: 0 4px 8px rgba(8, 76, 221, 0.2);
+}
+
+.label {
+  font-size: 11px;
+  color: #343330;
+  text-align: center;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.legend {
+  display: flex;
+  gap: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #F0F0F0;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #343330;
+}
+
+.legendColor {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legendText {
+  font-weight: 500;
+}
+
+@media (max-width: 640px) {
+  .chart {
+    gap: 8px;
+  }
+
+  .barGroup {
+    max-width: 40px;
+  }
+
+  .label {
+    font-size: 10px;
+  }
+}

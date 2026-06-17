@@ -1,0 +1,144 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background-color: #FFFFFF;
+  border-bottom: 1px solid #E8E8E8;
+  height: 70px;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.toggleBtn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border: none;
+  background-color: #F4F8FF;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+  transition: all 0.2s ease;
+}
+
+.toggleBtn:hover {
+  background-color: #E8EDFF;
+}
+
+.hamburger {
+  display: block;
+}
+
+.center {
+  flex: 1;
+  text-align: center;
+}
+
+.title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #084CDD;
+  margin: 0;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.searchBox {
+  position: relative;
+  width: 250px;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 10px 16px 10px 36px;
+  border: 1px solid #E8E8E8;
+  border-radius: 8px;
+  font-size: 14px;
+  background-color: #F9F9F9;
+  transition: all 0.2s ease;
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #084CDD;
+  background-color: #FFFFFF;
+  box-shadow: 0 0 0 3px rgba(8, 76, 221, 0.1);
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 14px;
+  pointer-events: none;
+}
+
+.userInfo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.notificationIcon,
+.avatar {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: #F4F8FF;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.notificationIcon:hover,
+.avatar:hover {
+  background-color: #E8EDFF;
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    padding: 12px 16px;
+    height: 60px;
+  }
+
+  .toggleBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .center {
+    display: none;
+  }
+
+  .searchBox {
+    width: 150px;
+  }
+
+  .searchInput {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 640px) {
+  .searchBox {
+    display: none;
+  }
+
+  .right {
+    gap: 12px;
+  }
+}

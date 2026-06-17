@@ -1,0 +1,159 @@
+.sidebar {
+  width: 280px;
+  background-color: #FFFFFF;
+  border-right: 1px solid #E8E8E8;
+  padding: 24px 16px;
+  overflow-y: auto;
+  transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.closed {
+  width: 80px;
+}
+
+.sidebar.closed .logoText,
+.sidebar.closed .btnText,
+.sidebar.closed .sectionTitle,
+.sidebar.closed .navItem {
+  display: none;
+}
+
+.sidebar.closed .logo {
+  justify-content: center;
+}
+
+.sidebar.closed .createEventBtn {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* Logo Section */
+.logoSection {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #F0F0F0;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 18px;
+  font-weight: 800;
+  color: #084CDD;
+}
+
+.logoIcon {
+  font-size: 24px;
+}
+
+.logoText {
+  color: #343330;
+}
+
+/* Create Event Button */
+.createEventBtn {
+  width: 100%;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+  background-color: #FF860C;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+}
+
+.createEventBtn:hover {
+  background-color: #F27125;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 134, 12, 0.3);
+}
+
+.btnIcon {
+  font-size: 16px;
+}
+
+/* Navigation */
+.nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.navSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sectionTitle {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #b0b0b0;
+  margin-bottom: 8px;
+  letter-spacing: 0.5px;
+}
+
+.navList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  color: #343330;
+  text-decoration: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.navItem:hover {
+  background-color: #F4F8FF;
+  color: #084CDD;
+}
+
+.navDot {
+  color: #FF860C;
+  font-size: 18px;
+  line-height: 1;
+}
+
+/* Scrollbar */
+.sidebar {
+  scrollbar-color: #C0D5FF transparent;
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100vh;
+    z-index: 1000;
+    width: 280px;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+  }
+
+  .sidebar.open {
+    transform: translateX(0);
+  }
+}

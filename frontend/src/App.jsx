@@ -9,6 +9,8 @@ import NoTeamViews from './pages/NoTeamView';
 import LoginPage from './pages/LoginPage';
 import JoinTeamFlow from './components/joinFlow/JoinTeamFlow';
 import UserDashboard from './pages/UserDashboard';
+import AdminDashboard from './pages/AdminDashboard';
+
 function App() {
   const [role, setRole] = useState(null);
   const token = localStorage.getItem("accessToken");
@@ -19,8 +21,19 @@ function App() {
     setScreen(page)
   }
 
+  // Check if admin mode (for demo purposes)
+  const isAdminMode = localStorage.getItem('adminMode') === 'true';
+  const urlParams = new URLSearchParams(window.location.search);
+  const isAdminView = urlParams.get('admin') === 'true';
+
+  // Show admin dashboard if admin view is requested (demo mode) - NO TOKEN NEEDED
+  if (isAdminView) {
+    return <AdminDashboard />;
+  }
 
   useEffect(() => {
+    if (!token) return; // Don't fetch if no token
+    
     axios
       .get("http://localhost:8080/api/team/my-role", {
         headers: {
@@ -36,9 +49,16 @@ function App() {
         }
       });
   }, [token]);
+  
   if (!token) {
     return <LoginPage />;
   }
+
+  // Show admin dashboard if admin mode is enabled
+  if (isAdminMode) {
+    return <AdminDashboard />;
+  }
+
   if (screen === 'team') {
     if (role === "LEADER") {
       return <LeaderView />
@@ -52,8 +72,6 @@ function App() {
   }
 
   return <UserDashboard onNavigate={navigate} />
-
-
 
 }
 
