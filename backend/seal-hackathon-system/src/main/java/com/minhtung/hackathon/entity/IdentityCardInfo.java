@@ -24,10 +24,19 @@ public class IdentityCardInfo {
     private String identityId;
 
     @Column(nullable = false)
-    private String sex;
+    private String gender;
 
     @Column(nullable = false, name = "date_of_birth")
     private LocalDate dateOfBirth;
+
+    @Column(nullable = false, name = "address", columnDefinition = "TEXT")
+    private String address;
+
+    @Column(nullable = false, name = "id_img_front", columnDefinition = "TEXT")
+    private String idImgFront;
+
+    @Column(nullable = false, name = "id_img_back", columnDefinition = "TEXT")
+    private String idImgBack;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)

@@ -5,12 +5,15 @@ import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.UserStatus;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-
+@Getter
+@Setter
 //bang user xac nhan
 public class User {
     @Id
@@ -26,7 +29,8 @@ public class User {
     private String schoolName;
     @Column(name = "active", nullable = false)
     private boolean active = false;
-
+    @Column(name = "student_id")
+    private String studentId;
     @Column(name = "avt_img")
     private String avtImg;
 
@@ -37,37 +41,6 @@ public class User {
     @Column(name = "status", length = 255, nullable = false)
     private UserStatus status;
 
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public void setStatus(UserStatus status) {
-        this.status = status;
-    }
-
-    public String getAvtImg() {
-        return avtImg;
-    }
-
-    public void setAvtImg(String studentCardImg) {
-        this.avtImg = studentCardImg;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getSchoolName() {
-        return schoolName;
-    }
-
-    public void setSchoolName(String schoolName) {
-        this.schoolName = schoolName;
-    }
 
     @Column
     private String token; //verify code
@@ -79,22 +52,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
-
-    public String getFullName() {
-        return fullName;
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
 
     public boolean isExpired() {
         if (expiredAt == null) return true;
@@ -110,54 +67,6 @@ public class User {
         this.active = active;
         this.token = token;
         this.expiredAt = expiredAt;
-    }
-
-    public String getToken() {
-        return token;
-    }
-
-    public void setToken(String token) {
-        this.token = token;
-    }
-
-    public LocalDateTime getExpiredAt() {
-        return expiredAt;
-    }
-
-    public void setExpiredAt(LocalDateTime expiredAt) {
-        this.expiredAt = expiredAt;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
     }
 
     @Override
