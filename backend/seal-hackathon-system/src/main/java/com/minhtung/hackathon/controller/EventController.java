@@ -1,43 +1,44 @@
 package com.minhtung.hackathon.controller;
 
-import com.minhtung.hackathon.dto.response.SearchMemberResponse;
+
+import com.minhtung.hackathon.dto.event.AllEventResponse;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
-import com.minhtung.hackathon.service.TeamService;
-import com.minhtung.hackathon.service.UserService;
+import com.minhtung.hackathon.service.EventService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-
+import java.util.List;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/event")
 @RequiredArgsConstructor
-@Tag(name = "User")
+@Tag(name = "Template")
 @SecurityRequirement(name = "bearerAuth")
 @CrossOrigin(origins = "*")
-public class UserController {
 
 
-    private final TeamService teamService;
+public class EventController {
+
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
-    private final UserService userService;
+    private final EventService eventService;
 
-    //get user chua co team
-    @GetMapping("/free-users")
-    public ResponseEntity<?> getAllUsers(
-            @RequestHeader("Authorization") String auth
-    ) {
+    // api get view Event
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin")
+    public ResponseEntity<?> getEvent(@RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
         if (uid == null) {
 
             return unauthorized();
         }
-        return ResponseEntity.ok().body(userService.getMemberNoTeam(uid));
+        return ResponseEntity.ok(eventService.getAllEvents());
     }
 
 
@@ -57,4 +58,6 @@ public class UserController {
     private ResponseEntity<String> unauthorized() {
         return ResponseEntity.status(401).body("Token không hợp lệ");
     }
+
+
 }

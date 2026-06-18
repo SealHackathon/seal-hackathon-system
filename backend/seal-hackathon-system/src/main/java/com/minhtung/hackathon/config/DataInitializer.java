@@ -2,11 +2,15 @@ package com.minhtung.hackathon.config;
 
 import com.minhtung.hackathon.dto.request.CreateTeamDto;
 import com.minhtung.hackathon.dto.request.JoinTeamRequest;
+import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.entity.User;
+import com.minhtung.hackathon.enums.EventStatus;
 import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.UserStatus;
+import com.minhtung.hackathon.repository.EventRepository;
 import com.minhtung.hackathon.repository.TeamRepository;
 import com.minhtung.hackathon.repository.UserRepository;
+import com.minhtung.hackathon.service.EventService;
 import com.minhtung.hackathon.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.units.qual.C;
@@ -14,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -21,26 +26,28 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
-    @Autowired
+
     private final UserRepository userRepository;
-    @Autowired
+
     private final TeamService teamService;
-    @Autowired
+
+    private final EventRepository eventRepository;
+
     private final TeamRepository teamRepository;
 
     @Override
     public void run(String... args) {
         if (userRepository.count() == 0) {
 ////           ----------------các thành viên chưa có team----------------------------------
-            User user1 = new User();
-            user1.setEmail("user1@gmail.com");
-            user1.setPassword("123456");
-            user1.setRole(Role.USER);
-            user1.setStatus(UserStatus.ACCEPTED);
-            user1.setSchoolName("Trường đại học Hoa Sen");
-            user1.setActive(true);
-            user1.setFullName("Bùi Thiên Khánh");
-            userRepository.save(user1);
+//            User user1 = new User();
+//            user1.setEmail("user1@gmail.com");
+//            user1.setPassword("123456");
+//            user1.setRole(Role.USER);
+//            user1.setStatus(UserStatus.ACCEPTED);
+//            user1.setSchoolName("Trường đại học Hoa Sen");
+//            user1.setActive(true);
+//            user1.setFullName("Bùi Thiên Khánh");
+//            userRepository.save(user1);
 //
 //            User user2 = new User();
 //            user2.setEmail("user2@gmail.com");
@@ -145,13 +152,21 @@ public class DataInitializer implements CommandLineRunner {
 //                    teamRepository.findByLeaderId(user10.getId()).get().getInviteCode(),user11.getId());
 //
 //
-//            User user12 = new User();
-//            user12.setFullName("ADMIN");
-//            user12.setEmail("admin@gmail.com");
-//            user12.setPassword("123456");
-//            user12.setRole(Role.USER);
-//            user12.setActive(true);
-//            userRepository.save(user12);
+            Event event1 = new Event("SEAL Hackathon Fall 2026", LocalDateTime.now(), "event description", EventStatus.DRAFT, 4, "AI Agents for Software Innovation", "img_link_hardcode", "img_link_hard_code", 10, "Rule_hardcode", "benefit_hardcode","Trường Đại Học FPT");
+            eventRepository.save(event1);
+
+            Event event2 = new Event("Seal Hackathon Summer 2026", LocalDateTime.now(), "event description", EventStatus.LIVE, 4, "AI Agents for Software Innovation", "img_link_hardcode", "img_link_hard_code", 10, "Rule_hardcode", "benefit_hardcode","Trường Đại Học FPT");
+            eventRepository.save(event2);
+
+
+            User user12 = new User();
+            user12.setFullName("ADMIN");
+            user12.setEmail("admin@gmail.com");
+            user12.setPassword("123456");
+            user12.setRole(Role.ADMIN);
+            user12.setActive(true);
+            user12.setStatus(UserStatus.ACCEPTED);
+            userRepository.save(user12);
         }
     }
 }

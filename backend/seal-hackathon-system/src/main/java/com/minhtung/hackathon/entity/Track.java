@@ -34,6 +34,13 @@ public class Track {
     private Event event;
 
 
+    public int getTeamQuantity() {
+        if (teams == null) {
+            return 0;
+        }
+        return teams.size();
+    }
+
     public Track(String name, String des, int maxTeamPerTrack, int minTeamPerTrack) {
         this.name = name;
         this.des = des;

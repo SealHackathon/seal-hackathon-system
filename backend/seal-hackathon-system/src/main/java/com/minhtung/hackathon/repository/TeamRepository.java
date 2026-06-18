@@ -4,6 +4,7 @@ import com.minhtung.hackathon.dto.response.CreateTeamResponse;
 import com.minhtung.hackathon.dto.response.NeedMemberTeamResponse;
 import com.minhtung.hackathon.entity.Team;
 import com.minhtung.hackathon.enums.TeamStatus;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -27,4 +28,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     Optional<Team> findByNameIgnoreCaseAndStatus(String teamName, TeamStatus status);
 
+
+    @Query("SELECT COUNT(t) FROM Team t WHERE t.track.event.id = :eventId AND t.status = :status")
+    int countTeamsByEventIdAndStatus(@Param("eventId") Long eventId, @Param("status") TeamStatus status);
 }

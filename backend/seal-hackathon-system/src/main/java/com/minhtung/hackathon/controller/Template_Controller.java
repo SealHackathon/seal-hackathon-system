@@ -1,45 +1,27 @@
 package com.minhtung.hackathon.controller;
 
-import com.minhtung.hackathon.dto.response.SearchMemberResponse;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
-import com.minhtung.hackathon.service.TeamService;
-import com.minhtung.hackathon.service.UserService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/")
 @RequiredArgsConstructor
-@Tag(name = "User")
+@Tag(name = "Template")
 @SecurityRequirement(name = "bearerAuth")
 @CrossOrigin(origins = "*")
-public class UserController {
 
-
-    private final TeamService teamService;
+public class Template_Controller {
+    @Autowired
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
-    private final UserService userService;
-
-    //get user chua co team
-    @GetMapping("/free-users")
-    public ResponseEntity<?> getAllUsers(
-            @RequestHeader("Authorization") String auth
-    ) {
-        Integer uid = getUid(auth);
-        if (uid == null) {
-
-            return unauthorized();
-        }
-        return ResponseEntity.ok().body(userService.getMemberNoTeam(uid));
-    }
-
 
     private Integer getUid(String authHeader) {
         try {
