@@ -16,7 +16,7 @@ public class Round {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String name;
 
     private LocalDateTime timeStart;

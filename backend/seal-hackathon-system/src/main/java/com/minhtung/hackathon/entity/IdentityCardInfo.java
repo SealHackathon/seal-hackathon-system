@@ -15,7 +15,7 @@ public class IdentityCardInfo {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @Column(nullable = false)
     private String name;
@@ -32,11 +32,15 @@ public class IdentityCardInfo {
     @Column(nullable = false, name = "address", columnDefinition = "TEXT")
     private String address;
 
+
     @Column(nullable = false, name = "id_img_front", columnDefinition = "TEXT")
     private String idImgFront;
 
     @Column(nullable = false, name = "id_img_back", columnDefinition = "TEXT")
     private String idImgBack;
+
+    @Column(nullable = false, name = "face_img", columnDefinition = "TEXT")
+    private String faceImg;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false, unique = true)

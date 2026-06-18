@@ -10,7 +10,7 @@ public class JudgeScoreDetail {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "judge_score_id", nullable = false)

@@ -40,7 +40,7 @@ public class Team {
     @Column(name = "Description")
     private String description;
     @Column(name = "CompetitionStatus")
-    private Integer competitionStatus;
+    private int competitionStatus;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "track_id")
     private Track track;

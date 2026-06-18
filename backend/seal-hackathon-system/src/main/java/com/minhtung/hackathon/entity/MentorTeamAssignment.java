@@ -10,7 +10,7 @@ import lombok.Data;
 public class MentorTeamAssignment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @ManyToOne
     @JoinColumn(name = "mentor_assignment_id")

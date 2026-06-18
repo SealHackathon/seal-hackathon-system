@@ -14,7 +14,7 @@ import java.util.List;
 public class StudentProfile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
@@ -34,9 +34,10 @@ public class StudentProfile {
     @Column(columnDefinition = "text[]")
     private String[] tags;
 
+
     @JdbcTypeCode(SqlTypes.ARRAY)
     @Column(columnDefinition = "text[]")
-    private String[] topics;
+    private String[] interestArea;
 
 
 }

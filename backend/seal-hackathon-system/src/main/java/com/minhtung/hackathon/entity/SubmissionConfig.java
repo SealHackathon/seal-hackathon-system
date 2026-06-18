@@ -23,7 +23,7 @@ public class SubmissionConfig {
     @JoinColumn(name = "round_id")
     private Round round;
 
-    @Column(name = "title", nullable = false, length = 255)
+    @Column(name = "title", nullable = false, columnDefinition = "TEXT")
     private String title;
 
     // Sử dụng kiểu COLUMN_DEFINITION TEXT để lưu hướng dẫn dài

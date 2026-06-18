@@ -14,7 +14,7 @@ public class Milestone {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String milestoneName;
 
     private LocalDate dateStart;

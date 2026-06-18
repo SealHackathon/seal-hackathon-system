@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "fullName")
@@ -31,7 +31,7 @@ public class User {
     private boolean active = false;
     @Column(name = "student_id")
     private String studentId;
-    @Column(name = "avt_img")
+    @Column(name = "avt_img",columnDefinition = "TEXT")
     private String avtImg;
 
     @Column(name = "phoneNumber")

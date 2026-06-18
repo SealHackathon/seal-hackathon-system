@@ -12,12 +12,12 @@ public class Prize {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(length = 255)
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private int money;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String prizeName;
 
     @ManyToOne(fetch = FetchType.LAZY)
