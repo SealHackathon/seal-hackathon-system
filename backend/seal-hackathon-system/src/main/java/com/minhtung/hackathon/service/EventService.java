@@ -53,6 +53,7 @@ public class EventService {
             int candidateQuantity = memberRepository.countOfficialParticipants(event.getId(), TeamStatus.APPROVED, MemberStatus.OFFICAL);
             eventResponse.setCandidateQuantity(candidateQuantity);
             eventResponse.setEventStatus(event.getStatus().toString());
+            eventResponse.setDescription(event.getDescription());
             allEventResponseList.add(eventResponse);
         }
 
@@ -74,7 +75,6 @@ public class EventService {
         eventResponse.setMaxTeamMember(event.getMaxTeamMember());
         eventResponse.setEventLocation(event.getEventLocation());
         eventResponse.setTrackQuantity(eventResponse.getTrackQuantity() + event.getTracks().size());
-        eventResponse.setRoundQuantity(eventResponse.getRoundQuantity() + event.getRounds().size());
         // dang hard code set prize
         eventResponse.setPrize(10000000);
 
@@ -84,18 +84,8 @@ public class EventService {
         int candidateQuantity = memberRepository.countOfficialParticipants(event.getId(), TeamStatus.APPROVED, MemberStatus.OFFICAL);
         eventResponse.setCandidateQuantity(candidateQuantity);
         eventResponse.setEventStatus(event.getStatus().toString());
-        int roundQuantity = roundRepository.countByEventId(event.getId());
-        eventResponse.setRoundQuantity(roundQuantity);
-        Round round = roundRepository.findFirstByTimeEndAfterOrderByTimeEndAsc(LocalDateTime.now()).orElse(null);
-        if (round != null) {
-            eventResponse.setSubmissionQuantity(round.getSubmissions().size());
-            eventResponse.setRoundName(round.getName());
-            eventResponse.setRoundSubmissionDeadline(round.getSubmissionDeadline());
-            eventResponse.setScroringTemplateUrl(round.getScoringTemplate().getUrl());
-            eventResponse.setSubmissionQuantity(round.getSubmissions().size());
-            eventResponse.setRoundOrdinalNumber(round.getOrdinal_number());
-        }
         eventResponse.setEventStatus(event.getStatus().toString());
+        eventResponse.setDescription(event.getDescription());
         return eventResponse;
     }
 

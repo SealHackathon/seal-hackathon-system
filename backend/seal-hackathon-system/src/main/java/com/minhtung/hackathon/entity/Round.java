@@ -50,7 +50,7 @@ public class Round {
     public Round() {
     }
 
-    public Round(String name, LocalDateTime timeStart, LocalDateTime timeEnd, boolean hasSubmission, int topTeamPass, LocalDateTime submissionDeadline, Event event, ScoringTemplate scoringTemplate) {
+    public Round(String name, LocalDateTime timeStart, LocalDateTime timeEnd, boolean hasSubmission, int topTeamPass, LocalDateTime submissionDeadline, Event event, ScoringTemplate scoringTemplate, int ordinal_number) {
         this.name = name;
         this.timeStart = timeStart;
         this.timeEnd = timeEnd;
@@ -59,5 +59,6 @@ public class Round {
         this.submissionDeadline = submissionDeadline;
         this.event = event;
         this.scoringTemplate = scoringTemplate;
+        this.ordinal_number = ordinal_number;
     }
 }

@@ -22,10 +22,12 @@ public class LiveEventResponse {
     private String eventLocation;
     private long prize;
     private String eventStatus;
-    private int roundQuantity = 0;
-    private String roundName;
-        private LocalDateTime roundSubmissionDeadline;
-    private String scroringTemplateUrl;
-    private int submissionQuantity;
-    private int  roundOrdinalNumber; // so thu tu team
+    private String description;
+
+//    private int roundQuantity = 0;
+//    private String roundName;
+//        private LocalDateTime roundSubmissionDeadline;
+//    private String scroringTemplateUrl;
+//    private int submissionQuantity;
+//    private int  roundOrdinalNumber; // so thu tu team
 }

@@ -3,11 +3,13 @@ package com.minhtung.hackathon.config;
 import com.minhtung.hackathon.dto.request.CreateTeamDto;
 import com.minhtung.hackathon.dto.request.JoinTeamRequest;
 import com.minhtung.hackathon.entity.Event;
+import com.minhtung.hackathon.entity.Round;
 import com.minhtung.hackathon.entity.User;
 import com.minhtung.hackathon.enums.EventStatus;
 import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.UserStatus;
 import com.minhtung.hackathon.repository.EventRepository;
+import com.minhtung.hackathon.repository.RoundRepository;
 import com.minhtung.hackathon.repository.TeamRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.service.EventService;
@@ -34,6 +36,8 @@ public class DataInitializer implements CommandLineRunner {
     private final EventRepository eventRepository;
 
     private final TeamRepository teamRepository;
+
+    private final RoundRepository roundRepository;
 
     @Override
     public void run(String... args) {
@@ -157,6 +161,39 @@ public class DataInitializer implements CommandLineRunner {
 
             Event event2 = new Event("Seal Hackathon Summer 2026", LocalDateTime.now(), "event description", EventStatus.LIVE, 4, "AI Agents for Software Innovation", "img_link_hardcode", "img_link_hard_code", 10, "Rule_hardcode", "benefit_hardcode","Trường Đại Học FPT");
             eventRepository.save(event2);
+
+            // Thời gian neo theo mốc hiện tại để test cho chuẩn
+            LocalDateTime bayGio = LocalDateTime.now();
+
+// 1. ROUND 1: ĐANG DIỄN RA (Bắt đầu từ 1 tiếng trước, kết thúc sau 1 tiếng nữa)
+            Round round1 = new Round(
+                    "Vòng Ý Tưởng (Đang diễn ra)",
+                    bayGio.minusHours(1),          // timeStart: 1 tiếng trước
+                    bayGio.plusHours(1),           // timeEnd: 1 tiếng nữa
+                    true,                          // hasSubmission
+                    10,                            // topTeamPass
+                    bayGio.plusMinutes(45),        // submissionDeadline
+                    event2,                  // event
+                    null,                      // scoringTemplate
+                    1                              // ordinal_number
+            );
+
+// 2. ROUND 2: SẮP DIỄN RA (Bắt đầu sau 2 tiếng nữa, kết thúc sau 5 tiếng nữa)
+            Round round2 = new Round(
+                    "Vòng Thuyết Trình (Sắp diễn ra)",
+                    bayGio.plusHours(2),           // timeStart: 2 tiếng nữa mới bắt đầu
+                    bayGio.plusHours(5),           // timeEnd: 5 tiếng nữa mới kết thúc
+                    false,                         // hasSubmission
+                    5,                             // topTeamPass
+                    null,                          // submissionDeadline
+                    event2,                  // event
+                    null,                      // scoringTemplate
+                    2                              // ordinal_number
+            );
+
+// Lưu cả 2 vòng này vào Database thông qua Repo của bạn
+            roundRepository.save(round1);
+            roundRepository.save(round2);
 
 
             User user12 = new User();
