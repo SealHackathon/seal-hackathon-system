@@ -31,7 +31,7 @@ public class Event {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(length = 20,name="status")
     private EventStatus status;
 
     @Column

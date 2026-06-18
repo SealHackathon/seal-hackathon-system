@@ -22,6 +22,8 @@ public class ScoringTemplate {
     @Column( columnDefinition = "TEXT")
     private String description;
 
+    @Column( columnDefinition = "TEXT")
+    private String url;
     @Column
     private LocalDateTime createAt;
 

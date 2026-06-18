@@ -29,7 +29,14 @@ public class Round {
 
     private int topTeamPass;
 
+    private int ordinal_number;
+
     private LocalDateTime submissionDeadline;
+
+    @OneToMany(mappedBy = "round",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Submission> submissions = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)

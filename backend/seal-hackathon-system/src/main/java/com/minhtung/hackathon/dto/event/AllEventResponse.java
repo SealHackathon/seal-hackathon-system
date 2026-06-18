@@ -21,4 +21,5 @@ public class AllEventResponse {
     private String eventLocation;
     private long prize;
     private String eventStatus;
+    private int roundQuantity=0;
 }

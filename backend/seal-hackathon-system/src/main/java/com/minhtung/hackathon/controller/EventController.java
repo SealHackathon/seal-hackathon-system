@@ -29,9 +29,9 @@ public class EventController {
     private final UserRepository userRepository;
     private final EventService eventService;
 
-    // api get view Event
+    // api admin view full event
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/admin")
+    @GetMapping()
     public ResponseEntity<?> getEvent(@RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
         if (uid == null) {
@@ -39,6 +39,24 @@ public class EventController {
             return unauthorized();
         }
         return ResponseEntity.ok(eventService.getAllEvents());
+    }
+
+    // api admin view Live
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/live")
+    public ResponseEntity<?> getLiveEvent(@RequestHeader("Authorization") String auth) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+
+            return unauthorized();
+        }
+        try {
+            return ResponseEntity.ok(eventService.getLiveEvent());
+        } catch (Exception e) {
+
+            return ResponseEntity.notFound().build();
+        }
+
     }
 
 
