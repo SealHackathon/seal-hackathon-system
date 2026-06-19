@@ -106,6 +106,7 @@ public class EventService {
         event.setBannerImg(request.getBannerImg());
         event.setThumbnail_image(request.getThumbnail_image());
         event.setRules(request.getRules());
+        event.setCreateAt(LocalDateTime.now());
         event.setEventLocation(request.getEventLocation());
         event.setParticipationBenefits(request.getParticipationBenefits());
         eventRepository.save(event);
