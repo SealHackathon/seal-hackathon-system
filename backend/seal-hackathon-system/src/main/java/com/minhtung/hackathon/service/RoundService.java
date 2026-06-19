@@ -1,11 +1,13 @@
 package com.minhtung.hackathon.service;
 
 import com.minhtung.hackathon.dto.round.ComingRoundResponse;
+import com.minhtung.hackathon.dto.round.RoundRequest;
 import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.entity.Round;
 import com.minhtung.hackathon.enums.EventStatus;
 import com.minhtung.hackathon.repository.EventRepository;
 import com.minhtung.hackathon.repository.RoundRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -41,5 +43,42 @@ public class RoundService {
         comingRoundResponse.setSubmissionQuantity(round.getSubmissions().size());
         comingRoundResponse.setRoundOrdinalNumber(round.getOrdinal_number());
         return comingRoundResponse;
+    }
+
+    //Tạo Round
+    @Transactional
+    public long createRound(RoundRequest request) {
+        Event event = eventRepository.findById(request.getEventId()).orElse(null);
+
+        if (event == null) {
+            throw new IllegalArgumentException("Event not found");
+        }
+
+        Round round = new Round();
+        round.setEvent(event);
+        round.setName(request.getName());
+        round.setTimeStart(request.getTimeStart());
+        round.setTimeEnd(request.getTimeEnd());
+        round.setHasSubmission(request.isHasSubmission());
+        round.setHasPresetiontation(request.isHasPresetiontation());
+        round.setTopTeamPass(request.getTopTeamPass());
+        round.setOrdinal_number(request.getOrdinal_number());
+        round.setSubmissionDeadline(request.getSubmissionDeadline());
+        roundRepository.save(round);
+        return round.getId();
+        // Tạm thời bỏ qua scoringTemplate nếu bạn chưa có Repository cho nó,
+        // hoặc bổ sung logic tương tự như Event nếu cần thiết.
+    }
+
+    //delete Round
+    @Transactional
+    public String deleteRound(long id) {
+        Round round = roundRepository.findById(id).orElse(null);
+        if (round == null) {
+            throw new IllegalArgumentException("Round not found");
+        }
+
+        roundRepository.delete(round);
+        return "xóa round thành công !";
     }
 }

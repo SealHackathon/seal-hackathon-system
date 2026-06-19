@@ -2,6 +2,7 @@ package com.minhtung.hackathon.service;
 
 
 import com.minhtung.hackathon.dto.event.AllEventResponse;
+import com.minhtung.hackathon.dto.event.EventRequest;
 import com.minhtung.hackathon.dto.event.LiveEventResponse;
 import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.entity.Round;
@@ -11,6 +12,7 @@ import com.minhtung.hackathon.enums.EventStatus;
 import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.enums.TeamStatus;
 import com.minhtung.hackathon.repository.*;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -88,5 +90,38 @@ public class EventService {
         eventResponse.setDescription(event.getDescription());
         return eventResponse;
     }
+
+
+    // tạo 1 event lưu nháp trong lúc cấu hình
+    // trả về id của event
+    @Transactional
+    public long createEvent(EventRequest request) {
+        Event event = new Event();
+        event.setName(request.getName());
+        event.setDescription(request.getDescription());
+        event.setStatus(EventStatus.DRAFT);
+        event.setMinTeamMember(request.getMinTeamMember());
+        event.setMaxTeamMember(request.getMaxTeamMember());
+        event.setTopic(request.getTopic());
+        event.setBannerImg(request.getBannerImg());
+        event.setThumbnail_image(request.getThumbnail_image());
+        event.setRules(request.getRules());
+        event.setEventLocation(request.getEventLocation());
+        event.setParticipationBenefits(request.getParticipationBenefits());
+        eventRepository.save(event);
+        return event.getId();
+    }
+
+
+    @Transactional
+    public String deleteEvent(long id) {
+        Event event = eventRepository.findById(id).orElse(null);
+        if (event == null) {
+            throw new IllegalArgumentException("Event not found");
+        }
+        eventRepository.delete(event);
+        return "Xoa event Thanh Cong !";
+    }
+
 
 }

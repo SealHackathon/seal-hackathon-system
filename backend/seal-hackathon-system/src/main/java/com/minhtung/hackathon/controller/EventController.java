@@ -2,6 +2,8 @@ package com.minhtung.hackathon.controller;
 
 
 import com.minhtung.hackathon.dto.event.AllEventResponse;
+import com.minhtung.hackathon.dto.event.EventRequest;
+import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
 import com.minhtung.hackathon.service.EventService;
@@ -59,6 +61,30 @@ public class EventController {
 
     }
 
+    // 3. CREATE  DRAFT- Tạo mới một event
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping()
+    public ResponseEntity<?> createEvent(@RequestHeader("Authorization") String auth, @RequestBody EventRequest request) {
+        if (getUid(auth) == null) return unauthorized();
+        try {
+            return ResponseEntity.status(201).body(eventService.createEvent(request));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi tạo event: " + e.getMessage());
+        }
+    }
+
+    //admin xoa 1 event
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteEvent(@RequestHeader("Authorization") String auth, @PathVariable long id) {
+        if (getUid(auth) == null) return unauthorized();
+        try {
+            eventService.deleteEvent(id);
+            return ResponseEntity.ok("Xóa thành công event có ID: " + id);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Lỗi khi xóa: " + e.getMessage());
+        }
+    }
 
     private Integer getUid(String authHeader) {
         try {
