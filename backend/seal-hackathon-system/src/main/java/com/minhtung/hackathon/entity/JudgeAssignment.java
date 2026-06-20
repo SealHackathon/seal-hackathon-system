@@ -20,8 +20,7 @@ public class JudgeAssignment {
     @JoinColumn(name = "judge_id", nullable = false)
     private User user;
 
-    public JudgeAssignment(long id, Track track, User user) {
-        this.id = id;
+    public JudgeAssignment(Track track, User user) {
         this.track = track;
         this.user = user;
     }
