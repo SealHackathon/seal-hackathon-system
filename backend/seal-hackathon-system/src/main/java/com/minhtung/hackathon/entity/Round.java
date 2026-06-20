@@ -38,6 +38,10 @@ public class Round {
             orphanRemoval = true)
     private List<Submission> submissions = new ArrayList<>();
 
+    // Thay đổi từ @JoinColumn sang mappedBy
+    @OneToOne(mappedBy = "round", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    private SubmissionConfig submissionConfig;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;

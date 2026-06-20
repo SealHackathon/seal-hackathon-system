@@ -31,4 +31,12 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
 
     @Query("SELECT COUNT(t) FROM Team t WHERE t.track.event.id = :eventId AND t.status = :status")
     int countTeamsByEventIdAndStatus(@Param("eventId") Long eventId, @Param("status") TeamStatus status);
+
+
+    // Lấy danh sách team thuộc về một Track cụ thể
+    List<Team> findByTrackId(Long trackId);
+
+    // Hoặc lấy tất cả team thuộc về cùng 1 Event thông qua Track
+    @Query("SELECT t FROM Team t WHERE t.track.event.id = :eventId")
+    List<Team> findTeamsByEventId(@Param("eventId") Long eventId);
 }

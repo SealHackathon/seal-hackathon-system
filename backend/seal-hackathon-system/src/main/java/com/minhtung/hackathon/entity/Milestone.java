@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "milestone")
@@ -17,9 +18,9 @@ public class Milestone {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String milestoneName;
 
-    private LocalDate dateStart;
+    private LocalDateTime dateStart;
 
-    private LocalDate dateEnd;
+    private LocalDateTime dateEnd;
 
     @Column(length = 255)
     private String des;
@@ -31,6 +32,6 @@ public class Milestone {
     public Milestone() {
     }
 
-    public Milestone(String milestoneName, LocalDate dateStart, LocalDate dateEnd) {
+    public Milestone(String milestoneName, LocalDateTime dateStart, LocalDateTime dateEnd) {
     }
 }

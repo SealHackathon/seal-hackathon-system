@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.controller;
 
+import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
 import com.minhtung.hackathon.dto.round.RoundRequest;
 import com.minhtung.hackathon.entity.Round;
 import com.minhtung.hackathon.repository.RoundRepository;
@@ -13,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/round")
@@ -94,6 +97,41 @@ public class RoundController {
             return ResponseEntity.ok("Xóa thành công vòng thi có ID: " + id);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi khi xóa: " + e.getMessage());
+        }
+    }
+
+
+    /**
+     * API : Lấy danh sách toàn bộ vòng thi của một Sự kiện (Event) cụ thể
+     * URL: GET /api/v1/events/{eventId}/rounds
+     */
+    @GetMapping("/events/{eventId}/rounds")
+    public ResponseEntity<?> getRoundsByEvent(@PathVariable long eventId) {
+        try {
+            List<RoundDetailsResponse> rounds = roundService.getRoundsByEventId(eventId);
+            // Trả về danh sách (Mảng rỗng [] nếu Sự kiện chưa được cấu hình vòng thi nào)
+            return ResponseEntity.ok(rounds);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Đã xảy ra lỗi hệ thống khi lấy danh sách vòng thi: " + e.getMessage());
+        }
+    }
+
+    /**
+     * API : Xem thông tin chi tiết của một Vòng thi cụ thể dựa theo ID
+     * URL: GET /api/v1/rounds/{roundId}
+     */
+    @GetMapping("/rounds/{roundId}")
+    public ResponseEntity<?> getRoundDetailsById(@PathVariable long roundId) {
+        try {
+            RoundDetailsResponse roundDetails = roundService.getRoundDetailsById(roundId);
+            return ResponseEntity.ok(roundDetails);
+        } catch (IllegalArgumentException e) {
+            // Trả về 404 nếu truyền sai roundId không tồn tại trong hệ thống
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body("Đã xảy ra lỗi hệ thống khi lấy chi tiết vòng thi: " + e.getMessage());
         }
     }
 

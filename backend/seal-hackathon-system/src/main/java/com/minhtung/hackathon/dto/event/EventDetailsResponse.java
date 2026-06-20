@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.dto.event;
 
+import com.minhtung.hackathon.dto.response.MilestoneResponse;
 import com.minhtung.hackathon.dto.response.PrizeResponse;
 import com.minhtung.hackathon.dto.round.ComingRoundResponse;
 import com.minhtung.hackathon.entity.Round;
@@ -37,4 +38,9 @@ public class EventDetailsResponse {
     // Chi tiết danh sách hiển thị kèm theo
     private List<Track> tracks;
     private List<Round> rounds;
+
+    // List milestone
+    private List<MilestoneResponse> milestones;
+
+
 }

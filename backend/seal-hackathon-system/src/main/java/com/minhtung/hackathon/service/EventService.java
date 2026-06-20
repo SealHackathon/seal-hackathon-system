@@ -5,6 +5,7 @@ import com.minhtung.hackathon.dto.event.AllEventResponse;
 import com.minhtung.hackathon.dto.event.EventDetailsResponse;
 import com.minhtung.hackathon.dto.event.EventRequest;
 import com.minhtung.hackathon.dto.event.LiveEventResponse;
+import com.minhtung.hackathon.dto.response.MilestoneResponse;
 import com.minhtung.hackathon.dto.response.PrizeResponse;
 import com.minhtung.hackathon.dto.round.ComingRoundResponse;
 import com.minhtung.hackathon.entity.Event;
@@ -170,15 +171,40 @@ public class EventService {
             response.setPrizes(new ArrayList<>());
         }
 
-        // 5. Thống kê số lượng Đội và Thí sinh chính thức
-        int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
-        response.setTeamQuantity(teamQuantity);
+        // 6 Lấy danh sách Milestones thực tế từ Entity Event
+        if (event.getMilestones() != null) {
+            LocalDateTime now = LocalDateTime.now(); // Lấy giờ chuẩn của SERVER
 
-        int candidateQuantity = memberRepository.countOfficialParticipants(event.getId(), TeamStatus.APPROVED, MemberStatus.OFFICAL);
-        response.setCandidateQuantity(candidateQuantity);
+            List<MilestoneResponse> milestoneDTOs = event.getMilestones().stream()
+                    .map(m -> {
+                        // Logic tính toán trạng thái động
+                        String status = com.minhtung.hackathon.enums.MilestoneStatus.UPCOMING.toString();
+
+                        if (m.getDateStart() != null && m.getDateEnd() != null) {
+                            if (now.isBefore(m.getDateStart())) {
+                                status = com.minhtung.hackathon.enums.MilestoneStatus.UPCOMING.toString();
+                            } else if (now.isAfter(m.getDateEnd())) {
+                                status = com.minhtung.hackathon.enums.MilestoneStatus.COMPLETED.toString();
+                            } else {
+                                status = com.minhtung.hackathon.enums.MilestoneStatus.IN_PROGRESS.toString();
+                            }
+                        }
+
+                        return new MilestoneResponse(
+                                m.getId(),
+                                m.getMilestoneName(),
+                                m.getDateStart(),
+                                m.getDateEnd(),
+                                m.getDes(),
+                                status // Gán trạng thái vừa tính được vào DTO
+                        );
+                    })
+                    .toList();
+            response.setMilestones(milestoneDTOs);
+        } else {
+            response.setMilestones(new ArrayList<>());
+        }
 
         return response;
     }
-
-
 }
