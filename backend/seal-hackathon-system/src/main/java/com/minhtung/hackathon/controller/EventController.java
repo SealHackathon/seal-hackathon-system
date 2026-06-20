@@ -2,6 +2,7 @@ package com.minhtung.hackathon.controller;
 
 
 import com.minhtung.hackathon.dto.event.AllEventResponse;
+import com.minhtung.hackathon.dto.event.EventDetailsResponse;
 import com.minhtung.hackathon.dto.event.EventRequest;
 import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.repository.UserRepository;
@@ -83,6 +84,22 @@ public class EventController {
             return ResponseEntity.ok("Xóa thành công event có ID: " + id);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi khi xóa: " + e.getMessage());
+        }
+    }
+
+
+    // Endpoint lấy chi tiết 1 Event theo ID (bao gồm cả Prizes và Coming Round)
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getEventDetailsById(@PathVariable long id) {
+        try {
+            EventDetailsResponse eventDetails = eventService.getEventDetailsById(id);
+            return ResponseEntity.ok(eventDetails);
+        } catch (IllegalArgumentException e) {
+            // Trả về 404 Not Found kèm câu báo lỗi nếu không tìm thấy Event ID đó
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            // Trả về 400 Bad Request cho các lỗi hệ thống phát sinh khác
+            return ResponseEntity.badRequest().body("Lỗi khi lấy chi tiết sự kiện: " + e.getMessage());
         }
     }
 

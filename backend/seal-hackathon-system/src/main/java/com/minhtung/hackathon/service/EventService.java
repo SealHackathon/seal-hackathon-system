@@ -2,8 +2,11 @@ package com.minhtung.hackathon.service;
 
 
 import com.minhtung.hackathon.dto.event.AllEventResponse;
+import com.minhtung.hackathon.dto.event.EventDetailsResponse;
 import com.minhtung.hackathon.dto.event.EventRequest;
 import com.minhtung.hackathon.dto.event.LiveEventResponse;
+import com.minhtung.hackathon.dto.response.PrizeResponse;
+import com.minhtung.hackathon.dto.round.ComingRoundResponse;
 import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.entity.Round;
 import com.minhtung.hackathon.entity.Team;
@@ -122,6 +125,59 @@ public class EventService {
         }
         eventRepository.delete(event);
         return "Xoa event Thanh Cong !";
+    }
+
+
+    // service xem chi tiết 1 event dựa vào ID (Bao gồm Prizes và Coming Round)
+    public EventDetailsResponse getEventDetailsById(long id) {
+        // 1. Tìm Event theo ID
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Event với ID: " + id));
+
+        // 2. Khởi tạo và Map dữ liệu cơ bản sang DTO
+        EventDetailsResponse response = new EventDetailsResponse();
+        response.setEventId(event.getId());
+        response.setEventName(event.getName());
+        response.setEventTopic(event.getTopic());
+        response.setDescription(event.getDescription());
+        response.setEventLocation(event.getEventLocation());
+        response.setBannerImg(event.getBannerImg());
+        response.setThumbnailImage(event.getThumbnail_image());
+        response.setRules(event.getRules());
+        response.setParticipationBenefits(event.getParticipationBenefits());
+        response.setMinTeamMember(event.getMinTeamMember());
+        response.setMaxTeamMember(event.getMaxTeamMember());
+        response.setCreateAt(event.getCreateAt());
+        response.setEventStatus(event.getStatus().toString());
+
+        // 3. Đếm số lượng tracks và rounds từ Relationship
+        int totalTracks = event.getTracks() != null ? event.getTracks().size() : 0;
+        int totalRounds = event.getRounds() != null ? event.getRounds().size() : 0;
+        response.setTrackQuantity(totalTracks);
+        response.setRoundQuantity(totalRounds);
+
+        response.setTracks(event.getTracks());
+        response.setRounds(event.getRounds());
+
+        // 4. Lấy danh sách Prizes thực tế từ Entity Event (Giả định có liên kết)
+        // Nếu dự án của bạn dùng PrizeRepository riêng, hãy inject repo vào và gọi: prizeRepository.findByEventId(id)
+        if (event.getPrizes() != null) {
+            List<PrizeResponse> prizeDTOs = event.getPrizes().stream()
+                    .map(p -> new PrizeResponse(p.getId(), p.getPrizeName(), p.getMoney(), p.getDescription()))
+                    .toList();
+            response.setPrizes(prizeDTOs);
+        } else {
+            response.setPrizes(new ArrayList<>());
+        }
+
+        // 5. Thống kê số lượng Đội và Thí sinh chính thức
+        int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
+        response.setTeamQuantity(teamQuantity);
+
+        int candidateQuantity = memberRepository.countOfficialParticipants(event.getId(), TeamStatus.APPROVED, MemberStatus.OFFICAL);
+        response.setCandidateQuantity(candidateQuantity);
+
+        return response;
     }
 
 
