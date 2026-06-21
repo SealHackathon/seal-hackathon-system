@@ -59,9 +59,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/teamrequest/**").permitAll()
                         .requestMatchers("/api/user/**").permitAll()
                         // Role
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/lecturer/**")
-                        .hasAnyRole("ADMIN", "LECTURER")
+                        .requestMatchers("/role/admin").hasRole("ADMIN")
+                        .requestMatchers("/role/lecturer").hasAnyRole("LECTURER")
+                        .requestMatchers("/role/user").hasAnyRole( "USER")
 
                         .requestMatchers("/api/user/student-profile").hasRole("USER")
                         .requestMatchers("/api/user/avatar").hasRole("USER")
@@ -71,8 +71,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/kyc/student-card").hasRole("USER")
                         .requestMatchers("/api/kyc/cccd").hasRole("USER")
                         .requestMatchers("/api/kyc/face-match").hasRole("USER")
-                        .requestMatchers("/api/kyc/*/approve").hasRole("ADMIN")
 
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 

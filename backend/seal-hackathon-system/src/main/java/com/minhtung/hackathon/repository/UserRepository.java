@@ -19,7 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByToken(String token);
 
     boolean existsByEmail(String email);
-
+    List<User> findByRole(Role role);
 
     // Tìm các User có Role là USER và ID của họ KHÔNG NẰM TRONG danh sách memberID đang có team (status = true)
     @Query("""

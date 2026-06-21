@@ -6,11 +6,13 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
+import com.minhtung.hackathon.dto.response.AdminParticipantReviewResponse;
 import com.minhtung.hackathon.dto.response.FaceMatchResponse;
 import com.minhtung.hackathon.dto.response.UserIdentityProfileResponse;
 import com.minhtung.hackathon.entity.Student_profile;
 import com.minhtung.hackathon.entity.User;
 import com.minhtung.hackathon.entity.UserIdentityProfile;
+import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.UserStatus;
 import com.minhtung.hackathon.repository.StudentprofileRepository;
 import com.minhtung.hackathon.repository.UserIdentityProfileRepository;
@@ -46,14 +48,13 @@ public class KycService {
     private int faceMatchMaxAttempts ;
     @Transactional
 
-    public String uploadStudentCart(String email, MultipartFile file, String mssv, String school) {
+    public String uploadStudentCart(String email, MultipartFile file) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
         if (!user.isActive()) {
             throw new RuntimeException("Tài khoản chưa xác nhận Gmail");
         }
         Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
-                .orElse(new Student_profile() {
-                });
+                .orElseGet(Student_profile::new);
 
         studentProfile.setUser(user);
         String imageUrl = cloudinaryStorageService.uploadStudentCard(file, user.getId());
@@ -66,7 +67,7 @@ public class KycService {
     }
 
     @Transactional
-    public void approveUser(Long userId) {
+    public void approveUser(Long userId , boolean approve) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
@@ -80,10 +81,15 @@ public class KycService {
             throw new RuntimeException("Hồ sơ chưa đầy đủ");
         }
 
-        user.setStatus(UserStatus.ACCEPTED);
-        userRepository.save(user);
+        if (approve) {
+            user.setStatus(UserStatus.ACCEPTED);
+            emailService.emailxacnhantuadmin(user.getEmail());
+        } else {
+            user.setStatus(UserStatus.REJECTED);
 
-        emailService.emailxacnhantuadmin(user.getEmail());
+        }
+
+        userRepository.save(user);
     }
 
     @Transactional
@@ -340,6 +346,41 @@ public class KycService {
 
         return response;
     }
+
+ public List<AdminParticipantReviewResponse> getAllinformationUser(){
+        return userRepository.findByRole(Role.USER)
+                .stream()
+                .map(user -> {
+                    UserIdentityProfile identity = profileRepository.findByUserId(user.getId())
+                            .orElse(null);
+                    Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId()).orElse(null);
+
+                    return AdminParticipantReviewResponse.builder()
+                            .userId(user.getId())
+                            .fullname(user.getFullName())
+                            .email(user.getEmail())
+                            .phone(user.getPhoneNumber())
+                            .avatar(user.getAvt_img())
+                            . status(user.getStatus())
+
+                            //cccd
+                            .fullnameCccd(identity != null ? identity.getFullName() : null)
+                            .cccd(identity != null ? identity.getCmnd() : null)
+                            .dateofbirth(identity != null ? identity.getDateOfBirth() : null)
+                            .gender(identity != null ? identity.getGender() : null)
+                            .thuongtru(identity != null ? identity.getThuongtru() : null)
+                            .frontcccd(identity != null ? identity.getFrontcmnd_img() : null)
+                            .backcccd(identity != null ? identity.getCmndBack_image() : null)
+
+                            //thong tin sinh vien
+                            .mssv(user.getStudentId())
+                            .SchoolName(user.getSchoolName())
+                            .StudentCartImg(studentProfile != null ? studentProfile.getImg_studentcard() : null)
+                            .build() ;
+
+                })
+                .toList() ;
+ }
     }
 
 

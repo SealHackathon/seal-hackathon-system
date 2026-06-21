@@ -46,6 +46,9 @@ public class AuthService {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             return null;
         }
+        if (registerRequest.getPassword() == null || registerRequest.getPassword().length() < 8) {
+            throw new RuntimeException("Mật khẩu phải có ít nhất 8 ký tự");
+        }
         University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() ->new RuntimeException("truong dai học khong ton tai"));
         validateMssv(university,registerRequest.getStudentId());
         //xoa pending cu neu co (Dang ki lai)
@@ -100,6 +103,7 @@ public class AuthService {
         if (user.getResendEmailCount() != null && user.getResendEmailCount() >= 5) {
             return "Bạn đã gửi lại email quá số lần cho phép trong ngày";
         }
+
         user.setToken(UUID.randomUUID().toString());
        //link se het han sau 15p
         user.setExpiredAt(now.plusMinutes(15));
