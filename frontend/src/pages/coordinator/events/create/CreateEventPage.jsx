@@ -4,6 +4,8 @@ import CreateEventSidebar from '../../../../components/coordinator/events/create
 import CreateEventHeader from '../../../../components/coordinator/events/create/CreateEventHeader'
 import CreateEventFooter from '../../../../components/coordinator/events/create/CreateEventFooter'
 import Step1BasicInfo from './steps/Step1BasicInfo'
+import Step2Rules from './steps/Step2Rules'
+
 import styles from './CreateEventPage.module.css'
 
 const TOTAL_STEPS = 7
@@ -17,13 +19,13 @@ function StepPlaceholder({ step }) {
 }
 
 function CreateEventPage() {
-  const [currentStep,  setCurrentStep]  = useState(1)
+  const [currentStep, setCurrentStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState([1])
-  const [errorSteps,   setErrorSteps]   = useState([])
-  const [formData,     setFormData]     = useState({
+  const [errorSteps, setErrorSteps] = useState([])
+  const [formData, setFormData] = useState({
     deadlineSameAsClose: true,
   })
-  const [status,       setStatus]       = useState('draft')
+  const [status, setStatus] = useState('draft')
 
   function handleFormChange(field, val) {
     setFormData(prev => ({ ...prev, [field]: val }))
@@ -48,12 +50,12 @@ function CreateEventPage() {
     setVisitedSteps(prev => prev.includes(step) ? prev : [...prev, step])
   }
 
-  function handleNext()      { if (currentStep < TOTAL_STEPS) goToStep(currentStep + 1) }
-  function handleBack()      { if (currentStep > 1) goToStep(currentStep - 1) }
+  function handleNext() { if (currentStep < TOTAL_STEPS) goToStep(currentStep + 1) }
+  function handleBack() { if (currentStep > 1) goToStep(currentStep - 1) }
   function handleSaveDraft() { console.log('Lưu nháp:', formData) }
-  function handlePublish()   { setStatus('live'); console.log('Công bố:', formData) }
-  function handlePreview()   { console.log('Xem trước:', formData) }
-  function handleCancel()    {
+  function handlePublish() { setStatus('live'); console.log('Công bố:', formData) }
+  function handlePreview() { console.log('Xem trước:', formData) }
+  function handleCancel() {
     if (confirm('Huỷ tạo sự kiện? Các thay đổi chưa lưu sẽ bị mất.'))
       window.history.back()
   }
@@ -61,7 +63,7 @@ function CreateEventPage() {
   function renderStep() {
     switch (currentStep) {
       case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} />
-      case 2: return <StepPlaceholder step={2} />
+      case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} />  // ← thêm
       case 3: return <StepPlaceholder step={3} />
       case 4: return <StepPlaceholder step={4} />
       case 5: return <StepPlaceholder step={5} />

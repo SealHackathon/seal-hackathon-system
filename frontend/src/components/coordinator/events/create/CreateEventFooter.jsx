@@ -34,6 +34,7 @@ function CreateEventFooter({
       {/* ── Trái: Huỷ ── */}
       <Button
         label="Huỷ"
+        labelSize={18}
         iconPosition="left"
         variant="outline"
         color='grey'
@@ -47,6 +48,7 @@ function CreateEventFooter({
         <div className={styles.saveDraftWrapper}>
           <Button
             label="Lưu nháp"
+            labelSize={18}
             icon={FloppyDisk}
             iconPosition="left"
             variant="outline"
@@ -60,6 +62,7 @@ function CreateEventFooter({
         {/* Quay lại — disabeld ở step 1 */}
           <Button
             label="Quay lại"
+            labelSize={18}
             icon={ArrowLeft}
             iconPosition="left"
             variant="outline"
@@ -70,6 +73,7 @@ function CreateEventFooter({
         {/* Tiếp theo / Hoàn tất ở step cuối */}
         <Button
           label={isLastStep ? 'Hoàn tất' : 'Tiếp theo'}
+          labelSize={18}
           icon={ArrowRight}
           iconPosition="right"
           variant="primary"

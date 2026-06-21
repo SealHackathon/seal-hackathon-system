@@ -4,13 +4,14 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 1.5em;
-    padding-bottom: 2.2em;
+    padding-bottom: 2.5em;
     background-color: var(--color-bg-white);
     border: 1px solid var(--color-border-blue);
     border-radius: var(--radius);
     position: fixed;
     bottom: 1.5em;
     width: 87vw;
+    z-index: 10;
 }
 
 /* ── Nhóm nút bên phải ── */
