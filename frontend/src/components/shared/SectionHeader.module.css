@@ -1,0 +1,44 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background-color: var(--color-primary-blue);
+    color: var(--color-bg-white);
+
+    border-radius: var(--inner-radius);
+    padding: 0.6em 1.1em;
+}
+
+.left {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+
+    font-family: var(--body-font-main);
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.editBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: none;
+    background: var(--color-bg-white);
+    color: var(--color-border-blue);
+
+    border-radius: 6px;
+    width: 2em;
+    height: 2em;
+
+    cursor: pointer;
+    transition: all 0.15s ease;
+    flex-shrink: 0;
+}
+
+.editBtn:hover {
+    color: var(--color-secondary-blue);
+    transform: scale(1.1);
+}
