@@ -5,12 +5,18 @@ import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.UserStatus;
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 //bang user xac nhan
 public class User {
     @Id
@@ -24,171 +30,55 @@ public class User {
     private String email;
     @Column(name = "schoolName")
     private String schoolName;
-    @Column(name = "Active", nullable = false) // gio duoc hieu la da xac nhan gmail
+    @Column(name = "Active", nullable = false) // la xác nhận rằng đã được login hay chưa l
     private boolean active = false;
+    @Column(columnDefinition = "TEXT")
+    private String avt_img ;
 
-    @Column(name = "studentCardImg")
-    private String studentCardImg;
-
-    @Column(name = "identity_card_img", columnDefinition = "varchar(255)")
-    private String identityCardImg;
-
-    @Column(name = "bio", columnDefinition = "varchar(11)")
-    private String bio;
-
-    @Column(name = "phoneNumber")
+    @Column(name = "phoneNumber" ,unique = true )
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 255, nullable = false)
     private UserStatus status;
-
-    public UserStatus getStatus() {
-        return status;
-    } // trang thai ho so va quyen tham gia
-
-    public void setStatus(UserStatus status) {
-        this.status = status;
-    }
-
-    public String getStudentCardImg() {
-        return studentCardImg;
-    }
-
-    public void setStudentCardImg(String studentCardImg) {
-        this.studentCardImg = studentCardImg;
-    }
-
-    public String getIdentityCardImg() {
-        return identityCardImg;
-    }
-
-    public void setIdentityCardImg(String identityCardImg) {
-        this.identityCardImg = identityCardImg;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getSchoolName() {
-        return schoolName;
-    }
-
-    public void setSchoolName(String schoolName) {
-        this.schoolName = schoolName;
-    }
-
-    @Column
-    private String token; //verify code
-
-    @Column
-    private LocalDateTime expiredAt;
-
     //Role moi them User/Lecturer/Admin
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
+    public UserStatus getStatus() {
+        return status;
+    } // trang thai ho so va quyen tham gia
+    @Column
+    private String token; //verify code
+    @ManyToOne
+    @JoinColumn(name = "university_id")
+    private University university;
 
-    public String getFullName() {
-        return fullName;
+    @Column
+    private String studentId ;
+    @Column
+    private LocalDateTime expiredAt;
+    public void setStatus(UserStatus status) {
+        this.status = status;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
-    }
-
-    public Role getRole() {
-        return role;
-    }
-
-    public void setRole(Role role) {
-        this.role = role;
-    }
 
     public boolean isExpired() {
         if (expiredAt == null) return true;
         return LocalDateTime.now().isAfter(expiredAt);
     }
 
-    public User() {
-    }
+    @Column(name = "last_verification_email_sent_at")
+    private LocalDateTime lastVerificationEmailSentAt;
 
-    public User(String password, String email, boolean active, String token, LocalDateTime expiredAt) {
-        this.password = password;
-        this.email = email;
-        this.active = active;
-        this.token = token;
-        this.expiredAt = expiredAt;
-    }
+    @Column(name = "resend_email_count")
+    private Integer resendEmailCount = 0;
 
-    public String getToken() {
-        return token;
-    }
+    @Column(name = "resend_email_count_date")
+    private LocalDate resendEmailCountDate;
 
-    public void setToken(String token) {
-        this.token = token;
-    }
 
-    public LocalDateTime getExpiredAt() {
-        return expiredAt;
-    }
 
-    public void setExpiredAt(LocalDateTime expiredAt) {
-        this.expiredAt = expiredAt;
-    }
 
-    public Long getId() {
-        return id;
-    }
 
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public boolean isActive() {
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
-
-    @Override
-    public String toString() {
-        return "Student{" +
-                "id=" + id +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", active=" + active +
-                '}';
-    }
 }

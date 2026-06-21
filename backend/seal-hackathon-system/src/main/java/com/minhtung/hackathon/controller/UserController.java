@@ -1,15 +1,21 @@
 package com.minhtung.hackathon.controller;
 
+import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
 import com.minhtung.hackathon.dto.response.SearchMemberResponse;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
+import com.minhtung.hackathon.service.KycService;
 import com.minhtung.hackathon.service.TeamService;
 import com.minhtung.hackathon.service.UserService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,6 +32,7 @@ public class UserController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final UserService userService;
+    private final KycService kycService ;
 
     //get user chua co team
     @GetMapping("/free-users")
@@ -54,7 +61,36 @@ public class UserController {
         }
     }
 
-    private ResponseEntity<String> unauthorized() {
-        return ResponseEntity.status(401).body("Token không hợp lệ");
+    @Operation(
+            summary = "update thong tin sv",
+            description = "topic , bio ,...."
+    )
+
+
+
+@PutMapping("/student-profile")
+public ResponseEntity<?> updateStudentProfile(
+        Authentication authentication,
+        @RequestBody UpdateStudentProfileRequest req
+) {
+    return ResponseEntity.ok(
+            kycService.updatesStudentProfile(authentication.getName(),req) );
+}
+    @Operation(
+            summary = "upanh",
+            description = "cv_img avatar."
+    )
+    @PostMapping(value = "/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateAvatar(
+            Authentication authentication,
+            @RequestParam MultipartFile file
+    ) {
+        return ResponseEntity.ok(
+                kycService.updateAvatar(authentication.getName(), file)
+        );
     }
+
+private ResponseEntity<String> unauthorized() {
+    return ResponseEntity.status(401).body("Token không hợp lệ");
+}
 }

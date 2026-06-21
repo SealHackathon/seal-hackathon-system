@@ -1,13 +1,10 @@
 package com.minhtung.hackathon.controller;
 
 
-import com.minhtung.hackathon.dto.request.DiditWebhookRequest;
 import com.minhtung.hackathon.dto.response.UserIdentityProfileResponse;
-import com.minhtung.hackathon.service.DiditService;
 import com.minhtung.hackathon.service.KycService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.security.core.Authentication;
@@ -17,53 +14,48 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("api/kyc")
 @RequiredArgsConstructor
 public class KycController {
-    private final KycService kycService ;
-    private final DiditService diditService ;
+    private final KycService kycService;
 
-    @PostMapping("/session")
-    public ResponseEntity<?> createSession(Authentication authentication) {
-        return ResponseEntity.ok(
-                kycService.createKycSesion(authentication.getName())
-        );
+
+    @PostMapping(value = "/cccd", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> scanCccd(
+            @RequestPart("front_img") MultipartFile front_img,
+            @RequestPart("back_img") MultipartFile back_img,
+            Authentication authentication
+    ) {
+        UserIdentityProfileResponse response = kycService.scanCccd(authentication.getName(), front_img,back_img);
+
+        return ResponseEntity.ok(response);
     }
 
-
-    @PostMapping("/webhook.digit")
-    public ResponseEntity<?> ditiWebHook(@RequestBody String rawJson) {
-        System.out.println("WEBHOOK RECEIVED");
-        System.out.println(rawJson);
-        kycService.handleDitiWebhook(rawJson);
-        return ResponseEntity.ok("ok");
+    @PostMapping(value = "/face-match", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?>faceMatch(
+            @RequestParam MultipartFile  selfie_img,
+            Authentication authentication
+    ){
+        return ResponseEntity.ok(kycService.verifySelfie(authentication.getName(),selfie_img)) ;
     }
+
     @PostMapping(value = "/student-card", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadStudentCard(
             @RequestParam MultipartFile file,
-            @RequestParam String mssv ,
-            @RequestParam String school ,
+            @RequestParam String mssv,
+            @RequestParam String school,
             Authentication authentication
     ) {
         String imageUrl = kycService.uploadStudentCart(
                 authentication.getName(),
-                file ,
-                mssv ,
+                file,
+                mssv,
                 school
         );
 
         return ResponseEntity.ok(imageUrl);
     }
-    @PostMapping("/{userId}/approve")
-    public ResponseEntity<?> approveUser(@PathVariable Long userId) {
+    @PutMapping("/{userId}/approve")
+    public ResponseEntity<?>approverUser(@PathVariable Long userId){
         kycService.approveUser(userId);
-        return ResponseEntity.ok("Duyệt user thành công");
+        return  ResponseEntity.ok("duyet ho so thanh cong");
     }
 
-    @GetMapping("/didit/session/{sessionId}")
-    public ResponseEntity<UserIdentityProfileResponse> getSession(
-            @PathVariable String sessionId,
-            @RequestParam Long userId
-    ) {
-        UserIdentityProfileResponse result = diditService.getSessionDetail(sessionId, userId);
-        return ResponseEntity.ok(result);
-    }
 }
-

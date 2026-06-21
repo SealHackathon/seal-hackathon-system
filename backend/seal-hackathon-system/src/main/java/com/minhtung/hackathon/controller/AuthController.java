@@ -6,6 +6,7 @@ import com.minhtung.hackathon.dto.response.LoginResponse;
 import com.minhtung.hackathon.dto.request.RegisterRequest;
 import com.minhtung.hackathon.dto.response.RegisterResponse;
 import com.minhtung.hackathon.dto.request.CompleteProfileRequest;
+import com.minhtung.hackathon.repository.UniversityRepository;
 import com.minhtung.hackathon.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Authentication", description = "Dang ky, xac nhan email")
 public class AuthController {
     private final AuthService authService;
+    private final UniversityRepository universityRepository ;
 
     @Operation(
             summary = "Dang ky tai khoan",
@@ -72,7 +74,14 @@ public class AuthController {
         return ResponseEntity.ok(resp);
     }
 
-
+    @Operation(
+            summary = "Xac nhan email",
+            description = "User click link trong Gmail de kich hoat tai khoan"
+    )
+    @GetMapping("/api/university")
+    public ResponseEntity<?>getallUniversity(){
+        return ResponseEntity.ok(universityRepository.findAll());
+    }
 }
 
 

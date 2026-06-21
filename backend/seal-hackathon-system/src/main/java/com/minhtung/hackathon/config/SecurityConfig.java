@@ -63,14 +63,14 @@ public class SecurityConfig {
                         .requestMatchers("/lecturer/**")
                         .hasAnyRole("ADMIN", "LECTURER")
 
-                        .requestMatchers("/api/kyc/webhook.digit").permitAll()
-                        .requestMatchers("/api/kyc/debug/**").permitAll()
-                        .requestMatchers("/api/kyc/didit/session/**").permitAll()
-                        .requestMatchers("/api/kyc/*/sync-didit").permitAll()
-                        .requestMatchers("/api/kyc/session/{sessionId}").permitAll()
+                        .requestMatchers("/api/user/student-profile").hasRole("USER")
+                        .requestMatchers("/api/user/avatar").hasRole("USER")
 
-                        .requestMatchers("/api/kyc/session").hasRole("USER")
+
+
                         .requestMatchers("/api/kyc/student-card").hasRole("USER")
+                        .requestMatchers("/api/kyc/cccd").hasRole("USER")
+                        .requestMatchers("/api/kyc/face-match").hasRole("USER")
                         .requestMatchers("/api/kyc/*/approve").hasRole("ADMIN")
 
                         .anyRequest().authenticated()

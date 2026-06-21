@@ -20,20 +20,27 @@ public class UserIdentityProfile {
     private String hometown ;
 
     private String thuongtru ;
-    private String diditsesion ;
-    private String diditStatus ;
-    @Column(columnDefinition = "TEXT")
-    private String studentCardUrl ; // base url
-    private String adminNote ;
+   ;
+     private  Boolean faceMatched = false ;
+
+    private Integer faceMatchAttempts = 0;
+
+    private Boolean needsManualFaceReview = false;
     private String fullName;
     private String dateOfBirth;
     private String gender;
-    private String nationality;
+    private String Adminnote ;
+
     @Column(columnDefinition = "TEXT")
-    private String face_image ;
+    private String face_image ; // anh cat ra tu cccd
     @Column(columnDefinition = "TEXT")
     private String cmndBack_image ;
+    @Column(columnDefinition = "TEXT")
+    private String frontcmnd_img ;
+    @Column(columnDefinition = "TEXT")
+    private String selfieImage ;
+    @Column(columnDefinition = "TEXT")
+    private String qrRaw ;
 
-    private String mssv ;
-    private String school ;
+
 }

@@ -8,6 +8,6 @@ import java.util.Optional;
 
 public interface UserIdentityProfileRepository extends JpaRepository< UserIdentityProfile,Long> {
     Optional<UserIdentityProfile> findByUserId(Long userId) ;
-    Optional<UserIdentityProfile> findByDiditsesion(String diditsesion);
+
     Optional<UserIdentityProfile> findByUser(User user);
 }
