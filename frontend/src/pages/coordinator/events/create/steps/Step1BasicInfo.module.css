@@ -1,0 +1,113 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.title {
+    color: var(--color-primary-blue);
+}
+
+/* ── 2 cột trên ── */
+.twoCol {
+    display: grid;
+    grid-template-columns: 2fr 1fr;    /* ← đổi từ 1fr 380px */
+    gap: 1.5rem;
+    align-items: start;
+}
+
+.colLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.colRight {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    position: sticky;
+    top: 1rem;
+}
+
+/* ── Rich text header ── */
+.richTextHeader {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.4rem;
+}
+
+.richTextHint {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    line-height: 1.5;
+}
+
+.btnTemplate {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-secondary-blue);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+.btnTemplate:hover {
+    background: var(--color-bg-blue);
+}
+
+/* ── Member row ── */
+.memberRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+/* ── Image section ── */
+.imageTopRow {
+    display: grid;
+    grid-template-columns: 1fr 3fr;
+    gap: 1.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.avatarUpload {
+    flex-shrink: 0;
+}
+
+.imageGuide {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding-top: 0.25rem;
+    justify-content: center;
+    width: 50%;
+}
+
+.imageGuideItem {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.imageGuideTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-secondary-blue);
+    margin: 0;
+}
+
+.imageGuideText {
+    font-size: 1rem;
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    margin: 0;
+}

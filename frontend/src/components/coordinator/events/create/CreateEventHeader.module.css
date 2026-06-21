@@ -1,0 +1,97 @@
+.outer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+/* ── Back link ── */
+.backLink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-text-secondary);
+    font-size: 0.8rem;
+    font-weight: 500;
+    padding: 0;
+    transition: color 0.15s;
+}
+.backLink:hover {
+    color: var(--color-primary-blue);
+}
+
+/* ── Header banner ── */
+.wrapper {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-primary-blue);
+    border-radius: var(--radius);
+    padding: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    color: var(--color-bg-white);
+}
+
+/* Stripe decorations — giống TeamInfoHeader */
+.wrapper::before,
+.wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    height: 100%;
+    background: linear-gradient(
+        0deg,
+        rgba(255, 255, 255, 0.08),
+        rgba(255, 255, 255, 0.03)
+    );
+    transform: skewX(25deg);
+    pointer-events: none;
+}
+.wrapper::before {
+    width: 8em;
+    left: 5em;
+}
+.wrapper::after {
+    width: 2em;
+    left: 2em;
+    opacity: 0.6;
+}
+
+/* ── Title area ── */
+.titleArea {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    flex: 1;
+    min-width: 0; /* prevent overflow */
+}
+
+.flagIcon {
+    flex-shrink: 0;
+    color: var(--color-bg-white);
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--color-bg-white);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 0;
+}
+
+/* ── Actions ── */
+.actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    flex-shrink: 0;
+    align-items: stretch;
+    min-width: 160px;
+}
