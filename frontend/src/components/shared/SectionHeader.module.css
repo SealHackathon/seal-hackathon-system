@@ -2,43 +2,79 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-
-    background-color: var(--color-primary-blue);
-    color: var(--color-bg-white);
-
     border-radius: var(--inner-radius);
-    padding: 0.6em 1.1em;
 }
 
 .left {
     display: flex;
     align-items: center;
     gap: 0.5em;
-
-    font-family: var(--body-font-main);
-    font-size: 1rem;
+    font-family: var(--title-font-main);
     font-weight: 700;
 }
 
+/* ── H1 — blue filled bar ── */
+.h1 {
+    background-color: var(--color-primary-blue);
+    color: var(--color-bg-white);
+    padding: 0.65em 1.1em;
+}
+
+.h1 .left {
+    font-size: 1.5rem;
+}
+
+/* ── H2 — white bg, blue text, bottom border ── */
+.h2 {
+    background-color: transparent;
+    color: var(--color-primary-blue);
+    padding: 0.5em 0.25em;
+    border-bottom: 2px solid var(--color-border-blue);
+}
+
+.h2 .left {
+    font-size: 1.3remrem;
+}
+
+/* ── H3 — text only, muted, nhỏ hơn ── */
+.h3 {
+    background-color: transparent;
+    color: var(--color-text-secondary);
+    padding: 0.4em 0.25em;
+    border-bottom: 1px solid var(--color-border-blue);
+}
+
+.h3 .left {
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* ── Edit button ── */
 .editBtn {
     display: flex;
     align-items: center;
     justify-content: center;
-
     border: none;
-    background: var(--color-bg-white);
-    color: var(--color-border-blue);
-
+    background: rgba(255,255,255,0.15);
+    color: var(--color-bg-white);
     border-radius: 6px;
-    width: 2em;
-    height: 2em;
-
+    width: 1.8em;
+    height: 1.8em;
     cursor: pointer;
     transition: all 0.15s ease;
     flex-shrink: 0;
 }
 
+/* h2 / h3 edit button — đổi màu cho phù hợp nền trắng */
+.h2 .editBtn,
+.h3 .editBtn {
+    background: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
 .editBtn:hover {
-    color: var(--color-secondary-blue);
+    opacity: 0.8;
     transform: scale(1.1);
 }
