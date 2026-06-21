@@ -27,15 +27,14 @@ public class RoundService {
     private final RoundTimelineRepository roundTimelineRepository;
     private final SubmissionConfigRepository submissionConfigRepository;
 
+
     public ComingRoundResponse getComingRound() {
-        Round round = roundRepository.findFirstByTimeEndAfterOrderByTimeEndAsc(LocalDateTime.now()).orElse(null);
-        if (round == null) {
-            throw new IllegalArgumentException("Round not found");
-        }
-        Event event = eventRepository.findByStatus(EventStatus.LIVE).orElse(null);
-        if (event == null) {
-            throw new IllegalArgumentException("Event not found");
-        }
+        Round round = roundRepository.findFirstByTimeEndAfterOrderByTimeEndAsc(LocalDateTime.now())
+                .orElseThrow(() -> new IllegalArgumentException("Round not found"));
+
+        Event event = eventRepository.findByStatus(EventStatus.LIVE)
+                .orElseThrow(() -> new IllegalArgumentException("Event not found"));
+
         int roundQuantity = roundRepository.countByEventId(event.getId());
 
         ComingRoundResponse comingRoundResponse = new ComingRoundResponse();
@@ -44,13 +43,33 @@ public class RoundService {
         comingRoundResponse.setRoundStartTime(round.getTimeStart());
         comingRoundResponse.setRoundEndTime(round.getTimeEnd());
         comingRoundResponse.setRoundSubmissionDeadline(round.getSubmissionDeadline());
+
         if (round.getScoringTemplate() != null) {
             comingRoundResponse.setScroringTemplateUrl(round.getScoringTemplate().getUrl());
         }
-        comingRoundResponse.setSubmissionQuantity(round.getSubmissions().size());
+
+        comingRoundResponse.setSubmissionQuantity(round.getSubmissions() != null ? round.getSubmissions().size() : 0);
         comingRoundResponse.setRoundOrdinalNumber(round.getOrdinal_number());
+
+        // --- MAP MẢNG TIMELINES SANG DTO PHẲNG TẠI ĐÂY ---
+        if (round.getRoundTimelines() != null) {
+            List<ComingRoundResponse.TimelineResponse> timelineDTOs = round.getRoundTimelines().stream()
+                    .map(t -> new ComingRoundResponse.TimelineResponse(
+                            t.getId(),
+                            t.getName(),
+                            t.getDescription(),
+                            t.getTimeStart(),
+                            t.getTimeEnd()
+                    ))
+                    .toList();
+            comingRoundResponse.setTimelines(timelineDTOs);
+        } else {
+            comingRoundResponse.setTimelines(new ArrayList<>());
+        }
+
         return comingRoundResponse;
     }
+
 
     @Transactional
     public long createRound(RoundRequest request) {

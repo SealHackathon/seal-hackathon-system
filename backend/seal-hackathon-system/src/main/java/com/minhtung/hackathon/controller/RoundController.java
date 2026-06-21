@@ -29,10 +29,13 @@ public class RoundController {
     private final UserRepository userRepository;
     private final RoundService roundService;
 
+
+
+
     // api admin view Coming Round
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/coming")
-    public ResponseEntity<?> getLiveEvent(@RequestHeader("Authorization") String auth) {
+    public ResponseEntity<?> getComingRound(@RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
         if (uid == null) {
 
@@ -46,7 +49,7 @@ public class RoundController {
 
     }
 
-    // 1. GET ALL hoặc GET BY EVENT ID (Nếu truyền param ?eventId=...)
+    //  GET BY EVENT ID (Nếu truyền param ?eventId=...)
 //    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping
     public ResponseEntity<?> getRounds(@RequestHeader("Authorization") String auth,

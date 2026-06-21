@@ -45,6 +45,10 @@ public class EventService {
     public List<AllEventResponse> getAllEvents() {
         List<Event> eventList = eventRepository.findAll();
         List<AllEventResponse> allEventResponseList = new ArrayList<>();
+
+        // Lấy thời gian hiện tại của hệ thống để tính trạng thái Milestone động
+        LocalDateTime now = LocalDateTime.now();
+
         for (Event event : eventList) {
             AllEventResponse eventResponse = new AllEventResponse();
             eventResponse.setEventId(event.getId());
@@ -52,10 +56,15 @@ public class EventService {
             eventResponse.setEventTopic(event.getTopic());
             eventResponse.setMaxTeamMember(event.getMaxTeamMember());
             eventResponse.setEventLocation(event.getEventLocation());
-            eventResponse.setTrackQuantity(eventResponse.getTrackQuantity() + event.getTracks().size());
-            eventResponse.setRoundQuantity(eventResponse.getRoundQuantity() + event.getRounds().size());
+
+            int totalTracks = event.getTracks() != null ? event.getTracks().size() : 0;
+            int totalRounds = event.getRounds() != null ? event.getRounds().size() : 0;
+            eventResponse.setTrackQuantity(totalTracks);
+            eventResponse.setRoundQuantity(totalRounds);
+
             // dang hard code set prize
             eventResponse.setPrize(10000000);
+
             int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
             eventResponse.setTeamQuantity(teamQuantity);
 
@@ -63,11 +72,42 @@ public class EventService {
             eventResponse.setCandidateQuantity(candidateQuantity);
             eventResponse.setEventStatus(event.getStatus().toString());
             eventResponse.setDescription(event.getDescription());
+
+            // --- MAP DANH SÁCH MILESTONES SANG DTO TẠI ĐÂY ---
+            if (event.getMilestones() != null) {
+                List<AllEventResponse.MilestoneItemResponse> milestoneDTOs = event.getMilestones().stream()
+                        .map(m -> {
+                            // Tính trạng thái động cho từng mốc thời gian
+                            String milestoneStatus = "UPCOMING";
+                            if (m.getDateStart() != null && m.getDateEnd() != null) {
+                                if (now.isBefore(m.getDateStart())) {
+                                    milestoneStatus = "UPCOMING";
+                                } else if (now.isAfter(m.getDateEnd())) {
+                                    milestoneStatus = "COMPLETED";
+                                } else {
+                                    milestoneStatus = "IN_PROGRESS";
+                                }
+                            }
+
+                            return new AllEventResponse.MilestoneItemResponse(
+                                    m.getId(),
+                                    m.getMilestoneName(),
+                                    m.getDateStart(),
+                                    m.getDateEnd(),
+                                    m.getDes(),
+                                    milestoneStatus
+                            );
+                        })
+                        .toList();
+                eventResponse.setMilestones(milestoneDTOs);
+            } else {
+                eventResponse.setMilestones(new ArrayList<>());
+            }
+
             allEventResponseList.add(eventResponse);
         }
 
         return allEventResponseList;
-
     }
 
 
