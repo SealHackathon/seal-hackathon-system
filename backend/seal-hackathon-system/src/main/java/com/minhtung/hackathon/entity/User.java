@@ -5,77 +5,80 @@ import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.UserStatus;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 //bang user xac nhan
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "password", nullable = false)
+    @Column(name = "Password", nullable = false)
     private String password;
     @Column(name = "fullName")
     private String fullName;
-    @Column(name = "email", nullable = false)
+    @Column(name = "Email", nullable = false)
     private String email;
     @Column(name = "schoolName")
     private String schoolName;
-    @Column(name = "active", nullable = false)
+    @Column(name = "Active", nullable = false) // la xác nhận rằng đã được login hay chưa l
     private boolean active = false;
-    @Column(name = "student_id")
-    private String studentId;
-    @Column(name = "avt_img",columnDefinition = "TEXT")
-    private String avtImg;
+    @Column(columnDefinition = "TEXT")
+    private String avt_img ;
 
-    @Column(name = "phoneNumber")
+    @Column(name = "phoneNumber" ,unique = true )
     private String phoneNumber;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 255, nullable = false)
     private UserStatus status;
-
-
-    @Column
-    private String token; //verify code
-
-    @Column
-    private LocalDateTime expiredAt;
-
     //Role moi them User/Lecturer/Admin
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Role role = Role.USER;
+    public UserStatus getStatus() {
+        return status;
+    } // trang thai ho so va quyen tham gia
+    @Column
+    private String token; //verify code
+    @ManyToOne
+    @JoinColumn(name = "university_id")
+    private University university;
+
+    @Column
+    private String studentId ;
+    @Column
+    private LocalDateTime expiredAt;
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
 
     public boolean isExpired() {
         if (expiredAt == null) return true;
         return LocalDateTime.now().isAfter(expiredAt);
     }
 
-    public User() {
-    }
+    @Column(name = "last_verification_email_sent_at")
+    private LocalDateTime lastVerificationEmailSentAt;
 
-    public User(String password, String email, boolean active, String token, LocalDateTime expiredAt) {
-        this.password = password;
-        this.email = email;
-        this.active = active;
-        this.token = token;
-        this.expiredAt = expiredAt;
-    }
+    @Column(name = "resend_email_count")
+    private Integer resendEmailCount = 0;
 
-    @Override
-    public String toString() {
-        return "Student{" +
-                "id=" + id +
-                ", password='" + password + '\'' +
-                ", email='" + email + '\'' +
-                ", active=" + active +
-                '}';
-    }
+    @Column(name = "resend_email_count_date")
+    private LocalDate resendEmailCountDate;
+
+
+
+
+
 }

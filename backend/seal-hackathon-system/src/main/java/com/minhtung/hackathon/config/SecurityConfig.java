@@ -23,7 +23,6 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
 
 
-
     //encoder o day
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -65,8 +64,14 @@ public class SecurityConfig {
                         .requestMatchers("/lecturer/**")
                         .hasAnyRole("ADMIN", "LECTURER")
 
-                        .requestMatchers("/user/**")
-                        .hasAnyRole("ADMIN", "LECTURER", "USER")
+                        .requestMatchers("/api/user/student-profile").hasRole("USER")
+                        .requestMatchers("/api/user/avatar").hasRole("USER")
+
+
+                        .requestMatchers("/api/kyc/student-card").hasRole("USER")
+                        .requestMatchers("/api/kyc/cccd").hasRole("USER")
+                        .requestMatchers("/api/kyc/face-match").hasRole("USER")
+                        .requestMatchers("/api/kyc/*/approve").hasRole("ADMIN")
 
                         .anyRequest().authenticated()
                 )
