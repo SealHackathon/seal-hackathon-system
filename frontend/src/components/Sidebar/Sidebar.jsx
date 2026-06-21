@@ -13,10 +13,10 @@ function Sidebar({ onGoBack }) {
   const [activePage, setActivePage] = useState('team') // !  Set tạm
   return (
     //TODO: gắn mấy cái nút chuyển hướng vô đây
-    <aside className={styles.sidebar}>
+    <aside className={`${styles.sidebar} ${'scrollbar'}`}>
 
       <button className={styles.backBtn} onClick={onGoBack}>
-        <ArrowLeft size={18} />
+        <ArrowLeft size={24} />
         <span>Trang chủ</span>
       </button>
 
