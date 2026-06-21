@@ -1,6 +1,7 @@
 package com.minhtung.hackathon.service;
 
 import com.minhtung.hackathon.dto.request.TrackRequest;
+import com.minhtung.hackathon.dto.response.TrackResponse;
 import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.entity.Track;
 import com.minhtung.hackathon.repository.EventRepository;
@@ -17,6 +18,29 @@ public class TrackService {
 
     private final TrackRepository trackRepository;
     private final EventRepository eventRepository;
+
+
+    // Lấy tất cả danh sách bảng đấu (Track) thuộc về một sự kiện cụ thể
+    public List<TrackResponse> getTracksByEventId(long eventId) {
+        // 1. Kiểm tra Event có tồn tại không trước khi lấy track
+        if (!eventRepository.existsById(eventId)) {
+            throw new RuntimeException("Không tìm thấy Event với ID: " + eventId);
+        }
+
+        // 2. Tìm danh sách Track từ Repo
+        List<Track> tracks = trackRepository.findByEventId(eventId);
+
+        // 3. Map danh sách Entity sang DTO phẳng để trả về cho Controller (tránh lỗi lặp vô hạn)
+        return tracks.stream()
+                .map(track -> new TrackResponse(
+                        track.getId(),
+                        track.getName(),
+                        track.getDes(), // Biến mô tả trong Entity của bạn
+                        track.getMaxTeamPerTrack(),
+                        track.getMinTeamPerTrack()
+                ))
+                .toList();
+    }
 
 
     public Track getTrackById(Long id) {

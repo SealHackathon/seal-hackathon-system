@@ -14,4 +14,23 @@ public class SubmissionConfigResponse {
     private String submissionInstructions;
     private LocalDateTime openingTime;
     private LocalDateTime submissionDeadline;
+    private boolean hasSubmission;
+    public SubmissionConfigResponse(long id, String title, LocalDateTime openingTime, LocalDateTime submissionDeadline, String submissionInstructions, boolean hasSubmission) {
+            this.id = id;
+            this.title = title;
+            this.openingTime = openingTime;
+            this.submissionDeadline = submissionDeadline;
+            this.submissionInstructions = submissionInstructions;
+            this.hasSubmission = hasSubmission;
+    }
+
+    public SubmissionConfigResponse(long id, String title, String submissionInstructions, LocalDateTime openingTime, LocalDateTime submissionDeadline) {
+        this.id = id;
+        this.title = title;
+        this.submissionInstructions = submissionInstructions;
+        this.openingTime = openingTime;
+        this.submissionDeadline = submissionDeadline;
+        this.hasSubmission = false;
+
+    }
 }

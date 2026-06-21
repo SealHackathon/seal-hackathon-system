@@ -9,15 +9,21 @@ import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
-@AllArgsConstructor
+
 public class MilestoneResponse {
     private long id;
     private String milestoneName;
-    private LocalDate dateStart;
-    private LocalDate dateEnd;
+    private LocalDateTime dateStart;
+    private LocalDateTime dateEnd;
     private String des;
     private String status;
 
     public MilestoneResponse(long id, String milestoneName, LocalDateTime dateStart, LocalDateTime dateEnd, String des, String status) {
+    this.id = id;
+    this.milestoneName = milestoneName;
+    this.dateStart=dateStart;
+    this.dateEnd=dateEnd;
+    this.des=des;
+    this.status=status;
     }
 }

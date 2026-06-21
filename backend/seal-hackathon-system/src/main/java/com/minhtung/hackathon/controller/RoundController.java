@@ -47,18 +47,15 @@ public class RoundController {
     }
 
     // 1. GET ALL hoặc GET BY EVENT ID (Nếu truyền param ?eventId=...)
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping()
+//    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping
     public ResponseEntity<?> getRounds(@RequestHeader("Authorization") String auth,
                                        @RequestParam(required = false) Long eventId) {
         if (getUid(auth) == null) return unauthorized();
 
-        if (eventId != null) {
-//            return ResponseEntity.ok(roundService.getRoundsByEventId(eventId));
-            return null;
-        }
-//        return ResponseEntity.ok(roundService.getAllRounds());
-        return null;
+
+        return ResponseEntity.ok(roundService.getRoundsByEventId(eventId));
+
     }
 
     // 2. GET BY ID - Xem chi tiết 1 vòng thi
@@ -76,15 +73,10 @@ public class RoundController {
 
     // 3. CREATE - Tạo mới một vòng thi
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping()
-    public ResponseEntity<?> createRound(@RequestHeader("Authorization") String auth, @RequestBody RoundRequest request) {
-        if (getUid(auth) == null) return unauthorized();
-        try {
-
-            return ResponseEntity.status(201).body(roundService.createRound(request));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi tạo vòng thi: " + e.getMessage());
-        }
+    @PostMapping
+    public ResponseEntity<String> createRound(@RequestBody RoundRequest request) {
+        long roundId = roundService.createRound(request);
+        return ResponseEntity.ok("Cấu hình Round thành công! ID vòng thi mới: " + roundId);
     }
 
     // 5. DELETE - Xóa vòng thi

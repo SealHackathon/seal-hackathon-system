@@ -1,7 +1,6 @@
 package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.TrackRequest;
-import com.minhtung.hackathon.entity.Track;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
 import com.minhtung.hackathon.service.TrackService;
@@ -25,17 +24,15 @@ public class TrackController {
     private final TrackService trackService;
 
     // 1. GET ALL hoặc GET BY EVENT ID (Ví dụ: /api/track?eventId=1)
-//    @PreAuthorize("hasRole('ADMIN')")
-//    @GetMapping()
-//    public ResponseEntity<?> getTracks(@RequestHeader("Authorization") String auth,
-//                                       @RequestParam(required = false) Long eventId) {
-//        if (getUid(auth) == null) return unauthorized();
-//
-//        if (eventId != null) {
-//            return ResponseEntity.ok(trackService.getTracksByEventId(eventId));
-//        }
-//        return ResponseEntity.ok(trackService.getAllTracks());
-//    }
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping()
+    public ResponseEntity<?> getTracks(@RequestHeader("Authorization") String auth,
+                                       @RequestParam(required = false) Long eventId) {
+        if (getUid(auth) == null) return unauthorized();
+
+            return ResponseEntity.ok(trackService.getTracksByEventId(eventId));
+
+    }
 
     // 2. GET BY ID - Xem chi tiết 1 track
     @PreAuthorize("hasRole('ADMIN')")

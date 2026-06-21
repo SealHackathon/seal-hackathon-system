@@ -33,14 +33,20 @@ public class SubmissionConfig {
     @Column(name = "opening_time", nullable = false)
     private LocalDateTime openingTime;
 
+    private boolean hasSubmission;
+
+
     @Column(name = "submission_deadline", nullable = false)
     private LocalDateTime submissionDeadline;
 
-    public SubmissionConfig(Round round, String title, LocalDateTime openingTime, LocalDateTime submissionDeadline, String submissionInstructions) {
+    public SubmissionConfig(Round round, String title, LocalDateTime openingTime, LocalDateTime submissionDeadline, String submissionInstructions, boolean hasSubmission) {
         this.round = round;
         this.title = title;
         this.openingTime = openingTime;
         this.submissionDeadline = submissionDeadline;
         this.submissionInstructions = submissionInstructions;
+        this.hasSubmission = hasSubmission;
     }
+
+
 }

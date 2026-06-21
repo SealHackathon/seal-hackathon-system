@@ -33,6 +33,7 @@ public class EventController {
     private final EventService eventService;
 
     // api admin view full event
+    //test ok
     @PreAuthorize("hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<?> getEvent(@RequestHeader("Authorization") String auth) {
@@ -45,7 +46,8 @@ public class EventController {
     }
 
     // api admin view Live
-    @PreAuthorize("hasRole('ADMIN')")
+    //test ok
+//    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/live")
     public ResponseEntity<?> getLiveEvent(@RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
@@ -63,6 +65,7 @@ public class EventController {
     }
 
     // 3. CREATE  DRAFT- Tạo mới một event
+    //test ok
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping()
     public ResponseEntity<?> createEvent(@RequestHeader("Authorization") String auth, @RequestBody EventRequest request) {
@@ -88,7 +91,11 @@ public class EventController {
     }
 
 
+
+
+
     // Endpoint lấy chi tiết 1 Event theo ID (bao gồm cả Prizes và Coming Round)
+    //test ok
     @GetMapping("/{id}")
     public ResponseEntity<?> getEventDetailsById(@PathVariable long id) {
         try {

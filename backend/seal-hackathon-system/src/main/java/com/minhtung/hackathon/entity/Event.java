@@ -80,6 +80,9 @@ public class Event {
             orphanRemoval = true)
     private List<Track> tracks = new ArrayList<>();
 
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventNote> notes; // những lưu ý của event
+
     public Event() {
     }
 

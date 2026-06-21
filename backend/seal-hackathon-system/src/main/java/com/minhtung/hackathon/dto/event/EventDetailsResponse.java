@@ -2,7 +2,9 @@ package com.minhtung.hackathon.dto.event;
 
 import com.minhtung.hackathon.dto.response.MilestoneResponse;
 import com.minhtung.hackathon.dto.response.PrizeResponse;
+import com.minhtung.hackathon.dto.response.TrackResponse;
 import com.minhtung.hackathon.dto.round.ComingRoundResponse;
+import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
 import com.minhtung.hackathon.entity.Round;
 import com.minhtung.hackathon.entity.Track;
 import lombok.Data;
@@ -36,8 +38,8 @@ public class EventDetailsResponse {
     private List<PrizeResponse> prizes;                  // Thay thế biến long prize cũ
 
     // Chi tiết danh sách hiển thị kèm theo
-    private List<Track> tracks;
-    private List<Round> rounds;
+    private List<TrackResponse> tracks;
+    private List<RoundDetailsResponse> rounds;
 
     // List milestone
     private List<MilestoneResponse> milestones;

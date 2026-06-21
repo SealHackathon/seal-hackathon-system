@@ -32,6 +32,11 @@ public class Milestone {
     public Milestone() {
     }
 
-    public Milestone(String milestoneName, LocalDateTime dateStart, LocalDateTime dateEnd) {
+    public Milestone(String milestoneName, LocalDateTime dateStart, LocalDateTime dateEnd, String des, Event event) {
+        this.milestoneName = milestoneName;
+        this.dateStart = dateStart;
+        this.dateEnd = dateEnd;
+        this.des = des;
+        this.event = event;
     }
 }

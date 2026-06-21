@@ -1,11 +1,13 @@
 package com.minhtung.hackathon.dto.event;
 
+import com.minhtung.hackathon.dto.response.MilestoneResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +25,8 @@ public class LiveEventResponse {
     private long prize;
     private String eventStatus;
     private String description;
+    // List milestone
+    private List<MilestoneResponse> milestones;
 
 //    private int roundQuantity = 0;
 //    private String roundName;

@@ -1,14 +1,20 @@
 package com.minhtung.hackathon.dto.request;
 
 import lombok.Data;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 public class MilestoneRequest {
-    private String milestoneName;
-    private LocalDateTime dateStart;
-    private LocalDateTime dateEnd;
-    private String des;
-    private long eventId; // ID của Event chứa mốc thời gian này
+    private long eventId; // ID chung của Event mà các milestone này thuộc về
+    private List<MilestoneItem> milestones;
+
+    @Data
+    public static class MilestoneItem {
+        private String name;
+        private LocalDateTime description;
+        private LocalDateTime timeStart;
+        private LocalDateTime timeEnd;
+        private String des;
+    }
 }

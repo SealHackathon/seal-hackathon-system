@@ -1,6 +1,7 @@
 package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.MilestoneRequest;
+import com.minhtung.hackathon.dto.response.MilestoneResponse;
 import com.minhtung.hackathon.entity.Milestone;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
@@ -11,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/milestone")
@@ -55,7 +58,7 @@ public class MilestoneController {
     public ResponseEntity<?> createMilestone(@RequestHeader("Authorization") String auth, @RequestBody MilestoneRequest request) {
         if (getUid(auth) == null) return unauthorized();
         try {
-            Milestone newMilestone = milestoneService.createMilestone(request);
+            List<MilestoneResponse> newMilestone = milestoneService.createMilestones(request);
             return ResponseEntity.status(201).body(newMilestone);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi tạo milestone: " + e.getMessage());

@@ -23,8 +23,6 @@ public class Round {
 
     private LocalDateTime timeEnd;
 
-    private boolean hasSubmission;
-
     private boolean hasPresetiontation;
 
     private int topTeamPass;
@@ -33,14 +31,23 @@ public class Round {
 
     private LocalDateTime submissionDeadline;
 
+    @Column(columnDefinition = "TEXT")
+    private String position;
+
     @OneToMany(mappedBy = "round",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
     private List<Submission> submissions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "round",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<RoundTimeline> roundTimelines = new ArrayList<>();
+
     // Thay đổi từ @JoinColumn sang mappedBy
     @OneToOne(mappedBy = "round", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private SubmissionConfig submissionConfig;
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
@@ -54,11 +61,10 @@ public class Round {
     public Round() {
     }
 
-    public Round(String name, LocalDateTime timeStart, LocalDateTime timeEnd, boolean hasSubmission, int topTeamPass, LocalDateTime submissionDeadline, Event event, ScoringTemplate scoringTemplate, int ordinal_number) {
+    public Round(String name, LocalDateTime timeStart, LocalDateTime timeEnd,  int topTeamPass, LocalDateTime submissionDeadline, Event event, ScoringTemplate scoringTemplate, int ordinal_number) {
         this.name = name;
         this.timeStart = timeStart;
         this.timeEnd = timeEnd;
-        this.hasSubmission = hasSubmission;
         this.topTeamPass = topTeamPass;
         this.submissionDeadline = submissionDeadline;
         this.event = event;

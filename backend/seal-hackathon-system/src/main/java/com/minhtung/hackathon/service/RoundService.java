@@ -6,10 +6,10 @@ import com.minhtung.hackathon.dto.round.RoundRequest;
 import com.minhtung.hackathon.dto.round.SubmissionConfigResponse;
 import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.entity.Round;
+import com.minhtung.hackathon.entity.RoundTimeline;
 import com.minhtung.hackathon.entity.SubmissionConfig;
 import com.minhtung.hackathon.enums.EventStatus;
-import com.minhtung.hackathon.repository.EventRepository;
-import com.minhtung.hackathon.repository.RoundRepository;
+import com.minhtung.hackathon.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,6 +24,8 @@ public class RoundService {
 
     private final RoundRepository roundRepository;
     private final EventRepository eventRepository;
+    private final RoundTimelineRepository roundTimelineRepository;
+    private final SubmissionConfigRepository submissionConfigRepository;
 
     public ComingRoundResponse getComingRound() {
         Round round = roundRepository.findFirstByTimeEndAfterOrderByTimeEndAsc(LocalDateTime.now()).orElse(null);
@@ -50,29 +52,69 @@ public class RoundService {
         return comingRoundResponse;
     }
 
-    //Tạo Round
     @Transactional
     public long createRound(RoundRequest request) {
-        Event event = eventRepository.findById(request.getEventId()).orElse(null);
+        // 1. Kiểm tra Event có tồn tại không
+        Event event = eventRepository.findById(request.getEventId())
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Event với ID: " + request.getEventId()));
 
-        if (event == null) {
-            throw new IllegalArgumentException("Event not found");
-        }
-
+        // 2. Khởi tạo thực thể Round và set các giá trị từ Request
         Round round = new Round();
         round.setEvent(event);
         round.setName(request.getName());
         round.setTimeStart(request.getTimeStart());
         round.setTimeEnd(request.getTimeEnd());
-        round.setHasSubmission(request.isHasSubmission());
         round.setHasPresetiontation(request.isHasPresetiontation());
         round.setTopTeamPass(request.getTopTeamPass());
         round.setOrdinal_number(request.getOrdinal_number());
         round.setSubmissionDeadline(request.getSubmissionDeadline());
-        roundRepository.save(round);
+
+        // Gán các trường mới bổ sung
+        round.setPosition(request.getPosition());
+        // Giả định entity Round của bạn lưu trường rubricId trực tiếp, nếu dùng liên kết thực thể hãy thay đổi tương ứng
+        // round.setRubricId(request.getRubricId());
+
+        // Lưu Round để sinh ID tự tăng làm khóa ngoại cho các bảng liên quan
+        round = roundRepository.save(round);
+
+        // 3. Xử lý lưu cấu hình nộp bài SubmissionConfig (nếu Front-end có truyền dữ liệu lên)
+        if (request.getSubmissionConfig() != null) {
+            RoundRequest.SubmissionConfigInfo configInfo = request.getSubmissionConfig();
+
+            // Dùng Constructor có tham số bạn đã định nghĩa trong Entity SubmissionConfig
+            SubmissionConfig config = new SubmissionConfig(
+                    round,
+                    configInfo.getTitle(),
+                    configInfo.getOpeningTime(),
+                    configInfo.getSubmissionDeadline(),
+                    configInfo.getSubmissionInstructions(), configInfo.isHasSubmission()
+            );
+
+            // Set thêm trường hasSubmission của SubmissionConfig theo DTO mới của bạn
+            config.setHasSubmission(configInfo.isHasSubmission());
+
+            submissionConfigRepository.save(config);
+        }
+
+        // 4. Xử lý lưu mảng danh sách RoundTimeline đi kèm (Batch Insert)
+        if (request.getTimelines() != null && !request.getTimelines().isEmpty()) {
+            Round finalRound = round; // Biến final sử dụng cho scope của Stream Lambda
+
+            List<RoundTimeline> timelinesToSave = request.getTimelines().stream()
+                    .map(item -> new RoundTimeline(
+                            item.getName(),
+                            item.getDescription(),
+                            item.getTimeStart(),
+                            item.getTimeEnd(),
+                            finalRound
+                    ))
+                    .toList();
+
+            roundTimelineRepository.saveAll(timelinesToSave);
+        }
+
+        // Trả về ID của Round vừa được cấu hình trọn gói thành công
         return round.getId();
-        // Tạm thời bỏ qua scoringTemplate nếu bạn chưa có Repository cho nó,
-        // hoặc bổ sung logic tương tự như Event nếu cần thiết.
     }
 
     //delete Round
@@ -131,12 +173,12 @@ public class RoundService {
         dto.setRoundSubmissionDeadline(round.getSubmissionDeadline());
         dto.setRoundQuantity(totalRounds);
 
-        // 4. Map URL tiêu chí chấm điểm từ mối quan hệ liên kết (nếu có)
+        // 1. Map URL tiêu chí chấm điểm từ mối quan hệ liên kết (nếu có)
         if (round.getScoringTemplate() != null) {
             dto.setScroringTemplateUrl(round.getScoringTemplate().getUrl());
         }
 
-        // 5. Map thông tin cấu hình nộp bài (SubmissionConfig) từ quan hệ @OneToOne (Lazy Load)
+        // 2. Map thông tin cấu hình nộp bài (SubmissionConfig) từ quan hệ @OneToOne
         if (round.getSubmissionConfig() != null) {
             SubmissionConfig config = round.getSubmissionConfig();
             SubmissionConfigResponse configDto = new SubmissionConfigResponse(
@@ -151,7 +193,23 @@ public class RoundService {
             dto.setSubmissionConfig(null);
         }
 
-        // 6. Tính toán trạng thái động dựa trên thời gian thực tế của Server
+        // 3. MAP THÊM: Chuyển đổi danh sách lịch trình (RoundTimeline) sang DTO
+        if (round.getRoundTimelines() != null && !round.getRoundTimelines().isEmpty()) {
+            List<RoundDetailsResponse.TimelineResponse> timelineDtos = round.getRoundTimelines().stream()
+                    .map(timeline -> new RoundDetailsResponse.TimelineResponse(
+                            timeline.getId(),
+                            timeline.getName(),
+                            timeline.getDescription(),
+                            timeline.getTimeStart(),
+                            timeline.getTimeEnd()
+                    ))
+                    .toList();
+            dto.setTimelines(timelineDtos);
+        } else {
+            dto.setTimelines(new ArrayList<>()); // Trả về mảng rỗng để Front-end an toàn khi loop hiển thị
+        }
+
+        // 4. Tính toán trạng thái động dựa trên thời gian thực tế của Server
         LocalDateTime now = LocalDateTime.now();
         String status = "UPCOMING";
         if (round.getTimeStart() != null && round.getTimeEnd() != null) {

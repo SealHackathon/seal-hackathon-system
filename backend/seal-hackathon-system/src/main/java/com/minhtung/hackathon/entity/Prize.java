@@ -20,6 +20,8 @@ public class Prize {
     @Column(nullable = false, columnDefinition = "TEXT")
     private String prizeName;
 
+    private int quantity;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
@@ -27,10 +29,19 @@ public class Prize {
     public Prize() {
     }
 
-    public Prize(String description, int money, String prizeName, Event event) {
+    public Prize(String description, int money, String prizeName, Event event,int quantity) {
         this.description = description;
         this.money = money;
         this.prizeName = prizeName;
+        this.event = event;
+        this.quantity = quantity;
+    }
+
+    public Prize(String description, int money, String prizeName,int quantity, Event event) {
+        this.description = description;
+        this.money = money;
+        this.prizeName = prizeName;
+        this.quantity = quantity;
         this.event = event;
 
     }

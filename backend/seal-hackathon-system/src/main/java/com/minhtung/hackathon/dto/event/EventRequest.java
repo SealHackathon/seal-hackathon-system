@@ -16,10 +16,13 @@ public class EventRequest {
     private String description;
     private int minTeamMember;
     private int maxTeamMember;
-    private String topic;
+    private String topic; // tiêu đề của cuộc thi
     private String bannerImg;
     private String thumbnail_image;
-    private String rules;
+    private String rules; // những quy định của cuộc thi
     private String eventLocation;
     private String participationBenefits;
+    private  LocalDateTime openRegisterTime;
+    private  LocalDateTime closeRegisterTime;
+    private LocalDateTime cofirmTeamTime;
 }

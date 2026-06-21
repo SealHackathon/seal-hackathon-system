@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -26,4 +27,19 @@ public class RoundDetailsResponse {
     private String status;             // Trạng thái vòng thi (UPCOMING, IN_PROGRESS, COMPLETED)
 
     private SubmissionConfigResponse submissionConfig;
+
+    // --- THÊM: Mảng lịch trình chi tiết của vòng thi này ---
+    private List<TimelineResponse> timelines;
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class TimelineResponse {
+        private long id;
+        private String name;
+        private String description;
+        private LocalDateTime timeStart;
+        private LocalDateTime timeEnd;
+    }
 }
