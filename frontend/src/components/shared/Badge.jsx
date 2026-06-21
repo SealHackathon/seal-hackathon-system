@@ -1,36 +1,26 @@
 import styles from './Badge.module.css'
 
-const VARIANT_CONFIG = {
-  live:      { label: 'Đang diễn ra', className: styles.live },
-  upcoming:  { label: 'Sắp diễn ra', className: styles.upcoming },
-  ended:     { label: 'Đã diễn ra',  className: styles.ended },
-  draft:     { label: 'Lưu nháp',    className: styles.draft },
-  archived:  { label: 'Lưu trữ',     className: styles.archived },
-  cancelled: { label: 'Đã hủy',      className: styles.cancelled },
-}
-
 /**
- * Badge — status pill
+ * Badge — pill label chung
  *
- * @param {'live'|'upcoming'|'ended'|'draft'|'archived'|'cancelled'} variant
- * @param {string} [label]   — override default label
- * @param {'sm'|'md'|'lg'}  [size]
- * @param {boolean} [dot]    — hiển thị dot bên trái
+ * @param {'green'|'blue'|'orange'|'gray'|'red'|'dashed-orange'} [variant='gray']
+ * @param {string}          label        — text hiển thị (bắt buộc)
+ * @param {'sm'|'md'|'lg'}  [size='md']
+ * @param {boolean}         [dot=true]   — hiển thị dot bên trái
+ * @param {React.ReactNode} [icon]       — icon thay thế dot (ưu tiên hơn dot)
  */
-function Badge({ variant = 'draft', label, size = 'md', dot = true }) {
-  const config = VARIANT_CONFIG[variant] ?? VARIANT_CONFIG.draft
-  const displayLabel = label ?? config.label
-
+function Badge({ variant = 'gray', label, size = 'md', dot = true, icon }) {
   return (
-    <span
-      className={[
-        styles.badge,
-        config.className,
-        size === 'sm' ? styles.sm : size === 'lg' ? styles.lg : '',
-      ].join(' ')}
-    >
-      {dot && <span className={styles.dot} />}
-      {displayLabel}
+    <span className={[
+      styles.badge,
+      styles[variant] ?? styles.gray,
+      styles[size]    ?? '',
+    ].join(' ')}>
+      {icon
+        ? <span className={styles.icon}>{icon}</span>
+        : dot && <span className={styles.dot} />
+      }
+      {label}
     </span>
   )
 }

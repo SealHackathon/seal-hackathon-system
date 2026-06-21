@@ -44,7 +44,7 @@ const NAV_GROUPS = [
  */
 function CoordinatorSidebar({ activePage, onNavigate }) {
   return (
-    <aside className={`${styles.sidebar} ${'scrollbar'}`}>
+    <aside className={styles.sidebar}>
       {NAV_GROUPS.map((group, gi) => (
         <div key={gi}>
           {gi > 0 && <hr className={styles.divider} />}
