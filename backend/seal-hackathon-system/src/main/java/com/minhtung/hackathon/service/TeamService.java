@@ -7,15 +7,11 @@ import com.minhtung.hackathon.dto.request.InvitationRequest;
 import com.minhtung.hackathon.dto.response.CreateTeamResponse;
 import com.minhtung.hackathon.dto.request.JoinTeamRequest;
 import com.minhtung.hackathon.dto.response.*;
-import com.minhtung.hackathon.entity.Member;
-import com.minhtung.hackathon.entity.Team;
-import com.minhtung.hackathon.entity.TeamRequest;
-import com.minhtung.hackathon.entity.User;
+import com.minhtung.hackathon.dto.round.RoundTeamResponse;
+import com.minhtung.hackathon.dto.round.SubmissionContent;
+import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.*;
-import com.minhtung.hackathon.repository.MemberRepository;
-import com.minhtung.hackathon.repository.TeamRepository;
-import com.minhtung.hackathon.repository.TeamRequestRepository;
-import com.minhtung.hackathon.repository.UserRepository;
+import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,7 +30,7 @@ public class TeamService {
     private final TeamRequestRepository teamRequestRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
-
+    private final SubmissionRepository submissionRepository;
 
     //tao 1 team moi
 
@@ -1012,5 +1008,68 @@ public class TeamService {
         }
         TeamRequest teamRequest = new TeamRequest(RequestStatus.PENDING, team.getLeader(), admin, team, RequestType.TEAM_SUBMISSION, team.getName() + " gui yeu cau xin duyet doi");
         return "gui yeu cau duyet doi thanh cong";
+    }
+
+
+
+
+    // lấy tất cả team trong sự kiện
+    public List<RoundTeamResponse> getTeamsInRoundOfEvent(long eventId, long roundId, long currentUserId) {
+        // 1. Lấy tất cả các đội thi thuộc về sự kiện (Tìm thông qua cấu trúc quan hệ Track -> Event)
+        List<Team> teams = teamRepository.findTeamsByEventId(eventId);
+        List<RoundTeamResponse> responseList = new ArrayList<>();
+
+        for (Team team : teams) {
+            RoundTeamResponse roundTeamDto = new RoundTeamResponse();
+            roundTeamDto.setTeamId(team.getId());
+            roundTeamDto.setTeamName(team.getName());
+            roundTeamDto.setTeamStatus(team.getStatus().toString());
+            roundTeamDto.setTrackName(team.getTrack() != null ? team.getTrack().getName() : "Chưa phân nhánh");
+            roundTeamDto.setMemberCount(team.getMembers() != null ? team.getMembers().size() : 0);
+
+            // 2. Tìm bài nộp (Submission) của Đội thi này ứng với Vòng đấu (Round) đang xét
+            // (Bạn thay thế Submission bằng tên Entity quản lý bài nộp thực tế trong dự án của bạn nhé)
+            Optional<Submission> submissionOpt = submissionRepository.findByTeamIdAndRoundId(team.getId(), roundId);
+            if (submissionOpt.isPresent()) {
+                Submission sub = submissionOpt.get();
+                roundTeamDto.setHasSubmission(true);
+                SubmissionContent submissonContent = roundTeamDto.getSubmissionContent();
+                submissonContent.setDocumentLink(sub.getDocumentUrl());
+                submissonContent.setGithubLink(sub.getGithubUrl());
+                submissonContent.setDemoLink(sub.getDemoUrl());
+                roundTeamDto.setSubmissionContent(submissonContent);
+
+            } else {
+                roundTeamDto.setHasSubmission(false);
+            }
+
+            // 3. Map danh sách thành viên sang định dạng TeamMembersResponse DTO của bạn
+            List<TeamMembersResponse> memberDTOs = new ArrayList<>();
+            if (team.getMembers() != null) {
+                memberDTOs = team.getMembers().stream().map(m -> {
+                    TeamMembersResponse memberDto = new TeamMembersResponse();
+                    memberDto.setId(m.getMember().getId());
+                    memberDto.setName(m.getMember().getFullName());
+                    memberDto.setEmail(m.getMember().getEmail());
+                    memberDto.setSchool(m.getMember().getSchoolName());
+
+                    // Kiểm tra xem thành viên này có trùng với ID Leader của Team hay không
+                    memberDto.setLeader(team.getLeader() != null && team.getLeader().getId() == m.getMember().getId());
+
+                    // Kiểm tra xem thành viên này có phải là User đang thực hiện gọi API hay không
+                    memberDto.setCurrentUser(m.getMember().getId() == currentUserId);
+
+                    // Check trạng thái dựa trên Enum MemberStatus (OFFICAL) của bạn
+                    memberDto.setOffical(m.getStatus() == com.minhtung.hackathon.enums.MemberStatus.OFFICAL);
+
+                    return memberDto;
+                }).toList();
+            }
+            roundTeamDto.setMembers(memberDTOs);
+
+            responseList.add(roundTeamDto);
+        }
+
+        return responseList;
     }
 }

@@ -2,17 +2,11 @@ package com.minhtung.hackathon.config;
 
 import com.minhtung.hackathon.dto.request.CreateTeamDto;
 import com.minhtung.hackathon.dto.request.JoinTeamRequest;
-import com.minhtung.hackathon.entity.Event;
-import com.minhtung.hackathon.entity.Round;
 import com.minhtung.hackathon.entity.User;
-import com.minhtung.hackathon.enums.EventStatus;
 import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.UserStatus;
-import com.minhtung.hackathon.repository.EventRepository;
-import com.minhtung.hackathon.repository.RoundRepository;
 import com.minhtung.hackathon.repository.TeamRepository;
 import com.minhtung.hackathon.repository.UserRepository;
-import com.minhtung.hackathon.service.EventService;
 import com.minhtung.hackathon.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.checkerframework.checker.units.qual.C;
@@ -20,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -28,40 +21,38 @@ import java.util.List;
 @Component
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
-
+    @Autowired
     private final UserRepository userRepository;
-
+    @Autowired
     private final TeamService teamService;
-
-    private final EventRepository eventRepository;
-
+    @Autowired
     private final TeamRepository teamRepository;
-
-    private final RoundRepository roundRepository;
 
     @Override
     public void run(String... args) {
         if (userRepository.count() == 0) {
-////           ----------------các thành viên chưa có team----------------------------------
+//           ----------------các thành viên chưa có team----------------------------------
             User user1 = new User();
             user1.setEmail("user1@gmail.com");
             user1.setPassword("123456");
             user1.setRole(Role.USER);
-            user1.setStatus(UserStatus.ACCEPTED);
             user1.setSchoolName("Trường đại học Hoa Sen");
             user1.setActive(true);
             user1.setFullName("Bùi Thiên Khánh");
+            user1.setStatus(UserStatus.ACCEPTED);
             userRepository.save(user1);
-//
-//            User user2 = new User();
-//            user2.setEmail("user2@gmail.com");
-//            user2.setPassword("123456");
-//            user2.setRole(Role.USER);
-//            user2.setSchoolName("Khoa Học Xã Hội và Nhân Văn");
-//            user2.setActive(true);
-//            user2.setFullName("Mạc Minh Tùng");
-//            userRepository.save(user2);
-//
+
+            User user2 = new User();
+            user2.setEmail("user2@gmail.com");
+            user2.setPassword("123456");
+            user2.setRole(Role.USER);
+            user2.setSchoolName("Khoa Học Xã Hội và Nhân Văn");
+            user2.setActive(true);
+            user2.setFullName("Mạc Minh Tùng");
+            user2.setStatus(UserStatus.PROFILE_PENDING);
+
+            userRepository.save(user2);
+
 //            User user3 = new User();
 //            user3.setEmail("user3@gmail.com");
 //            user3.setPassword("123456");
@@ -69,6 +60,7 @@ public class DataInitializer implements CommandLineRunner {
 //            user3.setSchoolName("Trường đại học FPT");
 //            user3.setActive(true);
 //            user3.setFullName("Phạm Khắc Đăng Khoa");
+//
 //            userRepository.save(user3);
 //
 //            User user4 = new User();
@@ -154,53 +146,13 @@ public class DataInitializer implements CommandLineRunner {
 //            ), user10.getId());
 //            teamService.joinTeamByCode(
 //                    teamRepository.findByLeaderId(user10.getId()).get().getInviteCode(),user11.getId());
-//
-//
-            Event event1 = new Event("SEAL Hackathon Fall 2026", LocalDateTime.now(), "event description", EventStatus.DRAFT, 4, "AI Agents for Software Innovation", "img_link_hardcode", "img_link_hard_code", 10, "Rule_hardcode", "benefit_hardcode","Trường Đại Học FPT");
-            eventRepository.save(event1);
-
-            Event event2 = new Event("Seal Hackathon Summer 2026", LocalDateTime.now(), "event description", EventStatus.LIVE, 4, "AI Agents for Software Innovation", "img_link_hardcode", "img_link_hard_code", 10, "Rule_hardcode", "benefit_hardcode","Trường Đại Học FPT");
-            eventRepository.save(event2);
-
-            // Thời gian neo theo mốc hiện tại để test cho chuẩn
-            LocalDateTime bayGio = LocalDateTime.now();
-
-// 1. ROUND 1: ĐANG DIỄN RA (Bắt đầu từ 1 tiếng trước, kết thúc sau 1 tiếng nữa)
-            Round round1 = new Round(
-                    "Vòng Ý Tưởng (Đang diễn ra)",
-                    bayGio.minusHours(1),          // timeStart: 1 tiếng trước
-                    bayGio.plusHours(1),           // timeEnd: 1 tiếng nữa
-                    true,                          // hasSubmission
-                    10,                            // topTeamPass
-                    bayGio.plusMinutes(45),        // submissionDeadline
-                    event2,                  // event
-                    null,                      // scoringTemplate
-                    1                              // ordinal_number
-            );
-
-// 2. ROUND 2: SẮP DIỄN RA (Bắt đầu sau 2 tiếng nữa, kết thúc sau 5 tiếng nữa)
-            Round round2 = new Round(
-                    "Vòng Thuyết Trình (Sắp diễn ra)",
-                    bayGio.plusHours(2),           // timeStart: 2 tiếng nữa mới bắt đầu
-                    bayGio.plusHours(5),           // timeEnd: 5 tiếng nữa mới kết thúc
-                    false,                         // hasSubmission
-                    5,                             // topTeamPass
-                    null,                          // submissionDeadline
-                    event2,                  // event
-                    null,                      // scoringTemplate
-                    2                              // ordinal_number
-            );
-
-// Lưu cả 2 vòng này vào Database thông qua Repo của bạn
-            roundRepository.save(round1);
-            roundRepository.save(round2);
 
 
             User user12 = new User();
             user12.setFullName("ADMIN");
             user12.setEmail("admin@gmail.com");
             user12.setPassword("123456");
-            user12.setRole(Role.ADMIN);
+            user12.setRole(Role.USER);
             user12.setActive(true);
             user12.setStatus(UserStatus.ACCEPTED);
             userRepository.save(user12);
