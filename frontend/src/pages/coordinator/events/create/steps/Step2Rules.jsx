@@ -11,6 +11,7 @@ import SortableCard from '../../../../../components/shared/SortableCard'
 import FormTextarea from '../../../../../components/shared/FormTextarea'
 import FormInput from '../../../../../components/shared/FormInput'
 import RichTextEditor from '../../../../../components/shared/RichTextEditor'
+import Banner from '../../../../../components/shared/Banner'
 import styles from './Step2Rules.module.css'
 
 function RulesPreviewCard({ notes }) {
@@ -192,13 +193,15 @@ function Step2Rules({ formData, onFormChange }) {
 
                 {/* CỘT PHẢI — PREVIEW */}
                 <div className={styles.colRight}>
-                    <div className={styles.previewLabel}>
-                        <Eye size={24} weight='fill'/>
-                        <span>Xem trước</span>
-                    </div>
-                    <p className={styles.previewHint}>
-                        Đây là giao diện thí sinh sẽ thấy trước khi hoàn tất đăng ký.
-                    </p>
+                    <Banner
+                        color="blue"
+                        variant="solid"
+                        icon={Eye}
+                        iconSize={22}
+                        title="Xem trước"
+                        message="Đây là giao diện thí sinh sẽ thấy trước khi hoàn tất đăng ký."
+                    />
+
                     <RulesPreviewCard notes={previewNotes} />
                 </div>
 
