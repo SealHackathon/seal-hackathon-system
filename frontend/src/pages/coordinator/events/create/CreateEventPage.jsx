@@ -5,6 +5,7 @@ import CreateEventHeader from '../../../../components/coordinator/events/create/
 import CreateEventFooter from '../../../../components/coordinator/events/create/CreateEventFooter'
 import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
+import Step3Prizes from './steps/Step3Prizes'
 
 import styles from './CreateEventPage.module.css'
 
@@ -40,6 +41,30 @@ function CreateEventPage() {
       const isEmpty = !rules.trim() || rules === '<p></p>' || rules === '<p><br></p>'
       return !isEmpty
     }
+    if (step === 3) {
+      const mainPrizes = formData.mainPrizes ?? []
+      const rankCount = formData.rankCount ?? 3
+
+      // Phải có đủ số giải theo dropdown
+      if (mainPrizes.length < rankCount) return false
+
+      // Mỗi giải chính phải điền đủ tên + số lượng + giá trị
+      const mainValid = mainPrizes.every(p =>
+        p.name?.trim() &&
+        p.quantity !== '' && p.quantity !== undefined
+      )
+      if (!mainValid) return false
+
+      // Giải phụ nếu có phải điền tên
+      const extendedPrizes = formData.extendedPrizes ?? []
+      const extValid = extendedPrizes.every(p => 
+        p.name?.trim() &&
+        p.quantity !== '' && p.quantity !== undefined
+      )
+      if (!extValid) return false
+
+      return true
+    }
     return true
   }
 
@@ -69,7 +94,7 @@ function CreateEventPage() {
     switch (currentStep) {
       case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} />
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} />  // ← thêm
-      case 3: return <StepPlaceholder step={3} />
+      case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
       case 4: return <StepPlaceholder step={4} />
       case 5: return <StepPlaceholder step={5} />
       case 6: return <StepPlaceholder step={6} />

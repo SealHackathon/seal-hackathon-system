@@ -1,0 +1,202 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+/* ── Section ── */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.sectionTitle {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+.sectionHint {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* ── Rank dropdown ── */
+.rankRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.fieldLabel {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+    white-space: nowrap;
+    margin: 0;
+}
+
+.selectBox {
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    background: white;
+    overflow: hidden;
+}
+
+.select {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 0.4rem 2.5rem 0.4rem 0.75rem;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 256 256'%3E%3Cpath fill='%232563eb' d='m213.66 101.66-80 80a8 8 0 0 1-11.32 0l-80-80a8 8 0 0 1 11.32-11.32L128 164.69l74.34-74.35a8 8 0 0 1 11.32 11.32Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+}
+
+/* ── Prize list ── */
+.prizeList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ── Prize card layout ── */
+.prizeRow {
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.prizeLeft {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.prizeRight {
+    min-width: 0;
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+/* Input boxes (số lượng, giá trị) */
+.inputBox {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    background: white;
+    padding: 0.4rem 0.75rem;
+    transition: border-color 0.15s;
+}
+
+.inputBox:focus-within {
+    border-color: var(--color-secondary-blue);
+}
+
+.inputDisabled {
+    background: var(--color-bg-blue);
+    opacity: 0.7;
+}
+
+.baseInput {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+    background: transparent;
+}
+
+.baseInput::placeholder {
+    font-weight: 400;
+    color: var(--color-secondary-blue);
+}
+
+.baseInput:disabled {
+    color: var(--color-text-muted);
+}
+
+.inputSuffix {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+}
+
+/* ── Drag hint ── */
+.dragHint {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    background: var(--color-bg-blue);
+    border-radius: var(--inner-radius);
+    border: 1px dashed var(--color-border-blue);
+}
+
+.dragHintLabel {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    white-space: nowrap;
+}
+
+.dragHintDesc {
+    font-size: 0.85rem;
+    color: var(--color-text-secondary);
+}
+
+/* ── Add button ── */
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-secondary-blue);
+    background: none;
+    border: 1px dashed var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.addBtn:hover {
+    background: var(--color-bg-blue);
+    border-color: var(--color-secondary-blue);
+}
+
+
+.textArea {
+    height: 6em;
+    resize: none;
+}
