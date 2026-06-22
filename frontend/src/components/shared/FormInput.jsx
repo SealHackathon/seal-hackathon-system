@@ -6,6 +6,7 @@ function FormInput({
   label,
   required,
   labelVariant = 'default', // 'default' | 'small'
+  labelColorVariant = '', //  'dark' | 'primary' | 'secondary' | 'border'
   hint,
   iconLeft,
   iconRight,
@@ -39,7 +40,7 @@ function FormInput({
       {label && (
         <label
           htmlFor={inputId}
-          className={`${styles.label} ${labelVariant === 'small' ? styles.labelSmall : ''}`}>
+          className={`${styles.label} ${labelVariant === 'small' ? styles.labelSmall : ''} ${styles[labelColorVariant] || ''}`}>
           {label}
           {required && <span className={styles.asterisk}> *</span>}
         </label>

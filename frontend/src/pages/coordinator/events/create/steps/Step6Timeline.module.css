@@ -1,0 +1,344 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    align-items: start;
+}
+
+/* ── Card list ── */
+.cardList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Auto card */
+.autoCard {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 12px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.autoCardTop {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.autoIcon {
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+}
+
+.autoDate {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.autoTime {
+    font-size: 0.78rem;
+    color: var(--color-text-muted);
+}
+
+.badge {
+    margin-left: auto;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+    background: var(--color-secondary-blue);
+    border-radius: 6px;
+    padding: 0.1em 0.5em;
+}
+
+.autoTitle {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0.2rem 0 0;
+}
+
+.autoMeta {
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    margin: 0.1rem 0 0;
+}
+
+.metaLink {
+    color: var(--color-primary-blue);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.metaLink:hover {
+    text-decoration: underline;
+}
+
+/* Manual card */
+.manualCard {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 12px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+/* No date = cam nhạt */
+.manualCardNoDate {
+    border: 1.5px dashed var(--color-primary-orange);
+    background: var(--color-bg-orange);
+}
+
+.manualHeading {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: var(--color-border-blue);
+    display: flex;
+    gap: 0.25em;
+    justify-content: center;
+    align-items: center;
+}
+
+.manualHeading hr {
+    width: 80%;
+    height: 1px;
+    color: var(--color-bg-blue);
+    background-color:  var(--color-bg-blue);
+    border: 1px solid var(--color-border-blue);
+}
+
+.dateRow {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.dateBox,
+.timeBox {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 8px;
+    padding: 0.3rem 0.5rem;
+    background: white;
+}
+
+.manualCardNoDate .dateBox,
+.manualCardNoDate .timeBox {
+    border-color: var(--color-primary-orange);
+    background: white;
+}
+
+.dateIcon {
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+}
+
+.dateInput,
+.timeInput {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 0.82rem;
+    color: var(--color-primary-blue);
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.timeSep {
+    color: var(--color-text-muted);
+    font-weight: 500;
+}
+
+.deleteBtn {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-radius: 6px;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.deleteBtn:hover {
+    background: var(--color-bg-orange);
+    color: var(--color-primary-orange);
+}
+
+/* No date badge */
+.noDateBadge {
+    align-self: flex-start;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-primary-orange);
+    background: white;
+    border: 1.5px solid var(--color-primary-orange);
+    border-radius: 6px;
+    padding: 0.1em 0.5em;
+}
+
+.titleInput,
+.descInput,
+.linkInput {
+    width: 100%;
+    border: 1.5px solid transparent;
+    border-radius: 8px;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.875rem;
+    background: transparent;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
+}
+
+.titleInput {
+    font-weight: 600;
+    color: var(--color-primary-blue);
+}
+
+.descInput,
+.linkInput {
+    color: var(--color-text-secondary);
+}
+
+.titleInput:hover,
+.descInput:hover,
+.linkInput:hover,
+.titleInput:focus,
+.descInput:focus,
+.linkInput:focus {
+    border-color: var(--color-border-blue);
+    background: white;
+}
+
+.titleInput::placeholder,
+.descInput::placeholder,
+.linkInput::placeholder {
+    color: var(--color-secondary-blue);
+    opacity: 0.55;
+}
+
+.linkRow {
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+    border: 1.5px solid transparent;
+    border-radius: 8px;
+    padding: 0.25rem 0.5rem;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.linkRow:focus-within {
+    border-color: var(--color-border-blue);
+    background: white;
+}
+
+.linkIcon {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.linkRow .linkInput {
+    border: none;
+    padding: 0;
+    background: transparent;
+}
+
+.linkRow .linkInput:hover,
+.linkRow .linkInput:focus {
+    border: none;
+    background: transparent;
+}
+
+/* Section separator */
+.sectionSep {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    color: var(--color-primary-orange);
+    text-align: center;
+    padding: 0.25rem 0;
+}
+
+/* Add button */
+.addBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+    width: 100%;
+    padding: 0.6rem;
+    border: 1.5px dashed var(--color-border-blue);
+    border-radius: 12px;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-secondary-blue);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.addBtn:hover {
+    background: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
+/* ── Preview ── */
+.preview {
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    background: white;
+    overflow: hidden;
+    position: sticky;
+    top: 1rem;
+}
+
+.previewHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 1.25em 0 0 1.25em;
+}
+
+.previewTitle {
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    font-size: 1rem;
+}
+
+.previewBody {
+    padding: 1rem;
+}
+
+.undatedNote {
+    font-size: 0.78rem;
+    color: var(--color-secondary-blue);
+    margin: 0.5rem 0 0;
+    padding-left: 2.5rem;
+}
