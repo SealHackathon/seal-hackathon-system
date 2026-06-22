@@ -1,0 +1,140 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+/* ── Category list ── */
+.categoryList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ── Number badge (avatar) ── */
+.numberBadge {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-primary-blue);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* ── Hàng tên hạng mục ── */
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.categoryIcon {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--inner-radius);
+    background: var(--color-bg-blue);
+    border: 1px solid var(--color-border-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.nameField {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.nameLabel {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+}
+
+.required {
+    color: var(--color-primary-orange);
+}
+
+/* ── Hàng body: mô tả + giới hạn ── */
+.bodyRow {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 1rem;
+    align-items: flex-start;
+}
+
+.fieldGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.fieldLabel {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+.textArea {
+    min-height: 2em;
+    resize: none;
+    max-width: 40em;
+}
+
+.baseInput {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--body-font-main);
+    color: var(--color-primary-blue);
+    background: transparent;
+}
+
+.baseInput::placeholder {
+    font-weight: 400;
+    color: var(--color-secondary-blue);
+}
+
+/* ── Add button ── */
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-secondary-blue);
+    background: none;
+    border: 1px dashed var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    padding: 0.6rem 1rem;
+    cursor: pointer;
+    width: 100%;
+    justify-content: center;
+    transition: background 0.15s, border-color 0.15s;
+}
+
+.addBtn:hover {
+    background: var(--color-bg-blue);
+    border-color: var(--color-secondary-blue);
+}

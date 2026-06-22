@@ -54,11 +54,12 @@ h2 {
      - Hoặc dùng làm màu cho button bị disable
   */
   --color-text-primary: #343330;
-  --color-text-secondary: #b0b0b0;
+  --color-text-secondary: #959595;
   --color-text-muted: #D9D9D9;
 
   /* ! Màu nền cho các box */
   --color-bg-white: #FFFFFF;
+  --color-bg-grey: #ECECEC;
 
   /* ! Font */
   --body-font-main: 'Nunito', sans-serif;
