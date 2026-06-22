@@ -72,68 +72,78 @@ public class RoundService {
 
 
     @Transactional
-    public long createRound(RoundRequest request) {
+    public void createRounds(RoundRequest request) {
         // 1. Kiểm tra Event có tồn tại không
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Event với ID: " + request.getEventId()));
 
-        // 2. Khởi tạo thực thể Round và set các giá trị từ Request
-        Round round = new Round();
-        round.setEvent(event);
-        round.setName(request.getName());
-        round.setTimeStart(request.getTimeStart());
-        round.setTimeEnd(request.getTimeEnd());
-        round.setHasPresetiontation(request.isHasPresetiontation());
-        round.setTopTeamPass(request.getTopTeamPass());
-        round.setOrdinal_number(request.getOrdinal_number());
-        round.setSubmissionDeadline(request.getSubmissionDeadline());
-
-        // Gán các trường mới bổ sung
-        round.setPosition(request.getPosition());
-        // Giả định entity Round của bạn lưu trường rubricId trực tiếp, nếu dùng liên kết thực thể hãy thay đổi tương ứng
-        // round.setRubricId(request.getRubricId());
-
-        // Lưu Round để sinh ID tự tăng làm khóa ngoại cho các bảng liên quan
-        round = roundRepository.save(round);
-
-        // 3. Xử lý lưu cấu hình nộp bài SubmissionConfig (nếu Front-end có truyền dữ liệu lên)
-        if (request.getSubmissionConfig() != null) {
-            RoundRequest.SubmissionConfigInfo configInfo = request.getSubmissionConfig();
-
-            // Dùng Constructor có tham số bạn đã định nghĩa trong Entity SubmissionConfig
-            SubmissionConfig config = new SubmissionConfig(
-                    round,
-                    configInfo.getTitle(),
-                    configInfo.getOpeningTime(),
-                    configInfo.getSubmissionDeadline(),
-                    configInfo.getSubmissionInstructions(), configInfo.isHasSubmission()
-            );
-
-            // Set thêm trường hasSubmission của SubmissionConfig theo DTO mới của bạn
-            config.setHasSubmission(configInfo.isHasSubmission());
-
-            submissionConfigRepository.save(config);
+        // 2. CHECK VÀ XÓA SẠCH NẾU ĐÃ TỒN TẠI
+        // Kiểm tra xem Event này đã từng được cấu hình bất kỳ vòng thi (Round) nào chưa
+        boolean isExist = roundRepository.existsByEventId(event.getId());
+        if (isExist) {
+            // Nếu đã có, xóa sạch toàn bộ các Round cũ thuộc về Event này
+            // Cấu hình Cascade ở Entity sẽ tự động dọn sạch dữ liệu liên quan ở bảng SubmissionConfig và RoundTimeline
+            roundRepository.deleteByEventId(event.getId());
         }
 
-        // 4. Xử lý lưu mảng danh sách RoundTimeline đi kèm (Batch Insert)
-        if (request.getTimelines() != null && !request.getTimelines().isEmpty()) {
-            Round finalRound = round; // Biến final sử dụng cho scope của Stream Lambda
-
-            List<RoundTimeline> timelinesToSave = request.getTimelines().stream()
-                    .map(item -> new RoundTimeline(
-                            item.getName(),
-                            item.getDescription(),
-                            item.getTimeStart(),
-                            item.getTimeEnd(),
-                            finalRound
-                    ))
-                    .toList();
-
-            roundTimelineRepository.saveAll(timelinesToSave);
+        // Nếu danh sách rounds gửi xuống trống (User xóa sạch các vòng), kết thúc xử lý tại đây
+        if (request.getRounds() == null || request.getRounds().isEmpty()) {
+            return;
         }
 
-        // Trả về ID của Round vừa được cấu hình trọn gói thành công
-        return round.getId();
+        // 3. DUYỆT MẢNG LƯU MỚI TINH (Giữ nguyên logic khởi tạo trọn gói từ code cũ của bạn)
+        for (RoundRequest.RoundItem item : request.getRounds()) {
+
+            // Khởi tạo thực thể Round mới và gán giá trị từ từng item trong List
+            Round round = new Round();
+            round.setEvent(event);
+            round.setName(item.getName());
+            round.setTimeStart(item.getTimeStart());
+            round.setTimeEnd(item.getTimeEnd());
+            round.setHasPresetiontation(item.isHasPresetiontation() );
+            round.setTopTeamPass(item.getTopTeamPass());
+            round.setOrdinal_number(item.getOrdinal_number());
+            round.setSubmissionDeadline(item.getSubmissionDeadline());
+            round.setPosition(item.getPosition());
+            // round.setRubricId(item.getRubricId());
+
+            // Lưu Round cha để sinh ID tự tăng làm khóa ngoại cho các bảng con
+            Round savedRound = roundRepository.save(round);
+
+            // 4. Xử lý lưu cấu hình nộp bài SubmissionConfig mới tinh đi kèm
+            if (item.getSubmissionConfig() != null) {
+                RoundRequest.SubmissionConfigInfo configInfo = item.getSubmissionConfig();
+
+                // Dùng đúng Constructor có tham số cũ của bạn, truyền savedRound vừa tạo vào
+                SubmissionConfig config = new SubmissionConfig(
+                        savedRound,
+                        configInfo.getTitle(),
+                        configInfo.getOpeningTime(),
+                        configInfo.getSubmissionDeadline(),
+                        configInfo.getSubmissionInstructions(),
+                        configInfo.isHasSubmission()
+                );
+
+                config.setHasSubmission(configInfo.isHasSubmission());
+                submissionConfigRepository.save(config);
+            }
+
+            // 5. Xử lý lưu mảng danh sách RoundTimeline mới tinh đi kèm (Batch Insert)
+            if (item.getTimelines() != null && !item.getTimelines().isEmpty()) {
+
+                List<RoundTimeline> timelinesToSave = item.getTimelines().stream()
+                        .map(tItem -> new RoundTimeline(
+                                tItem.getName(),
+                                tItem.getDescription(),
+                                tItem.getTimeStart(),
+                                tItem.getTimeEnd(),
+                                savedRound // Gắn chính xác vào thực thể Round cha tương ứng vừa lưu
+                        ))
+                        .toList();
+
+                roundTimelineRepository.saveAll(timelinesToSave);
+            }
+        }
     }
 
     //delete Round

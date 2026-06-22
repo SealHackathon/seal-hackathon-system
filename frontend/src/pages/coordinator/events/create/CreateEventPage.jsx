@@ -6,6 +6,7 @@ import CreateEventFooter from '../../../../components/coordinator/events/create/
 import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
 import Step3Prizes from './steps/Step3Prizes'
+import Step4Rounds from './steps/Step4Rounds'
 import axios from 'axios'
 import styles from './CreateEventPage.module.css'
 import Step5Categories from './steps/Step5Categories'
@@ -296,7 +297,7 @@ function CreateEventPage() {
       case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} />
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} />  // ← thêm
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
-      case 4: return <StepPlaceholder step={4} />
+      case 4: return <Step4Rounds formData={formData} onChange={setFormData} />
       case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
       case 6: return <StepPlaceholder step={6} />
       case 7: return <StepPlaceholder step={7} />
@@ -305,48 +306,49 @@ function CreateEventPage() {
   }
 
   return (
-    <CoordinatorLayout>
-      <div className={styles.page}>
+    // <CoordinatorLayout>
+    // </CoordinatorLayout>
 
-        {/* ── Header ── */}
-        <CreateEventHeader
-          title={formData.name?.trim() || 'Sự kiện mới'}
-          status={status}
-          onPublish={handlePublish}
-          onPreview={handlePreview}
-          onBack={handleCancel}
-        />
+    <div className={styles.page}>
 
-        {/* ── Body: create sidebar + step content ── */}
-        <div className={styles.body}>
+      {/* ── Header ── */}
+      <CreateEventHeader
+        title={formData.name?.trim() || 'Sự kiện mới'}
+        status={status}
+        onPublish={handlePublish}
+        onPreview={handlePreview}
+        onBack={handleCancel}
+      />
 
-          <aside className={styles.createSidebar}>
-            <CreateEventSidebar
-              currentStep={currentStep}
-              visitedSteps={visitedSteps}
-              errorSteps={errorSteps}
-              onStepClick={goToStep}
-            />
-          </aside>
+      {/* ── Body: create sidebar + step content ── */}
+      <div className={styles.body}>
 
-          <main className={styles.content}>
-            {renderStep()}
-          </main>
+        <aside className={styles.sidebar}>
+          <CreateEventSidebar
+            currentStep={currentStep}
+            visitedSteps={visitedSteps}
+            errorSteps={errorSteps}
+            onStepClick={goToStep}
+          />
+        </aside>
 
-        </div>
-
-        {/* ── Footer ── */}
-        <CreateEventFooter
-          currentStep={currentStep}
-          totalSteps={TOTAL_STEPS}
-          onCancel={handleCancel}
-          onSaveDraft={handleSaveDraft}
-          onBack={handleBack}
-          onNext={handleNext}
-        />
+        <main className={styles.content}>
+          {renderStep()}
+        </main>
 
       </div>
-    </CoordinatorLayout>
+
+      {/* ── Footer ── */}
+      <CreateEventFooter
+        currentStep={currentStep}
+        totalSteps={TOTAL_STEPS}
+        onCancel={handleCancel}
+        onSaveDraft={handleSaveDraft}
+        onBack={handleBack}
+        onNext={handleNext}
+      />
+
+    </div>
   )
 }
 

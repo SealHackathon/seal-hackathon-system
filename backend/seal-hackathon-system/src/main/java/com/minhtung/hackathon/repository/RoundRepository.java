@@ -16,6 +16,9 @@ import java.util.Optional;
 public interface RoundRepository extends JpaRepository<Round, Long> {
     int countByEventId(long eventId);
 
+    boolean existsByEventId(long eventId);
+    void deleteByEventId(long eventId);
+
     // lấy vòng gần nhất chưa kết thúc
     Optional<Round> findFirstByTimeEndAfterOrderByTimeEndAsc(LocalDateTime now);
 
