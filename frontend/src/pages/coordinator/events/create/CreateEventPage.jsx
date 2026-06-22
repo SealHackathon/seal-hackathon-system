@@ -5,6 +5,7 @@ import CreateEventHeader from '../../../../components/coordinator/events/create/
 import CreateEventFooter from '../../../../components/coordinator/events/create/CreateEventFooter'
 import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
+import Step3Prizes from './steps/Step3Prizes'
 import axios from 'axios'
 import styles from './CreateEventPage.module.css'
 
@@ -34,6 +35,35 @@ function CreateEventPage() {
   function validateStep(step) {
     if (step === 1) {
       return !!(formData.name?.trim() && formData.openDate && formData.closeDate)
+    }
+    if (step === 2) {
+      const rules = formData.generalRules ?? ''
+      const isEmpty = !rules.trim() || rules === '<p></p>' || rules === '<p><br></p>'
+      return !isEmpty
+    }
+    if (step === 3) {
+      const mainPrizes = formData.mainPrizes ?? []
+      const rankCount = formData.rankCount ?? 3
+
+      // Phải có đủ số giải theo dropdown
+      if (mainPrizes.length < rankCount) return false
+
+      // Mỗi giải chính phải điền đủ tên + số lượng + giá trị
+      const mainValid = mainPrizes.every(p =>
+        p.name?.trim() &&
+        p.quantity !== '' && p.quantity !== undefined
+      )
+      if (!mainValid) return false
+
+      // Giải phụ nếu có phải điền tên
+      const extendedPrizes = formData.extendedPrizes ?? []
+      const extValid = extendedPrizes.every(p =>
+        p.name?.trim() &&
+        p.quantity !== '' && p.quantity !== undefined
+      )
+      if (!extValid) return false
+
+      return true
     }
     return true
   }
@@ -82,83 +112,83 @@ function CreateEventPage() {
     // 2. Cấu hình Endpoint và Data Filter theo từng Step cụ thể
     let apiEndpoint = 'http://localhost:8080/api/event'; // Mặc định step 1
 
-   switch (currentStep) {
-  case 1:{
-    // Chỉ gom dữ liệu thuộc Step 1
-    sendData.append('name', formData.name || '');
-    sendData.append('descriptionDetails', formData.detailDesc || '');
-    sendData.append('topic', formData.theme || '');
-    sendData.append('description', formData.shortDesc || '');
-    sendData.append('minTeamMember', formData.minTeamMember || 1);
-    sendData.append('maxTeamMember', formData.maxTeamMember || 5);
+    switch (currentStep) {
+      case 1: {
+        // Chỉ gom dữ liệu thuộc Step 1
+        sendData.append('name', formData.name || '');
+        sendData.append('descriptionDetails', formData.detailDesc || '');
+        sendData.append('topic', formData.theme || '');
+        sendData.append('description', formData.shortDesc || '');
+        sendData.append('minTeamMember', formData.minTeamMember || 1);
+        sendData.append('maxTeamMember', formData.maxTeamMember || 5);
 
-    if (formData.openDate) sendData.append('openRegisterTime', new Date(formData.openDate).toISOString());
-    if (formData.closeDate) sendData.append('closeRegisterTime', new Date(formData.closeDate).toISOString());
-    if (formData.teamDeadline) sendData.append('cofirmTeamTime', new Date(formData.teamDeadline).toISOString());
+        if (formData.openDate) sendData.append('openRegisterTime', new Date(formData.openDate).toISOString());
+        if (formData.closeDate) sendData.append('closeRegisterTime', new Date(formData.closeDate).toISOString());
+        if (formData.teamDeadline) sendData.append('cofirmTeamTime', new Date(formData.teamDeadline).toISOString());
 
-    if (formData.avatarFile) sendData.append('bannerFile', formData.avatarFile);
-    if (formData.coverFile) sendData.append('thumbnailFile', formData.coverFile);
-    
-    // Gọi API lưu thông tin cơ bản (Multipart FormData)
-    return axios.post(apiEndpoint, sendData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        'Authorization': `Bearer ${token}`
+        if (formData.avatarFile) sendData.append('bannerFile', formData.avatarFile);
+        if (formData.coverFile) sendData.append('thumbnailFile', formData.coverFile);
+
+        // Gọi API lưu thông tin cơ bản (Multipart FormData)
+        return axios.post(apiEndpoint, sendData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+          .then(response => {
+            console.log(`Lưu bản nháp Step ${currentStep} thành công!`, response.data);
+
+            // Đồng bộ ID tổng trả về từ Backend vào state
+            if (response.data && response.data.id) {
+              handleFormChange('id', response.data.id);
+            }
+            return true;
+          })
+          .catch(error => {
+            console.error(`Lỗi khi gọi API lưu nháp Step ${currentStep}:`, error);
+            const errorMsg = error.response?.data?.message || error.response?.data || error.message;
+            alert(`Không thể lưu bản nháp Step ${currentStep}: ` + errorMsg);
+            return false;
+          });
       }
-    })
-      .then(response => {
-        console.log(`Lưu bản nháp Step ${currentStep} thành công!`, response.data);
+      case 2:
+        {
+          // 1. Đổi API Endpoint sang xử lý Luật và Lưu ý của Step 2
+          apiEndpoint = 'http://localhost:8080/api/event-notes';
 
-        // Đồng bộ ID tổng trả về từ Backend vào state
-        if (response.data && response.data.id) {
-          handleFormChange('id', response.data.id);
+          // 2. Khai báo Payload JSON gom cụm thông tin của Step 2
+          // Cấu trúc này mapping 100% với EventNoteRequest ở Backend
+          const step2Payload = {
+            eventId: formData.id,            // ID tổng lấy được từ Step 1 thành công
+            eventRules: formData.generalRules || '',
+            notes: formData.notes || []      // Mảng các lưu ý, ví dụ: [{title: '...', description: '...'}]
+          };
+
+
+          // 3. Gọi API lưu Luật & Ghi chú (JSON dữ liệu thuần)
+          return axios.post(apiEndpoint, step2Payload, {
+            headers: {
+              'Content-Type': 'application/json', // Ép kiểu JSON để khớp với @RequestBody ở Backend
+              'Authorization': `Bearer ${token}`
+            }
+          })
+            .then(response => {
+              console.log(`Lưu bản nháp Step 2 thành công!`, response.data);
+              return true;
+            })
+            .catch(error => {
+              console.error(`Lỗi khi gọi API lưu nháp Step 2:`, error);
+              const errorMsg = error.response?.data?.message || error.response?.data || error.message;
+              alert(`Không thể lưu bản nháp Step 2: ` + errorMsg);
+              return false;
+            });
+
+          // Cứ như vậy cấu hình cho các step 3, 4, 5, 6, 7...
         }
-        return true; 
-      })
-      .catch(error => {
-        console.error(`Lỗi khi gọi API lưu nháp Step ${currentStep}:`, error);
-        const errorMsg = error.response?.data?.message || error.response?.data || error.message;
-        alert(`Không thể lưu bản nháp Step ${currentStep}: ` + errorMsg);
-        return false; 
-      });
+      default:
+        break;
     }
-  case 2:
-    {
-    // 1. Đổi API Endpoint sang xử lý Luật và Lưu ý của Step 2
-    apiEndpoint = 'http://localhost:8080/api/event-notes';
-    
-    // 2. Khai báo Payload JSON gom cụm thông tin của Step 2
-    // Cấu trúc này mapping 100% với EventNoteRequest ở Backend
-    const step2Payload = {
-      eventId: formData.id,            // ID tổng lấy được từ Step 1 thành công
-      eventRules: formData.generalRules || '', 
-      notes: formData.notes || []      // Mảng các lưu ý, ví dụ: [{title: '...', description: '...'}]
-    };
-  
-    
-    // 3. Gọi API lưu Luật & Ghi chú (JSON dữ liệu thuần)
-    return axios.post(apiEndpoint, step2Payload, {
-      headers: {
-        'Content-Type': 'application/json', // Ép kiểu JSON để khớp với @RequestBody ở Backend
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(response => {
-        console.log(`Lưu bản nháp Step 2 thành công!`, response.data);
-        return true;
-      })
-      .catch(error => {
-        console.error(`Lỗi khi gọi API lưu nháp Step 2:`, error);
-        const errorMsg = error.response?.data?.message || error.response?.data || error.message;
-        alert(`Không thể lưu bản nháp Step 2: ` + errorMsg);
-        return false;
-      });
-
-  // Cứ như vậy cấu hình cho các step 3, 4, 5, 6, 7...
-    }
-  default:
-    break;
-}
 
 
   }
@@ -175,7 +205,7 @@ function CreateEventPage() {
     switch (currentStep) {
       case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} />
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} />  // ← thêm
-      case 3: return <StepPlaceholder step={3} />
+      case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
       case 4: return <StepPlaceholder step={4} />
       case 5: return <StepPlaceholder step={5} />
       case 6: return <StepPlaceholder step={6} />
