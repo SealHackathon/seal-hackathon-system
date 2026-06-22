@@ -11,7 +11,7 @@
 /* ── 2 cột trên ── */
 .twoCol {
     display: grid;
-    grid-template-columns: 3fr 1fr;    /* ← đổi từ 1fr 380px */
+    grid-template-columns: 3fr 2fr;
     gap: 1.5rem;
     align-items: start;
 }
@@ -20,7 +20,8 @@
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    width: 43.5em;
+    min-width: 0;
+    /* Tránh tràn cột trong Grid */
 }
 
 .textArea {
@@ -34,6 +35,8 @@
     gap: 1.5rem;
     position: sticky;
     top: 1rem;
+    min-width: 0;
+    /* Tránh tràn cột trong Grid */
 }
 
 /* ── Rich text header ── */
@@ -71,10 +74,8 @@
 
 /* ── Member row ── */
 .memberRow {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 1rem;
 }
+
 
 /* ── Image section ── */
 .imageTopRow {

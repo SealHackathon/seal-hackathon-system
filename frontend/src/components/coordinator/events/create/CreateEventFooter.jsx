@@ -5,7 +5,7 @@ import styles from './CreateEventFooter.module.css'
 
 function CreateEventFooter({
   currentStep = 1,
-  totalSteps  = 7,
+  totalSteps = 7,
   onCancel,
   onSaveDraft,
   onBack,
@@ -13,16 +13,16 @@ function CreateEventFooter({
 }) {
   const [lastSaved, setLastSaved] = useState(null)
   const isFirstStep = currentStep === 1
-  const isLastStep  = currentStep === totalSteps
+  const isLastStep = currentStep === totalSteps
 
   function handleSaveDraft() {
     const now = new Date()
     const time = now.toLocaleTimeString('vi-VN', {
-      hour:   '2-digit',
+      hour: '2-digit',
       minute: '2-digit',
-      day:    '2-digit',
-      month:  '2-digit',
-      year:   'numeric',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
     })
     setLastSaved(time)
     onSaveDraft?.()
@@ -37,7 +37,7 @@ function CreateEventFooter({
         labelSize={18}
         iconPosition="left"
         variant="outline"
-        color='grey'
+        color='orange'
         onClick={onCancel}
       />
 
@@ -46,6 +46,9 @@ function CreateEventFooter({
 
         {/* Lưu nháp + timestamp */}
         <div className={styles.saveDraftWrapper}>
+          {lastSaved && (
+            <span className={styles.timestamp}>{lastSaved}</span>
+          )}
           <Button
             label="Lưu nháp"
             labelSize={18}
@@ -54,21 +57,21 @@ function CreateEventFooter({
             variant="outline"
             onClick={handleSaveDraft}
           />
-          {lastSaved && (
-            <span className={styles.timestamp}>{lastSaved}</span>
-          )}
         </div>
 
         {/* Quay lại — disabeld ở step 1 */}
-          <Button
-            label="Quay lại"
-            labelSize={18}
-            icon={ArrowLeft}
-            iconPosition="left"
-            variant="outline"
-            onClick={onBack}
-            disabled={isFirstStep}
-          />
+        <Button
+          label="Quay lại"
+          labelSize={18}
+          icon={ArrowLeft}
+          iconPosition="left"
+          variant="outline"
+          onClick={async () => {
+            await handleSaveDraft() // * chờ save xong, mới chuyển trang
+            onBack?.()
+          }}
+          disabled={isFirstStep}
+        />
 
         {/* Tiếp theo / Hoàn tất ở step cuối */}
         <Button
@@ -78,7 +81,11 @@ function CreateEventFooter({
           iconPosition="right"
           variant="primary"
           color="blue"
-          onClick={onNext}
+          onClick={async () => {
+            await handleSaveDraft() // * chờ save xong, mới chuyển trang
+            onNext?.()
+          }}
+
         />
 
       </div>

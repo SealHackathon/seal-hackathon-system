@@ -6,7 +6,7 @@
     background: white;
     border: 1px solid var(--color-border-blue);
     border-radius: var(--inner-radius);
-    transition: box-shadow 0.15s;
+    transition: border 0.15s;
 }
 
 .card:hover {
@@ -24,7 +24,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--color-text-muted);
+    color: var(--color-secondary-blue);
     cursor: grab;
     flex-shrink: 0;
     padding: 0.25rem 0;
@@ -39,6 +39,7 @@
 .content {
     flex: 1;
     min-width: 0;
+    gap: 0.5em;
     display: flex;
     flex-direction: column;
 }
@@ -52,7 +53,7 @@
     height: 32px;
     border: none;
     background: none;
-    color: var(--color-text-muted);
+    color: var(--color-border-blue);
     cursor: pointer;
     border-radius: 6px;
     flex-shrink: 0;
@@ -63,3 +64,16 @@
     color: var(--color-primary-orange);
     background: var(--color-bg-orange);
 }
+
+/* Avatar slot */
+.avatar {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1em;
+    border-radius: var(--inner-radius);
+}
+.avatarOrange { background: var(--color-bg-orange); }
+.avatarBlue   { background: var(--color-bg-blue); }
+.avatarGreen  { background: #e8f7ee; }

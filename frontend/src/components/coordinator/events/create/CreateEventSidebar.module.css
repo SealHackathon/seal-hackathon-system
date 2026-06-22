@@ -1,14 +1,19 @@
+.sidebarWrapper {
+    background-color: var(--color-primary-blue);
+    border-radius: var(--radius);
+    padding: 0;
+}
+
 .sidebar {
     display: flex;
     flex-direction: column;
     background-color: var(--color-primary-blue);
     border-radius: var(--radius);
     padding: 1.25rem 1rem;
-    width: 150px;
+    width: 180px;
     flex-shrink: 0;
     position: sticky;
     top: 1rem;
-    height: 80vh;
 }
 
 .stepWrapper {

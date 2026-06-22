@@ -1,0 +1,218 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* Label */
+.label {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.required { color: var(--color-primary-orange); }
+
+/* ── Search box ── */
+.searchBox {
+    position: relative;
+}
+
+.inputRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    padding: 0.5rem 0.75rem;
+    background: white;
+    transition: border-color 0.15s;
+}
+
+.inputRow:focus-within {
+    border-color: var(--color-secondary-blue);
+}
+
+.searchIcon { color: var(--color-secondary-blue); flex-shrink: 0; }
+
+.input {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    color: var(--color-primary-blue);
+    background: transparent;
+}
+
+.input::placeholder { color: var(--color-secondary-blue); }
+
+.clearBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    border: none;
+    background: none;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    border-radius: 50%;
+    padding: 0;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.clearBtn:hover {
+    background: var(--color-bg-orange);
+    color: var(--color-primary-orange);
+}
+
+/* ── Dropdown ── */
+.dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    list-style: none;
+    margin: 0;
+    padding: 0.3rem 0;
+    z-index: 100;
+    box-shadow: 0 4px 16px rgba(30, 58, 138, 0.1);
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.suggestion {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.suggestion:hover { background: var(--color-bg-blue); }
+
+.pinIcon { color: var(--color-secondary-blue); flex-shrink: 0; margin-top: 2px; }
+
+.suggestionText {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+.mainText {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+}
+
+.secondaryText {
+    font-size: 0.8rem;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ── Recent places ── */
+.recentSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.recentLabel {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.recentList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.recentChip {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.35rem 0.75rem;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 999px;
+    background: white;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--color-secondary-blue);
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+}
+
+.recentChip:hover {
+    background: var(--color-bg-blue);
+    border-color: var(--color-secondary-blue);
+}
+
+.recentChipActive {
+    background: var(--color-bg-blue);
+    border-color: var(--color-secondary-blue);
+    color: var(--color-primary-blue);
+}
+
+/* ── Mini map ── */
+.mapWrapper {
+    position: relative;
+    width: 100%;
+    height: 220px;
+    border-radius: var(--inner-radius);
+    overflow: hidden;
+    border: 1.5px solid var(--color-border-blue);
+}
+
+/* Thừb nổi trên map */
+.mapBadge {
+    position: absolute;
+    bottom: 0.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: white;
+    border: 1px solid var(--color-border-blue);
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+    box-shadow: 0 2px 8px rgba(30,58,138,0.12);
+    white-space: nowrap;
+    max-width: 90%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.distanceBadge {
+    font-size: 0.75rem;
+    color: var(--color-secondary-blue);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.mapInner { width: 100%; height: 100%; }
+
+
+.mapOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    cursor: pointer;
+}
