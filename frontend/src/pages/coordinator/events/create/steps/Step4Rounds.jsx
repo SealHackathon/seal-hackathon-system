@@ -10,7 +10,7 @@ import Banner from '../../../../../components/shared/Banner'
 import DateTimePicker from '../../../../../components/shared/DateTimePicker'
 import RichTextEditor from '../../../../../components/shared/RichTextEditor'
 import {
-    CalendarBlank, MapPin, WifiHigh, Trophy,
+    CalendarBlank, MapPin, Broadcast, Trophy,
     Folder, ArrowCounterClockwise, ListChecks, ClipboardText
 } from '@phosphor-icons/react'
 import { getRecentLocations, saveRecentLocation } from '../../../../../utils/useRecentLocation'
@@ -36,7 +36,7 @@ function createRound(name = 'Vòng mới') {
 
 const FORMAT_OPTIONS = [
     { value: 'offline', icon: MapPin, label: 'Offline', description: 'Tổ chức trực tiếp tại một địa điểm' },
-    { value: 'online', icon: WifiHigh, label: 'Online', description: 'Tổ chức trực tuyến' },
+    { value: 'online', icon: Broadcast, label: 'Online', description: 'Tổ chức trực tuyến' },
 ]
 
 const SUBMISSION_OPTIONS = [
@@ -92,7 +92,7 @@ function RoundForm({ round, onChange, isLast }) {
                         placeholder="SEAL Hackathon Summer 2026"
                     />
 
-                    <FieldGroup icon={CalendarBlank} title="Thời gian" required>
+                    <FieldGroup icon={CalendarBlank} layout='row' title="Thời gian" required>
                         <DateTimePicker
                             label="Ngày bắt đầu"
                             required
@@ -186,7 +186,7 @@ function RoundForm({ round, onChange, isLast }) {
 
                     {round.submissionType === 'new' && (
                         <>
-                            <FieldGroup icon={CalendarBlank} title="Thời gian nộp bài">
+                            <FieldGroup icon={CalendarBlank} layout='row' title="Thời gian nộp bài">
                                 <DateTimePicker
                                     label="Mở nộp bài"
                                     value={round.submissionOpen}

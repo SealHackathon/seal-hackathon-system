@@ -194,3 +194,20 @@ border-radius: 6px;
 padding: 0.3em 0.5em; 
 }
 
+
+/* ! LABEL COLOR VARIANTS */
+.label.dark {
+    color: var(--color-dark-blue);
+}
+
+.label.primary {
+    color: var(--color-primary-blue);
+}
+
+.label.secondary {
+    color: var(--color-secondary-blue);
+}
+
+.label.border {
+    color: var(--color-border-blue);
+}

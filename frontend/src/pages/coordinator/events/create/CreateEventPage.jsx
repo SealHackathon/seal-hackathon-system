@@ -7,6 +7,7 @@ import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
 import Step3Prizes from './steps/Step3Prizes'
 import Step4Rounds from './steps/Step4Rounds'
+import Step6Timeline from './steps/Step6Timeline';
 import axios from 'axios'
 import styles from './CreateEventPage.module.css'
 import Step5Categories from './steps/Step5Categories'
@@ -369,7 +370,7 @@ function CreateEventPage() {
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
       case 4: return <Step4Rounds formData={formData} onChange={setFormData} />
       case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
-      case 6: return <StepPlaceholder step={6} />
+        case 6: return <Step6Timeline formData={formData} onFormChange={handleFormChange} />
       case 7: return <StepPlaceholder step={7} />
       default: return null
     }
