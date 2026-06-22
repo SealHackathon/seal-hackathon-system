@@ -8,6 +8,7 @@ import java.util.List;
 public class PrizeRequest {
     private long eventId; // ID chung cho tất cả giải thưởng trong request này
     private List<PrizeItem> prizes;
+    private String participationBenefits;
 
     @Data
     public static class PrizeItem {
@@ -15,5 +16,6 @@ public class PrizeRequest {
         private String description;
         private int money;
         private int quantity;
+        private String prizeType;
     }
 }

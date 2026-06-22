@@ -186,6 +186,60 @@ function CreateEventPage() {
 
           // Cứ như vậy cấu hình cho các step 3, 4, 5, 6, 7...
         }
+
+      case 3:
+        {
+          // 1. Đổi API Endpoint sang xử lý Luật và Lưu ý của Step 2
+          apiEndpoint = 'http://localhost:8080/api/prize';
+
+          console.log(formData.extendedPrizes);
+          console.log(formData.extendedPrizes.length);
+          // 2. Map mảng giải chính từ state và đóng dấu nhãn 'MAIN'
+          const mappedMain = (formData.mainPrizes || []).map(item => ({
+            prizeName: item.name?.trim() || item.defaultName || 'Giải thưởng',
+            description: item.desc?.trim() || '',
+            money: Number(item.cash) || 0,
+            quantity: Number(item.quantity) || 1,
+            prizeType: 'MAIN' // Đánh dấu đây là giải cố định (Hạng 1, 2, 3...)
+          }));
+
+          // 3. Map mảng giải phụ (Kéo thả) từ state và đóng dấu nhãn 'EXTENDED'
+          const mappedExtended = (formData.extendedPrizes || []).map(item => ({
+            prizeName: item.name?.trim() || 'Giải phụ',
+            description: item.desc?.trim() || '',
+            money: Number(item.cash) || 0,
+            quantity: Number(item.quantity) || 1,
+            prizeType: 'EXTENDED' // Đánh dấu đây là giải tự thêm ngoài danh sách
+          }));
+
+          // 4. Gộp 2 mảng đã được "dán nhãn" thành 1 mảng phẳng duy nhất để map khớp với DTO ở Backend
+          const step3Payload = {
+            eventId: formData.id, // ID tổng sinh ra từ Step 1
+            participationBenefits: formData.benefits,
+            prizes: [...mappedMain, ...mappedExtended]
+          };
+
+
+          // 3. Gọi API lưu giải thưởng dưới dạng JSON thuần túy
+          return axios.post(apiEndpoint, step3Payload, {
+            headers: {
+              'Content-Type': 'application/json', // Ép kiểu JSON để khớp với @RequestBody ở Backend
+              'Authorization': `Bearer ${token}`
+            }
+          })
+            .then(response => {
+              console.log(`Lưu bản nháp Step 3 thành công!`, response.data);
+              return true; // Trả về bộ trigger báo hiệu lưu thành công để chuyển step
+            })
+            .catch(error => {
+              console.error(`Lỗi khi gọi API lưu nháp Step 3:`, error);
+              const errorMsg = error.response?.data?.message || error.response?.data || error.message;
+              alert(`Không thể lưu bản nháp Step 3: ` + errorMsg);
+              return false; // Lưu thất bại, giữ nguyên giao diện để kiểm tra dữ liệu
+            });
+
+          // Cứ như vậy cấu hình cho các step 3, 4, 5, 6, 7...
+        }
       default:
         break;
     }

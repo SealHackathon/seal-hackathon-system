@@ -414,7 +414,8 @@ public class EventService {
                             p.getMoney(),
                             p.getDescription(),
                             p.getQuantity(),
-                            p.getEvent().getId()
+                            p.getEvent().getId(),
+                            p.getPrizeType().toString()
                     ))
                     .toList();
             response.setPrizes(prizeDTOs);

@@ -4,6 +4,7 @@ import com.minhtung.hackathon.dto.request.PrizeRequest;
 import com.minhtung.hackathon.dto.response.PrizeResponse;
 import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.entity.Prize;
+import com.minhtung.hackathon.enums.PrizeType;
 import com.minhtung.hackathon.repository.EventRepository;
 import com.minhtung.hackathon.repository.PrizeRepository;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class PrizeService {
                         p.getPrizeName(),
                         (double) p.getMoney(), // Cast hoặc gán sang prizeValue (double) của DTO
                         p.getDescription(),
-                        p.getQuantity(), p.getEvent().getId()       // Số lượng giải thưởng
+                        p.getQuantity(), p.getEvent().getId(), p.getPrizeType().toString()       // Số lượng giải thưởng
                 ))
                 .toList();
     }
@@ -52,29 +53,25 @@ public class PrizeService {
         // 1. Tìm Event chung một lần duy nhất từ eventId ở ngoài request
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Event với ID: " + request.getEventId()));
-
+        event.setParticipationBenefits(request.getParticipationBenefits());
+        eventRepository.save(event);
         List<Prize> prizesToSave = new ArrayList<>();
 
         // 2. Duyệt qua từng item giải thưởng trong mảng gửi lên từ Front-end
         for (PrizeRequest.PrizeItem item : request.getPrizes()) {
-            int quantity = item.getQuantity() > 0 ? item.getQuantity() : 1;
+            Prize prize = new Prize();
 
-            // Vòng lặp để nhân bản số lượng dòng giải thưởng tương ứng trong DB
-            for (int i = 0; i < quantity; i++) {
-                Prize prize = new Prize(); // Sử dụng constructor rỗng mặc định an toàn
+            prize.setPrizeName(item.getPrizeName());
+            prize.setDescription(item.getDescription());
+            prize.setMoney(item.getMoney());
+            prize.setPrizeType(PrizeType.valueOf(item.getPrizeType()));
 
-                prize.setPrizeName(item.getPrizeName());
-                prize.setDescription(item.getDescription());
-                prize.setMoney(item.getMoney());
+            // Lưu đúng quantity gửi từ FE
+            prize.setQuantity(item.getQuantity());
 
-                // Mỗi dòng giải thưởng vật lý trong DB đại diện cho 1 suất giải lẻ
-                prize.setQuantity(1);
+            prize.setEvent(event);
 
-                // Gắn liên kết Event để tránh lỗi null column event_id
-                prize.setEvent(event);
-
-                prizesToSave.add(prize);
-            }
+            prizesToSave.add(prize);
         }
 
         // 3. Thực hiện lưu hàng loạt (Batch Insert) xuống DB
@@ -94,7 +91,7 @@ public class PrizeService {
                             p.getPrizeName(),
                             (double) p.getMoney(),
                             p.getDescription(),
-                            item.getQuantity(), p.getEvent().getId() // Gán đúng số lượng tổng của nhóm giải này (Ví dụ: 2)
+                            item.getQuantity(), p.getEvent().getId(), p.getPrizeType().toString()    // Gán đúng số lượng tổng của nhóm giải này (Ví dụ: 2)
                     ));
                 })
                 .toList();

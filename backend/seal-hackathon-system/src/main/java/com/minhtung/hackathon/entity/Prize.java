@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.entity;
 
+import com.minhtung.hackathon.enums.PrizeType;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -16,6 +17,9 @@ public class Prize {
     private String description;
 
     private int money;
+
+    @Enumerated(EnumType.STRING)
+    private PrizeType prizeType;
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String prizeName;
