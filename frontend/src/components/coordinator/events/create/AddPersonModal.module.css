@@ -1,0 +1,246 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+/* Search */
+.searchBox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    background: white;
+    transition: border-color 0.15s;
+}
+
+.searchBox:focus-within {
+    border-color: var(--color-primary-blue);
+}
+
+.searchIcon {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
+
+.searchInput {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    background: transparent;
+    font-family: inherit;
+    color: var(--color-text-primary);
+}
+
+.searchInput::placeholder {
+    color: var(--color-secondary-blue);
+}
+
+/* Selected chips */
+.selectedChips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+    background: var(--color-bg-blue);
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 999px;
+    padding: 0.2em 0.6em;
+}
+
+.chipRemove {
+    border: none;
+    background: none;
+    color: var(--color-secondary-blue);
+    cursor: pointer;
+    font-size: 0.75rem;
+    line-height: 1;
+    padding: 0;
+    display: flex;
+    align-items: center;
+}
+
+.chipRemove:hover {
+    color: var(--color-primary-red);
+}
+
+/* List */
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-height: 340px;
+    overflow-y: auto;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.loadingState,
+.emptyState {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 2.5rem 1rem;
+    color: var(--color-text-muted);
+    font-size: 0.875rem;
+}
+
+.emptyIcon {
+    opacity: 0.35;
+}
+
+.emptyState p {
+    margin: 0;
+    text-align: center;
+}
+
+/* Person row */
+.personRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    border-bottom: 1px solid var(--color-border-blue);
+    transition: background 0.12s;
+    background: white;
+}
+
+.personRow:last-child {
+    border-bottom: none;
+}
+
+.personRow:hover {
+    background: var(--color-bg-blue);
+}
+
+.personRowSelected {
+    background: var(--color-bg-blue);
+}
+
+.personRowAdded {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Avatar */
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: var(--color-bg-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.avatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatarFallback {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+/* Info */
+.personInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+}
+
+.personName {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.personSub {
+    font-size: 0.78rem;
+    color: var(--color-secondary-blue);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* State indicator */
+.personState {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+}
+
+.addedLabel {
+    font-size: 0.75rem;
+    color: var(--color-secondary-blue);
+    font-weight: 500;
+}
+
+.checkmark {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--color-primary-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.addPlus {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1.5px dashed var(--color-border-blue);
+    color: var(--color-secondary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    font-weight: 300;
+}
+
+.personRow:hover .addPlus {
+    border-color: var(--color-primary-blue);
+    color: var(--color-primary-blue);
+}
+
+/* Footer */
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
