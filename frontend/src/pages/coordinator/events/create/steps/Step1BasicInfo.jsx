@@ -208,7 +208,8 @@ function Step1BasicInfo({ formData, onFormChange }) {
                                     const raw = val?.target ? val.target.value : val
                                     onFormChange('minMembers', raw === '' ? '' : Number(raw))
                                 }}
-                                error={minMemberError}
+                                status={minMemberError ? 'error' : 'default'}
+                                message={minMemberError}
                             />
                             <FormInput
                                 label="Tối đa"
@@ -221,7 +222,8 @@ function Step1BasicInfo({ formData, onFormChange }) {
                                     const raw = val?.target ? val.target.value : val
                                     onFormChange('maxMembers', raw === '' ? '' : Number(raw))
                                 }}
-                                error={maxMemberError}
+                                status={maxMemberError ? 'error' : 'default'}
+                                message={maxMemberError}
                             />
                         </div>
 
