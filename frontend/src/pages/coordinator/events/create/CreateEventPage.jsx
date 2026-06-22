@@ -10,6 +10,7 @@ import axios from 'axios'
 import styles from './CreateEventPage.module.css'
 import Step5Categories from './steps/Step5Categories'
 import axiosClient from '../../../../api/axiosClient'
+import { useNavigate } from 'react-router-dom';
 const TOTAL_STEPS = 7
 
 function StepPlaceholder({ step }) {
@@ -21,6 +22,7 @@ function StepPlaceholder({ step }) {
 }
 
 function CreateEventPage() {
+  const navigate = useNavigate(); // 1. Khởi tạo hàm điều hướng
   const [currentStep, setCurrentStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState([1])
   const [errorSteps, setErrorSteps] = useState([])
@@ -267,8 +269,8 @@ function CreateEventPage() {
   function handlePublish() { setStatus('live'); console.log('Công bố:', formData) }
   function handlePreview() { console.log('Xem trước:', formData) }
   function handleCancel() {
-    if (confirm('Huỷ tạo sự kiện? Các thay đổi chưa lưu sẽ bị mất.'))
-      window.history.back()
+    //todo add vào 1 api xóa hết tất cả những gì nãy giờ lưu nháp
+    navigate('/coordinator/events')
   }
 
   function renderStep() {

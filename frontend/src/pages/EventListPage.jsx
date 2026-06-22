@@ -6,6 +6,7 @@ import SectionHeader from '../components/shared/SectionHeader'
 import SearchFilterBar from '../components/shared/SearchFilterBar/SearchFilterBar'
 import styles from './EventListPage.module.css'
 import axiosClient from '../api/axiosClient'
+import { useNavigate } from 'react-router-dom'
 const STATUS_FILTERS = [
   { key: 'all', label: 'Tất cả' },
   { key: 'live', label: 'Đang diễn ra', dot: 'green' },
@@ -125,7 +126,7 @@ function EventListPage({ onCreateEvent, onManageEvent }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
   const [activeSort, setActiveSort] = useState('newest')
-
+  const navigate=useNavigate();
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -245,7 +246,7 @@ function EventListPage({ onCreateEvent, onManageEvent }) {
           variant="primary"
           color="green"
           icon={Plus}
-          onClick={onCreateEvent}
+          onClick={() => navigate('/coordinator/events/create')}
         />
       </div>
 
