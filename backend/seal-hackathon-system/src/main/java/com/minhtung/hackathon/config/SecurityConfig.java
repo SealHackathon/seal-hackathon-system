@@ -59,6 +59,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/user/**").permitAll()
                         .requestMatchers("/api/event/**").permitAll()
                         .requestMatchers("/api/round/**").permitAll()
+                        .requestMatchers("/api/event-notes/**").permitAll()
                         // Role
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/lecturer/**")

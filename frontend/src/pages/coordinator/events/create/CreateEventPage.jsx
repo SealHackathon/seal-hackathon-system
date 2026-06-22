@@ -64,7 +64,7 @@ function CreateEventPage() {
       goToStep(currentStep + 1);
     }
   }
-// ------------------------------------------------------------------
+  // ------------------------------------------------------------------
   function handleBack() { if (currentStep > 1) goToStep(currentStep - 1) }
 
   //--------------------------------------------------------handleSaveDraft------------------------------------------------------------
@@ -82,44 +82,24 @@ function CreateEventPage() {
     // 2. Cấu hình Endpoint và Data Filter theo từng Step cụ thể
     let apiEndpoint = 'http://localhost:8080/api/event'; // Mặc định step 1
 
-    switch (currentStep) {
-      case 1:
-        // Chỉ gom dữ liệu thuộc Step 1
-        sendData.append('name', formData.name || '');
-        sendData.append('descriptionDetails', formData.detailDesc || '');
-        sendData.append('topic', formData.theme || '');
-        sendData.append('description', formData.shortDesc || '');
-        sendData.append('minTeamMember', formData.minTeamMember || 1);
-        sendData.append('maxTeamMember', formData.maxTeamMember || 5);
+   switch (currentStep) {
+  case 1:{
+    // Chỉ gom dữ liệu thuộc Step 1
+    sendData.append('name', formData.name || '');
+    sendData.append('descriptionDetails', formData.detailDesc || '');
+    sendData.append('topic', formData.theme || '');
+    sendData.append('description', formData.shortDesc || '');
+    sendData.append('minTeamMember', formData.minTeamMember || 1);
+    sendData.append('maxTeamMember', formData.maxTeamMember || 5);
 
-        if (formData.openDate) sendData.append('openRegisterTime', new Date(formData.openDate).toISOString());
-        if (formData.closeDate) sendData.append('closeRegisterTime', new Date(formData.closeDate).toISOString());
-        if (formData.teamDeadline) sendData.append('cofirmTeamTime', new Date(formData.teamDeadline).toISOString());
+    if (formData.openDate) sendData.append('openRegisterTime', new Date(formData.openDate).toISOString());
+    if (formData.closeDate) sendData.append('closeRegisterTime', new Date(formData.closeDate).toISOString());
+    if (formData.teamDeadline) sendData.append('cofirmTeamTime', new Date(formData.teamDeadline).toISOString());
 
-        if (formData.avatarFile) sendData.append('bannerFile', formData.avatarFile);
-        if (formData.coverFile) sendData.append('thumbnailFile', formData.coverFile);
-        break;
-
-      case 2:
-        // Đổi API Endpoint sang xử lý Luật (Rules) của Step 2
-        apiEndpoint = 'http://localhost:8080/api/event/rules';
-
-        // Chỉ nén dữ liệu của Step 2 vào FormData
-        sendData.append('rules', formData.rules || '');
-        sendData.append('participationBenefits', formData.benefits || '');
-        break;
-
-      case 3:
-        apiEndpoint = 'http://localhost:8080/api/event/prizes';
-        // sendData.append('prizes', ...);
-        break;
-
-      // Cứ như vậy cấu hình cho các step 4, 5, 6, 7...
-      default:
-        break;
-    }
-
-    // 3. Thực thi gọi API động
+    if (formData.avatarFile) sendData.append('bannerFile', formData.avatarFile);
+    if (formData.coverFile) sendData.append('thumbnailFile', formData.coverFile);
+    
+    // Gọi API lưu thông tin cơ bản (Multipart FormData)
     return axios.post(apiEndpoint, sendData, {
       headers: {
         'Content-Type': 'multipart/form-data',
@@ -129,18 +109,58 @@ function CreateEventPage() {
       .then(response => {
         console.log(`Lưu bản nháp Step ${currentStep} thành công!`, response.data);
 
-        // Đồng bộ ID trả về (Đặc biệt quan trọng ở Step 1 để lấy ID khai sinh hệ thống)
+        // Đồng bộ ID tổng trả về từ Backend vào state
         if (response.data && response.data.id) {
           handleFormChange('id', response.data.id);
         }
-        return true; // Trả về true báo hiệu lưu thành công không lỗi
+        return true; 
       })
       .catch(error => {
         console.error(`Lỗi khi gọi API lưu nháp Step ${currentStep}:`, error);
         const errorMsg = error.response?.data?.message || error.response?.data || error.message;
         alert(`Không thể lưu bản nháp Step ${currentStep}: ` + errorMsg);
-        return false; // Lưu thất bại
+        return false; 
       });
+    }
+  case 2:
+    {
+    // 1. Đổi API Endpoint sang xử lý Luật và Lưu ý của Step 2
+    apiEndpoint = 'http://localhost:8080/api/event-notes';
+    
+    // 2. Khai báo Payload JSON gom cụm thông tin của Step 2
+    // Cấu trúc này mapping 100% với EventNoteRequest ở Backend
+    const step2Payload = {
+      eventId: formData.id,            // ID tổng lấy được từ Step 1 thành công
+      eventRules: formData.generalRules || '', 
+      notes: formData.notes || []      // Mảng các lưu ý, ví dụ: [{title: '...', description: '...'}]
+    };
+  
+    
+    // 3. Gọi API lưu Luật & Ghi chú (JSON dữ liệu thuần)
+    return axios.post(apiEndpoint, step2Payload, {
+      headers: {
+        'Content-Type': 'application/json', // Ép kiểu JSON để khớp với @RequestBody ở Backend
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        console.log(`Lưu bản nháp Step 2 thành công!`, response.data);
+        return true;
+      })
+      .catch(error => {
+        console.error(`Lỗi khi gọi API lưu nháp Step 2:`, error);
+        const errorMsg = error.response?.data?.message || error.response?.data || error.message;
+        alert(`Không thể lưu bản nháp Step 2: ` + errorMsg);
+        return false;
+      });
+
+  // Cứ như vậy cấu hình cho các step 3, 4, 5, 6, 7...
+    }
+  default:
+    break;
+}
+
+
   }
   //------------------------------------------------------------------------------------------------
 

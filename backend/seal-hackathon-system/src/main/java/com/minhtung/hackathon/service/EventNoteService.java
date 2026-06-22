@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -45,36 +46,48 @@ public class EventNoteService {
     }
 
 
-
     @Transactional
     public List<EventNoteResponse> createNotes(EventNoteRequest request) {
-        // 1. Lấy eventId ở ngoài cùng để tìm Event trong DB (chỉ tìm 1 lần)
+        // 1. Kiểm tra xem có eventId tổng truyền xuống chưa
+
+
+        // 2. Tìm kiếm Event cũ trong DB để cập nhật
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Event với ID: " + request.getEventId()));
 
+        // Cập nhật lại luật (Rules) cho Event tổng
         event.setRules(request.getEventRules());
+        eventRepository.save(event); // Cập nhật Event trước
 
-        // 2. Bóc tách mảng "notes" bên trong DTO để map sang mảng Entity
-        List<EventNote> notesToSave = request.getNotes().stream()
-                .map(item -> new EventNote(
-                        item.getTitle(),
-                        item.getDescription(),
-                        event // Gán cùng 1 event chung cho tất cả các note trong mảng
-                ))
-                .toList();
+        // 3. LOGIC QUAN TRỌNG: Nếu là UPDATE, xóa toàn bộ các Note cũ thuộc Event này trước khi chèn mới
+        // Giả sử trong eventNoteRepository bạn có hàm: deleteByEventId(Long eventId) hoặc deleteByEvent(Event event)
+        eventNoteRepository.deleteByEventId(request.getEventId());
 
-        // 3. Lưu toàn bộ danh sách xuống DB (Lúc này các object bên trong notesToSave sẽ được gắn ID thực tế)
-        List<EventNote> savedNotes = eventNoteRepository.saveAll(notesToSave);
+        // 4. Bóc tách mảng "notes" từ Frontend gửi xuống và map sang Entity mới hoàn toàn
+        if (request.getNotes() != null && !request.getNotes().isEmpty()) {
+            List<EventNote> notesToSave = request.getNotes().stream()
+                    .map(item -> new EventNote(
+                            item.getTitle(),
+                            item.getDesc(),
+                            event // Gán liên kết với Event chung
+                    ))
+                    .toList();
 
-        eventRepository.save(event);
-        // 4. MAP SANG RESPONSE: Chuyển đổi danh sách đã lưu thành DTO để trả về cho Front-end
-        return savedNotes.stream()
-                .map(note -> new EventNoteResponse(
-                        note.getId(),          // ID vừa được DB sinh tự động
-                        note.getTitle(),
-                        note.getDescription(),
-                        event.getId()          // ID phẳng của event
-                ))
-                .toList();
+            // 5. Lưu tập hợp các Note mới xuống DB
+            List<EventNote> savedNotes = eventNoteRepository.saveAll(notesToSave);
+
+            // 6. Map dữ liệu sang Response DTO trả về cho Frontend
+            return savedNotes.stream()
+                    .map(note -> new EventNoteResponse(
+                            note.getId(),          // ID mới vừa sinh tự động
+                            note.getTitle(),
+                            note.getDescription(),
+                            event.getId()
+                    ))
+                    .toList();
+        }
+
+        // Nếu mảng notes gửi xuống rỗng, trả về list rỗng
+        return Collections.emptyList();
     }
 }
