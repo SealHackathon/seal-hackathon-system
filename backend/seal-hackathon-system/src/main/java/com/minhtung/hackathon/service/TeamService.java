@@ -999,6 +999,8 @@ public class TeamService {
             throw new IllegalArgumentException("Tài khoản chưa được admin duyệt");
         }
 
+        System.out.println("jeje");
+
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
         if (team == null) {
             throw new IllegalArgumentException("team khong ton tai");
@@ -1011,7 +1013,7 @@ public class TeamService {
             throw new IllegalArgumentException("admin khong ton tai");
         }
         TeamRequest teamRequest = new TeamRequest(RequestStatus.PENDING, team.getLeader(), admin, team, RequestType.TEAM_SUBMISSION, team.getName() + " gui yeu cau xin duyet doi");
-        System.out.println("demo merge");
+        System.out.println("dmemeo jhaha");
         return "gui yeu cau duyet doi thanh cong";
     }
 }

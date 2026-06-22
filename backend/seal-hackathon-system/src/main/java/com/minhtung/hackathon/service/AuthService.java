@@ -214,7 +214,7 @@ public class AuthService {
 
        String mssv = studendid.trim().toUpperCase();
        if(!(mssv.startsWith("SS")||mssv.startsWith("SE"))){
-
+           System.out.println("hello");
            throw  new RuntimeException("mssv cua truong phai theo dung format ") ;
        }
    }
