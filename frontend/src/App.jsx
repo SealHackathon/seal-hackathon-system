@@ -20,7 +20,7 @@ function App() {
 
   return (<>
 
-    <CreateEventPage />
+    <EventListPage />
 
   </>)
 

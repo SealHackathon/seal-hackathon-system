@@ -35,7 +35,7 @@ public class EventController {
     // api admin view full event
     //test ok
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping
+    @GetMapping("/all")
     public ResponseEntity<?> getEvent(@RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
         if (uid == null) {

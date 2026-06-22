@@ -26,7 +26,7 @@ public class AllEventResponse {
     private String eventStatus;
     private int roundQuantity=0;
     private String description;
-
+    private String thumbnail;
     // --- THÊM: Danh sách các mốc thời gian của sự kiện ---
     private List<MilestoneItemResponse> milestones;
 

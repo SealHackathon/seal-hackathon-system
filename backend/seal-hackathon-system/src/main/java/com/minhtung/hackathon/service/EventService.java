@@ -59,7 +59,7 @@ public class EventService {
             eventResponse.setEventTopic(event.getTopic());
             eventResponse.setMaxTeamMember(event.getMaxTeamMember());
             eventResponse.setEventLocation(event.getEventLocation());
-
+            eventResponse.setThumbnail(event.getThumbnail_image());
             int totalTracks = event.getTracks() != null ? event.getTracks().size() : 0;
             int totalRounds = event.getRounds() != null ? event.getRounds().size() : 0;
             eventResponse.setTrackQuantity(totalTracks);
@@ -239,6 +239,7 @@ public class EventService {
 
         return eventRepository.save(event);
     }
+
     // ═════════════════════════════════════════════════════════════════════
 // 7. THÊM HÀM HELPER NÀY VÀO LỚP SERVICE ĐỂ GỌI XÓA ẢNH TRÊN CLOUDINARY
 // ═════════════════════════════════════════════════════════════════════
@@ -329,7 +330,7 @@ public class EventService {
                             t.getName(),
                             t.getDes(),
                             t.getMaxTeamPerTrack(),
-                            t.getMinTeamPerTrack(),event.getId()
+                            t.getMinTeamPerTrack(), event.getId()
                     ))
                     .toList();
             response.setTracks(trackDTOs);

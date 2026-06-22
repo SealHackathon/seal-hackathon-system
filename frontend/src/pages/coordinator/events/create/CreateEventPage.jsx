@@ -104,7 +104,6 @@ function CreateEventPage() {
   function handleSaveDraft() {
     console.log(`Bắt đầu lưu nháp cho Step ${currentStep}`);
 
-    const token = localStorage.getItem('accessToken');
     const sendData = new FormData();
 
     // 1. Nếu đã có ID tổng của Event thì mọi step đều phải gửi lên để Backend biết đang chỉnh sửa bản ghi nào
@@ -122,8 +121,8 @@ function CreateEventPage() {
         sendData.append('descriptionDetails', formData.detailDesc || '');
         sendData.append('topic', formData.theme || '');
         sendData.append('description', formData.shortDesc || '');
-        sendData.append('minTeamMember', formData.minTeamMember || 1);
-        sendData.append('maxTeamMember', formData.maxTeamMember || 5);
+        sendData.append('minTeamMember', formData.minMembers || 1);
+        sendData.append('maxTeamMember', formData.maxMembers || 5);
 
         if (formData.openDate) sendData.append('openRegisterTime', new Date(formData.openDate).toISOString());
         if (formData.closeDate) sendData.append('closeRegisterTime', new Date(formData.closeDate).toISOString());
