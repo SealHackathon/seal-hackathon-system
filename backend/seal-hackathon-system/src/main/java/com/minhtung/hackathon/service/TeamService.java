@@ -1011,7 +1011,6 @@ public class TeamService {
             throw new IllegalArgumentException("admin khong ton tai");
         }
         TeamRequest teamRequest = new TeamRequest(RequestStatus.PENDING, team.getLeader(), admin, team, RequestType.TEAM_SUBMISSION, team.getName() + " gui yeu cau xin duyet doi");
-        System.out.println("demo merge");
         return "gui yeu cau duyet doi thanh cong";
     }
 }
