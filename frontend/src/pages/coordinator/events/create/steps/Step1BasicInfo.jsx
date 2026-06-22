@@ -194,9 +194,9 @@ function Step1BasicInfo({ formData, onFormChange }) {
 
                     </FieldGroup>
 
-                    <FieldGroup icon={UsersThree} title="Số thành viên mỗi đội" required>
+                    <FieldGroup icon={UsersThree} layout='row' title="Số thành viên mỗi đội" required>
 
-                        <div className={styles.memberRow}>
+                        
                             <FormInput
                                 label="Tối thiểu"
                                 labelVariant='small'
@@ -237,7 +237,7 @@ function Step1BasicInfo({ formData, onFormChange }) {
                                 status={maxMemberError ? 'error' : 'default'}
                                 message={maxMemberError}
                             />
-                        </div>
+                        
 
                     </FieldGroup>
 

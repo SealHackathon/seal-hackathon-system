@@ -6,6 +6,7 @@ import CreateEventFooter from '../../../../components/coordinator/events/create/
 import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
 import Step3Prizes from './steps/Step3Prizes'
+import Step4Rounds from './steps/Step4Rounds'
 
 import Step5Categories from './steps/Step5Categories'
 
@@ -27,8 +28,6 @@ function CreateEventPage() {
   const [errorSteps, setErrorSteps] = useState([])
   const [formData, setFormData] = useState({
     deadlineSameAsClose: true,
-    minMembers: 3,
-    maxMembers: 4,
   })
   const [status, setStatus] = useState('draft')
 
@@ -104,7 +103,9 @@ function CreateEventPage() {
       case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} />
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} />  // ← thêm
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
-      case 4: return <StepPlaceholder step={4} />
+      case 4: return <Step4Rounds formData={formData} onChange={setFormData} />
+    
+
       case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
       case 6: return <StepPlaceholder step={6} />
       case 7: return <StepPlaceholder step={7} />
@@ -113,7 +114,9 @@ function CreateEventPage() {
   }
 
   return (
-    <CoordinatorLayout>
+    // <CoordinatorLayout>
+    // </CoordinatorLayout>
+
       <div className={styles.page}>
 
         {/* ── Header ── */}
@@ -127,7 +130,7 @@ function CreateEventPage() {
         {/* ── Body: create sidebar + step content ── */}
         <div className={styles.body}>
 
-          <aside className={styles.createSidebar}>
+          <aside className={styles.sidebar}>
             <CreateEventSidebar
               currentStep={currentStep}
               visitedSteps={visitedSteps}
@@ -153,8 +156,9 @@ function CreateEventPage() {
         />
 
       </div>
-    </CoordinatorLayout>
-  )
+    
+  
+)
 }
 
 export default CreateEventPage

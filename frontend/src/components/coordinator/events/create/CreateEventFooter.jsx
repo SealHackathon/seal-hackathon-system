@@ -37,7 +37,7 @@ function CreateEventFooter({
         labelSize={18}
         iconPosition="left"
         variant="outline"
-        color='grey'
+        color='orange'
         onClick={onCancel}
       />
 
@@ -46,6 +46,9 @@ function CreateEventFooter({
 
         {/* Lưu nháp + timestamp */}
         <div className={styles.saveDraftWrapper}>
+          {lastSaved && (
+            <span className={styles.timestamp}>{lastSaved}</span>
+          )}
           <Button
             label="Lưu nháp"
             labelSize={18}
@@ -54,9 +57,6 @@ function CreateEventFooter({
             variant="outline"
             onClick={handleSaveDraft}
           />
-          {lastSaved && (
-            <span className={styles.timestamp}>{lastSaved}</span>
-          )}
         </div>
 
         {/* Quay lại — disabeld ở step 1 */}

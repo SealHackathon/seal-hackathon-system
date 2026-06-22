@@ -121,7 +121,6 @@ function DateTimePicker({
                     )}
                 />
 
-                <Clock size={20} className={styles.iconRight} />
             </div>
 
             {error && <p className={styles.errorMsg}>{error}</p>}

@@ -169,12 +169,12 @@ function Step2Rules({ formData, onFormChange }) {
                                             placeholder="Thông tin đăng ký không thể thay đổi sau khi nộp"
                                             value={String(note.title ?? '')}
                                             onChange={val => updateNote(note.id, 'title', val)}
-                                            maxLength='50'
                                         />
                                         <FormTextarea
+                                            className={styles.textArea}
                                             label="Mô tả"
                                             rows={3}
-                                            maxLength={200}
+                                            maxLength={300}
                                             placeholder="Giải thích chi tiết về lưu ý này..."
                                             value={String(note.desc ?? '')}
                                             onChange={e => updateNote(note.id, 'desc', e.target.value)}
