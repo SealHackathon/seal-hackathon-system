@@ -5,7 +5,7 @@ import CreateEventHeader from '../../../../components/coordinator/events/create/
 import CreateEventFooter from '../../../../components/coordinator/events/create/CreateEventFooter'
 import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
-
+import axios from 'axios'
 import styles from './CreateEventPage.module.css'
 
 const TOTAL_STEPS = 7
@@ -49,10 +49,101 @@ function CreateEventPage() {
     setCurrentStep(step)
     setVisitedSteps(prev => prev.includes(step) ? prev : [...prev, step])
   }
+  // --------------------------------------handleNext---------------------------
+  async function handleNext() {
+    // Chỉ validate form client trước khi cho phép bấm nút gửi
+    if (!validateStep(currentStep)) {
+      alert("Vui lòng điền đầy đủ các thông tin bắt buộc trước khi tiếp tục!");
+      return;
+    }
 
-  function handleNext() { if (currentStep < TOTAL_STEPS) goToStep(currentStep + 1) }
+    // Chờ gọi API lưu dữ liệu thành công rồi mới cho phép chuyển bước
+    const isSaveSuccess = await handleSaveDraft();
+
+    if (isSaveSuccess && currentStep < TOTAL_STEPS) {
+      goToStep(currentStep + 1);
+    }
+  }
+// ------------------------------------------------------------------
   function handleBack() { if (currentStep > 1) goToStep(currentStep - 1) }
-  function handleSaveDraft() { console.log('Lưu nháp:', formData) }
+
+  //--------------------------------------------------------handleSaveDraft------------------------------------------------------------
+  function handleSaveDraft() {
+    console.log(`Bắt đầu lưu nháp cho Step ${currentStep}`);
+
+    const token = localStorage.getItem('accessToken');
+    const sendData = new FormData();
+
+    // 1. Nếu đã có ID tổng của Event thì mọi step đều phải gửi lên để Backend biết đang chỉnh sửa bản ghi nào
+    if (formData.id) {
+      sendData.append('id', formData.id);
+    }
+
+    // 2. Cấu hình Endpoint và Data Filter theo từng Step cụ thể
+    let apiEndpoint = 'http://localhost:8080/api/event'; // Mặc định step 1
+
+    switch (currentStep) {
+      case 1:
+        // Chỉ gom dữ liệu thuộc Step 1
+        sendData.append('name', formData.name || '');
+        sendData.append('descriptionDetails', formData.detailDesc || '');
+        sendData.append('topic', formData.theme || '');
+        sendData.append('description', formData.shortDesc || '');
+        sendData.append('minTeamMember', formData.minTeamMember || 1);
+        sendData.append('maxTeamMember', formData.maxTeamMember || 5);
+
+        if (formData.openDate) sendData.append('openRegisterTime', new Date(formData.openDate).toISOString());
+        if (formData.closeDate) sendData.append('closeRegisterTime', new Date(formData.closeDate).toISOString());
+        if (formData.teamDeadline) sendData.append('cofirmTeamTime', new Date(formData.teamDeadline).toISOString());
+
+        if (formData.avatarFile) sendData.append('bannerFile', formData.avatarFile);
+        if (formData.coverFile) sendData.append('thumbnailFile', formData.coverFile);
+        break;
+
+      case 2:
+        // Đổi API Endpoint sang xử lý Luật (Rules) của Step 2
+        apiEndpoint = 'http://localhost:8080/api/event/rules';
+
+        // Chỉ nén dữ liệu của Step 2 vào FormData
+        sendData.append('rules', formData.rules || '');
+        sendData.append('participationBenefits', formData.benefits || '');
+        break;
+
+      case 3:
+        apiEndpoint = 'http://localhost:8080/api/event/prizes';
+        // sendData.append('prizes', ...);
+        break;
+
+      // Cứ như vậy cấu hình cho các step 4, 5, 6, 7...
+      default:
+        break;
+    }
+
+    // 3. Thực thi gọi API động
+    return axios.post(apiEndpoint, sendData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+        'Authorization': `Bearer ${token}`
+      }
+    })
+      .then(response => {
+        console.log(`Lưu bản nháp Step ${currentStep} thành công!`, response.data);
+
+        // Đồng bộ ID trả về (Đặc biệt quan trọng ở Step 1 để lấy ID khai sinh hệ thống)
+        if (response.data && response.data.id) {
+          handleFormChange('id', response.data.id);
+        }
+        return true; // Trả về true báo hiệu lưu thành công không lỗi
+      })
+      .catch(error => {
+        console.error(`Lỗi khi gọi API lưu nháp Step ${currentStep}:`, error);
+        const errorMsg = error.response?.data?.message || error.response?.data || error.message;
+        alert(`Không thể lưu bản nháp Step ${currentStep}: ` + errorMsg);
+        return false; // Lưu thất bại
+      });
+  }
+  //------------------------------------------------------------------------------------------------
+
   function handlePublish() { setStatus('live'); console.log('Công bố:', formData) }
   function handlePreview() { console.log('Xem trước:', formData) }
   function handleCancel() {

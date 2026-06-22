@@ -30,8 +30,12 @@ public class Event {
     @Column(length = 255, columnDefinition = "text")
     private String description;
 
+    //sau nay doi ve enum
+    @Column(length = 255, columnDefinition = "text")
+    private String descriptionDetail;
+
     @Enumerated(EnumType.STRING)
-    @Column(length = 20,name="status")
+    @Column(length = 20, name = "status")
     private EventStatus status;
 
     @Column
@@ -45,6 +49,11 @@ public class Event {
 
     @Column(length = 255)
     private String thumbnail_image;
+
+    private LocalDateTime openRegisterTime;
+    private LocalDateTime closeRegisterTime;
+    private LocalDateTime cofirmTeamTime;
+
 
     @Column
     private int maxTeamMember;
@@ -83,10 +92,11 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventNote> notes; // những lưu ý của event
 
+
     public Event() {
     }
 
-    public Event(String name, LocalDateTime createAt, String description, EventStatus status, int minTeamMember, String topic, String bannerImg, String thumbnail_image, int maxTeamMember, String rules, String participationBenefits,String eventLocation) {
+    public Event(String name, LocalDateTime createAt, String description, EventStatus status, int minTeamMember, String topic, String bannerImg, String thumbnail_image, int maxTeamMember, String rules, String participationBenefits, String eventLocation) {
         this.name = name;
         this.createAt = createAt;
         this.description = description;

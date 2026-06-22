@@ -1,6 +1,8 @@
 package com.minhtung.hackathon.service;
 
 
+import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.minhtung.hackathon.dto.event.AllEventResponse;
 import com.minhtung.hackathon.dto.event.EventDetailsResponse;
 import com.minhtung.hackathon.dto.event.EventRequest;
@@ -11,10 +13,7 @@ import com.minhtung.hackathon.dto.response.TrackResponse;
 import com.minhtung.hackathon.dto.round.ComingRoundResponse;
 import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
 import com.minhtung.hackathon.dto.round.SubmissionConfigResponse;
-import com.minhtung.hackathon.entity.Event;
-import com.minhtung.hackathon.entity.Round;
-import com.minhtung.hackathon.entity.Team;
-import com.minhtung.hackathon.entity.Track;
+import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.EventStatus;
 import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.enums.TeamStatus;
@@ -24,10 +23,13 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +41,7 @@ public class EventService {
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
     private final RoundRepository roundRepository;
+    private final Cloudinary cloudinary;
 
     // service view Event
     // service lay tat ca event tất cả status lun
@@ -177,24 +180,107 @@ public class EventService {
     // trả về id của event
     @Transactional
     public Event createEvent(EventRequest request) {
-        Event event = new Event();
+        Event event;
+        boolean isUpdate = request.getId() != null;
+
+        // 1. Kiểm tra xem có ID truyền xuống từ Frontend chưa để quyết định Update hay Insert
+        if (isUpdate) {
+            // Nếu có ID, tìm Event cũ trong DB để cập nhật
+            event = eventRepository.findById(request.getId())
+                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện với ID: " + request.getId()));
+        } else {
+            // Nếu không có ID, đây là lần đầu tiên bấm lưu nháp -> Tạo mới hoàn toàn
+            event = new Event();
+            // Dòng này giữ nguyên từ code gốc của bạn để ghi nhận thời gian tạo thực tế ban đầu
+            event.setCreateAt(LocalDateTime.now());
+        }
+
+        // 2. Xử lý Upload ảnh mới lên Cloudinary (nếu frontend có gửi file vật lý)
+        String bannerUrl = uploadToCloudinary(request.getBannerFile());
+        String thumbnailUrl = uploadToCloudinary(request.getThumbnailFile());
+
+        // 3. LOGIC XÓA ẢNH CŨ (Chỉ chạy khi UPDATE và THỰC SỰ CÓ ẢNH MỚI được upload lên thành công)
+        if (isUpdate) {
+            if (bannerUrl != null && event.getBannerImg() != null) {
+                deleteImageFromCloudinary(event.getBannerImg()); // Xóa banner cũ trên Cloudinary
+            }
+            if (thumbnailUrl != null && event.getThumbnail_image() != null) {
+                deleteImageFromCloudinary(event.getThumbnail_image()); // Xóa thumbnail cũ trên Cloudinary
+            }
+        }
+
+        // 4. Map và cập nhật thông tin text thông thường
         event.setName(request.getName());
         event.setDescription(request.getDescription());
-        // sửa lại thành DRAFT đang để là LIVE để test
-        event.setStatus(EventStatus.LIVE);
+        event.setDescriptionDetail(request.getDescriptionDetails());
+        event.setStatus(EventStatus.DRAFT);
         event.setMinTeamMember(request.getMinTeamMember());
         event.setMaxTeamMember(request.getMaxTeamMember());
         event.setTopic(request.getTopic());
-        event.setBannerImg(request.getBannerImg());
-        event.setThumbnail_image(request.getThumbnail_image());
+
+        // 5. Cập nhật URL ảnh vào Entity
+        event.setBannerImg(bannerUrl != null ? bannerUrl : request.getBannerImg());
+        event.setThumbnail_image(thumbnailUrl != null ? thumbnailUrl : request.getThumbnail_image());
+
         event.setRules(request.getRules());
-        event.setCreateAt(LocalDateTime.now());
         event.setEventLocation(request.getEventLocation());
         event.setParticipationBenefits(request.getParticipationBenefits());
-        eventRepository.save(event);
-        return event;
+
+        // 6. Gán thời gian nhận từ Frontend
+        event.setOpenRegisterTime(request.getOpenRegisterTime());
+        event.setCloseRegisterTime(request.getCloseRegisterTime());
+        event.setCofirmTeamTime(request.getCofirmTeamTime());
+
+        // LƯU Ý: Đoạn này ở code cũ của bạn đang đè lại thời gian tạo (CreateAt).
+        // Mình chuyển nó xuống đây nhưng ĐÃ BỌC LẠI bằng điều kiện để khi UPDATE không bị ghi đè mất thời gian tạo gốc ban đầu.
+        if (!isUpdate) {
+            event.setCreateAt(LocalDateTime.now());
+        }
+
+        return eventRepository.save(event);
+    }
+    // ═════════════════════════════════════════════════════════════════════
+// 7. THÊM HÀM HELPER NÀY VÀO LỚP SERVICE ĐỂ GỌI XÓA ẢNH TRÊN CLOUDINARY
+// ═════════════════════════════════════════════════════════════════════
+    private void deleteImageFromCloudinary(String imageUrl) {
+        if (imageUrl == null || imageUrl.isEmpty() || !imageUrl.contains("cloudinary")) {
+            return;
+        }
+        try {
+            // Ví dụ một URL Cloudinary chuẩn:
+            // https://res.cloudinary.com/cloud_name/image/upload/v123456789/folder/abcxyz.png
+
+            // Bóc tách lấy phần tên file nằm sau dấu gạch chéo cuối cùng
+            String[] parts = imageUrl.split("/");
+            String fileNameWithExtension = parts[parts.length - 1]; // Kết quả: "abcxyz.png"
+
+            // Loại bỏ phần đuôi mở rộng (.png, .jpg...) để giữ lại public_id chuẩn của Cloudinary
+            String publicId = fileNameWithExtension.substring(0, fileNameWithExtension.lastIndexOf(".")); // Kết quả: "abcxyz"
+
+            // Nếu bạn có cấu hình lưu ảnh vào folder riêng trên Cloudinary khi upload,
+            // bạn cần cộng chuỗi tên folder vào trước publicId (Ví dụ: "my_folder/" + publicId)
+
+            // Thực hiện gọi API xóa thông qua Cloudinary SDK bean đã inject trong Service
+            cloudinary.uploader().destroy(publicId, com.cloudinary.utils.ObjectUtils.emptyMap());
+            System.out.println("❌ Đã xóa thành công ảnh cũ trên Cloudinary có public_id: " + publicId);
+        } catch (Exception e) {
+            // Sử dụng log hoặc in ra để theo dõi nếu xảy ra lỗi giải phẫu chuỗi URL hoặc lỗi mạng Cloudinary
+            System.err.println("⚠️ Lỗi không thể xóa ảnh cũ trên Cloudinary: " + e.getMessage());
+        }
     }
 
+    // Hàm helper xử lý upload file lên Cloudinary độc lập
+    private String uploadToCloudinary(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
+        try {
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi upload ảnh hệ thống: " + e.getMessage());
+        }
+    }
 
     @Transactional
     public String deleteEvent(long id) {

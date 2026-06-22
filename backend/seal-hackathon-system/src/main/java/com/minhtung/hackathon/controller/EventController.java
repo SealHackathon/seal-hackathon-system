@@ -64,11 +64,13 @@ public class EventController {
 
     }
 
-    // 3. CREATE  DRAFT- Tạo mới một event
-    //test ok
+    // 3. CREATE DRAFT - Tạo mới một event
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping()
-    public ResponseEntity<?> createEvent(@RequestHeader("Authorization") String auth, @RequestBody EventRequest request) {
+    @PostMapping(consumes = {"multipart/form-data"}) // 1. Xác định rõ định dạng nhận dữ liệu Form
+    public ResponseEntity<?> createEvent(
+            @RequestHeader("Authorization") String auth,
+            @ModelAttribute EventRequest request) { // 2. Đổi @RequestBody thành @ModelAttribute
+
         if (getUid(auth) == null) return unauthorized();
         try {
             return ResponseEntity.status(201).body(eventService.createEvent(request));
@@ -76,7 +78,6 @@ public class EventController {
             return ResponseEntity.badRequest().body("Lỗi tạo event: " + e.getMessage());
         }
     }
-
     //admin xoa 1 event
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")
