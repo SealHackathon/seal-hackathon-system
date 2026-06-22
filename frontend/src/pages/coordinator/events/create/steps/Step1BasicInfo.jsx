@@ -206,7 +206,13 @@ function Step1BasicInfo({ formData, onFormChange }) {
                                 value={formData.minMembers ?? ''}
                                 onChange={val => {
                                     const raw = val?.target ? val.target.value : val
+                                    if (raw !== '' && Number(raw) < 1) return
                                     onFormChange('minMembers', raw === '' ? '' : Number(raw))
+                                }}
+                                onKeyDown={e => {
+                                    if (['-', '+', 'e', 'E', '.', ','].includes(e.key)) {
+                                        e.preventDefault()
+                                    }
                                 }}
                                 status={minMemberError ? 'error' : 'default'}
                                 message={minMemberError}
@@ -220,7 +226,13 @@ function Step1BasicInfo({ formData, onFormChange }) {
                                 value={formData.maxMembers ?? ''}
                                 onChange={val => {
                                     const raw = val?.target ? val.target.value : val
+                                    if (raw !== '' && Number(raw) < 1) return
                                     onFormChange('maxMembers', raw === '' ? '' : Number(raw))
+                                }}
+                                onKeyDown={e => {
+                                    if (['-', '+', 'e', 'E', '.', ','].includes(e.key)) {
+                                        e.preventDefault()
+                                    }
                                 }}
                                 status={maxMemberError ? 'error' : 'default'}
                                 message={maxMemberError}

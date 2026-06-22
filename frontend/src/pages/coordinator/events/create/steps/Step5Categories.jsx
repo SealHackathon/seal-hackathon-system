@@ -71,7 +71,16 @@ function CategoryCardContent({ category, onChange }) {
                         className={styles.baseInput}
                         placeholder="Số đội tối đa tham gia hạng mục"
                         value={category.teamLimit ?? ''}
-                        onChange={e => update('teamLimit', e.target.value)}
+                        onChange={e => {
+                            const val = e.target.value
+                            if (val !== '' && Number(val) < 1) return
+                            update('teamLimit', val === '' ? '' : Number(val))
+                        }}
+                        onKeyDown={e => {
+                            if (['-', '+', 'e', 'E', '.', ','].includes(e.key)) {
+                                e.preventDefault()
+                            }
+                        }}
                     />
                 </div>
             </div>
