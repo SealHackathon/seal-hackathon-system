@@ -11,7 +11,7 @@
 /* ── 2 cột trên ── */
 .twoCol {
     display: grid;
-    grid-template-columns: 2fr 1fr;    /* ← đổi từ 1fr 380px */
+    grid-template-columns: 3fr 1fr;    /* ← đổi từ 1fr 380px */
     gap: 1.5rem;
     align-items: start;
 }
@@ -19,7 +19,13 @@
 .colLeft {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 0.5rem;
+    width: 43.5em;
+}
+
+.textArea {
+    min-height: 3em;
+    resize: none;
 }
 
 .colRight {

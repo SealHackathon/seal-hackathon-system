@@ -8,6 +8,7 @@ import Step2Rules from './steps/Step2Rules'
 import Step3Prizes from './steps/Step3Prizes'
 import axios from 'axios'
 import styles from './CreateEventPage.module.css'
+import Step5Categories from './steps/Step5Categories'
 
 const TOTAL_STEPS = 7
 
@@ -25,6 +26,8 @@ function CreateEventPage() {
   const [errorSteps, setErrorSteps] = useState([])
   const [formData, setFormData] = useState({
     deadlineSameAsClose: true,
+    minMembers: 3,
+    maxMembers: 4,
   })
   const [status, setStatus] = useState('draft')
 
@@ -192,7 +195,6 @@ function CreateEventPage() {
           // 1. Đổi API Endpoint sang xử lý Luật và Lưu ý của Step 2
           apiEndpoint = 'http://localhost:8080/api/prize';
 
-          console.log(formData.extendedPrizes);
           console.log(formData.extendedPrizes.length);
           // 2. Map mảng giải chính từ state và đóng dấu nhãn 'MAIN'
           const mappedMain = (formData.mainPrizes || []).map(item => ({
@@ -261,7 +263,7 @@ function CreateEventPage() {
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} />  // ← thêm
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
       case 4: return <StepPlaceholder step={4} />
-      case 5: return <StepPlaceholder step={5} />
+      case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
       case 6: return <StepPlaceholder step={6} />
       case 7: return <StepPlaceholder step={7} />
       default: return null

@@ -8,6 +8,8 @@
     background: transparent;
     min-width: 0;
     field-sizing: content; 
+    font-size: 1rem;
+    font-weight: normal;
 }
 
 .textarea::placeholder {

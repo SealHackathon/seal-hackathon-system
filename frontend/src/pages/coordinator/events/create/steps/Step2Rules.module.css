@@ -31,10 +31,7 @@
 
 /* ── Page title ── */
 .title {
-    font-size: 1.5rem;
-    font-weight: 700;
     color: var(--color-primary-blue);
-    margin: 0;
 }
 
 /* ── Section ── */
@@ -110,7 +107,7 @@
 
 .previewHint {
     font-size: 0.85rem;
-    color: var(--color-text-muted);
+    color: var(--color-secondary-blue);
     margin: 0 0 0.5rem;
     line-height: 1.5;
 }

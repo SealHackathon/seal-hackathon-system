@@ -12,14 +12,14 @@
 }
 
 .icon {
-    color: var(--color-primary-blue);
+    color: var(--color-border-blue);
     flex-shrink: 0;
 }
 
 .title {
     font-size: 1.15rem;
     font-weight: 800;
-    color: var(--color-primary-blue);
+    color: var(--color-dark-blue);
     margin: 0;
 }
 

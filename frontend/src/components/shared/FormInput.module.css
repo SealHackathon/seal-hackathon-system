@@ -90,7 +90,8 @@
     border: none;
     outline: none;
     color: var(--color-primary-blue);
-    font-weight: bold;
+    font-size: 1rem;
+    font-weight: 600;
     background: transparent;
     min-width: 0;
 }
