@@ -122,7 +122,7 @@ const SORT_OPTIONS = [
 //   },
 // ]
 
-function EventListPage({ onCreateEvent, onManageEvent }) {
+function EventListPage({ onManageEvent }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
   const [activeSort, setActiveSort] = useState('newest')

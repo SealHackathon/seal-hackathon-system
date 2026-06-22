@@ -37,6 +37,8 @@ function CreateEventPage() {
     setFormData(prev => ({ ...prev, [field]: val }))
   }
 
+
+  // nếu chưa điền đủ các thông tin form ko cho nhảy bước
   function validateStep(step) {
     if (step === 1) {
       return !!(formData.name?.trim() && formData.openDate && formData.closeDate)
@@ -85,7 +87,7 @@ function CreateEventPage() {
     setVisitedSteps(prev => prev.includes(step) ? prev : [...prev, step])
   }
   // --------------------------------------handleNext---------------------------
-  async function handleNext() {
+  function handleNext() {
     // Chỉ validate form client trước khi cho phép bấm nút gửi
     if (!validateStep(currentStep)) {
       alert("Vui lòng điền đầy đủ các thông tin bắt buộc trước khi tiếp tục!");
@@ -93,7 +95,7 @@ function CreateEventPage() {
     }
 
     // Chờ gọi API lưu dữ liệu thành công rồi mới cho phép chuyển bước
-    const isSaveSuccess = await handleSaveDraft();
+    const isSaveSuccess = handleSaveDraft();
 
     if (isSaveSuccess && currentStep < TOTAL_STEPS) {
       goToStep(currentStep + 1);
@@ -270,7 +272,23 @@ function CreateEventPage() {
   function handlePreview() { console.log('Xem trước:', formData) }
   function handleCancel() {
     //todo add vào 1 api xóa hết tất cả những gì nãy giờ lưu nháp
-    navigate('/coordinator/events')
+    if (confirm('các thông tin bạn cấu hình sẽ không đc lưu lại !')
+    ) {
+
+      if (formData.id != null) {
+        axiosClient.delete(`/event/${formData.id}`).then(
+          () => {
+            console.log('cancel create event sucess !');
+
+          }
+        ).catch((error) => {
+          console.log(error)
+        })
+      }
+      navigate('/coordinator/events');
+    }
+
+
   }
 
   function renderStep() {
@@ -296,6 +314,7 @@ function CreateEventPage() {
           status={status}
           onPublish={handlePublish}
           onPreview={handlePreview}
+          onBack={handleCancel}
         />
 
         {/* ── Body: create sidebar + step content ── */}

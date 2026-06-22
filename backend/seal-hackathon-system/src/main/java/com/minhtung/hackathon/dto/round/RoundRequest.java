@@ -25,6 +25,8 @@ public class RoundRequest {
     // Mảng danh sách các mốc Timeline của Round
     private List<RoundTimelineItem> timelines;
 
+
+
     @Data
     public static class SubmissionConfigInfo {
         private String title;
