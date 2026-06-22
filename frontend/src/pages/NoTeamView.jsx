@@ -7,7 +7,7 @@ import RequestTeamCard from '../components/noTeamView/RequestTeamCard'
 // import JoinTeamFlow from '../components/joinFlow/JoinTeamFlow'
 import styles from './LeaderView.module.css'
 import { useEffect } from 'react'
-import axiosClient from "../api/axiosClient";
+import axios from 'axios'
 import CreateTeamStep from '../components/joinFlow/CreateTeamStep'
 import JoinByCodeStep from '../components/joinFlow/JoinByCodeStep'
 import ConfirmModal from '../components/shared/ConfirmModal'
@@ -17,6 +17,7 @@ import ConfirmModal from '../components/shared/ConfirmModal'
 function NoTeamView() {
 
   const [teamStatus, setTeamStatus] = useState('pending')
+  const token = localStorage.getItem("accessToken");
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_TEAMS, setFAKE_TEAMS] = useState([]);
@@ -24,8 +25,15 @@ function NoTeamView() {
 
   // api sinh vien xem những invitation gui toi minh
   useEffect(() => {
-    axiosClient
-      .get('/teamrequest/member-invitation')
+    axios
+      .get('http://localhost:8080/api/teamrequest/member-invitation'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
+      )
       .then((response) => {
         setFAKE_INVITES(response.data);
 
@@ -35,8 +43,14 @@ function NoTeamView() {
 
 
   useEffect(() => {
-    axiosClient
-      .get('/team/needing-members'
+    axios
+      .get('http://localhost:8080/api/team/needing-members'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
       )
       .then((response) => {
         const teams = response.data.map(team => ({
@@ -63,8 +77,14 @@ function NoTeamView() {
   //
   // api sinh vien xem những request da gui di
   useEffect(() => {
-    axiosClient
-      .get('/teamrequest/member-request'
+    axios
+      .get('http://localhost:8080/api/teamrequest/member-request'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
       )
       .then((response) => {
         setFAKE_REQUESTS(response.data);
@@ -75,10 +95,15 @@ function NoTeamView() {
 
   // api sinh vien accept invitation
   const userHandleInvitation = (requestId, isAccepted) => {
-    axiosClient
-      .put('/teamrequest/invitation-response', {
+    axios
+      .put('http://localhost:8080/api/teamrequest/invitation-response', {
         requestId: requestId,
         accept: isAccepted
+      }, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        }
       })
       .then((response) => {
         console.log(response.data);
@@ -102,8 +127,14 @@ function NoTeamView() {
       message: 'Bạn có chắc chắn muốn hủy lời mời này không?',
       confirmLabel: 'Xác nhận',
       onConfirm: () => {
-        axiosClient
-          .delete('/teamrequest/request')
+        axios
+          .delete('http://localhost:8080/api/teamrequest/request', {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            },
+            data: requestId
+          })
           .then((response) => {
             console.log(response.data);
 
@@ -127,7 +158,7 @@ function NoTeamView() {
   const [emailStatus, setEmailStatus] = useState('default')
   const [emailMessage, setEmailMessage] = useState('')
 
-  console.log(FAKE_INVITES)
+console.log(FAKE_INVITES)
 
   return (
     <EventLayout>
@@ -165,7 +196,9 @@ function NoTeamView() {
         <CreateTeamStep emailStatus={emailStatus} emailMessage={emailMessage} onClose={() => setShowCreateTeam(false)}
           onSubmit={(data) => {
 
-            axiosClient.post('/team/create', data)
+            axios.post('http://localhost:8080/api/team/create', data, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
               .then(() => {
                 setEmailMessage('Email hợp lệ')
                 setEmailStatus('default')
@@ -185,7 +218,9 @@ function NoTeamView() {
         <JoinByCodeStep onClose={() => setShowJoinByCode(false)}
           onSubmit={(data) => {
 
-            axiosClient.post('/team/join-by-code', data)
+            axios.post('http://localhost:8080/api/team/join-by-code', data, {
+              headers: { Authorization: `Bearer ${token}` }
+            })
               .then((response) => {
                 console.log(response.data)
                 window.location.reload()

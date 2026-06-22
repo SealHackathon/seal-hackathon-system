@@ -1,0 +1,159 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    background: white;
+}
+
+/* ── Toolbar ── */
+.toolbar {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.4rem 0.6rem;
+    border-bottom: 1px solid var(--color-border-blue);
+
+    border-top-left-radius: var(--radius);
+    border-top-right-radius: var(--radius);
+
+    background: var(--color-bg-blue);
+}
+
+.toolBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-secondary-blue);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.toolBtn:hover {
+    background: white;
+    color: var(--color-primary-blue);
+}
+
+.toolBtnActive {
+    background: white;
+    color: var(--color-primary-blue);
+}
+
+.divider {
+    width: 1px;
+    height: 20px;
+    background: var(--color-border-blue);
+    margin: 0 0.25rem;
+}
+
+/* ── Editor area ── */
+.editorArea {
+    padding: 0.75rem 1rem;
+    min-height: 150px;
+    font-size: 1rem;
+    color: var(--color-primary-blue);
+    cursor: text;
+}
+
+/* Style nội dung bên trong editor */
+.editorArea :global(.tiptap) {
+    outline: none;
+    min-height: 120px;
+}
+
+.editorArea :global(.tiptap p.is-editor-empty:first-child::before) {
+    content: attr(data-placeholder);
+    color: var(--color-text-secondary);
+    pointer-events: none;
+    float: left;
+    height: 0;
+}
+
+.editorArea :global(.tiptap ul),
+.editorArea :global(.tiptap ol) {
+    padding-left: 1.25rem;
+}
+
+/* ── Char count ── */
+.charCount {
+    text-align: right;
+    font-size: 0.9rem;
+    color: var(--color-border-blue);
+    padding: 0 0.75em 0.75em;
+    margin: 0;
+}
+
+.charCountOver {
+    color: var(--color-primary-orange);
+}
+
+/* ── Heading select ── */
+.headingDropdown {
+    width: 15em;
+}
+
+/* ── Link input bar ── */
+.linkBar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    border-bottom: 1px solid var(--color-border-blue);
+    background: var(--color-bg-blue);
+}
+
+.linkInput {
+    flex: 1;
+    border: 1px solid var(--color-border-blue);
+    border-radius: 6px;
+    padding: 0.3rem 0.6rem;
+    font-size: 0.9rem;
+    color: var(--color-primary-blue);
+    outline: none;
+    background: white;
+}
+
+.linkConfirm {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: white;
+    background: var(--color-primary-blue);
+    border: none;
+    border-radius: 6px;
+    padding: 0.3rem 0.75rem;
+    cursor: pointer;
+}
+
+.linkCancel {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+/* ── Table styles ── */
+.editorArea :global(.tiptap table) {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 0.75rem 0;
+}
+
+.editorArea :global(.tiptap td),
+.editorArea :global(.tiptap th) {
+    border: 1px solid var(--color-border-blue);
+    padding: 0.4rem 0.6rem;
+    min-width: 80px;
+    font-size: 0.9rem;
+}
+
+.editorArea :global(.tiptap th) {
+    background: var(--color-bg-blue);
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}

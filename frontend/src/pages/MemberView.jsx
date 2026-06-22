@@ -3,7 +3,7 @@ import EventLayout from '../layouts/EventLayout'
 import TeamInfoHeader from '../components/leaderView/TeamInfoHeader'
 import TeamMemberPanel from '../components/leaderView/TeamMemberPanel'
 import styles from './MemberView.module.css'
-import axiosClient from "../api/axiosClient";
+import axios from 'axios'
 
 // const FAKE_MEMBERS = [
 //   { id: 1, name: 'Nguyễn Thành Thái', email: 'ntbi533@gmail.com',  school: 'Đại học FPT', isLeader: true,  isCurrentUser: false },
@@ -31,9 +31,14 @@ function MemberView() {
   const [leaveRequest, setLeaveRequest] = useState([])
   // api lấy team info
   useEffect(() => {
-    axiosClient
-      .get('/team/team-info'
-        
+    axios
+      .get('http://localhost:8080/api/team/team-info'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
       )
       .then((response) => {
         setTeamInfo(response.data);
@@ -45,9 +50,14 @@ function MemberView() {
 
   // api lấy team members thành viên đội 
   useEffect(() => {
-    axiosClient
-      .get('/team/my-team'
-        
+    axios
+      .get('http://localhost:8080/api/team/my-team'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
       )
       .then((response) => {
         setFAKE_MEMBERS(response.data);
@@ -63,11 +73,19 @@ function MemberView() {
     // const isConfirmed = window.confirm("Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!");
 
     // if (isConfirmed) {
-      axiosClient
-        .post('/teamrequest/out-team', {message : message})
+      axios
+        .post('http://localhost:8080/api/teamrequest/out-team', {message : message}, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        })
         .then((response) => {
           console.log(response.data);
           // alert("Bạn đã gui yeu cau roi nhóm thành công!");
+          const responseData = {
+            id: response.id, name: response.name, message: response.message
+          }
           setLeaveRequest([response.data])
           // window.location.reload();
         })
@@ -83,9 +101,13 @@ function MemberView() {
 
 
   const handleOnCancelLeave = (id) => {
-    axiosClient
-      .post('/teamrequest/out-team/cancle', id
-      )
+    axios
+      .post('http://localhost:8080/api/teamrequest/out-team/cancle', id, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` // nếu có JWT
+        }
+      })
       .then((response) => {
         console.log(response.data);
 

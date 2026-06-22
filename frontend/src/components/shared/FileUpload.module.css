@@ -1,0 +1,211 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    width: 100%;
+}
+
+.uploadBox {
+    border-radius: var(--radius);
+    border: 2px dashed var(--color-border-blue);
+    padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+/* ── Label ── */
+.label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.asterisk {
+    color: var(--color-primary-orange);
+}
+
+/* ── Dropzone ── */
+.dropzone {
+    position: relative;
+    width: 100%;
+    border-radius: var(--inner-radius);
+    border: 2px dashed var(--color-border-blue);
+    cursor: pointer;
+    overflow: hidden;
+    transition: border-color 0.15s;
+}
+
+.dropzone:hover {
+    background-color: var(--color-bg-blue);
+    border: 2px solid var(--color-secondary-blue);
+}
+
+/* padding-bottom trick để giữ aspect ratio */
+.dropzone > .dropzoneInner {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dragging {
+    border: 2px solid var(--color-secondary-blue);
+    background-color: var(--color-bg-blue);
+}
+
+.dropzoneError {
+    border-color: var(--color-primary-orange);
+    opacity: 0.7;
+}
+
+/* ── Preview image ── */
+/* Hint khi CHƯA có file — luôn hiển thị, không đụng opacity */
+.hint {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 1rem;
+    text-align: center;
+}
+
+/* Hint khi CÓ file — ẩn mặc định, hiện khi hover */
+/* Dùng selector cụ thể hơn để không ảnh hưởng .hint bình thường */
+.hint.hintOverlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.2s;
+    padding: 1rem;
+}
+
+.dropzone:hover .hint.hintOverlay {
+    background: rgba(255, 255, 255, 0.85);
+    opacity: 1;
+}
+
+/* Ảnh mờ khi hover */
+.previewImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.2s;
+    z-index: 1;
+}
+
+.dropzone:hover .previewImg {
+    opacity: 0.3;
+}
+
+.hintIcon {
+    color: var(--color-secondary-blue);
+}
+
+.hintMain {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--color-dark-blue);
+    margin: 0;
+}
+
+.hintLink {
+    color: var(--color-primary-blue);
+    text-decoration: underline;
+    font-weight: 700;
+}
+
+.hintSub {
+    font-size: 0.9rem;
+    color: var(--color-secondary-blue);
+    margin: 0;
+}
+
+/* ── File info bar ── */
+.fileBar {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--inner-radius);
+    border: 1px solid var(--color-border-blue);
+    background: white;
+}
+
+.fileIcon {
+    color: var(--color-border-blue);
+    flex-shrink: 0;
+}
+
+.fileMeta {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.fileName {
+    font-size: 1rem;
+    font-weight: bold;
+    color: var(--color-primary-blue);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fileNameError {
+    color: var(--color-primary-orange);
+}
+
+.fileSize {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--color-text-secondary);
+}
+
+.fileSuccess {
+    font-size: 0.9rem;
+    font-weight: bold;
+    color: var(--color-primary-green);
+    
+    margin: 0;
+    font-weight: 500;
+}
+
+.fileError {
+    font-size: 0.9rem;
+    color: var(--color-secondary-blue);
+}
+
+.actionBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--color-border-blue);
+    display: flex;
+    align-items: center;
+    padding: 0.5em;
+    border-radius: 6px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.actionBtn:hover {
+    border-radius: var(--inner-radius);
+    background: var(--color-bg-blue);
+
+
+    transform: scale(1.1);
+}
+
+/* ── Hidden input ── */
+.hiddenInput {
+    display: none;
+}

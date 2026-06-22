@@ -5,7 +5,7 @@ import FormTextarea from "../shared/FormTextarea";
 import { Textbox, TextAlignLeft } from '@phosphor-icons/react'
 import styles from "./RequestDetailModal.module.css"
 import FormInput from "../shared/FormInput";
-import axiosClient from "../../api/axiosClient";
+import axios from 'axios'
 
 function EditTeamInformationModal({
     teamId,
@@ -19,11 +19,14 @@ function EditTeamInformationModal({
     const [nameStatus, setNameStatus] = useState('default')
     const [nameMessage, setNameMessage] = useState('')
 
+    const token = localStorage.getItem("accessToken")
     function handleNameBlur() {
         // ! Chỗ này cần check name đã có trong DB chưa, nhưng không check tên của chính team mình
 
         if (!name.trim()) return
-        axiosClient.get(`/team/check-name?name=${name}`).then((response) => {
+        axios.get(`http://localhost:8080/api/team/check-name?name=${name}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        }).then((response) => {
             if (response.data == false) {
                 setNameStatus('error')
                 setNameMessage('Tên đội đã tồn tại')
@@ -37,9 +40,14 @@ function EditTeamInformationModal({
     }
 
     const handleOnEdit = () => {
-        axiosClient
-          .put('/team/edit-team', {
+        axios
+          .put('http://localhost:8080/api/team/edit-team', {
             name:name,description:desc
+          }, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}` // nếu có JWT
+            }
           })
           .then((response) => {
             console.log(response.data);

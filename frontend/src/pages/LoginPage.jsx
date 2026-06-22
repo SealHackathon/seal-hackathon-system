@@ -85,7 +85,7 @@ function LoginPage() {
                     <FormInput
                         label="Mật khẩu"
                         required
-                        placeholder="••••••••"
+                        placeholder="Tối thiểu 8 kí tự"
                         type={showPassword ? 'text' : 'password'}
                         iconRight={showPassword ? EyeSlash : Eye}
                         onIconRightClick={() => setShowPassword(p => !p)}

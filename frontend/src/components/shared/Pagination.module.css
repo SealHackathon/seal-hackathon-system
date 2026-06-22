@@ -1,0 +1,54 @@
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4em;
+    padding-top: 0.5em;
+}
+
+.pageBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25em;
+
+    border: none;
+    background: transparent;
+    border-radius: var(--radius);
+
+    font-family: var(--body-font-main);
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-primary);
+
+    cursor: pointer;
+    padding: 0.4em 1em;
+
+    transition: background 0.15s ease;
+}
+
+.pageBtn:hover:not(:disabled) {
+    background: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
+.pageBtn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.pageBtn.active {
+    background: var(--color-primary-blue);
+    color: var(--color-bg-white);
+}
+
+.pageBtn.active:hover {
+    background: var(--color-dark-blue);
+    color: var(--color-bg-white);
+}
+
+.dots {
+    font-weight: bold;
+    color: var(--color-text-secondary);
+    padding: 0 0.2em;
+    user-select: none;
+}

@@ -1,9 +1,11 @@
+import { useId } from 'react'
 import { WarningCircle } from '@phosphor-icons/react'
 import styles from './FormInput.module.css'
 
 function FormInput({
   label,
   required,
+  labelVariant = 'default', // 'default' | 'small'
   hint,
   iconLeft,
   iconRight,
@@ -20,17 +22,24 @@ function FormInput({
   message,             // error hoặc success message
   disabled,
   name,
+  id,
   ...rest
 }) {
+
+  const autoId = useId()                    //* React 18 — tự sinh id unique --> Tăng tính accessibility
+  const inputId = id ?? name ?? autoId      // * ưu tiên: id prop > name > auto
+
+
   const IconLeft = iconLeft
   const IconRight = iconRight
   const ActionIcon = actionIcon
 
   return (
     <div className={styles.wrapper}>
-
       {label && (
-        <label className={styles.label}>
+        <label
+          htmlFor={inputId}
+          className={`${styles.label} ${labelVariant === 'small' ? styles.labelSmall : ''}`}>
           {label}
           {required && <span className={styles.asterisk}> *</span>}
         </label>
@@ -49,6 +58,7 @@ function FormInput({
 
           <input
             className={styles.input}
+            id={inputId}
             type={type}
             name={name}
             value={value}

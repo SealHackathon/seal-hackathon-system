@@ -7,7 +7,7 @@ import InviteCard from '../components/leaderView/InviteCard'
 import ConfirmModal from '../components/shared/ConfirmModal'
 import styles from './LeaderView.module.css'
 import NoticeBox from '../components/shared/NoticeBox'
-import axiosClient from "../api/axiosClient";
+import axios from 'axios'
 import { Bell } from '@phosphor-icons/react'
 
 // Data tạm — sau này thay bằng API
@@ -61,8 +61,14 @@ function LeaderView() {
   const emptyCount = MAX_SLOTS - FAKE_MEMBERS.length
   // api lấy team members thành viên đội 
   useEffect(() => {
-    axiosClient
-      .get('/team/my-team'
+    axios
+      .get('http://localhost:8080/api/team/my-team'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
       )
       .then((response) => {
         setFAKE_MEMBERS(response.data);
@@ -72,8 +78,14 @@ function LeaderView() {
 
   // api lấy team info
   useEffect(() => {
-    axiosClient
-      .get('/team/team-info'
+    axios
+      .get('http://localhost:8080/api/team/team-info'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
       )
       .then((response) => {
         setTeamInfo(response.data);
@@ -85,8 +97,14 @@ function LeaderView() {
 
   // api teamLeader xem những join request gửi đến team này 
   useEffect(() => {
-    axiosClient
-      .get('/teamrequest/joinrequest'
+    axios
+      .get('http://localhost:8080/api/teamrequest/joinrequest'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
       )
       .then((response) => {
         setFAKE_REQUESTS(response.data);
@@ -96,8 +114,14 @@ function LeaderView() {
 
   // api teamLeader xem những invitation da gui di 
   useEffect(() => {
-    axiosClient
-      .get('/teamrequest/leader-invitation'
+    axios
+      .get('http://localhost:8080/api/teamrequest/leader-invitation'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
       )
       .then((response) => {
         setFAKE_INVITES(response.data);
@@ -107,8 +131,14 @@ function LeaderView() {
 
   // api teamLeader xem những leave request da gui di 
   useEffect(() => {
-    axiosClient
-      .get('st:8080/api/teamrequest/leave_request'
+    axios
+      .get('http://localhost:8080/api/teamrequest/leave_request'
+        , {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        }
       )
       .then((response) => {
         setFAKE_LEAVE_REQUESTS(response.data);
@@ -125,10 +155,15 @@ function LeaderView() {
       message: 'Bạn có chắc chắn muốn PHÊ DUYỆT thành viên này vào đội không?',
       confirmLabel: 'Phê duyệt',
       onConfirm: () => {
-        axiosClient
-          .put('/teamrequest/Join-request/respond', {
+        axios
+          .put('http://localhost:8080/api/teamrequest/Join-request/respond', {
             requestId: requestId,
             accept: isAccept
+          }, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}` // nếu có JWT
+            }
           })
           .then((response) => {
             console.log(response.data);
@@ -157,10 +192,15 @@ function LeaderView() {
       confirmLabel: 'Từ chối',
       onConfirm: () => {
 
-        axiosClient
-          .put('/eamrequest/Join-request/respond', {
+        axios
+          .put('http://localhost:8080/api/teamrequest/Join-request/respond', {
             requestId: requestId,
             accept: isAccept
+          }, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}` // nếu có JWT
+            }
           })
           .then((response) => {
             console.log(response.data);
@@ -190,8 +230,13 @@ function LeaderView() {
       denyLabel: 'Không',
       onConfirm: () => {
 
-        axiosClient
-          .delete(`/teamrequest/invitation-bymember?memberId=${memberId}`)
+        axios
+          .delete(`http://localhost:8080/api/teamrequest/invitation-bymember?memberId=${memberId}`, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            }
+          })
           .then((response) => {
             console.log(response.data);
 
@@ -218,8 +263,13 @@ function LeaderView() {
       confirmLabel: 'Xác nhận',
       denyLabel: 'Không',
       onConfirm: () => {
-        axiosClient
-          .put(`/team/kick/${id}`, {})
+        axios
+          .put(`http://localhost:8080/api/team/kick/${id}`, {}, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}`
+            }
+          })
           .then((response) => {
             console.log(response.data);
             //thêm reload trang
@@ -253,9 +303,13 @@ function LeaderView() {
       confirmLabel: 'Xác nhận',
       denyLabel: 'Không',
       onConfirm: () => {
-        axiosClient
-          .put(`/team/promote/${id}`, {}
-          )
+        axios
+          .put(`http://localhost:8080/api/team/promote/${id}`, {}, {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${token}` // Gửi kèm token để kiểm tra bạn đúng là Leader hiện tại không
+            }
+          })
           .then((response) => {
             console.log(response.data);
 
@@ -290,8 +344,13 @@ function LeaderView() {
     const isConfirmed = window.confirm("Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!");
 
     if (isConfirmed) {
-      axiosClient
-        .post('/teamrequest/out-team', {})
+      axios
+        .post('http://localhost:8080/api/teamrequest/out-team', {}, {
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` // nếu có JWT
+          }
+        })
         .then((response) => {
           console.log(response.data);
 
@@ -319,8 +378,13 @@ function LeaderView() {
   // TODO: Xử lí chỉnh sửa thông tin đội
 
   const handleOnApproveLeave = (id) => {
-    axiosClient
-      .put(`/teamrequest/Leave-request/${id}/respond`, {})
+    axios
+      .put(`http://localhost:8080/api/teamrequest/Leave-request/${id}/respond`, {}, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` // nếu có JWT
+        }
+      })
       .then((response) => {
         console.log(response.data);
 
@@ -342,8 +406,13 @@ function LeaderView() {
   } // TODO: Xử lí rời đội
 
   const handleOnCancelLeave = (id) => {
-    axiosClient
-      .post('http://localhost:8080/api/teamrequest/out-team/cancle', id)
+    axios
+      .post('http://localhost:8080/api/teamrequest/out-team/cancle', id, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` // nếu có JWT
+        }
+      })
       .then((response) => {
         console.log(response.data);
 
@@ -364,8 +433,13 @@ function LeaderView() {
   }
 
   const handleOnLockTeam = () => {
-    axiosClient
-      .post('/teamrequest/lock-team', {})
+    axios
+      .post('http://localhost:8080/api/teamrequest/lock-team', {}, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}` // nếu có JWT
+        }
+      })
       .then((response) => {
         console.log(response.data);
 
