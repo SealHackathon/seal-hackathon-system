@@ -22,8 +22,12 @@ public class Milestone {
 
     private LocalDateTime dateEnd;
 
-    @Column(length = 255)
+    @Column(columnDefinition = "TEXT")
     private String des;
+
+    @Column(columnDefinition = "TEXT")
+
+    private String link;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)

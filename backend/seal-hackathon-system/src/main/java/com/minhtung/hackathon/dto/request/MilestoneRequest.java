@@ -12,7 +12,7 @@ public class MilestoneRequest {
     @Data
     public static class MilestoneItem {
         private String name;
-        private LocalDateTime description;
+        private String description;
         private LocalDateTime timeStart;
         private LocalDateTime timeEnd;
         private String des;

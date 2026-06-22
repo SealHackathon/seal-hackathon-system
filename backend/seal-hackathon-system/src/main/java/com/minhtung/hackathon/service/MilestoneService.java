@@ -64,52 +64,62 @@ public class MilestoneService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Milestone với ID: " + id));
     }
 
-
     @Transactional
     public List<MilestoneResponse> createMilestones(MilestoneRequest request) {
-        // 1. Tìm Event chung một lần duy nhất từ eventId ở ngoài request
+        // 1. Tìm Event chung một lần duy nhất
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Event với ID: " + request.getEventId()));
 
+        // 2. DỌN SẠCH DỮ LIỆU CŨ VÀ FLUSH NGAY ĐỂ TRÁNH TRÙNG LẶP
+        milestoneRepository.deleteByEventId(event.getId());
+        milestoneRepository.flush();
+
+        // Nếu mảng mốc thời gian gửi lên trống (User xóa hết), trả về list rỗng
+        if (request.getMilestones() == null || request.getMilestones().isEmpty()) {
+            return List.of();
+        }
+
         List<Milestone> milestonesToSave = new ArrayList<>();
 
-        // 2. Duyệt qua từng item Milestone trong mảng gửi từ Front-end lên
+        // 3. Duyệt qua từng item Milestone trong mảng gửi từ Front-end
         for (MilestoneRequest.MilestoneItem item : request.getMilestones()) {
-            Milestone milestone = new Milestone(); // Sử dụng constructor mặc định rỗng an toàn
+            Milestone milestone = new Milestone();
 
-            // Gán trực tiếp dữ liệu thông qua các hàm Setter vào Entity (Nhận LocalDateTime từ DTO Request)
             milestone.setMilestoneName(item.getName());
-            milestone.setDes(item.getDes());
+            milestone.setDes(item.getDes()); // Lấy từ trường des (String)
             milestone.setDateStart(item.getTimeStart());
             milestone.setDateEnd(item.getTimeEnd());
-
-            // Gắn liên kết Event chung để làm khóa ngoại event_id dưới DB
             milestone.setEvent(event);
 
             milestonesToSave.add(milestone);
         }
 
-        // 3. Batch Insert toàn bộ danh sách mốc thời gian xuống DB
+        // 4. Batch Insert toàn bộ danh sách mốc thời gian xuống DB
         List<Milestone> savedMilestones = milestoneRepository.saveAll(milestonesToSave);
 
-        // 4. MAP SANG DTO RESPONSE: Chuyển đổi sang List<MilestoneResponse> phẳng sạch sẽ
+        // 5. MAP SANG DTO RESPONSE
         return savedMilestones.stream()
                 .map(m -> {
                     MilestoneResponse response = new MilestoneResponse();
-                    response.setId(m.getId()); // ID tự tăng do DB sinh ra sau khi save
+                    response.setId(m.getId());
                     response.setMilestoneName(m.getMilestoneName());
                     response.setDes(m.getDes());
+                    response.setDateStart(m.getDateStart());
+                    response.setDateEnd(m.getDateEnd());
 
-                    // Trích xuất từ LocalDateTime (Entity) sang LocalDate (DTO Response)
-                    if (m.getDateStart() != null) {
-                        response.setDateStart(m.getDateStart());
+                    // Tính toán trạng thái tự động dựa trên thời gian thực tế
+                    java.time.LocalDateTime now = java.time.LocalDateTime.now();
+                    String status = "UPCOMING";
+                    if (m.getDateStart() != null && m.getDateEnd() != null) {
+                        if (now.isBefore(m.getDateStart())) {
+                            status = "UPCOMING";
+                        } else if (now.isAfter(m.getDateEnd())) {
+                            status = "COMPLETED";
+                        } else {
+                            status = "IN_PROGRESS";
+                        }
                     }
-                    if (m.getDateEnd() != null) {
-                        response.setDateEnd(m.getDateEnd());
-                    }
-
-                    // Trạng thái mặc định khi vừa tạo mới, hoặc tính toán theo logic của bạn
-                    response.setStatus("UPCOMING");
+                    response.setStatus(status);
 
                     return response;
                 })

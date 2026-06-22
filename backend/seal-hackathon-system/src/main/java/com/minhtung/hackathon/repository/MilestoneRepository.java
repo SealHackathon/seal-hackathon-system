@@ -10,4 +10,5 @@ import java.util.List;
 public interface MilestoneRepository extends JpaRepository<Milestone, Long> {
     // Lấy danh sách mốc thời gian của một sự kiện cụ thể
     List<Milestone> findByEventId(Long eventId);
+    void deleteByEventId(Long eventId);
 }
