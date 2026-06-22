@@ -28,6 +28,13 @@ function CreateEventHeader({ title, status = 'draft', onBack, onPublish, onPrevi
         {/* ── Phải: actions ── */}
         <div className={styles.actions}>
           <Button
+            label="Xem trước trang"
+            icon={Eye}
+            iconPosition="right"
+            variant="outline"
+            onClick={onPreview}
+          />
+          <Button
             label="Công bố"
             icon={RocketLaunch}
             iconPosition="left"
@@ -35,13 +42,6 @@ function CreateEventHeader({ title, status = 'draft', onBack, onPublish, onPrevi
             color="green"
             onClick={onPublish}
             disabled={status !== 'draft'}
-          />
-          <Button
-            label="Xem trước trang"
-            icon={Eye}
-            iconPosition="right"
-            variant="outline"
-            onClick={onPreview}
           />
         </div>
 

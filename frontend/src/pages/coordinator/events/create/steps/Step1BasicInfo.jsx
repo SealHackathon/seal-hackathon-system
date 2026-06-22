@@ -134,8 +134,8 @@ function Step1BasicInfo({ formData, onFormChange }) {
                                 Trình bày mục tiêu, đối tượng tham gia và điểm nổi bật của sự kiện.
                             </span>
                             {/* <button type="button" className={styles.btnTemplate}>
-                Tải mẫu có sẵn
-              </button> */}
+                                Tải mẫu có sẵn
+                            </button> */}
                         </div>
 
                         <RichTextEditor

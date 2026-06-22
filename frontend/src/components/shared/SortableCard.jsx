@@ -11,52 +11,70 @@ import styles from './SortableCard.module.css'
  * @param {Function}      onDelete  — Callback khi ấn xoá
  * @param {boolean}       [draggable=true] — Có cho kéo không
  * @param {boolean}       [showDelete=true]
+ * @param {ReactNode}     [avatar]    — Icon/avatar hiển thị trước content (optional)
+ * @param {string}        [avatarBg]  — Background color cho avatar circle (optional)
  */
-function SortableCard({ id, children, onDelete, draggable = true, showDelete = true }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id, disabled: !draggable })
 
-  const cardStyle = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-  }
+const AVATAR_BG_MAP = {
+    orange: styles.avatarOrange,
+    blue: styles.avatarBlue,
+    green: styles.avatarGreen,
+}
 
-  return (
-    <div
-      ref={setNodeRef}
-      style={cardStyle}
-      className={`${styles.card} ${isDragging ? styles.dragging : ''}`}
-    >
-      {/* Drag handle */}
-      {draggable && (
-        <div className={styles.dragHandle} {...attributes} {...listeners}>
-          <DotsSixVertical size={20} />
-        </div>
-      )}
 
-      {/* Content */}
-      <div className={styles.content}>
-        {children}
-      </div>
+function SortableCard({ id, children, onDelete, draggable = true, showDelete = true, avatar, avatarBg }) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging,
+    } = useSortable({ id, disabled: !draggable })
 
-      {/* Delete button */}
-      {showDelete && (
-        <button
-          type="button"
-          className={styles.deleteBtn}
-          onClick={onDelete}
+    const cardStyle = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+    }
+
+    return (
+        <div
+            ref={setNodeRef}
+            style={cardStyle}
+            className={`${styles.card} ${isDragging ? styles.dragging : ''}`}
         >
-          <Trash size={20} />
-        </button>
-      )}
-    </div>
-  )
+            {/* Drag handle */}
+            {draggable && (
+                <div className={styles.dragHandle} {...attributes} {...listeners}>
+                    <DotsSixVertical size={20} />
+                </div>
+            )}
+
+            {/* Avatar (optional) */}
+            {avatar && (
+                <div className={`${styles.avatar} ${AVATAR_BG_MAP[avatarBg] ?? ''}`}>
+                    {avatar}
+                </div>
+
+            )}
+
+            {/* Content */}
+            <div className={styles.content}>
+                {children}
+            </div>
+
+            {/* Delete button */}
+            {showDelete && (
+                <button
+                    type="button"
+                    className={styles.deleteBtn}
+                    onClick={onDelete}
+                >
+                    <Trash size={20} />
+                </button>
+            )}
+        </div>
+    )
 }
 
 export default SortableCard

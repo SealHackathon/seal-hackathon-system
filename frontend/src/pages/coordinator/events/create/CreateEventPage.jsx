@@ -35,6 +35,11 @@ function CreateEventPage() {
     if (step === 1) {
       return !!(formData.name?.trim() && formData.openDate && formData.closeDate)
     }
+    if (step === 2) {
+      const rules = formData.generalRules ?? ''
+      const isEmpty = !rules.trim() || rules === '<p></p>' || rules === '<p><br></p>'
+      return !isEmpty
+    }
     return true
   }
 
