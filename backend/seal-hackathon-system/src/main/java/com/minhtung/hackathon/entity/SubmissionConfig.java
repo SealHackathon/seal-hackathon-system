@@ -30,13 +30,13 @@ public class SubmissionConfig {
     @Column(name = "submission_instructions", columnDefinition = "TEXT")
     private String submissionInstructions;
 
-    @Column(name = "opening_time", nullable = false)
+    @Column(name = "opening_time")
     private LocalDateTime openingTime;
 
     private boolean hasSubmission;
 
 
-    @Column(name = "submission_deadline", nullable = false)
+    @Column(name = "submission_deadline")
     private LocalDateTime submissionDeadline;
 
     public SubmissionConfig(Round round, String title, LocalDateTime openingTime, LocalDateTime submissionDeadline, String submissionInstructions, boolean hasSubmission) {

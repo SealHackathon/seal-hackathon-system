@@ -231,6 +231,76 @@ function CreateEventPage() {
 
           // Cứ như vậy cấu hình cho các step 3, 4, 5, 6, 7...
         }
+
+      case 4: {
+        apiEndpoint = '/round';
+
+        const step4Payload = {
+          
+          eventId: formData.id,
+          rounds: (formData.rounds || []).map((item, index) => ({
+            name: item.name?.trim() || 'Vòng thi mới',
+            timeStart: item.startDate ? new Date(item.startDate).toISOString() : null,
+            timeEnd: item.endDate ? new Date(item.endDate).toISOString() : null,
+            hasPresetiontation: false,           // FE chưa có field này, mặc định false
+            topTeamPass: Number(item.topTeamPass) || 0,
+            ordinal_number: index + 1,
+            submissionDeadline: item.submissionDeadline
+              ? new Date(item.submissionDeadline).toISOString()
+              : null,
+            position: item.format === 'offline'
+              ? (item.location?.name || item.location?.formatted_address || '')
+              : (item.meetingLink || ''),
+            rubricId: Number(item.rubricId) || 0,
+
+            // Chỉ gửi submissionConfig khi người dùng chọn nộp bài mới
+            submissionConfig: item.submissionType === 'new'
+              ? {
+                title: item.name?.trim() || '',
+                submissionInstructions: item.submissionGuide || '',
+                openingTime: item.submissionOpen
+                  ? new Date(item.submissionOpen).toISOString()
+                  : null,
+                submissionDeadline: item.submissionDeadline
+                  ? new Date(item.submissionDeadline).toISOString()
+                  : null,
+                hasSubmission: true,
+              }
+              : {
+                // submissionType === 'previous': không yêu cầu nộp bài mới
+                title: '',
+                submissionInstructions: '',
+                openingTime: null,
+                submissionDeadline: null,
+                hasSubmission: false,
+              },
+
+            // Map agenda → timelines
+            
+            timelines: (item.agenda || []).map(t => ({
+              
+              
+              name: t.name?.trim() || '',
+              description: t.desc?.trim() || '',
+              timeStart: t.startTime ,
+              timeEnd: t.timeEnd ? new Date(t.timeEnd).toISOString() : null,
+            })),
+          })),
+        };
+
+        return axiosClient.post(apiEndpoint, step4Payload)
+          .then(response => {
+            console.log('Lưu bản nháp Step 4 thành công!', response.data);
+            return true;
+          })
+          .catch(error => {
+            console.error('Lỗi khi gọi API lưu nháp Step 4:', error);
+            const errorMsg = error.response?.data?.message || error.response?.data || error.message;
+            alert('Không thể lưu bản nháp Step 4: ' + errorMsg);
+            return false;
+          });
+      }
+
       case 5: { // Bọc khối scope bằng dấu ngoặc nhọn tránh lỗi Unexpected Lexical
         // 1. Định nghĩa API Endpoint cho các bảng đấu của Step 5
         apiEndpoint = '/track';

@@ -41,7 +41,7 @@ public class RoundRequest {
     public static class RoundTimelineItem {
         private String name;
         private String description;
-        private LocalDateTime timeStart;
-        private LocalDateTime timeEnd;
+        private String timeStart;
+        private String timeEnd;
     }
 }

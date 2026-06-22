@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "round_timeline")
@@ -24,16 +23,16 @@ public class RoundTimeline {
     private String description;
 
     @Column(name = "time_start")
-    private LocalDateTime timeStart;
+    private String timeStart;  // ← đổi từ LocalDateTime sang String
 
     @Column(name = "time_end")
-    private LocalDateTime timeEnd;
+    private String timeEnd;    // ← đổi từ LocalDateTime sang String
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "round_id", nullable = false)
     private Round round;
 
-    public RoundTimeline(String name, String description, LocalDateTime timeStart, LocalDateTime timeEnd, Round round) {
+    public RoundTimeline(String name, String description, String timeStart, String timeEnd, Round round) {
         this.name = name;
         this.description = description;
         this.timeStart = timeStart;

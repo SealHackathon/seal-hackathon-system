@@ -30,8 +30,6 @@ public class RoundController {
     private final RoundService roundService;
 
 
-
-
     // api admin view Coming Round
 //    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/coming")
@@ -77,9 +75,8 @@ public class RoundController {
     // 3. CREATE - Tạo mới một vòng thi
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
-    public ResponseEntity<String> createRound(@RequestBody RoundRequest request) {
-        long roundId = roundService.createRound(request);
-        return ResponseEntity.ok("Cấu hình Round thành công! ID vòng thi mới: " + roundId);
+    public ResponseEntity<?> createRound(@RequestBody RoundRequest request) {
+        return ResponseEntity.ok(roundService.createRounds(request));
     }
 
     // 5. DELETE - Xóa vòng thi

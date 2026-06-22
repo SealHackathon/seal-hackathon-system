@@ -39,7 +39,7 @@ public class RoundDetailsResponse {
         private long id;
         private String name;
         private String description;
-        private LocalDateTime timeStart;
-        private LocalDateTime timeEnd;
+        private String timeStart;
+        private String timeEnd;
     }
 }
