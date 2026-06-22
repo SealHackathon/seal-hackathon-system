@@ -999,6 +999,8 @@ public class TeamService {
             throw new IllegalArgumentException("Tài khoản chưa được admin duyệt");
         }
 
+        System.out.println("jeje");
+
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
         if (team == null) {
             throw new IllegalArgumentException("team khong ton tai");
