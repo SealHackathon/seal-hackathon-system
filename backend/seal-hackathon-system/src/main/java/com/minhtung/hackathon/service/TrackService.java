@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -37,7 +38,7 @@ public class TrackService {
                         track.getName(),
                         track.getDes(), // Biến mô tả trong Entity của bạn
                         track.getMaxTeamPerTrack(),
-                        track.getMinTeamPerTrack()
+                        track.getMinTeamPerTrack(),eventId
                 ))
                 .toList();
     }
@@ -49,24 +50,52 @@ public class TrackService {
     }
 
     @Transactional
-    public long createTrack(TrackRequest request) {
+    public List<TrackResponse> createTracks(TrackRequest request) {
+        // 1. Kiểm tra ID Event tổng
+        if (request.getEventId() <= 0) {
+            throw new RuntimeException("Lỗi: Không tìm thấy ID của Event tổng. Bạn phải hoàn thành Step 1 trước!");
+        }
+
+        // 2. Tìm Event trong DB
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Event với ID: " + request.getEventId()));
 
-        // Vì Entity Track không có constructor mặc định trống (chỉ có constructor 4 tham số),
-        // Ta sử dụng constructor đó rồi set Event sau, hoặc bạn có thể bổ sung @NoArgsConstructor vào Entity Track.
-        Track track = new Track(
-                request.getName(),
-                request.getDes(),
-                request.getMaxTeamPerTrack(),
-                request.getMinTeamPerTrack()
-        );
-        track.setEvent(event);
+        // 🔥 LOGIC ĐỒNG BỘ: Xóa sạch các Track cũ thuộc Event này trước khi chèn mới
+        // Đảm bảo bạn đã định nghĩa void deleteByEvent(Event event); trong TrackRepository
+        trackRepository.deleteByEventId(request.getEventId());
 
-        trackRepository.save(track);
-        return track.getId();
+        // 3. Bóc tách mảng "tracks" từ request để map sang Entity và lưu
+        if (request.getTracks() != null && !request.getTracks().isEmpty()) {
+            List<Track> tracksToSave = request.getTracks().stream()
+                    .map(item -> {
+                        Track track = new Track();
+                        track.setName(item.getName());
+                        track.setDes(item.getDes());
+                        track.setMinTeamPerTrack(item.getMinTeamPerTrack());
+                        track.setMaxTeamPerTrack(item.getMaxTeamPerTrack());
+                        track.setEvent(event); // Gắn mối quan hệ 1-N với Event tổng
+                        return track;
+                    })
+                    .toList();
+
+            // 4. Lưu hàng loạt xuống DB
+            List<Track> savedTracks = trackRepository.saveAll(tracksToSave);
+
+            // 5. Map kết quả trả về sang Response DTO (nếu cần hiển thị lại ở FE)
+            return savedTracks.stream()
+                    .map(track -> new TrackResponse(
+                            track.getId(),
+                            track.getName(),
+                            track.getDes(),
+                            track.getMinTeamPerTrack(),
+                            track.getMaxTeamPerTrack(),
+                            event.getId()
+                    ))
+                    .toList();
+        }
+
+        return Collections.emptyList();
     }
-
 
     @Transactional
     public void deleteTrack(long id) {

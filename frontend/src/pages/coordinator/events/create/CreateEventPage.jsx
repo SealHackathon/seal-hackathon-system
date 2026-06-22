@@ -222,7 +222,7 @@ function CreateEventPage() {
           };
 
 
-          // 3. Gọi API lưu giải thưởng dưới dạng JSON thuần túy
+          // 5. Gọi API lưu giải thưởng dưới dạng JSON thuần túy
           return axios.post(apiEndpoint, step3Payload, {
             headers: {
               'Content-Type': 'application/json', // Ép kiểu JSON để khớp với @RequestBody ở Backend
@@ -242,6 +242,41 @@ function CreateEventPage() {
 
           // Cứ như vậy cấu hình cho các step 3, 4, 5, 6, 7...
         }
+      case 5: { // Bọc khối scope bằng dấu ngoặc nhọn tránh lỗi Unexpected Lexical
+        // 1. Định nghĩa API Endpoint cho các bảng đấu của Step 5
+        apiEndpoint = 'http://localhost:8080/api/track';
+
+        // 2. Lấy đúng mảng `categories` từ trong formData (nếu trống thì tạo mảng rỗng)
+        const rawCategories = formData.categories || [];
+
+        // 3. Map chính xác sang cấu trúc DTO TrackRequest.java ở Backend
+        const step5Payload = {
+          eventId: formData.id, // ID tổng xuyên suốt từ Step 1
+          tracks: rawCategories.map(item => ({
+            name: item.name?.trim() || 'Bảng đấu mới',          // Map trúng sang private String name;
+            des: item.desc?.trim() || '',                       // Map trúng sang private String des;
+            minTeamPerTrack: 1,                                 // Mặc định tối thiểu là 1 đội
+            maxTeamPerTrack: Number(item.teamLimit) || 10       // Map item.teamLimit trúng sang private int maxTeamPerTrack;
+          }))
+        };
+        // 4. Thực hiện gọi API gửi chuỗi JSON lên Spring Boot
+        return axios.post(apiEndpoint, step5Payload, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
+        })
+          .then(response => {
+            console.log(`Lưu bản nháp Step 5 thành công!`, response.data);
+            return true; // Trả về true để kích hoạt luồng chuyển sang Step 6
+          })
+          .catch(error => {
+            console.error(`Lỗi khi gọi API lưu nháp Step 5:`, error);
+            const errorMsg = error.response?.data?.message || error.response?.data || error.message;
+            alert(`Không thể lưu bản nháp Step 5: ` + errorMsg);
+            return false; // Thất bại, giữ nguyên giao diện ở Step 5 để kiểm tra
+          });
+      }
       default:
         break;
     }

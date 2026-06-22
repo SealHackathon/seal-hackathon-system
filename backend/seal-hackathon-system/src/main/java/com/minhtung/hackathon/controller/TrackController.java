@@ -53,7 +53,7 @@ public class TrackController {
         if (getUid(auth) == null) return unauthorized();
         try {
 
-            return ResponseEntity.status(201).body(trackService.createTrack(request));
+            return ResponseEntity.status(201).body(trackService.createTracks(request));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Lỗi tạo track: " + e.getMessage());
         }

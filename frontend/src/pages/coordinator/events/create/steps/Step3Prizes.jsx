@@ -58,7 +58,16 @@ function PrizeCardContent({ prize, onChange, disabled = false }) {
                                 className={styles.baseInput}
                                 placeholder="Số đội / cá nhân nhận giải"
                                 value={prize.quantity ?? ''}
-                                onChange={e => update('quantity', e.target.value)}
+                                onChange={e => {
+                                    const val = e.target.value
+                                    if (val !== '' && Number(val) < 1) return
+                                    update('quantity', val === '' ? '' : Number(val))
+                                }}
+                                onKeyDown={e => {
+                                    if (['-', '+', 'e', 'E', '.', ','].includes(e.key)) {
+                                        e.preventDefault()
+                                    }
+                                }}
                                 disabled={disabled}
                             />
                         </div>

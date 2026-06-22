@@ -13,4 +13,5 @@ public interface TrackRepository  extends JpaRepository<Track, Long> {
 //    Optional<Track> findByEventId(long eventId);
 
     List<Track> findByEventId(long eventId);
+    void deleteByEventId(long eventId);
 }
