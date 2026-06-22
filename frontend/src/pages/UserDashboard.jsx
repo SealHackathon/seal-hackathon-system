@@ -1,6 +1,7 @@
 import UserLayout from '../layouts/UserLayout'
 import MilestoneBanner from '../components/dashboard/MilestoneBanner'
 import LiveEventCard from '../components/dashboard/LiveEventCard'
+import { useNavigate } from 'react-router-dom'
 // import styles from './UserDashboard.module.css'
 
 const FAKE_TIMELINE = [
@@ -18,13 +19,16 @@ const FAKE_EVENT = {
     description: 'SEAL Hackathon Summer 2026 là sự kiện mở đầu trong hệ thống SEAL – Software Engineering Agile League. Chủ đề mùa Summer 2026 là "AI Agents for Software Innovation", nơi sinh viên trải nghiệm áp dụng AI vào vòng đời phát triển phần mềm (SDLC), từ thu thập yêu cầu, thiết kế, phát triển, kiểm thử đến triển khai và giám sát vận hành.',
 }
 
-function UserDashboard({ onNavigate }) {
+function UserDashboard() {
+        console.log("UserDashboard rendered")
+
+    const navigate= useNavigate();
     return (
         <UserLayout showCard={false}>
             <MilestoneBanner timeline={FAKE_TIMELINE} />
             <LiveEventCard
                 event={FAKE_EVENT}
-                onJoin={() => onNavigate('team')}
+                onJoin={() =>navigate('/team')}
                 onViewRules={() => console.log('Chi tiết thể lệ')}
             />
         </UserLayout>

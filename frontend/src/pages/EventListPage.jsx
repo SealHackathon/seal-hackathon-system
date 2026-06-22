@@ -246,7 +246,7 @@ function EventListPage({ onManageEvent }) {
           variant="primary"
           color="green"
           icon={Plus}
-          onClick={() => navigate('/coordinator/events/create')}
+          onClick={() => navigate('/admin/coordinator/events/create')}
         />
       </div>
 

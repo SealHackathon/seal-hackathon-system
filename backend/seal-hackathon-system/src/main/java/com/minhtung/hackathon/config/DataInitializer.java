@@ -42,16 +42,16 @@ public class DataInitializer implements CommandLineRunner {
             user1.setStatus(UserStatus.ACCEPTED);
             userRepository.save(user1);
 
-            User user2 = new User();
-            user2.setEmail("user2@gmail.com");
-            user2.setPassword("123456");
-            user2.setRole(Role.USER);
-            user2.setSchoolName("Khoa Học Xã Hội và Nhân Văn");
-            user2.setActive(true);
-            user2.setFullName("Mạc Minh Tùng");
-            user2.setStatus(UserStatus.PROFILE_PENDING);
-
-            userRepository.save(user2);
+//            User user2 = new User();
+//            user2.setEmail("user2@gmail.com");
+//            user2.setPassword("123456");
+//            user2.setRole(Role.USER);
+//            user2.setSchoolName("Khoa Học Xã Hội và Nhân Văn");
+//            user2.setActive(true);
+//            user2.setFullName("Mạc Minh Tùng");
+//            user2.setStatus(UserStatus.PROFILE_PENDING);
+//
+//            userRepository.save(user2);
 
 //            User user3 = new User();
 //            user3.setEmail("user3@gmail.com");
