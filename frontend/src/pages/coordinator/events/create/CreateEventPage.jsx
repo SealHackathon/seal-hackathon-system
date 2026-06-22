@@ -9,7 +9,7 @@ import Step3Prizes from './steps/Step3Prizes'
 import axios from 'axios'
 import styles from './CreateEventPage.module.css'
 import Step5Categories from './steps/Step5Categories'
-
+import axiosClient from '../../../../api/axiosClient'
 const TOTAL_STEPS = 7
 
 function StepPlaceholder({ step }) {
@@ -113,7 +113,7 @@ function CreateEventPage() {
     }
 
     // 2. Cấu hình Endpoint và Data Filter theo từng Step cụ thể
-    let apiEndpoint = 'http://localhost:8080/api/event'; // Mặc định step 1
+    let apiEndpoint = '/event'; // Mặc định step 1
 
     switch (currentStep) {
       case 1: {
@@ -133,12 +133,7 @@ function CreateEventPage() {
         if (formData.coverFile) sendData.append('thumbnailFile', formData.coverFile);
 
         // Gọi API lưu thông tin cơ bản (Multipart FormData)
-        return axios.post(apiEndpoint, sendData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            'Authorization': `Bearer ${token}`
-          }
-        })
+        return axiosClient.post(apiEndpoint, sendData)
           .then(response => {
             console.log(`Lưu bản nháp Step ${currentStep} thành công!`, response.data);
 
@@ -158,7 +153,7 @@ function CreateEventPage() {
       case 2:
         {
           // 1. Đổi API Endpoint sang xử lý Luật và Lưu ý của Step 2
-          apiEndpoint = 'http://localhost:8080/api/event-notes';
+          apiEndpoint = '/event-notes';
 
           // 2. Khai báo Payload JSON gom cụm thông tin của Step 2
           // Cấu trúc này mapping 100% với EventNoteRequest ở Backend
@@ -170,12 +165,7 @@ function CreateEventPage() {
 
 
           // 3. Gọi API lưu Luật & Ghi chú (JSON dữ liệu thuần)
-          return axios.post(apiEndpoint, step2Payload, {
-            headers: {
-              'Content-Type': 'application/json', // Ép kiểu JSON để khớp với @RequestBody ở Backend
-              'Authorization': `Bearer ${token}`
-            }
-          })
+          return axiosClient.post(apiEndpoint, step2Payload)
             .then(response => {
               console.log(`Lưu bản nháp Step 2 thành công!`, response.data);
               return true;
@@ -193,7 +183,7 @@ function CreateEventPage() {
       case 3:
         {
           // 1. Đổi API Endpoint sang xử lý Luật và Lưu ý của Step 2
-          apiEndpoint = 'http://localhost:8080/api/prize';
+          apiEndpoint = '/prize';
 
           console.log(formData.extendedPrizes.length);
           // 2. Map mảng giải chính từ state và đóng dấu nhãn 'MAIN'
@@ -223,12 +213,7 @@ function CreateEventPage() {
 
 
           // 5. Gọi API lưu giải thưởng dưới dạng JSON thuần túy
-          return axios.post(apiEndpoint, step3Payload, {
-            headers: {
-              'Content-Type': 'application/json', // Ép kiểu JSON để khớp với @RequestBody ở Backend
-              'Authorization': `Bearer ${token}`
-            }
-          })
+          return axiosClient.post(apiEndpoint, step3Payload)
             .then(response => {
               console.log(`Lưu bản nháp Step 3 thành công!`, response.data);
               return true; // Trả về bộ trigger báo hiệu lưu thành công để chuyển step
@@ -244,7 +229,7 @@ function CreateEventPage() {
         }
       case 5: { // Bọc khối scope bằng dấu ngoặc nhọn tránh lỗi Unexpected Lexical
         // 1. Định nghĩa API Endpoint cho các bảng đấu của Step 5
-        apiEndpoint = 'http://localhost:8080/api/track';
+        apiEndpoint = '/track';
 
         // 2. Lấy đúng mảng `categories` từ trong formData (nếu trống thì tạo mảng rỗng)
         const rawCategories = formData.categories || [];
@@ -260,12 +245,7 @@ function CreateEventPage() {
           }))
         };
         // 4. Thực hiện gọi API gửi chuỗi JSON lên Spring Boot
-        return axios.post(apiEndpoint, step5Payload, {
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-          }
-        })
+        return axios.post(apiEndpoint, step5Payload)
           .then(response => {
             console.log(`Lưu bản nháp Step 5 thành công!`, response.data);
             return true; // Trả về true để kích hoạt luồng chuyển sang Step 6
