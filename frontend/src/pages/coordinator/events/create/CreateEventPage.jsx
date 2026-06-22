@@ -7,6 +7,8 @@ import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
 import Step3Prizes from './steps/Step3Prizes'
 
+import Step5Categories from './steps/Step5Categories'
+
 import styles from './CreateEventPage.module.css'
 
 const TOTAL_STEPS = 7
@@ -25,6 +27,8 @@ function CreateEventPage() {
   const [errorSteps, setErrorSteps] = useState([])
   const [formData, setFormData] = useState({
     deadlineSameAsClose: true,
+    minMembers: 3,
+    maxMembers: 4,
   })
   const [status, setStatus] = useState('draft')
 
@@ -57,13 +61,18 @@ function CreateEventPage() {
 
       // Giải phụ nếu có phải điền tên
       const extendedPrizes = formData.extendedPrizes ?? []
-      const extValid = extendedPrizes.every(p => 
+      const extValid = extendedPrizes.every(p =>
         p.name?.trim() &&
         p.quantity !== '' && p.quantity !== undefined
       )
       if (!extValid) return false
 
       return true
+    }
+    if (step === 5) {
+      const categories = formData.categories ?? []
+      if (categories.length === 0) return false
+      return categories.every(c => c.name?.trim())
     }
     return true
   }
@@ -96,7 +105,7 @@ function CreateEventPage() {
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} />  // ← thêm
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
       case 4: return <StepPlaceholder step={4} />
-      case 5: return <StepPlaceholder step={5} />
+      case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
       case 6: return <StepPlaceholder step={6} />
       case 7: return <StepPlaceholder step={7} />
       default: return null

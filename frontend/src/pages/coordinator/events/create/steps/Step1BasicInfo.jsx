@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import FieldGroup from '../../../../../components/shared/FieldGroup'
 import FormInput from '../../../../../components/shared/FormInput'
+import FormTextarea from '../../../../../components/shared/FormTextarea'
 import RichTextEditor from '../../../../../components/shared/RichTextEditor'
 import FileUpload from '../../../../../components/shared/FileUpload'
 import DateTimePicker from '../../../../../components/shared/DateTimePicker'
@@ -36,15 +37,28 @@ function Step1BasicInfo({ formData, onFormChange }) {
     })()
 
     const teamDeadlineError = (() => {
-        const open = formData.openDate
         const close = formData.closeDate
         const deadline = formData.teamDeadline
         if (!deadline) return null
-        if (open && deadline <= open) return 'Hạn chốt đội phải sau ngày mở đăng ký'
-        if (close && deadline > close) return 'Hạn chốt đội phải trước ngày đóng đăng ký'
+        if (close && deadline < close) return 'Hạn chốt đội phải sau hoặc bằng thời gian đóng đăng ký'
         return null
     })()
 
+    const minMemberError = (() => {
+        const min = formData.minMembers
+        const max = formData.maxMembers
+        if (!min || !max) return null
+        if (Number(min) >= Number(max)) return 'Tối thiểu phải nhỏ hơn tối đa'
+        return null
+    })()
+
+    const maxMemberError = (() => {
+        const min = formData.minMembers
+        const max = formData.maxMembers
+        if (!min || !max) return null
+        if (Number(max) <= Number(min)) return 'Tối đa phải lớn hơn tối thiểu'
+        return null
+    })()
 
 
     // Normalize: FormInput có thể trả về string hoặc event object
@@ -114,7 +128,8 @@ function Step1BasicInfo({ formData, onFormChange }) {
                         onChange={val => handleChange('theme', val)}
                     />
 
-                    <FormInput
+                    <FormTextarea
+                        className={styles.textArea}
                         label="Mô tả ngắn"
                         placeholder="Giới thiệu ngắn gọn về sự kiện trong 1–2 câu..."
                         hint="Hiển thị dưới tên sự kiện ở trang danh sách và kết quả tìm kiếm."
@@ -170,10 +185,11 @@ function Step1BasicInfo({ formData, onFormChange }) {
                                 if (deadlineSameAsClose) onFormChange?.('teamDeadline', val)
                             }}
                             placeholder="Thứ sáu, 14/08/2026, 23:59"
-                            minDate={formData.openDate ?? undefined}
-                            minTime={getCloseDateMinTime()}
-                            maxTime={new Date(new Date().setHours(23, 59, 0, 0))}
-                            error={closeDateError}    
+                            // * Chọn -> Validate -> Thông báo; không dùng cách giới hạn không cho chọn nữa
+                            // minDate={formData.openDate ?? undefined}
+                            // minTime={getCloseDateMinTime()}
+                            // maxTime={new Date(new Date().setHours(23, 59, 0, 0))}
+                            error={closeDateError}
                         />
 
                     </FieldGroup>
@@ -183,17 +199,29 @@ function Step1BasicInfo({ formData, onFormChange }) {
                         <div className={styles.memberRow}>
                             <FormInput
                                 label="Tối thiểu"
+                                labelVariant='small'
+                                placeholder={3}
                                 type="number"
                                 min={1}
-                                value={String(formData.minMembers ?? 3)}
-                                onChange={val => handleChange('minMembers', Number(val))}
+                                value={formData.minMembers ?? ''}
+                                onChange={val => {
+                                    const raw = val?.target ? val.target.value : val
+                                    onFormChange('minMembers', raw === '' ? '' : Number(raw))
+                                }}
+                                error={minMemberError}
                             />
                             <FormInput
                                 label="Tối đa"
+                                labelVariant='small'
+                                placeholder={5}
                                 type="number"
                                 min={1}
-                                value={String(formData.maxMembers ?? 4)}
-                                onChange={val => handleChange('maxMembers', Number(val))}
+                                value={formData.maxMembers ?? ''}
+                                onChange={val => {
+                                    const raw = val?.target ? val.target.value : val
+                                    onFormChange('maxMembers', raw === '' ? '' : Number(raw))
+                                }}
+                                error={maxMemberError}
                             />
                         </div>
 
@@ -213,8 +241,14 @@ function Step1BasicInfo({ formData, onFormChange }) {
                                 value={formData.teamDeadline ?? null}
                                 onChange={val => onFormChange?.('teamDeadline', val)}
                                 placeholder="Thứ ba, 20/08/2026, 23:59"
-                                minDate={formData.openDate ?? undefined}
-                                maxDate={formData.closeDate ?? undefined}
+
+                                // * Chọn -> Validate -> Thông báo; không dùng cách giới hạn không cho chọn nữa
+                                // minDate={
+                                //     formData.closeDate
+                                //         ? new Date(new Date(formData.closeDate).setHours(0, 0, 0, 0))
+                                //         : undefined
+                                // }
+                                
                                 error={teamDeadlineError}
                             />
                         )}
