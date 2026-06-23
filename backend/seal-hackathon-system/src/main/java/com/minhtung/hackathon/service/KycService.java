@@ -53,6 +53,9 @@ public class KycService {
         if (!user.isActive()) {
             throw new RuntimeException("Tài khoản chưa xác nhận Gmail");
         }
+        if (file.getSize() > 2 * 1024 * 1024) {
+            throw new RuntimeException("Ảnh hồ sơ tối đa 2MB");
+        }
         Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
                 .orElseGet(Student_profile::new);
 
