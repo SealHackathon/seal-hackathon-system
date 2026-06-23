@@ -13,4 +13,7 @@ public interface JudgeAssignmentRepository extends JpaRepository<JudgeAssignment
     
     // Kiểm tra xem giám khảo đã được phân công vào nhánh đấu này chưa (tránh trùng lặp)
     boolean existsByTrackIdAndUserId(long trackId, long userId);
+
+    void deleteByEventId(Long eventId);
+
 }

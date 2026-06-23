@@ -39,7 +39,7 @@ function MultiSelectDropdown({
   const ref = useRef(null)
   const Icon = icon
 
-  const hasCustomInValue = value.some(v => v.startsWith('custom:'))
+  const hasCustomInValue = value.some(v => typeof v === 'string' && v.startsWith('custom:'))
   const effectiveCount = value.length + (customChecked && !hasCustomInValue ? 1 : 0)
   const isAtMax = maxSelect != null && effectiveCount >= maxSelect
 
@@ -92,7 +92,7 @@ function MultiSelectDropdown({
       // Bỏ custom — xoá khỏi value list
       setCustomChecked(false)
       setCustomText('')
-      onChange(value.filter(v => !v.startsWith('custom:')))
+      onChange(value.filter(v => !(typeof v === 'string' && v.startsWith('custom:'))))
     }
   }
 
@@ -102,7 +102,7 @@ function MultiSelectDropdown({
     setCustomText(text)
 
     // Xoá custom cũ, thêm custom mới (nếu có text)
-    const withoutCustom = value.filter(v => !v.startsWith('custom:'))
+    const withoutCustom = value.filter(v => !(typeof v === 'string' && v.startsWith('custom:')))
     if (text.trim()) {
       onChange([...withoutCustom, `custom:${text}`])
     } else {
@@ -115,7 +115,7 @@ function MultiSelectDropdown({
     onChange(value.filter(v => v !== val))
 
     // * Nếu xoá chip custom (ấn vô cái dấu X) → tắt checkbox + xoá text
-    if (val.startsWith('custom:')) {
+    if (typeof val === 'string' && val.startsWith('custom:')) {
       setCustomChecked(false)
       setCustomText('')
     }
@@ -131,7 +131,7 @@ function MultiSelectDropdown({
 
   // Lấy label từ value để render chip
   function getLabelForValue(val) {
-    if (val.startsWith('custom:')) return val.replace('custom:', '')
+    if (typeof val === 'string' && val.startsWith('custom:')) return val.replace('custom:', '')
     for (const group of normalizedOptions) {
       const found = group.items.find(i => i.value === val)
       if (found) return found.label

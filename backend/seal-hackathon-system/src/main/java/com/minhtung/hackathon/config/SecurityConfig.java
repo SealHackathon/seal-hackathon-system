@@ -63,11 +63,12 @@ public class SecurityConfig {
                         .requestMatchers("/api/prize/**").permitAll()
                         .requestMatchers("/api/track/**").permitAll()
                         .requestMatchers("/api/milestone/**").permitAll()
+                        .requestMatchers("/api/mentor-judge/**").permitAll()
                         // Role
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/lecturer/**")
                         .hasAnyRole("ADMIN", "LECTURER")
-
+//                        judge-assignment
                         .requestMatchers("/api/user/student-profile").hasRole("USER")
                         .requestMatchers("/api/user/avatar").hasRole("USER")
 

@@ -9,4 +9,6 @@ import java.util.List;
 public interface MentorAssignmentRepository extends JpaRepository<MentorAssignment, Long> {
     List<MentorAssignment> findByTrackId(Long trackId);
     boolean existsByTrackIdAndUserId(Long trackId, Long userId);
+
+    void deleteByEventId(Long eventId);
 }

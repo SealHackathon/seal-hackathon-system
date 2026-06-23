@@ -111,19 +111,19 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           rubricId: Number(item.rubricId) || 0,
           submissionConfig: item.submissionType === 'new'
             ? {
-                title: item.name?.trim() || '',
-                submissionInstructions: item.submissionGuide || '',
-                openingTime: item.submissionOpen ? new Date(item.submissionOpen).toISOString() : null,
-                submissionDeadline: item.submissionDeadline ? new Date(item.submissionDeadline).toISOString() : null,
-                hasSubmission: true,
-              }
+              title: item.name?.trim() || '',
+              submissionInstructions: item.submissionGuide || '',
+              openingTime: item.submissionOpen ? new Date(item.submissionOpen).toISOString() : null,
+              submissionDeadline: item.submissionDeadline ? new Date(item.submissionDeadline).toISOString() : null,
+              hasSubmission: true,
+            }
             : {
-                title: '',
-                submissionInstructions: '',
-                openingTime: null,
-                submissionDeadline: null,
-                hasSubmission: false,
-              },
+              title: '',
+              submissionInstructions: '',
+              openingTime: null,
+              submissionDeadline: null,
+              hasSubmission: false,
+            },
           timelines: (item.agenda || []).map(t => ({
             name: t.name?.trim() || '',
             description: t.desc?.trim() || '',
@@ -213,6 +213,41 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         })
         .catch(error => {
           alert(`Không thể lưu mốc thời gian sự kiện (Step 6)`);
+          return false;
+        });
+    }
+
+    case 7: {
+      apiEndpoint = '/mentor-judge';
+
+      if (!formData.id) {
+        alert("Không tìm thấy thông tin sự kiện gốc!");
+        return false;
+      }
+
+      const step7Payload = {
+        eventId: parseInt(formData.id),
+
+        mentors: (formData.mentors || []).map(m => ({
+          userId: parseInt(m.id),
+          trackId: m.categoryId ? parseInt(m.categoryId) : null,
+        })),
+
+        judges: (formData.judges || []).map(j => ({
+          userId: parseInt(j.id),
+          trackIds: (j.categoryIds || []).map(id => parseInt(id)),
+          // roundIds: (j.roundIds || []).map(id => parseInt(id)),
+        })),
+      };
+
+      return axiosClient.post(apiEndpoint, step7Payload)
+        .then(response => {
+          console.log('Lưu bản nháp Step 7 thành công!', response.data);
+          return true;
+        })
+        .catch(error => {
+          const errorMsg = error.response?.data?.message || error.response?.data || error.message;
+          alert('Không thể lưu bản nháp Step 7: ' + errorMsg);
           return false;
         });
     }
