@@ -64,8 +64,6 @@ function DateTimeRangePicker({
     function handleStartTimeChange(timeDate) {
         if (!sharedDate) return
         const next = withTime(sharedDate, timeDate)
-        // Nếu end bị trước start → xóa end
-        if (endValue && next && endValue < next) onEndChange?.(null)
         onStartChange?.(next)
     }
 
@@ -186,14 +184,12 @@ function DateTimeRangePicker({
                             shouldCloseOnSelect={false}
                             showTimeSelect
                             showTimeSelectOnly
-                            timeCaption={endOptional ? 'Kết thúc' : 'Kết thúc'}
+                            timeCaption="Kết thúc"
                             timeFormat="HH:mm"
                             timeIntervals={30}
                             dateFormat="HH:mm"
                             placeholderText="--:--"
                             disabled={disabled || !startValue}
-                            minTime={startValue ?? undefined}
-                            maxTime={startValue ? new Date(startValue).setHours(23, 59) : undefined}
                             className={styles.timeInput}
                             calendarClassName={styles.calendar}
                             wrapperClassName={styles.pickerWrapper}

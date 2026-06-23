@@ -4,8 +4,8 @@ import StatusBadge from '../../StatusBadge'
 import styles from './CreateEventHeader.module.css'
 
 // status: 'draft' | 'live' | 'upcoming' | 'ended' | 'cancelled' | 'archived'
-// Công bố chỉ enabled khi status === 'draft'
-function CreateEventHeader({ title, status = 'draft', onBack, onPublish, onPreview }) {
+// Công bố chỉ enabled khi status === 'draft' và không bị disable do validation
+function CreateEventHeader({ title, status = 'draft', onBack, onPublish, onPreview, isPublishDisabled }) {
   return (
     <div className={styles.outer}>
 
@@ -41,7 +41,7 @@ function CreateEventHeader({ title, status = 'draft', onBack, onPublish, onPrevi
             variant="primary"
             color="green"
             onClick={onPublish}
-            disabled={status !== 'draft'}
+            disabled={status !== 'draft' || isPublishDisabled}
           />
         </div>
 

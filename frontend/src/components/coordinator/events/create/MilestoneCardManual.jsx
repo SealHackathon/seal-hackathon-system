@@ -5,6 +5,15 @@ import styles from './MilestoneCardManual.module.css'
 
 function MilestoneCardManual({ ms, onChange, onDelete }) {
     const hasDate = !!ms.date
+
+    const timeError = (() => {
+        if (!ms.date || !ms.endDate) return null
+        if (ms.endDate <= ms.date) {
+            return 'Thời gian kết thúc phải sau thời gian bắt đầu'
+        }
+        return null
+    })()
+
     return (
         <div className={[styles.card, !hasDate && styles.cardNoDate].filter(Boolean).join(' ')}>
             <div className={styles.header}>
@@ -33,6 +42,7 @@ function MilestoneCardManual({ ms, onChange, onDelete }) {
                 onStartChange={date => onChange({ ...ms, date })}
                 onEndChange={endDate => onChange({ ...ms, endDate })}
                 endOptional
+                error={timeError}
             />
             
             <FormInput

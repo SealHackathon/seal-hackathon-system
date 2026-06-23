@@ -45,7 +45,7 @@ const SUBMISSION_OPTIONS = [
 ]
 
 // ── Form cho 1 vòng thi
-function RoundForm({ round, onChange, isLast }) {
+function RoundForm({ round, onChange, isLast, prevRound }) {
     const [recents, setRecents] = useState(() => getRecentLocations())
 
     function update(field, val) {
@@ -60,17 +60,66 @@ function RoundForm({ round, onChange, isLast }) {
         }
     }
 
+    // ── Validate ngày bắt đầu so với vòng trước
+    const startDateError = (() => {
+        if (!round.startDate) return null
+        if (prevRound && prevRound.endDate) {
+            const start = new Date(round.startDate)
+            const prevEnd = new Date(prevRound.endDate)
+            if (start < prevEnd) {
+                return `Ngày bắt đầu phải sau hoặc bằng ngày kết thúc của vòng trước (${prevEnd.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })})`
+            }
+        }
+        return null
+    })()
+
     // ── Validate thời gian vòng thi
     const endDateError = (() => {
         if (!round.startDate || !round.endDate) return null
-        if (round.endDate <= round.startDate) return 'Ngày kết thúc phải sau ngày bắt đầu'
+        const start = new Date(round.startDate)
+        const end = new Date(round.endDate)
+        if (end <= start) return 'Ngày kết thúc phải sau ngày bắt đầu'
+        return null
+    })()
+
+    // ── Validate thời gian mở nộp bài
+    const submissionOpenError = (() => {
+        if (!round.submissionOpen) return null
+        const subOpen = new Date(round.submissionOpen)
+        if (round.startDate) {
+            const start = new Date(round.startDate)
+            if (subOpen < start) {
+                return 'Thời gian mở nộp bài phải từ thời điểm bắt đầu vòng thi'
+            }
+        }
         return null
     })()
 
     // ── Validate thời gian nộp bài
     const submissionDeadlineError = (() => {
-        if (!round.submissionOpen || !round.submissionDeadline) return null
-        if (round.submissionDeadline <= round.submissionOpen) return 'Hạn nộp bài phải sau thời điểm mở nộp'
+        if (!round.submissionDeadline) return null
+        const subDeadline = new Date(round.submissionDeadline)
+
+        if (round.startDate) {
+            const start = new Date(round.startDate)
+            if (subDeadline <= start) {
+                return 'Hạn nộp bài phải sau thời gian bắt đầu vòng thi'
+            }
+        }
+
+        if (round.endDate) {
+            const end = new Date(round.endDate)
+            if (subDeadline >= end) {
+                return 'Hạn nộp bài phải trước thời gian kết thúc vòng thi'
+            }
+        }
+
+        if (round.submissionOpen) {
+            const subOpen = new Date(round.submissionOpen)
+            if (subDeadline <= subOpen) {
+                return 'Hạn nộp bài phải sau thời điểm mở nộp'
+            }
+        }
         return null
     })()
 
@@ -98,6 +147,7 @@ function RoundForm({ round, onChange, isLast }) {
                             required
                             value={round.startDate}
                             onChange={val => update('startDate', val)}
+                            error={startDateError}
                         />
                         <DateTimePicker
                             label="Ngày kết thúc"
@@ -111,7 +161,7 @@ function RoundForm({ round, onChange, isLast }) {
                     <FieldGroup icon={Trophy} title="Trao giải">
                         {isLast ? (
                             <Banner
-                                color="orange" variant="solid" icon={Trophy}
+                                color="green" variant="solid" icon={Trophy}
                                 title="Vòng trao giải"
                                 message="Đây là vòng cuối cùng, kết quả sẽ được công bố tại đây."
                             />
@@ -191,6 +241,8 @@ function RoundForm({ round, onChange, isLast }) {
                                     label="Mở nộp bài"
                                     value={round.submissionOpen}
                                     onChange={val => update('submissionOpen', val)}
+                                    error={submissionOpenError}
+                                    status={submissionOpenError ? 'error' : 'default'}
                                 />
                                 <DateTimePicker
                                     label="Hạn nộp bài"
@@ -272,6 +324,8 @@ function Step4Rounds({ formData, onChange }) {
 
     const activeRound = rounds.find(r => r.id === activeId) ?? rounds[0]
     const isLast = rounds[rounds.length - 1]?.id === activeRound?.id
+    const activeIndex = rounds.findIndex(r => r.id === activeRound?.id)
+    const prevRound = activeIndex > 0 ? rounds[activeIndex - 1] : null
 
     return (
         <div className={styles.wrapper}>
@@ -297,6 +351,7 @@ function Step4Rounds({ formData, onChange }) {
                     round={activeRound}
                     onChange={handleRoundChange}
                     isLast={isLast}
+                    prevRound={prevRound}
                 />
             )}
         </div>
