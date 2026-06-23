@@ -88,6 +88,7 @@
 
 .avatarUpload {
     flex-shrink: 0;
+    width: 380px;
 }
 
 .imageGuide {

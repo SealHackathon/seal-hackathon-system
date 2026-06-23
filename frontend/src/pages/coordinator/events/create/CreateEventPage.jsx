@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import CoordinatorLayout from '../../../../layouts/CoordinatorLayout'
+// import CoordinatorLayout from '../../../../layouts/CoordinatorLayout'
 import CreateEventSidebar from '../../../../components/coordinator/events/create/CreateEventSidebar'
 import CreateEventHeader from '../../../../components/coordinator/events/create/CreateEventHeader'
 import CreateEventFooter from '../../../../components/coordinator/events/create/CreateEventFooter'
@@ -15,13 +15,13 @@ import axiosClient from '../../../../api/axiosClient'
 import { useNavigate } from 'react-router-dom';
 const TOTAL_STEPS = 7
 
-function StepPlaceholder({ step }) {
-  return (
-    <div className={styles.placeholder}>
-      <p className={styles.placeholderText}>Step {step} — Đang phát triển...</p>
-    </div>
-  )
-}
+// function StepPlaceholder({ step }) {
+//   return (
+//     <div className={styles.placeholder}>
+//       <p className={styles.placeholderText}>Step {step} — Đang phát triển...</p>
+//     </div>
+//   )
+// }
 
 function CreateEventPage() {
   const navigate = useNavigate(); // 1. Khởi tạo hàm điều hướng
@@ -32,6 +32,13 @@ function CreateEventPage() {
     deadlineSameAsClose: true,
     minMembers: 3,
     maxMembers: 4,
+    rankCount: 3,
+    mainPrizes: [
+      { id: 1, rank: 1, defaultName: 'Giải nhất', name: 'Giải nhất', quantity: 1, cash: '', desc: '' },
+      { id: 2, rank: 2, defaultName: 'Giải nhì', name: 'Giải nhì', quantity: 1, cash: '', desc: '' },
+      { id: 3, rank: 3, defaultName: 'Giải ba', name: 'Giải ba', quantity: 1, cash: '', desc: '' },
+    ],
+    extendedPrizes: [],
     rounds: [
       {
         id: 'round-1',
@@ -76,12 +83,36 @@ function CreateEventPage() {
   // nếu chưa điền đủ các thông tin form ko cho nhảy bước
   function validateStep(step) {
     if (step === 1) {
-      return !!(formData.name?.trim() && formData.openDate && formData.closeDate)
+      if (!formData.name?.trim()) return false
+      if (!formData.openDate || !formData.closeDate) return false
+      
+      const open = new Date(formData.openDate).getTime()
+      const close = new Date(formData.closeDate).getTime()
+      if (close <= open) return false
+
+      const min = formData.minMembers
+      const max = formData.maxMembers
+      if (min === '' || min === undefined || min === null) return false
+      if (max === '' || max === undefined || max === null) return false
+      if (Number(min) < 1 || Number(max) < 1) return false
+      if (Number(min) >= Number(max)) return false
+
+      if (!formData.avatarFile || !formData.coverFile) return false
+
+      if (formData.deadlineSameAsClose === false) {
+        if (!formData.teamDeadline) return false
+        if (new Date(formData.teamDeadline).getTime() < close) return false
+      }
+
+      return true
     }
     if (step === 2) {
       const rules = formData.generalRules ?? ''
       const isEmpty = !rules.trim() || rules === '<p></p>' || rules === '<p><br></p>'
-      return !isEmpty
+      if (isEmpty) return false
+
+      const notes = formData.notes ?? []
+      return notes.every(n => n.title?.trim())
     }
     if (step === 3) {
       const mainPrizes = formData.mainPrizes ?? []
@@ -90,18 +121,18 @@ function CreateEventPage() {
       // Phải có đủ số giải theo dropdown
       if (mainPrizes.length < rankCount) return false
 
-      // Mỗi giải chính phải điền đủ tên + số lượng + giá trị
+      // Mỗi giải chính phải điền đủ tên + số lượng
       const mainValid = mainPrizes.every(p =>
         p.name?.trim() &&
-        p.quantity !== '' && p.quantity !== undefined
+        p.quantity !== '' && p.quantity !== undefined && p.quantity !== null && Number(p.quantity) >= 1
       )
       if (!mainValid) return false
 
-      // Giải phụ nếu có phải điền tên
+      // Giải phụ nếu có phải điền tên + số lượng
       const extendedPrizes = formData.extendedPrizes ?? []
       const extValid = extendedPrizes.every(p =>
         p.name?.trim() &&
-        p.quantity !== '' && p.quantity !== undefined
+        p.quantity !== '' && p.quantity !== undefined && p.quantity !== null && Number(p.quantity) >= 1
       )
       if (!extValid) return false
 
@@ -110,32 +141,60 @@ function CreateEventPage() {
     if (step === 4) {
       const rounds = formData.rounds ?? []
       if (rounds.length === 0) return false
-      return rounds.every(r => {
+      return rounds.every((r, idx) => {
         if (!r.name?.trim()) return false
         if (!r.startDate || !r.endDate) return false
 
-        const start = new Date(r.startDate)
-        const end = new Date(r.endDate)
+        const start = new Date(r.startDate).getTime()
+        const end = new Date(r.endDate).getTime()
         if (end <= start) return false
+
+        // Kiểm tra thứ tự các vòng thi: Ngày bắt đầu vòng sau >= Ngày kết thúc vòng trước
+        if (idx > 0) {
+          const prevEnd = new Date(rounds[idx - 1].endDate).getTime()
+          if (start < prevEnd) return false
+        }
 
         if (r.format === 'offline' && !r.location) return false
         if (r.format === 'online' && !r.meetingLink?.trim()) return false
 
         if (r.submissionType === 'new') {
           if (!r.submissionDeadline) return false
+          const subDeadline = new Date(r.submissionDeadline).getTime()
+          
+          // Hạn nộp bài phải nằm trong thời gian diễn ra vòng
+          if (subDeadline <= start || subDeadline >= end) return false
+
           if (r.submissionOpen) {
-            const subOpen = new Date(r.submissionOpen)
-            const subDeadline = new Date(r.submissionDeadline)
+            const subOpen = new Date(r.submissionOpen).getTime()
             if (subDeadline <= subOpen) return false
+            if (subOpen < start) return false
           }
         }
+
+        // Kiểm tra lịch trình (agenda) của vòng thi
+        const agenda = r.agenda ?? []
+        const agendaValid = agenda.every((item, i) => {
+          if (i === 0) return true
+          const prev = agenda[i - 1]
+          if (prev.startTime && item.startTime && item.startTime <= prev.startTime) return false
+          return true
+        })
+        if (!agendaValid) return false
+
         return true
       })
     }
     if (step === 5) {
       const categories = formData.categories ?? []
       if (categories.length === 0) return false
-      return categories.every(c => c.name?.trim())
+      return categories.every(c => {
+        if (!c.name?.trim()) return false
+        if (c.teamLimit !== '' && c.teamLimit !== undefined && c.teamLimit !== null) {
+          if (Number(c.teamLimit) < 1) return false
+        }
+        return true
+      })
     }
     return true
   }
@@ -213,20 +272,22 @@ function onSaveDraft() {
     }
   }
 
+  const isPublishDisabled = ![1, 2, 3, 4, 5].every(step => validateStep(step))
+
   return (
     // <CoordinatorLayout>
     // </CoordinatorLayout>
 
     <div className={styles.page}>
 
-      {/* ── Header ── */}
-      <CreateEventHeader
-        title={formData.name?.trim() || 'Sự kiện mới'}
-        status={status}
-        onPublish={handlePublish}
-        onPreview={handlePreview}
-        onBack={handleCancel}
-      />
+        {/* ── Header ── */}
+        <CreateEventHeader
+          title={formData.name?.trim() || 'Sự kiện mới'}
+          status={status}
+          onPublish={handlePublish}
+          onPreview={handlePreview}
+          isPublishDisabled={isPublishDisabled}
+        />
 
       {/* ── Body: create sidebar + step content ── */}
       <div className={styles.body}>

@@ -25,7 +25,7 @@
     transition: border-color 0.15s;
 }
 .row:focus-within { border-color: var(--color-primary-blue); }
-.rowError { border-color: var(--color-primary-red) !important; }
+.rowError { border-color: var(--color-primary-orange) !important; }
 
 /* Date part */
 .datePart {
@@ -104,7 +104,7 @@
 /* Error */
 .errorMsg {
     font-size: 0.78rem;
-    color: var(--color-primary-red);
+    color: var(--color-primary-orange);
     margin: 0;
 }
 
