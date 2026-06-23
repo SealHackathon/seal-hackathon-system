@@ -232,9 +232,7 @@ function LocationSearch({
     recentPlaces = [],
     placeholder = 'Tìm kiếm địa điểm ...',
 }) {
-
     return (
-        
         <APIProvider apiKey={GOOGLE_MAPS_API_KEY} libraries={['places']}>
             <div className={styles.wrapper}>
                 {label && (

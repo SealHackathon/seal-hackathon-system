@@ -32,6 +32,39 @@ function CreateEventPage() {
     deadlineSameAsClose: true,
     minMembers: 3,
     maxMembers: 4,
+    rounds: [
+      {
+        id: 'round-1',
+        name: 'Vòng Sơ khảo',
+        startDate: null,
+        endDate: null,
+        format: 'offline',
+        location: null,
+        submissionType: 'new',
+        submissionOpen: null,
+        submissionDeadline: null,
+        submissionGuide: '',
+        agenda: [],
+        meetingLink: '',
+      },
+      {
+        id: 'round-2',
+        name: 'Vòng Chung kết',
+        startDate: null,
+        endDate: null,
+        format: 'offline',
+        location: null,
+        submissionType: 'new',
+        submissionOpen: null,
+        submissionDeadline: null,
+        submissionGuide: '',
+        agenda: [],
+        meetingLink: '',
+      }
+    ],
+    categories: [
+      { id: 'cat-1', name: '', desc: '', teamLimit: '' }
+    ]
   })
   const [status, setStatus] = useState('draft')
 
@@ -73,6 +106,36 @@ function CreateEventPage() {
       if (!extValid) return false
 
       return true
+    }
+    if (step === 4) {
+      const rounds = formData.rounds ?? []
+      if (rounds.length === 0) return false
+      return rounds.every(r => {
+        if (!r.name?.trim()) return false
+        if (!r.startDate || !r.endDate) return false
+
+        const start = new Date(r.startDate)
+        const end = new Date(r.endDate)
+        if (end <= start) return false
+
+        if (r.format === 'offline' && !r.location) return false
+        if (r.format === 'online' && !r.meetingLink?.trim()) return false
+
+        if (r.submissionType === 'new') {
+          if (!r.submissionDeadline) return false
+          if (r.submissionOpen) {
+            const subOpen = new Date(r.submissionOpen)
+            const subDeadline = new Date(r.submissionDeadline)
+            if (subDeadline <= subOpen) return false
+          }
+        }
+        return true
+      })
+    }
+    if (step === 5) {
+      const categories = formData.categories ?? []
+      if (categories.length === 0) return false
+      return categories.every(c => c.name?.trim())
     }
     return true
   }
@@ -145,7 +208,7 @@ function onSaveDraft() {
       case 4: return <Step4Rounds formData={formData} onChange={setFormData} />
       case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
       case 6: return <Step6Timeline formData={formData} onFormChange={handleFormChange} />
-      case 7: return <StepPlaceholder step={7} />
+      case 7: return <Step7MentorJudge formData={formData} onFormChange={handleFormChange} />
       default: return null
     }
   }

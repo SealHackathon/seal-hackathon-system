@@ -1,0 +1,96 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+/* Section card */
+.section {
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    background: white;
+}
+
+.sectionHead {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.25rem 0.25rem;
+}
+
+.sectionTitle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.sectionName {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.countBadge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: white;
+    background: var(--color-primary-blue);
+    border-radius: 999px;
+    padding: 0.1em 0.55em;
+    min-width: 1.4em;
+    text-align: center;
+}
+
+.pendingBadge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: var(--color-primary-orange);
+    background: var(--color-bg-orange);
+    border: 1.5px solid var(--color-primary-orange);
+    border-radius: 999px;
+    padding: 0.1em 0.55em;
+}
+
+.sectionSub {
+    font-size: 0.8rem;
+    color: var(--color-secondary-blue);
+    margin: 0;
+    padding: 0 1.25rem 0.75rem;
+}
+
+/* Table */
+.table {
+    border-top: 1.5px solid var(--color-border-blue);
+}
+
+.tableHeader {
+    display: grid;
+    gap: 1rem;
+    padding: 0.4rem 1rem;
+    background: var(--color-bg-blue);
+    border-bottom: 1px solid var(--color-border-blue);
+}
+
+.mentorGrid {
+    grid-template-columns: 2fr 2.5fr 1.75fr;
+}
+
+.judgeGrid {
+    grid-template-columns: 1.8fr 1.5fr 1.5fr 2.2fr;
+}
+
+.colLabel {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--color-secondary-blue);
+    text-transform: uppercase;
+}
+
+/* Bulk invite row */
+.bulkRow {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--color-border-blue);
+}
