@@ -1,7 +1,9 @@
 package com.minhtung.hackathon.entity;
 
 
+import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.enums.Role;
+import com.minhtung.hackathon.enums.UserStatus;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -14,16 +16,50 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "Password", nullable = false)
+    @Column(name = "password", nullable = false)
     private String password;
     @Column(name = "fullName")
     private String fullName;
-    @Column(name = "Email", nullable = false)
+    @Column(name = "email", nullable = false)
     private String email;
     @Column(name = "schoolName")
     private String schoolName;
-    @Column(name = "Active", nullable = false)
+    @Column(name = "active", nullable = false)
     private boolean active = false;
+
+    @Column(name = "avt_img")
+    private String avtImg;
+
+    @Column(name = "phoneNumber")
+    private String phoneNumber;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", length = 255, nullable = false)
+    private UserStatus status;
+
+    public UserStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(UserStatus status) {
+        this.status = status;
+    }
+
+    public String getAvtImg() {
+        return avtImg;
+    }
+
+    public void setAvtImg(String studentCardImg) {
+        this.avtImg = studentCardImg;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
 
     public String getSchoolName() {
         return schoolName;

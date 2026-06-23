@@ -1,0 +1,218 @@
+.card {
+    background-color: var(--color-bg-white);
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    display: grid;
+    grid-template-columns: 1fr 3fr 3fr;
+    gap: 1em;
+    padding: 1.5em;
+    transition: all 0.15s;
+}
+
+.card:hover {
+    border: 1.5px solid var(--color-secondary-blue);
+}
+
+/* ---- Thumbnail ---- */
+.thumbnail {
+    width: 200px;
+    height: 200px;
+    flex-shrink: 0;
+    border-radius: var(--inner-radius);
+    background-color: var(--color-bg-blue);
+    border: 1px solid var(--color-border-blue);
+    object-fit: cover;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-border-blue);
+    font-size: 0.7rem;
+    overflow: hidden;
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ---- Body ---- */
+.body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+    min-width: 0;
+}
+
+.titleRow {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    flex-wrap: wrap;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+.theme {
+    color: var(--color-dark-blue);
+    display: flex;
+    gap: 1em;
+}
+
+.themeTitle {
+    font-weight: bold;
+    color: var(--color-primary-blue);
+}
+
+.summaryInfoContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+
+    background-color: var(--color-bg-blue);
+    padding: 1em;
+    border-radius: var(--inner-radius);
+    width:fit-content;
+}
+
+.metaRow {
+    display: flex;
+    align-items: center;
+    gap: 1.2em;
+    flex-wrap: wrap;
+}
+
+.tagsRow {
+    display: flex;
+    align-items: center;
+}
+
+/* ---- Right panel ---- */
+.right {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 0.5em;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 600px;
+    margin-top: auto;
+}
+
+.rightBottom {
+    display: flex;
+    gap: 2em;
+}
+
+/* Timeline (chỉ hiển cho live) */
+.timeline {
+    width: 100%;
+}
+
+.timelineLabel {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+    margin-bottom: 0.3em;
+}
+
+.timelineTrack {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0;
+}
+
+.timelineTrack::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 2px;
+    background-color: var(--color-border-blue);
+    z-index: 0;
+}
+
+.timelineStep {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25em;
+    z-index: 1;
+    background: transparent;
+}
+
+.timelineDot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border-blue);
+    background-color: var(--color-bg-white);
+}
+
+.timelineDotActive {
+    background-color: var(--color-primary-blue);
+    border-color: var(--color-primary-blue);
+}
+
+.timelineDotDone {
+    background-color: #22c55e;
+    border-color: #22c55e;
+}
+
+.timelineDate {
+    font-size: 0.6rem;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.timelineStepLabel {
+    font-size: 0.6rem;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    text-align: center;
+    max-width: 56px;
+}
+
+/* Stats row */
+.stats {
+    display: flex;
+    gap: 1em;
+    align-items: flex-end;
+}
+
+.stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.1em;
+}
+
+.statValue {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.statLabel {
+    font-size: 0.62rem;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+/* Actions */
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+}

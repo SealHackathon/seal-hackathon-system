@@ -1,0 +1,159 @@
+.wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.outer {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: visible;
+    scrollbar-width: none;
+}
+.outer::-webkit-scrollbar        { height: 4px; }
+.outer::-webkit-scrollbar-track  { background: transparent; }
+.outer::-webkit-scrollbar-thumb  { background: var(--color-border-blue); border-radius: 999px; }
+.outer::-webkit-scrollbar-button { display: none; }
+
+.track {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-width: max-content;
+    height: 140px;
+    padding: 0 1.5em;
+}
+
+.line {
+    position: absolute;
+    top: 50%;
+    left: 1.5em;
+    right: 1.5em;
+    height: 2px;
+    background-color: var(--color-border-blue);
+    transform: translateY(-50%);
+}
+
+/* Chỉ định nghĩa 1 lần duy nhất — left: 0, width từ custom property */
+.lineDone {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    height: 2px;
+    background-color: #22c55e;
+    transform: translateY(-50%);
+    pointer-events: none;
+    width: var(--done-width, 0px);
+    transition: width 0.3s ease;
+}
+
+.arrow {
+    position: absolute;
+    top: 50%;
+    right: calc(1.5em - 8px);
+    transform: translateY(-50%);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    border-left: 10px solid var(--color-border-blue);
+}
+
+.node {
+    position: relative;
+    width: 96px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+.nodeDate {
+    position: absolute;
+    top: -2em;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.68rem;
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+}
+
+.dot {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border-blue);
+    background-color: var(--color-bg-white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s;
+    flex-shrink: 0;
+}
+.node:hover .dot  { transform: scale(1.12); }
+.dotDone          { background-color: #dcfce7; border-color: #22c55e; color: #16a34a; }
+.dotActive        { background-color: var(--color-primary-blue); border-color: var(--color-primary-blue); color: #fff; }
+.dotUpcoming      { background-color: var(--color-bg-white); border-color: var(--color-border-blue); }
+
+.nodeLabel {
+    position: absolute;
+    top: calc(50% + 20px);
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-align: center;
+    width: 88px;
+    line-height: 1.3;
+}
+.labelDone     { color: #16a34a; }
+.labelActive   { color: var(--color-primary-blue); font-weight: 700; }
+.labelUpcoming { color: var(--color-secondary-blue); opacity: 0.5; }
+
+.todayIndicator {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--today-left, 0px);
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+    z-index: 2;
+    opacity: var(--today-show, 0);
+}
+.todayIndicatorLabel {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--color-primary-orange);
+    background-color: var(--color-bg-white);
+    border: 1.5px solid var(--color-primary-orange);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    white-space: nowrap;
+    margin-top: 0.3em;
+}
+.todayIndicatorLine {
+    flex: 1;
+    width: 2px;
+    background: repeating-linear-gradient(
+        to bottom,
+        var(--color-primary-orange) 0px,
+        var(--color-primary-orange) 5px,
+        transparent 5px,
+        transparent 10px
+    );
+    margin-top: 3px;
+}
+
+.fadeLeft,
+.fadeRight {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 3em;
+    pointer-events: none;
+    z-index: 10;
+}
+.fadeLeft  { left: 0;  background: linear-gradient(to right, var(--color-bg-white), transparent); }
+.fadeRight { right: 0; background: linear-gradient(to left,  var(--color-bg-white), transparent); }

@@ -1,35 +1,41 @@
 .sidebar {
-    width: fit-content;
-    min-height: 80vh;
+    width: 7em;
+    height: 98vh;
+    flex-shrink: 0;
 
     background-color: var(--color-bg-white);
 
     border: 1px solid var(--color-border-blue);
-    border-radius: var(--radius);
+    border-radius: var(--inner-radius);
 
-    padding: 1em 0.5em;
-
+    padding: 0.75em;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    
     display: flex;
     flex-direction: column;
-    gap: 0.5em;
-    
+    gap: 0.25em;
+
+    position: sticky;
+    top: 0;
 }
 
 .backBtn {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5em;
+    gap: 0.25em;
 
-    padding: 0.6em 1em;
+    padding: 0.5em 0.25em;
+    width: 100%;
 
     background: none;
     border: none;
     border-radius: var(--inner-radius);
-    
+
     color: var(--color-secondary-blue);
     cursor: pointer;
-    text-align: left;
 }
 
 .backBtn:hover {
@@ -38,9 +44,10 @@
 }
 
 .backBtn span {
-    font-size: 0.8rem;
+    font-size: 0.9rem;
     font-weight: bold;
-    width: min-content;
+    text-align: center;
+    line-height: 1.2;
 }
 
 .divider {
@@ -52,6 +59,6 @@
 .nav {
     display: flex;
     flex-direction: column;
-    gap: 1em;
-    align-items: center;
+    gap: 0.25em;
+    align-items: stretch;
 }

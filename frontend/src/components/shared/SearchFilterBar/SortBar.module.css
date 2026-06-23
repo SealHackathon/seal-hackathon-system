@@ -1,0 +1,38 @@
+.row {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    flex-wrap: wrap;
+}
+
+.label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0.3em 0.75em;
+    border-radius: var(--inner-radius);
+    border: 1.5px solid var(--color-border-blue);
+    background: none;
+    font-size: 0.9rem;
+    color: var(--color-secondary-blue);
+    cursor: pointer;
+    transition: border-color 0.1s, color 0.1s, background 0.1s;
+}
+
+.btn:hover {
+    border-color: var(--color-primary-blue);
+    color: var(--color-primary-blue);
+}
+
+.btnActive {
+    border-color: var(--color-primary-blue);
+    color: var(--color-primary-blue);
+    font-weight: 600;
+    background-color: var(--color-bg-blue);
+}

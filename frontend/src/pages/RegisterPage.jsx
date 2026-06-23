@@ -108,7 +108,7 @@ function RegisterPage() {
                         label="Email"
                         required
                         iconLeft={EnvelopeSimple}
-                        placeholder="ntbi533@gmail.com"
+                        placeholder="example@gmail.com"
                         type="email"
                         value={form.email}
                         onChange={e => setField('email', e.target.value)}
@@ -120,7 +120,7 @@ function RegisterPage() {
                     <FormInput
                         label="Mật khẩu"
                         required
-                        placeholder="••••••••"
+                        placeholder="Tối thiểu 8 kí tự"
                         type={showPassword ? 'text' : 'password'}
                         iconLeft={LockSimple}
                         iconRight={showPassword ? EyeSlash : Eye}

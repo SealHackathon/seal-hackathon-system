@@ -35,6 +35,12 @@ function LoginPage() {
                 const data = response.data;
 
                 if (data.token) {
+                    
+                    //TODO: lưu thêm hasTeam teamRole expiredTime
+                    
+
+
+
                     localStorage.setItem('accessToken', data.token);
                     const userInfo = {
                         email: response.data.email,
@@ -79,7 +85,7 @@ function LoginPage() {
                     <FormInput
                         label="Mật khẩu"
                         required
-                        placeholder="••••••••"
+                        placeholder="Tối thiểu 8 kí tự"
                         type={showPassword ? 'text' : 'password'}
                         iconRight={showPassword ? EyeSlash : Eye}
                         onIconRightClick={() => setShowPassword(p => !p)}

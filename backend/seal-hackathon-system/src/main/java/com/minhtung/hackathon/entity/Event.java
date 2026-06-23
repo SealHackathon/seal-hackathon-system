@@ -1,0 +1,93 @@
+package com.minhtung.hackathon.entity;
+
+import com.minhtung.hackathon.enums.EventStatus;
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+@Entity
+@Table(name = "event")
+@Data
+public class Event {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    @Column(nullable = false, length = 100)
+    private LocalDateTime createAt;
+
+    //sau nay doi ve enum
+    @Column(length = 255, columnDefinition = "text")
+    private String description;
+
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20)
+    private EventStatus status;
+
+    @Column
+    private int minTeamMember;
+
+    @Column(length = 255)
+    private String topic;
+
+    @Column(length = 255)
+    private String bannerImg;
+
+    @Column(length = 255)
+    private String thumbnail_image;
+
+    @Column
+    private int maxTeamMember;
+
+    @Column(length = 255, columnDefinition = "text")
+    private String rules;
+
+    @Column(columnDefinition = "text")
+    private String participationBenefits;
+
+
+    @OneToMany(mappedBy = "event",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Milestone> milestones = new ArrayList<>();
+
+    @OneToMany(mappedBy = "event",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Prize> prizes = new ArrayList<>();
+
+    @OneToMany(mappedBy = "event",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Round> rounds = new ArrayList<>();
+
+
+    @OneToMany(mappedBy = "event",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<Track> tracks = new ArrayList<>();
+
+    public Event() {
+    }
+
+    public Event(String name, LocalDateTime createAt, String description, EventStatus status, int minTeamMember, String topic, String bannerImg, String thumbnail_image, int maxTeamMember, String rules, String participationBenefits) {
+        this.name = name;
+        this.createAt = createAt;
+        this.description = description;
+        this.status = status;
+        this.minTeamMember = minTeamMember;
+        this.topic = topic;
+        this.bannerImg = bannerImg;
+        this.thumbnail_image = thumbnail_image;
+        this.maxTeamMember = maxTeamMember;
+        this.rules = rules;
+        this.participationBenefits = participationBenefits;
+    }
+}

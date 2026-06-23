@@ -1,0 +1,43 @@
+package com.minhtung.hackathon.entity;
+
+import jakarta.persistence.*;
+import lombok.Data;
+
+import java.util.List;
+
+@Entity
+@Table(name = "track")
+@Data
+public class Track {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
+
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    @Column(length = 255)
+    private String des;
+
+    @Column(name = "min_team_per_track")
+    private int minTeamPerTrack;
+
+    @Column(name = "max_team_per_track")
+    private int maxTeamPerTrack;
+
+    @OneToMany(mappedBy = "track")
+    private List<Team> teams;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
+    private Event event;
+
+
+    public Track(String name, String des, int maxTeamPerTrack, int minTeamPerTrack) {
+        this.name = name;
+        this.des = des;
+        this.maxTeamPerTrack = maxTeamPerTrack;
+        this.minTeamPerTrack = minTeamPerTrack;
+    }
+}
