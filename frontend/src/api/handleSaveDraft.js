@@ -135,33 +135,27 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
 
       return axiosClient.post('/round', step4Payload)
         .then(response => {
-          // ── REFACTOR: CẬP NHẬT ROUNDS TỪ BACKEND TRẢ VỀ ĐỂ LẤY ID THẬT ──
+          console.log('Lưu bản nháp Step 4 thành công!', response.data);
+
           const savedRounds = response.data;
           if (Array.isArray(savedRounds)) {
-            // Map ngược từ thuộc tính của Backend (timeStart, timeEnd,...) 
-            // về đúng cấu trúc ban đầu của Frontend (startDate, endDate,...)
-            const updatedRounds = savedRounds.map((r, index) => {
-              // Lấy lại config của round hiện tại trong form để giữ lại các thông tin local (location, format...) nếu cần
-              const originalRound = (formData.rounds || [])[index] || {};
-
+            const updatedRounds = (formData.rounds || []).map((original, index) => {
+              const r = savedRounds[index];
+              if (!r) return original;
               return {
-                ...originalRound,
-                id: r.id, // Đè ID thật từ DB lên để dùng cho Step 7 (Judge)
-                name: r.name,
-                startDate: r.timeStart,
-                endDate: r.timeEnd,
-                topTeamPass: r.topTeamPass,
-                submissionDeadline: r.submissionDeadline,
-                // Giữ nguyên agenda cũ hoặc map lại từ r.timelines nếu Backend trả về dạng timelines
-                agenda: originalRound.agenda || []
+                ...original,
+                id: r.roundId,
+                name: r.roundName,
+                startDate: r.roundStartTime,
+                endDate: r.roundEndTime,
+                submissionDeadline: r.roundSubmissionDeadline,
               };
             });
+            console.log('savedRounds từ backend:', JSON.stringify(savedRounds))
 
-            // Cập nhật trực tiếp mảng rounds mới vào formData của file tổng
             handleFormChange('rounds', updatedRounds);
-            console.log("Đã đồng bộ ID cho Rounds:", updatedRounds);
+            console.log(updatedRounds);
           }
-          // ───────────────────────────────────────────────────────────────
 
           return true;
         })
@@ -171,7 +165,6 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           return false;
         });
     }
-
     case 5: {
       const step5Payload = {
         eventId: formData.id,
@@ -200,10 +193,8 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
 
             // DÙNG CHÍNH HÀM CỦA BẠN: Cập nhật trực tiếp trường 'categories' vào formData
             handleFormChange('categories', updatedCategories);
-            console.log(updatedCategories)
           }
           //-----------------------------------
-
           return true;
         })
         .catch(error => {

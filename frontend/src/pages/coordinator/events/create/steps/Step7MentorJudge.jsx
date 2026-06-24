@@ -35,7 +35,7 @@ function Step7MentorJudge({ formData, onFormChange }) {
         .filter(c => c.name?.trim())
         .map(c => ({ value: c.id ?? c, label: c.name ?? c }))
     const rounds = (formData?.rounds ?? [])
-        .filter(r => r.name?.trim())
+        .filter(r => r.name?.trim() && r.id)
         .map(r => ({ value: r.id ?? r, label: r.name ?? r }))
 
     // Modal state
@@ -186,6 +186,8 @@ function Step7MentorJudge({ formData, onFormChange }) {
                 .catch((err) => console.error(`Lỗi gửi bulk invite cho Track ${catId}:`, err));
         });
     }
+
+
     // ==========================================
     // JUDGE HANDLERS (Giữ nguyên cấu trúc categoryIds, roundIds)
     // ==========================================
