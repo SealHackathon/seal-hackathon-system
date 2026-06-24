@@ -1,4 +1,4 @@
-import { useState, useMemo,useEffect } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { MagnifyingGlass, Plus, ArrowUp, ArrowDown, Heart, Flag, Trash, Archive, FileX } from '@phosphor-icons/react'
 import EventCard from '../components/coordinator/EventCard'
 import Button from '../components/shared/Button'
@@ -126,7 +126,7 @@ function EventListPage({ onManageEvent }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [activeFilter, setActiveFilter] = useState('all')
   const [activeSort, setActiveSort] = useState('newest')
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(true)
 
@@ -143,7 +143,7 @@ function EventListPage({ onManageEvent }) {
   //   return list
   // }, [activeFilter, searchQuery])
 
-  
+
 
   // count per status for badge
   // const countByStatus = useMemo(() => {
@@ -160,25 +160,28 @@ function EventListPage({ onManageEvent }) {
     axiosClient.get('/event/all') // Gọi API lấy danh sách sự kiện
       .then(response => {
         if (isMounted && response.data) {
-          
+
           // Khớp cấu trúc dữ liệu từ Backend DTO sang cấu trúc Card yêu cầu
           const formattedEvents = response.data.map(apiEvent => {
-            
+
             // Tự động bóc tách mảng milestones thành timeline trên Card
             const timeline = (apiEvent.milestones || []).map(m => {
               const dateObj = new Date(m.dateStart);
-              const formattedDate = isNaN(dateObj.getTime()) 
-                ? 'Chưa rõ' 
+              const formattedDate = isNaN(dateObj.getTime())
+                ? 'Chưa rõ'
                 : `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
-              
+
               return {
                 date: formattedDate,
                 label: m.milestoneName
               };
             });
 
+
+
+
             return {
-              id: String(apiEvent.eventId),
+              id: apiEvent.eventId,
               status: (apiEvent.eventStatus || 'draft').toLowerCase(),
               title: apiEvent.eventName || 'Sự kiện chưa đặt tên',
               theme: apiEvent.eventTopic || 'Chưa xác định chủ đề',
@@ -209,7 +212,19 @@ function EventListPage({ onManageEvent }) {
     return () => { isMounted = false; };
   }, []);
 
-// ── SỬA CHỖ NÀY: Đổi MOCK_EVENTS thành biến events trong useMemo lọc ──
+
+  const handleOnDelete = (id) => {
+    axiosClient.delete(`/event/${id}`).then(
+      () => {
+        console.log('delete event sucess !');
+      }
+    ).catch((error) => {
+      console.log(error)
+    })
+  }
+
+
+  // ── SỬA CHỖ NÀY: Đổi MOCK_EVENTS thành biến events trong useMemo lọc ──
   const filtered = useMemo(() => {
     let list = events // Đổi từ MOCK_EVENTS sang events ở đây
     if (activeFilter !== 'all') list = list.filter(e => e.status === activeFilter)
@@ -223,7 +238,7 @@ function EventListPage({ onManageEvent }) {
     return list
   }, [activeFilter, searchQuery, events]) // Thêm cả events vào mảng dependency này luôn
 
- 
+
   // ── SỬA CHỖ NÀY: Đổi MOCK_EVENTS thành events trong useMemo đếm số lượng Badge ──
   const countByStatus = useMemo(() => {
     const map = { all: events.length } // Sửa thành events.length
@@ -282,7 +297,7 @@ function EventListPage({ onManageEvent }) {
               onDuplicate={() => console.log('duplicate', event.id)}
               onArchive={() => console.log('archive', event.id)}
               onCancel={() => console.log('cancel', event.id)}
-              onDelete={() => console.log('delete', event.id)}
+              onDelete={()=>{handleOnDelete(event.id)}}
             />
           ))
         }

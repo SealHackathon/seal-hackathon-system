@@ -6,4 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SubmissionConfigRepository extends JpaRepository<SubmissionConfig, Long> {
+
+    void deleteByRoundId(Long roundId);
 }

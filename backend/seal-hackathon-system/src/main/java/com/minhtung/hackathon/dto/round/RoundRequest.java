@@ -11,6 +11,7 @@ public class RoundRequest {
 
     @Data
     public static class RoundItem {
+        private Long roundId; // Thêm trường này để nhận diện UPSET (Update/Insert)
         private String name;
         private LocalDateTime timeStart;
         private LocalDateTime timeEnd;

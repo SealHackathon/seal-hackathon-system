@@ -224,7 +224,7 @@ function Step7MentorJudge({ formData, onFormChange }) {
             : j
         ));
 
-        axiosClient.post(`/mentor-judge/judges/${id}/invite?eventId=${formData.id}&trackId=${Number(categoryId)}&roundId=${Number(roundId)}`)
+        axiosClient.post(`/mentor-judge/judges/${id}/invite?eventId=${formData.id}&trackId=${categoryId}&roundId=${roundId}`)
             .then((res) => console.log("Invite judge lẻ thành công:", res.data))
             .catch((err) => console.error("Lỗi mời judge lẻ:", err));
     }
@@ -243,7 +243,7 @@ function Step7MentorJudge({ formData, onFormChange }) {
             : j
         ));
 
-        axiosClient.delete(`/mentor-judge/judges/${id}/invite?eventId=${formData.id}&trackId=${Number(categoryId)}&roundId=${Number(roundId)}`)
+        axiosClient.delete(`/mentor-judge/judges/${id}/invite?eventId=${formData.id}&trackId=${categoryId}&roundId=${roundId}`)
             .then((res) => console.log("Rút lời mời judge thành công:", res.data))
             .catch((err) => console.error("Lỗi rút lời mời judge:", err));
     }

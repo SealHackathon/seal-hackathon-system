@@ -76,7 +76,7 @@ public class RoundController {
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public ResponseEntity<?> createRound(@RequestBody RoundRequest request) {
-        return ResponseEntity.ok(roundService.createRounds(request));
+        return ResponseEntity.ok(roundService.createOrUpdateRounds(request));
     }
 
     // 5. DELETE - Xóa vòng thi

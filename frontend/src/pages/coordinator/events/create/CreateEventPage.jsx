@@ -234,6 +234,7 @@ function CreateEventPage() {
 
   // Trong component:
   function onSaveDraft() {
+   
     return handleSaveDraft({ currentStep, formData, axiosClient, handleFormChange })
   }
   //------------------------------------------------------------------------------------------------

@@ -22,6 +22,9 @@ public interface RoundRepository extends JpaRepository<Round, Long> {
     // lấy vòng gần nhất chưa kết thúc
     Optional<Round> findFirstByTimeEndAfterOrderByTimeEndAsc(LocalDateTime now);
 
+    void deleteByEventIdAndIdNotIn(Long eventId, List<Long> roundIds);
+
+
     // Sử dụng LEFT JOIN FETCH để kéo dữ liệu LAZY của submissionConfig về cùng một lúc
     @Query("SELECT r FROM Round r LEFT JOIN FETCH r.submissionConfig WHERE r.event.id = :eventId")
     List<Round> findRoundsWithConfigByEventId(@Param("eventId") Long eventId);

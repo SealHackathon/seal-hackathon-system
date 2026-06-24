@@ -72,31 +72,49 @@ public class RoundService {
 
 
     @Transactional
-    public List<RoundDetailsResponse> createRounds(RoundRequest request) {
+    public List<RoundDetailsResponse> createOrUpdateRounds(RoundRequest request) {
         // 1. Kiểm tra Event có tồn tại không
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Event với ID: " + request.getEventId()));
 
-        // 2. CHECK VÀ ÉP FLUSH XÓA SẠCH TRƯỚC
-        boolean isExist = roundRepository.existsByEventId(event.getId());
-        if (isExist) {
-            roundRepository.deleteByEventId(event.getId());
-            // 🔥 Cực kỳ quan trọng: Ép EntityManager đồng bộ lệnh DELETE xuống DB ngay lập tức
-            roundRepository.flush();
+        // 2. XỬ LÝ XÓA CÁC ROUND BỊ FRONTEND LOẠI BỎ (Nút Xóa trên giao diện)
+        if (request.getRounds() == null) {
+            request.setRounds(new ArrayList<>());
         }
 
-        // Nếu người dùng xóa sạch vòng thi, trả về list rỗng
-        if (request.getRounds() == null || request.getRounds().isEmpty()) {
+        // Gom tất cả các roundId gửi từ FE lên (Lọc bỏ null/0)
+        List<Long> activeRoundIds = request.getRounds().stream()
+                .map(RoundRequest.RoundItem::getRoundId)
+                .filter(id -> id != null && id > 0)
+                .toList();
+
+        // Tìm và xóa các Round thuộc Event này nhưng KHÔNG nằm trong danh sách FE gửi lên
+        if (!activeRoundIds.isEmpty()) {
+                roundRepository.deleteByEventIdAndIdNotIn(event.getId(), activeRoundIds);
+        } else {
+            // Nếu FE gửi lên mảng rounds rỗng hoặc toàn bộ roundId đều là tạo mới -> Xóa sạch các round cũ của Event
+            roundRepository.deleteByEventId(event.getId());
+        }
+        roundRepository.flush(); // Đồng bộ lệnh xóa xuống DB trước khi làm việc tiếp
+
+        if (request.getRounds().isEmpty()) {
             return List.of();
         }
 
         List<RoundDetailsResponse> responseList = new ArrayList<>();
-        int totalRounds = request.getRounds().size(); // Tổng số vòng thi để map vào từng response item
+        int totalRounds = request.getRounds().size();
 
-        // 3. DUYỆT MẢNG LƯU MỚI TINH
+        // 3. DUYỆT MẢNG ĐỂ UPDATE HOẶC CREATE MỚI
         for (RoundRequest.RoundItem item : request.getRounds()) {
+            Round round;
 
-            Round round = new Round();
+            // Check xem roundId có tồn tại trong DB không để thực hiện Update
+            if (item.getRoundId() != null && item.getRoundId() > 0) {
+                round = roundRepository.findById(item.getRoundId()).orElse(new Round());
+            } else {
+                round = new Round(); // Nếu không có id hoặc id sai -> Tạo mới tinh
+            }
+
             round.setEvent(event);
             round.setName(item.getName());
             round.setTimeStart(item.getTimeStart());
@@ -107,14 +125,13 @@ public class RoundService {
             round.setSubmissionDeadline(item.getSubmissionDeadline());
             round.setPosition(item.getPosition());
 
-            // Lưu Round cha để sinh ID tự tăng
+            // Lưu Round (Hàm save tự động hiểu: có Id thì là UPDATE, không có Id thì là INSERT)
             Round savedRound = roundRepository.save(round);
 
-            // Khởi tạo các phần tử Response con rỗng để bọc dữ liệu trả về
-            SubmissionConfigResponse resConfig = null;
-            List<RoundDetailsResponse.TimelineResponse> resTimelines = new ArrayList<>();
+            // 4. Xử lý SubmissionConfig (Xóa cấu hình cũ của Round này nếu có, rồi tạo mới theo FE)
+            submissionConfigRepository.deleteByRoundId(savedRound.getId());
 
-            // 4. Xử lý lưu cấu hình nộp bài SubmissionConfig
+            SubmissionConfigResponse resConfig = null;
             if (item.getSubmissionConfig() != null) {
                 RoundRequest.SubmissionConfigInfo configInfo = item.getSubmissionConfig();
 
@@ -129,7 +146,6 @@ public class RoundService {
                 config.setHasSubmission(configInfo.isHasSubmission());
                 SubmissionConfig savedConfig = submissionConfigRepository.save(config);
 
-                // Map sang DTO con tương ứng trong Response của bạn
                 resConfig = new SubmissionConfigResponse(
                         savedConfig.getId(),
                         savedConfig.getTitle(),
@@ -140,7 +156,10 @@ public class RoundService {
                 );
             }
 
-            // 5. Xử lý lưu mảng danh sách RoundTimeline (Batch Insert)
+            // 5. Xử lý RoundTimeline (Xóa hết timeline cũ của Round này đi rồi nạp lại mảng mới từ FE)
+            roundTimelineRepository.deleteByRoundId(savedRound.getId());
+
+            List<RoundDetailsResponse.TimelineResponse> resTimelines = new ArrayList<>();
             if (item.getTimelines() != null && !item.getTimelines().isEmpty()) {
                 List<RoundTimeline> timelinesToSave = item.getTimelines().stream()
                         .map(tItem -> new RoundTimeline(
@@ -154,7 +173,6 @@ public class RoundService {
 
                 List<RoundTimeline> savedTimelines = roundTimelineRepository.saveAll(timelinesToSave);
 
-                // Map danh sách vừa lưu sang List<TimelineResponse> của DTO trả về
                 resTimelines = savedTimelines.stream()
                         .map(t -> new RoundDetailsResponse.TimelineResponse(
                                 t.getId(),
@@ -166,7 +184,7 @@ public class RoundService {
                         .toList();
             }
 
-            // 6. XÁC ĐỊNH TRẠNG THÁI VÒNG THI (UPCOMING, IN_PROGRESS, COMPLETED)
+            // 6. XÁC ĐỊNH TRẠNG THÁI VÒNG THI
             LocalDateTime now = LocalDateTime.now();
             String status = "UPCOMING";
             if (savedRound.getTimeStart() != null && savedRound.getTimeEnd() != null) {
@@ -179,7 +197,7 @@ public class RoundService {
                 }
             }
 
-            // 7. BUILD OBJECT RESPONSE CHÍNH XÁC THEO FILE DTO BẠN CUNG CẤP
+            // 7. BUILD OBJECT RESPONSE
             RoundDetailsResponse roundRes = new RoundDetailsResponse();
             roundRes.setRoundId(savedRound.getId());
             roundRes.setRoundName(savedRound.getName());
@@ -187,15 +205,11 @@ public class RoundService {
             roundRes.setRoundStartTime(savedRound.getTimeStart());
             roundRes.setRoundEndTime(savedRound.getTimeEnd());
             roundRes.setRoundSubmissionDeadline(savedRound.getSubmissionDeadline());
-            roundRes.setScroringTemplateUrl(null); // Gán link template chấm điểm nếu DB của bạn có trường này
+            roundRes.setScroringTemplateUrl(null);
             roundRes.setTopTeamPass(savedRound.getTopTeamPass());
-
-            // Gán các trường thống kê số lượng ban đầu khi vừa tạo mới tinh
-            roundRes.setSubmissionQuantity(0);
-            roundRes.setRoundQuantity(totalRounds); // Giúp FE vẽ timeline thanh tiến trình dữ liệu chính xác
+            roundRes.setSubmissionQuantity(0); // Đoạn này nếu muốn chuẩn xác khi UPDATE, bạn cần query đếm số lượng submission thật trong DB thay vì gán cứng bằng 0 nhé.
+            roundRes.setRoundQuantity(totalRounds);
             roundRes.setStatus(status);
-
-            // Gán 2 mảng con đã xử lý mapping
             roundRes.setSubmissionConfig(resConfig);
             roundRes.setTimelines(resTimelines);
 
