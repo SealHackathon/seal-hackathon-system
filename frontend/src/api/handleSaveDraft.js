@@ -111,19 +111,19 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           rubricId: Number(item.rubricId) || 0,
           submissionConfig: item.submissionType === 'new'
             ? {
-                title: item.name?.trim() || '',
-                submissionInstructions: item.submissionGuide || '',
-                openingTime: item.submissionOpen ? new Date(item.submissionOpen).toISOString() : null,
-                submissionDeadline: item.submissionDeadline ? new Date(item.submissionDeadline).toISOString() : null,
-                hasSubmission: true,
-              }
+              title: item.name?.trim() || '',
+              submissionInstructions: item.submissionGuide || '',
+              openingTime: item.submissionOpen ? new Date(item.submissionOpen).toISOString() : null,
+              submissionDeadline: item.submissionDeadline ? new Date(item.submissionDeadline).toISOString() : null,
+              hasSubmission: true,
+            }
             : {
-                title: '',
-                submissionInstructions: '',
-                openingTime: null,
-                submissionDeadline: null,
-                hasSubmission: false,
-              },
+              title: '',
+              submissionInstructions: '',
+              openingTime: null,
+              submissionDeadline: null,
+              hasSubmission: false,
+            },
           timelines: (item.agenda || []).map(t => ({
             name: t.name?.trim() || '',
             description: t.desc?.trim() || '',
@@ -136,6 +136,27 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       return axiosClient.post('/round', step4Payload)
         .then(response => {
           console.log('Lưu bản nháp Step 4 thành công!', response.data);
+
+          const savedRounds = response.data;
+          if (Array.isArray(savedRounds)) {
+            const updatedRounds = (formData.rounds || []).map((original, index) => {
+              const r = savedRounds[index];
+              if (!r) return original;
+              return {
+                ...original,
+                id: r.roundId,
+                name: r.roundName,
+                startDate: r.roundStartTime,
+                endDate: r.roundEndTime,
+                submissionDeadline: r.roundSubmissionDeadline,
+              };
+            });
+            console.log('savedRounds từ backend:', JSON.stringify(savedRounds))
+
+            handleFormChange('rounds', updatedRounds);
+            console.log(updatedRounds);
+          }
+
           return true;
         })
         .catch(error => {
@@ -144,7 +165,6 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           return false;
         });
     }
-
     case 5: {
       const step5Payload = {
         eventId: formData.id,
@@ -159,6 +179,22 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       return axiosClient.post('/track', step5Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 5 thành công!`, response.data);
+
+          // lấy api thông tin track trả lên
+          const savedTracks = response.data;
+          if (Array.isArray(savedTracks)) {
+            // Map dữ liệu từ Backend trả về sang đúng cấu trúc form của Frontend
+            const updatedCategories = savedTracks.map(t => ({
+              id: t.id, // Đè ID thật từ DB lên ID mock để không bị undefined nữa
+              name: t.name,
+              desc: t.des,
+              teamLimit: t.maxTeamPerTrack
+            }));
+
+            // DÙNG CHÍNH HÀM CỦA BẠN: Cập nhật trực tiếp trường 'categories' vào formData
+            handleFormChange('categories', updatedCategories);
+          }
+          //-----------------------------------
           return true;
         })
         .catch(error => {
@@ -213,6 +249,41 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         })
         .catch(error => {
           alert(`Không thể lưu mốc thời gian sự kiện (Step 6)`);
+          return false;
+        });
+    }
+
+    case 7: {
+      apiEndpoint = '/mentor-judge';
+
+      if (!formData.id) {
+        alert("Không tìm thấy thông tin sự kiện gốc!");
+        return false;
+      }
+
+      const step7Payload = {
+        eventId: parseInt(formData.id),
+
+        mentors: (formData.mentors || []).map(m => ({
+          userId: parseInt(m.id),
+          trackId: m.categoryId ? parseInt(m.categoryId) : null,
+        })),
+
+        judges: (formData.judges || []).map(j => ({
+          userId: parseInt(j.id),
+          trackIds: (j.categoryIds || []).map(id => parseInt(id)),
+          // roundIds: (j.roundIds || []).map(id => parseInt(id)),
+        })),
+      };
+
+      return axiosClient.post(apiEndpoint, step7Payload)
+        .then(response => {
+          console.log('Lưu bản nháp Step 7 thành công!', response.data);
+          return true;
+        })
+        .catch(error => {
+          const errorMsg = error.response?.data?.message || error.response?.data || error.message;
+          alert('Không thể lưu bản nháp Step 7: ' + errorMsg);
           return false;
         });
     }

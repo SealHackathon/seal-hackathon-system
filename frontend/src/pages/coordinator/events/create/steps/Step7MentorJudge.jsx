@@ -8,24 +8,20 @@ import JudgeRow from '../../../../../components/coordinator/events/create/JudgeR
 import AddPersonModal from '../../../../../components/coordinator/events/create/AddPersonModal'
 import styles from './Step7MentorJudge.module.css'
 
+
+import axiosClient from '../../../../../api/axiosClient'
 // ── Mock — thực tế gọi API từ backend
 async function fetchLecturers(query) {
-    // TODO: replace with real API call
-    // return await api.get(`/users/lecturers?q=${query}`)
-    return [
-        { id: 'u1', name: 'TS. Nguyễn Văn Dũng', title: 'Giảng viên AI', org: 'FPT University' },
-        { id: 'u2', name: 'ThS. Trần Thị Bích', title: 'Senior Engineer', org: 'Viettel Cyber' },
-        { id: 'u3', name: 'GS. Bùi Thế Duy', title: 'Giáo sư', org: 'Bộ KH&CN' },
-    ].filter(p => !query || p.name.toLowerCase().includes(query.toLowerCase()))
+    const res = await axiosClient.get('/user/lecturers', { params: { q: query } })
+    return res.data
 }
-​
 function createMentor(person) {
     return { ...person, categoryId: null, inviteStatus: 'pending', inviteSentAt: null }
 }
 function createJudge(person) {
     return { ...person, categoryIds: [], roundIds: [], inviteStatus: 'pending', inviteSentAt: null }
 }
-​
+
 /**
  * Step7MentorJudge
  * Props:
@@ -35,7 +31,7 @@ function createJudge(person) {
 function Step7MentorJudge({ formData, onFormChange }) {
     // ── Local state — giống pattern Step6Timeline
     const [mentors, setMentors] = useState(() => formData?.mentors ?? [])
-    const [judges,  setJudges]  = useState(() => formData?.judges  ?? [])
+     const [judges,  setJudges]  = useState(() => formData?.judges  ?? [])
 ​
     const categories = (formData?.categories ?? [])
         .filter(c => c.name?.trim())
@@ -48,20 +44,20 @@ function Step7MentorJudge({ formData, onFormChange }) {
     const [modal,     setModal]     = useState(null)  // null | 'mentor' | 'judge'
     const [persons,   setPersons]   = useState([])
     const [searching, setSearching] = useState(false)
-​
+
     async function handleSearch(query) {
         setSearching(true)
         const results = await fetchLecturers(query)
         setPersons(results)
         setSearching(false)
     }
-​
+
     function openModal(role) {
         setPersons([])
         setModal(role)
         handleSearch('')
     }
-​
+
     // ── Sync helpers — cập nhật local state và đẩy lên formData
     function syncMentors(next) {
         setMentors(next)
@@ -71,8 +67,8 @@ function Step7MentorJudge({ formData, onFormChange }) {
         setJudges(next)
         onFormChange?.('judges', next)
     }
-​
-    // ── Mentor handlers
+
+ // ── Mentor handlers
     function addMentors(selected) {
         const existing = new Set(mentors.map(m => m.id))
         const newOnes  = selected.filter(p => !existing.has(p.id)).map(createMentor)
@@ -84,33 +80,122 @@ function Step7MentorJudge({ formData, onFormChange }) {
     function deleteMentor(id) {
         syncMentors(mentors.filter(m => m.id !== id))
     }
+
+
+    // 1. Gửi lời mời lẻ cho Mentor
     function sendInvite(id) {
-        syncMentors(mentors.map(m => m.id === id
+        if (!formData.id) {
+            console.log('Event chưa tồn tại');
+            return;
+        }
+
+        // TỰ TÌM: Lấy trực tiếp đối tượng mentor đang lưu trong State ra để lấy categoryId
+        const targetMentor = mentors.find(m => m.id === id);
+        const categoryId = targetMentor?.categoryId;
+        console.log(categoryId)
+
+        if (!categoryId || categoryId === 'undefined') {
+            alert("Thao tác thất bại: Bạn chưa cấu hình Hạng mục (Category) cho Mentor này!");
+            return;
+        }
+
+        // Optimistic Update: Giữ nguyên thuộc tính categoryId của bạn
+        syncMentors(mentors.map(m => (m.id === id && m.categoryId === categoryId)
             ? { ...m, inviteStatus: 'sent', inviteSentAt: new Date().toISOString() }
             : m
-        ))
-        // TODO: api.post(`/mentors/${id}/invite`)
+        ));
+
+        // MAP: Chuyển categoryId từ Frontend thành trackId gửi lên Query Param của Backend
+        axiosClient.post(`/mentor-judge/mentors/${id}/invite?eventId=${formData.id}&trackId=${categoryId}`)
+            .then((res) => console.log("Invite mentor lẻ thành công:", res.data))
+            .catch((err) => console.error("Lỗi mời mentor lẻ:", err));
     }
+
+
+    // 2. Rút lại lời mời cho Mentor -> REFACTOR: Tự tìm categoryId
     function withdrawMentorInvite(id) {
+        if (!formData.id) return;
+
+        const targetMentor = mentors.find(m => m.id === id);
+        const categoryId = targetMentor?.categoryId;
+
+        // Nếu mentor chưa có categoryId thì không cần làm gì cả
+        if (!categoryId || categoryId === 'undefined') return;
+
         syncMentors(mentors.map(m => m.id === id
             ? { ...m, inviteStatus: 'pending', inviteSentAt: null }
             : m
-        ))
-        // TODO: api.delete(`/mentors/${id}/invite`)
+        ));
+
+        axiosClient.delete(`/mentor-judge/mentors/${id}/invite?eventId=${formData.id}&trackId=${Number(categoryId)}`)
+            .then((res) => console.log("Rút lời mời mentor thành công:", res.data))
+            .catch((err) => console.error("Lỗi rút lời mời mentor:", err));
     }
+
+    // 3. Gửi lời mời hàng loạt cho Mentor theo Category (Track)
+
     const pendingMentors = mentors.filter(m => m.inviteStatus === 'pending')
     function sendAllPendingMentors() {
-        const now = new Date().toISOString()
+        if (!formData.id) {
+            console.log('Event chưa tồn tại');
+            return;
+        }
+
+        // 1. Lọc ra toàn bộ Mentor đang chờ xử lý VÀ phải có categoryId hợp lệ
+        const validPendingMentors = mentors.filter(
+            m => m.inviteStatus === 'pending' && m.categoryId && m.categoryId !== 'undefined'
+        );
+
+        if (validPendingMentors.length === 0) {
+            alert("Không có Mentor nào hợp lệ (hoặc chưa cấu hình Hạng mục) để gửi hàng loạt!");
+            return;
+        }
+
+        // 2. Nhóm (Group) các Mentor theo từng categoryId riêng biệt bằng cấu trúc Object
+        // Kết quả mong muốn: { "10": [mentorA, mentorB], "11": [mentorC] }
+        const groupedByCat = validPendingMentors.reduce((acc, currentMentor) => {
+            const catId = currentMentor.categoryId;
+            if (!acc[catId]) {
+                acc[catId] = [];
+            }
+            acc[catId].push(currentMentor);
+            return acc;
+        }, {});
+
+        const now = new Date().toISOString();
+
+        // 3. Cập nhật trạng thái hiển thị trên giao diện (Optimistic Update) cho tất cả người được chọn
         syncMentors(mentors.map(m =>
-            m.inviteStatus === 'pending' ? { ...m, inviteStatus: 'sent', inviteSentAt: now } : m
-        ))
-        // TODO: api.post('/mentors/invite-bulk', { ids: pendingMentors.map(m => m.id) })
+            (m.inviteStatus === 'pending' && m.categoryId && m.categoryId !== 'undefined')
+                ? { ...m, inviteStatus: 'sent', inviteSentAt: now }
+                : m
+        ));
+
+        // 4. Duyệt qua từng Track ID đã được nhóm để đóng gói đúng cấu trúc BulkMentorInviteRequest
+        Object.keys(groupedByCat).forEach(catId => {
+            const mentorsInCat = groupedByCat[catId];
+
+            // Đóng gói Object map chuẩn 100% với BulkMentorInviteRequest của Backend
+            const body = {
+                eventId: Number(formData.id),          // long eventId
+                trackId: Number(catId),                // long trackId
+                ids: mentorsInCat.map(m => Number(m.id)) // List<Long> ids (Sửa m.id thành list ids)
+            };
+
+            // Bắn API riêng cho nhóm Track này
+            axiosClient.post('/mentor-judge/mentors/invite-bulk', body)
+                .then((res) => console.log(`Bulk invite thành công cho Track ${catId}:`, res.data))
+                .catch((err) => console.error(`Lỗi gửi bulk invite cho Track ${catId}:`, err));
+        });
     }
-​
-    // ── Judge handlers
+    
+    // ==========================================
+    // JUDGE HANDLERS (Giữ nguyên cấu trúc categoryIds, roundIds)
+    // ==========================================
+
     function addJudges(selected) {
         const existing = new Set(judges.map(j => j.id))
-        const newOnes  = selected.filter(p => !existing.has(p.id)).map(createJudge)
+        const newOnes = selected.filter(p => !existing.has(p.id)).map(createJudge)
         syncJudges([...judges, ...newOnes])
     }
     function updateJudge(updated) {
@@ -119,42 +204,109 @@ function Step7MentorJudge({ formData, onFormChange }) {
     function deleteJudge(id) {
         syncJudges(judges.filter(j => j.id !== id))
     }
-    function withdrawJudgeInvite(id) {
-        syncJudges(judges.map(j => j.id === id
-            ? { ...j, inviteStatus: 'pending', inviteSentAt: null }
-            : j
-        ))
-        // TODO: api.delete(`/judges/${id}/invite`)
-    }
+
+    // 4. Gửi lời mời lẻ cho Judge (Truyền vào cặp categoryId và roundId cụ thể đang thao tác trên UI)
     function sendJudgeInvite(id) {
+        if (!formData.id) return;
+
+        const targetJudge = judges.find(j => j.id === id);
+        // Vì cấu hình Judge lưu dạng mảng, lấy phần tử đầu tiên đang được chọn
+        const categoryId = targetJudge?.categoryIds?.[0];
+        const roundId = targetJudge?.roundIds?.[0];
+
+        if (!categoryId || categoryId === 'undefined' || !roundId || roundId === 'undefined') {
+            alert("Thao tác thất bại: Giám khảo này chưa được cấu hình đầy đủ Hạng mục HOẶC Vòng thi!");
+            return;
+        }
+
         syncJudges(judges.map(j => j.id === id
             ? { ...j, inviteStatus: 'sent', inviteSentAt: new Date().toISOString() }
             : j
-        ))
-        // TODO: api.post(`/judges/${id}/invite`)
+        ));
+
+        axiosClient.post(`/mentor-judge/judges/${id}/invite?eventId=${formData.id}&trackId=${Number(categoryId)}&roundId=${Number(roundId)}`)
+            .then((res) => console.log("Invite judge lẻ thành công:", res.data))
+            .catch((err) => console.error("Lỗi mời judge lẻ:", err));
     }
+    // 5. Rút lại lời mời cho Judge
+    function withdrawJudgeInvite(id) {
+        if (!formData.id) return;
+
+        const targetJudge = judges.find(j => j.id === id);
+        const categoryId = targetJudge?.categoryIds?.[0];
+        const roundId = targetJudge?.roundIds?.[0];
+
+        if (!categoryId || categoryId === 'undefined' || !roundId || roundId === 'undefined') return;
+
+        syncJudges(judges.map(j => j.id === id
+            ? { ...j, inviteStatus: 'pending', inviteSentAt: null }
+            : j
+        ));
+
+        axiosClient.delete(`/mentor-judge/judges/${id}/invite?eventId=${formData.id}&trackId=${Number(categoryId)}&roundId=${Number(roundId)}`)
+            .then((res) => console.log("Rút lời mời judge thành công:", res.data))
+            .catch((err) => console.error("Lỗi rút lời mời judge:", err));
+    }
+
     const pendingJudges = judges.filter(j => j.inviteStatus === 'pending')
+    // 6. Gửi lời mời hàng loạt cho Judge theo cặp Category & Round đang chọn
     function sendAllPendingJudges() {
-        const now = new Date().toISOString()
-        syncJudges(judges.map(j =>
-            j.inviteStatus === 'pending' ? { ...j, inviteStatus: 'sent', inviteSentAt: now } : j
-        ))
-        // TODO: api.post('/judges/invite-bulk', { ids: pendingJudges.map(j => j.id) })
+        if (!formData.id) return;
+
+        const validPendingJudges = judges.filter(j =>
+            j.inviteStatus === 'pending' &&
+            j.categoryIds?.[0] && j.categoryIds[0] !== 'undefined' &&
+            j.roundIds?.[0] && j.roundIds[0] !== 'undefined'
+        );
+
+        if (validPendingJudges.length === 0) {
+            alert("Không có Giám khảo nào hợp lệ để gửi hàng loạt!");
+            return;
+        }
+
+        // Tạo key tổng hợp theo định dạng "trackId-roundId" để gom nhóm chính xác
+        const groupedMap = validPendingJudges.reduce((acc, j) => {
+            const key = `${j.categoryIds[0]}-${j.roundIds[0]}`;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(j);
+            return acc;
+        }, {});
+
+        const now = new Date().toISOString();
+
+        syncJudges(judges.map(j => {
+            const isValid = j.inviteStatus === 'pending' && j.categoryIds?.[0] && j.roundIds?.[0];
+            return isValid ? { ...j, inviteStatus: 'sent', inviteSentAt: now } : j;
+        }));
+
+        // Bắn API bulk dựa theo từng nhóm cặp bài trùng
+        Object.keys(groupedMap).forEach(key => {
+            const [trackId, roundId] = key.split('-');
+            const body = {
+                eventId: formData.id,
+                trackId: Number(trackId),
+                roundId: Number(roundId),
+                userIds: groupedMap[key].map(j => j.id)
+            };
+
+            axiosClient.post('/mentor-judge/judges/invite-bulk', body)
+                .then((res) => console.log(`Bulk invite judges thành công cho nhóm ${key}:`, res.data))
+                .catch((err) => console.error(`Lỗi gửi bulk invite judges nhóm ${key}:`, err));
+        });
     }
-​
     // ── Table column headers
     const MENTOR_COLS = ['MENTOR', 'HẠNG MỤC PHỤ TRÁCH', 'LỜI MỜI']
-    const JUDGE_COLS  = ['GIÁM KHẢO', 'HẠNG MỤC', 'VÒNG PHỤ TRÁCH', 'LỜI MỜI']
-​
+    const JUDGE_COLS = ['GIÁM KHẢO', 'HẠNG MỤC', 'VÒNG PHỤ TRÁCH', 'LỜI MỜI']
+
     return (
         <div className={styles.wrapper}>
             <SectionHeader level="h1" title="Mentor & Giám khảo" />
-​
+
             <Banner
                 color="blue" variant="flat" icon={Info} iconSize={20}
                 detail="Sau khi tạo sự kiện, bạn có thể assign mentor cho từng đội cụ thể trong trang Quản lý sự kiện."
             />
-​
+
             {/* ── Mentor section ── */}
             <div className={styles.section}>
                 <div className={styles.sectionHead}>
@@ -255,7 +407,7 @@ function Step7MentorJudge({ formData, onFormChange }) {
                     </div>
                 )}
             </div>
-​
+
             {/* ── Modal ── */}
             {modal && (
                 <AddPersonModal
@@ -274,6 +426,6 @@ function Step7MentorJudge({ formData, onFormChange }) {
         </div>
     )
 }
-​
+
 export default Step7MentorJudge
-​
+

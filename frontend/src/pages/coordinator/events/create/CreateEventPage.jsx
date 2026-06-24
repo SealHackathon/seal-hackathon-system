@@ -8,12 +8,15 @@ import Step2Rules from './steps/Step2Rules'
 import Step3Prizes from './steps/Step3Prizes'
 import Step4Rounds from './steps/Step4Rounds'
 import Step6Timeline from './steps/Step6Timeline';
- import { handleSaveDraft } from '../../../../api/handleSaveDraft'
+import Step7MentorJudge from './steps/Step7MentorJudge';
+import { handleSaveDraft } from '../../../../api/handleSaveDraft'
 import styles from './CreateEventPage.module.css'
 import Step5Categories from './steps/Step5Categories'
 import axiosClient from '../../../../api/axiosClient'
 import { useNavigate } from 'react-router-dom';
 const TOTAL_STEPS = 7
+
+
 
 // function StepPlaceholder({ step }) {
 //   return (
@@ -148,7 +151,6 @@ function CreateEventPage() {
         const start = new Date(r.startDate).getTime()
         const end = new Date(r.endDate).getTime()
         if (end <= start) return false
-
         // Kiểm tra thứ tự các vòng thi: Ngày bắt đầu vòng sau >= Ngày kết thúc vòng trước
         if (idx > 0) {
           const prevEnd = new Date(rounds[idx - 1].endDate).getTime()
@@ -230,10 +232,10 @@ function CreateEventPage() {
 
 
 
-// Trong component:
-function onSaveDraft() {
-  return handleSaveDraft({ currentStep, formData, axiosClient, handleFormChange })
-}
+  // Trong component:
+  function onSaveDraft() {
+    return handleSaveDraft({ currentStep, formData, axiosClient, handleFormChange })
+  }
   //------------------------------------------------------------------------------------------------
 
   function handlePublish() { setStatus('live'); console.log('Công bố:', formData) }
@@ -271,9 +273,7 @@ function onSaveDraft() {
       default: return null
     }
   }
-
   const isPublishDisabled = ![1, 2, 3, 4, 5].every(step => validateStep(step))
-
   return (
     // <CoordinatorLayout>
     // </CoordinatorLayout>

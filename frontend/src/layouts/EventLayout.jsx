@@ -1,22 +1,27 @@
 import Navbar from '../components/Navbar/Navbar'
 import Sidebar from '../components/Sidebar/Sidebar'
 import styles from './EventLayout.module.css'
+import { useNavigate } from 'react-router-dom'
 
 function EventLayout({ children }) {
+  const navigate = useNavigate();
+
   function handleGoBack() {
+
     // Note: Sau này gắn React Router vào thì đổi thành navigate('/')
+    navigate('/user/dashboard')
     console.log('về dashboard')
   }
-  const userInfo=localStorage.getItem('userInfo')? JSON.parse(localStorage.getItem('userInfo')): null
+  const userInfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null
 
   return (
     <div className={styles.root}>
-      <Navbar 
+      <Navbar
         isLoggedIn={true}
         user={{
-          name:userInfo? userInfo.fullname : 'Nguyen Van A',
-          email: userInfo? userInfo.email : 'nguyenvana@example.com',
-          avatar: userInfo? userInfo.avatar : null
+          name: userInfo ? userInfo.fullname : 'Nguyen Van A',
+          email: userInfo ? userInfo.email : 'nguyenvana@example.com',
+          avatar: userInfo ? userInfo.avatar : null
         }}
 
       />
