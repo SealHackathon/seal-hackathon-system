@@ -135,7 +135,34 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
 
       return axiosClient.post('/round', step4Payload)
         .then(response => {
-          console.log('Lưu bản nháp Step 4 thành công!', response.data);
+          // ── REFACTOR: CẬP NHẬT ROUNDS TỪ BACKEND TRẢ VỀ ĐỂ LẤY ID THẬT ──
+          const savedRounds = response.data;
+          if (Array.isArray(savedRounds)) {
+            // Map ngược từ thuộc tính của Backend (timeStart, timeEnd,...) 
+            // về đúng cấu trúc ban đầu của Frontend (startDate, endDate,...)
+            const updatedRounds = savedRounds.map((r, index) => {
+              // Lấy lại config của round hiện tại trong form để giữ lại các thông tin local (location, format...) nếu cần
+              const originalRound = (formData.rounds || [])[index] || {};
+
+              return {
+                ...originalRound,
+                id: r.id, // Đè ID thật từ DB lên để dùng cho Step 7 (Judge)
+                name: r.name,
+                startDate: r.timeStart,
+                endDate: r.timeEnd,
+                topTeamPass: r.topTeamPass,
+                submissionDeadline: r.submissionDeadline,
+                // Giữ nguyên agenda cũ hoặc map lại từ r.timelines nếu Backend trả về dạng timelines
+                agenda: originalRound.agenda || []
+              };
+            });
+
+            // Cập nhật trực tiếp mảng rounds mới vào formData của file tổng
+            handleFormChange('rounds', updatedRounds);
+            console.log("Đã đồng bộ ID cho Rounds:", updatedRounds);
+          }
+          // ───────────────────────────────────────────────────────────────
+
           return true;
         })
         .catch(error => {
