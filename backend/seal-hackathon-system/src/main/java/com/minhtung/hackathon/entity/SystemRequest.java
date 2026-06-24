@@ -22,7 +22,8 @@ public class SystemRequest {
     private User receiver;        // Người nhận (mentor/judge)
 
     private long referenceId;     // eventId, teamId, ...
-
+    private long trackId;     // Thêm trường này (để null nếu không dùng)
+    private long roundId;     // Thêm trường này (để null nếu không dùng)
     @Enumerated(EnumType.STRING)
     private ReferenceType referenceType;  // EVENT, TEAM, ...
 
@@ -46,5 +47,5 @@ public class SystemRequest {
 
     public enum ReferenceType { EVENT, TEAM }
     public enum RequestType   { MENTOR_INVITE, JUDGE_INVITE }
-    public enum RequestStatus { PENDING, SENT, ACCEPTED, REJECTED }
+    public enum RequestStatus { PENDING, SENT, ACCEPTED, REJECTED,WITHDRAW }
 }

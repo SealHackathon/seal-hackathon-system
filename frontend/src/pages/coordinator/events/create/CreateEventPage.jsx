@@ -16,6 +16,8 @@ import axiosClient from '../../../../api/axiosClient'
 import { useNavigate } from 'react-router-dom';
 const TOTAL_STEPS = 7
 
+
+
 // function StepPlaceholder({ step }) {
 //   return (
 //     <div className={styles.placeholder}>
@@ -270,7 +272,6 @@ function CreateEventPage() {
         status={status}
         onPublish={handlePublish}
         onPreview={handlePreview}
-        onBack={handleCancel}
         isPublishDisabled={isPublishDisabled}
       />
 

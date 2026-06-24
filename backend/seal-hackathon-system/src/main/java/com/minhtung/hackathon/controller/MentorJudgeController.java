@@ -1,8 +1,7 @@
 package com.minhtung.hackathon.controller;
 
-import com.minhtung.hackathon.dto.request.BulkInviteRequest;
-import com.minhtung.hackathon.dto.request.MentorJudgeRequest;
-import com.minhtung.hackathon.entity.SystemRequest;
+import com.minhtung.hackathon.dto.request.BulkJudgeInviteRequest;
+import com.minhtung.hackathon.dto.request.BulkMentorInviteRequest;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
 import com.minhtung.hackathon.service.MentorJudgeService;
@@ -22,65 +21,83 @@ public class MentorJudgeController {
     private final UserRepository userRepository;
 
 //    @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping
-    public ResponseEntity<?> save(@RequestHeader("Authorization") String auth, @RequestBody MentorJudgeRequest request) {
-        if (getUid(auth) == null) return unauthorized();
-        mentorJudgeService.saveMentorsAndJudges(request);
-        return ResponseEntity.ok("Lưu mentor & giám khảo thành công");
-    }
+//    @PostMapping
+//    public ResponseEntity<?> save(@RequestHeader("Authorization") String auth, @RequestBody MentorJudgeRequest request) {
+//        if (getUid(auth) == null) return unauthorized();
+//        mentorJudgeService.saveMentorsAndJudges(request);
+//        return ResponseEntity.ok("Lưu mentor & giám khảo thành công");
+//    }
 
+    // ==========================================
     // ── MENTOR INVITE APIs ──
-//    @PreAuthorize("hasRole('ADMIN')")
+    // ==========================================
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/mentors/{userId}/invite")
     public ResponseEntity<?> sendMentorInvite(@RequestHeader("Authorization") String auth,
-                                              @PathVariable long userId, @RequestParam long eventId) {
+                                              @PathVariable long userId,
+                                              @RequestParam long eventId,
+                                              @RequestParam long trackId) { // Nhận trackId từ Frontend
         if (getUid(auth) == null) return unauthorized();
-        mentorJudgeService.sendInvite(userId, eventId, SystemRequest.RequestType.MENTOR_INVITE);
-        return ResponseEntity.ok("Đã gửi lời mời mentor");
+        mentorJudgeService.sendInvite(userId, eventId, trackId);
+        return ResponseEntity.ok("Đã gửi lời mời mentor cho track thành công");
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/mentors/{userId}/invite")
     public ResponseEntity<?> withdrawMentorInvite(@RequestHeader("Authorization") String auth,
-                                                  @PathVariable long userId, @RequestParam long eventId) {
+                                                  @PathVariable long userId,
+                                                  @RequestParam long eventId,
+                                                  @RequestParam long trackId) { // Nhận trackId để xác định đúng lời mời cần rút
         if (getUid(auth) == null) return unauthorized();
-        mentorJudgeService.withdrawInvite(userId, eventId, SystemRequest.RequestType.MENTOR_INVITE);
+        mentorJudgeService.withdrawInvite(userId, eventId, trackId);
         return ResponseEntity.ok("Đã rút lời mời mentor");
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/mentors/invite-bulk")
-    public ResponseEntity<?> sendBulkMentorInvites(@RequestHeader("Authorization") String auth, @RequestBody BulkInviteRequest request) {
+    public ResponseEntity<?> sendBulkMentorInvites(@RequestHeader("Authorization") String auth,
+                                                   @RequestBody BulkMentorInviteRequest request) {
         if (getUid(auth) == null) return unauthorized();
-        mentorJudgeService.sendBulkInvites(request, SystemRequest.RequestType.MENTOR_INVITE);
-        return ResponseEntity.ok("Đã gửi lời mời hàng loạt cho danh sách Mentor");
+        mentorJudgeService.sendBulkInvites(request);
+        return ResponseEntity.ok("Đã xử lý gửi lời mời hàng loạt cho danh sách Mentor hợp lệ");
     }
 
+    // ==========================================
     // ── JUDGE INVITE APIs ──
-//    @PreAuthorize("hasRole('ADMIN')")
+    // ==========================================
+
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/judges/{userId}/invite")
     public ResponseEntity<?> sendJudgeInvite(@RequestHeader("Authorization") String auth,
-                                             @PathVariable long userId, @RequestParam long eventId) {
+                                             @PathVariable long userId,
+                                             @RequestParam long eventId,
+                                             @RequestParam long trackId,  // Nhận trackId từ Frontend
+                                             @RequestParam long roundId) { // Nhận roundId từ Frontend
         if (getUid(auth) == null) return unauthorized();
-        mentorJudgeService.sendInvite(userId, eventId, SystemRequest.RequestType.JUDGE_INVITE);
-        return ResponseEntity.ok("Đã gửi lời mời giám khảo");
+        mentorJudgeService.sendJudgeInvite(userId, eventId, trackId, roundId);
+        return ResponseEntity.ok("Đã gửi lời mời giám khảo chấm điểm vòng thi thành công");
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/judges/{userId}/invite")
     public ResponseEntity<?> withdrawJudgeInvite(@RequestHeader("Authorization") String auth,
-                                                 @PathVariable long userId, @RequestParam long eventId) {
+                                                 @PathVariable long userId,
+                                                 @RequestParam long eventId,
+                                                 @RequestParam long trackId,
+                                                 @RequestParam long roundId) {
         if (getUid(auth) == null) return unauthorized();
-        mentorJudgeService.withdrawInvite(userId, eventId, SystemRequest.RequestType.JUDGE_INVITE);
+        mentorJudgeService.withdrawJudgeInvite(userId, eventId, trackId, roundId);
         return ResponseEntity.ok("Đã rút lời mời giám khảo");
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/judges/invite-bulk")
-    public ResponseEntity<?> sendBulkJudgeInvites(@RequestHeader("Authorization") String auth, @RequestBody BulkInviteRequest request) {
+    public ResponseEntity<?> sendBulkJudgeInvites(@RequestHeader("Authorization") String auth,
+                                                  @RequestBody BulkJudgeInviteRequest request) { // Sửa thành BulkJudgeInviteRequest
         if (getUid(auth) == null) return unauthorized();
-        mentorJudgeService.sendBulkInvites(request, SystemRequest.RequestType.JUDGE_INVITE);
-        return ResponseEntity.ok("Đã gửi lời mời hàng loạt cho danh sách Giám khảo");
+        mentorJudgeService.sendBulkJudgeInvites(request);
+        return ResponseEntity.ok("Đã xử lý gửi lời mời hàng loạt cho danh sách Giám khảo hợp lệ");
     }
 
     // --- Helper Methods ---

@@ -159,6 +159,24 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       return axiosClient.post('/track', step5Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 5 thành công!`, response.data);
+
+          // lấy api thông tin track trả lên
+          const savedTracks = response.data;
+          if (Array.isArray(savedTracks)) {
+            // Map dữ liệu từ Backend trả về sang đúng cấu trúc form của Frontend
+            const updatedCategories = savedTracks.map(t => ({
+              id: t.id, // Đè ID thật từ DB lên ID mock để không bị undefined nữa
+              name: t.name,
+              desc: t.des,
+              teamLimit: t.maxTeamPerTrack
+            }));
+
+            // DÙNG CHÍNH HÀM CỦA BẠN: Cập nhật trực tiếp trường 'categories' vào formData
+            handleFormChange('categories', updatedCategories);
+            console.log(updatedCategories)
+          }
+          //-----------------------------------
+
           return true;
         })
         .catch(error => {

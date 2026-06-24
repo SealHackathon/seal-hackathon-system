@@ -1,20 +1,21 @@
 package com.minhtung.hackathon.repository;
 
 import com.minhtung.hackathon.entity.SystemRequest;
-import com.minhtung.hackathon.entity.SystemRequest.ReferenceType;
-import com.minhtung.hackathon.enums.RequestType;
 import org.springframework.data.jpa.repository.JpaRepository;
-
+import java.util.Collection;
 import java.util.Optional;
 
 public interface SystemRequestRepository extends JpaRepository<SystemRequest, Long> {
-    void deleteByReferenceIdAndReferenceType(long referenceId, ReferenceType referenceType);
 
-    Optional<SystemRequest> findByReceiver_IdAndReferenceIdAndType(
-            long receiverId,
-            long referenceId,
-            SystemRequest.RequestType type
-    );
+    // Check trùng lời mời Mentor (Theo Receiver, Event, Track và Status)
+    Optional<SystemRequest> findByReceiver_IdAndReferenceIdAndTrackIdAndTypeAndStatus(
+            long receiverId, long referenceId, long trackId, SystemRequest.RequestType type, SystemRequest.RequestStatus status);
 
+    // Check trùng lời mời Judge (Theo Receiver, Event, Track, Round và Status)
+    Optional<SystemRequest> findByReceiver_IdAndReferenceIdAndTrackIdAndRoundIdAndTypeAndStatus(
+            long receiverId, long referenceId, long trackId, long roundId, SystemRequest.RequestType type, SystemRequest.RequestStatus status);
 
+    // Dùng cho hàm helper check chéo Business Rule (Quét các trạng thái PENDING, ACCEPTED)
+    boolean existsByReceiver_IdAndReferenceIdAndTrackIdAndTypeAndStatusIn(
+            long receiverId, long referenceId, long trackId, SystemRequest.RequestType type, Collection<SystemRequest.RequestStatus> statuses);
 }
