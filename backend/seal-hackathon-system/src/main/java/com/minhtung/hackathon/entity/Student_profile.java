@@ -25,6 +25,17 @@ public class Student_profile {
     private String positions ;
     private String tags ;
     private String topics ;
-
+//    @JdbcTypeCode(SqlTypes.ARRAY)
+//    @Column(columnDefinition = "text[]")
+//    private String[] positions;
+//
+//    @JdbcTypeCode(SqlTypes.ARRAY)
+//    @Column(columnDefinition = "text[]")
+//    private String[] tags;
+//
+//
+//    @JdbcTypeCode(SqlTypes.ARRAY)
+//    @Column(columnDefinition = "text[]")
+//    private String[] interestArea;
 
 }
