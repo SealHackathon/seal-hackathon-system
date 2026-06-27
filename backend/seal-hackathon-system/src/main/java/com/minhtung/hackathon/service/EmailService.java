@@ -27,7 +27,7 @@ public class EmailService {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-      helper.setFrom("thainguyenthanh504@gmail.com");
+      helper.setFrom("mtung638@gamil.com");
       helper.setTo(email);
       helper.setSubject("Xác  nhận đăng kí tài khoản");
 

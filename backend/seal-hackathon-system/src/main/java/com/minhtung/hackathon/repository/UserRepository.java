@@ -19,7 +19,8 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByToken(String token);
 
     boolean existsByEmail(String email);
-
+    List<User> findByRole(Role role);
+    boolean existsByPhoneNumber(String phonenumber);
 
     // Tìm các User có Role là USER và ID của họ KHÔNG NẰM TRONG danh sách memberID đang có team (status = true)
     @Query("""
@@ -35,8 +36,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findUsersWithoutTeam(@Param("role") Role role, @Param("status") MemberStatus status);
 
     List<User> findByRoleAndFullNameContainingIgnoreCase(Role role, String query);
-    List<User> findByRole(Role role);
-
-    boolean existsByPhoneNumber(String phonenumber);
 }
 

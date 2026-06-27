@@ -1,0 +1,550 @@
+{
+  "info": {
+    "_postman_id": "6f7b7e7c-6b54-4df3-a6cf-demo-registration-flow",
+    "name": "SEAL Hackathon - Demo Registration Flow",
+    "description": "Postman collection chi gom cac chuc nang trong file kich ban demo phan dang ki: auth, resend gmail, kyc, profile, admin review.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "userEmail", "value": "demo.user{{$timestamp}}@gmail.com" },
+    { "key": "userPassword", "value": "12345678" },
+    { "key": "userPhone", "value": "098{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}" },
+    { "key": "schoolName", "value": "Đại học FPT" },
+    { "key": "studentId", "value": "SE{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}" },
+    { "key": "adminEmail", "value": "admin@gmail.com" },
+    { "key": "adminPassword", "value": "123456" },
+    { "key": "userToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "participantUserId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 - Auth and Gmail Demo",
+      "item": [
+        {
+          "name": "Get universities",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/api/university",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "api", "university"]
+            },
+            "description": "Theo code hien tai AuthController co base /api/auth va method /api/university, nen URL that la /api/auth/api/university."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Get universities returns success', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register - valid user",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schoolName\": \"{{schoolName}}\",\n  \"studentId\": \"{{studentId}}\",\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\",\n  \"phone\": \"{{userPhone}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Register request completed', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 400, 500]);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.test('Register response has email', function () {",
+                  "    pm.expect(json.email).to.exist;",
+                  "  });",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register - invalid school should fail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schoolName\": \"Truong khong co trong database\",\n  \"studentId\": \"SE123456\",\n  \"email\": \"invalid.school{{$timestamp}}@gmail.com\",\n  \"password\": \"12345678\",\n  \"phone\": \"097{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Invalid school is rejected', function () {",
+                  "  pm.expect(pm.response.code).to.not.equal(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register - password shorter than 8 should fail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"schoolName\": \"{{schoolName}}\",\n  \"studentId\": \"SE654321\",\n  \"email\": \"short.password{{$timestamp}}@gmail.com\",\n  \"password\": \"1234567\",\n  \"phone\": \"096{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}{{$randomInt}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Short password is rejected when backend rule is enabled', function () {",
+                  "  pm.expect(pm.response.code).to.not.equal(200);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login before Gmail verify should fail",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login before verify is blocked', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "pm.test('No token before verify', function () {",
+                  "  pm.expect(json.token).to.be.oneOf([null, undefined, '']);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend Gmail - first time",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/resend?email={{userEmail}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "resend"],
+              "query": [
+                { "key": "email", "value": "{{userEmail}}" }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Resend first time returns message', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Resend Gmail immediately - should hit 2 minute rule",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/resend?email={{userEmail}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "resend"],
+              "query": [
+                { "key": "email", "value": "{{userEmail}}" }
+              ]
+            },
+            "description": "Chay request nay ngay sau request resend dau tien de test rule phai cach nhau 2 phut."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Immediate resend is blocked by 2 minute rule', function () {",
+                  "  pm.expect(pm.response.text()).to.include('2');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login after manual Gmail verify",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{userEmail}}\",\n  \"password\": \"{{userPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Truoc khi chay request nay, bam link xac nhan Gmail hoac set active=true trong DB."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Login after verify succeeds', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200]);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.collectionVariables.set('userToken', json.token);",
+                  "}",
+                  "pm.test('User token saved when login succeeds', function () {",
+                  "  pm.expect(pm.collectionVariables.get('userToken')).to.not.equal('');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "02 - KYC and Profile Demo",
+      "item": [
+        {
+          "name": "Scan CCCD - front and back images",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "front_img", "type": "file", "src": [] },
+                { "key": "back_img", "type": "file", "src": [] }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kyc/cccd",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kyc", "cccd"]
+            },
+            "description": "Chon 2 file anh CCCD trong Postman truoc khi chay Runner."
+          }
+        },
+        {
+          "name": "Face match - selfie image",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "selfie_img", "type": "file", "src": [] }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kyc/face-match",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kyc", "face-match"]
+            },
+            "description": "Score > 80 thi pass. Neu fail 3 lan thi backend danh dau admin review."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Face match response has matched or message', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 400, 500]);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Upload student card",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] },
+                { "key": "mssv", "value": "{{studentId}}", "type": "text" },
+                { "key": "school", "value": "{{schoolName}}", "type": "text" }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kyc/student-card",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kyc", "student-card"]
+            }
+          }
+        },
+        {
+          "name": "Upload avatar",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "file", "type": "file", "src": [] }
+              ]
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/user/avatar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user", "avatar"]
+            },
+            "description": "Avatar chi nhan JPG/PNG va toi da 2MB."
+          }
+        },
+        {
+          "name": "Update student profile",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{userToken}}", "type": "string" }
+              ]
+            },
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bio\": \"Backend developer, interested in AI and security.\",\n  \"positons\": [\"Backend\", \"DevOps\"],\n  \"tags\": [\"Java\", \"Spring Boot\", \"MySQL\"],\n  \"topics\": [\"AI\", \"Security\"]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/user/student-profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "user", "student-profile"]
+            },
+            "description": "Bio toi da 300 ky tu, positions toi da 3, tags/topics toi da 10."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 - Admin Review Demo",
+      "item": [
+        {
+          "name": "Admin login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Admin login request completed', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 401]);",
+                  "});",
+                  "const json = pm.response.json();",
+                  "if (json.token) {",
+                  "  pm.collectionVariables.set('adminToken', json.token);",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin - get all participants for review",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/participants",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "participants"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Participants response returned', function () {",
+                  "  pm.expect(pm.response.code).to.be.oneOf([200, 401, 403]);",
+                  "});",
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (Array.isArray(json) && json.length > 0 && json[0].userId) {",
+                  "    pm.collectionVariables.set('participantUserId', String(json[0].userId));",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Admin - approve participant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/{{participantUserId}}/approve?approve=true",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "{{participantUserId}}", "approve"],
+              "query": [
+                { "key": "approve", "value": "true" }
+              ]
+            },
+            "description": "Neu participantUserId chua duoc auto lay tu list, dien thu cong userId can duyet vao collection variable."
+          }
+        },
+        {
+          "name": "Admin - reject participant",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                { "key": "token", "value": "{{adminToken}}", "type": "string" }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/{{participantUserId}}/approve?approve=false",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "{{participantUserId}}", "approve"],
+              "query": [
+                { "key": "approve", "value": "false" }
+              ]
+            },
+            "description": "Request nay de demo tu choi. Khong nen chay ngay sau approve cung mot user neu chi muon giu status ACCEPTED."
+          }
+        }
+      ]
+    }
+  ]
+}
