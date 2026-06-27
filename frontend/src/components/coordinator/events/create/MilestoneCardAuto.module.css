@@ -1,0 +1,83 @@
+.card {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 12px;
+    background: var(--color-bg-blue);
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+}
+
+.topRow {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.top {
+     display: flex;
+}
+
+.icon {
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+}
+
+.date {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--color-secondary-blue);
+}
+
+.time {
+    font-size: 0.78rem;
+    color: var(--color-secondary-blue);
+}
+
+.right {
+    display: flex;
+    flex-direction: column;
+    margin-left: auto;
+    gap: 0.25em;
+}
+
+.hint {
+    font-size: 0.75em;
+    color: var(--color-secondary-blue);
+}
+
+.badge {
+    margin-left: auto;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: white;
+    background: var(--color-secondary-blue);
+    border-radius: 6px;
+    padding: 0.1em 0.5em;
+}
+
+.title {
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0.2rem 0 0;
+}
+
+.meta {
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    margin: 0.1rem 0 0;
+}
+
+.link {
+    color: var(--color-primary-blue);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.15rem;
+}
+
+.link:hover {
+    text-decoration: underline;
+}

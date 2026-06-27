@@ -1,0 +1,80 @@
+.group {
+    display: grid;
+    gap: 0.75rem;
+}
+
+/* ── Card ── */
+.card {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s, box-shadow 0.15s;
+    -webkit-appearance: none;
+    appearance: none;
+    outline: none;
+    width: 100%;
+}
+
+.card:hover:not(.disabled) {
+    border-color: var(--color-secondary-blue);
+    background: var(--color-bg-blue);
+}
+
+/* Selected */
+.card.selected {
+    background: var(--color-bg-blue);
+}
+
+/* Disabled */
+.card.disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    background: #f8f9fc;
+}
+
+/* ── Icon ── */
+.icon {
+    flex-shrink: 0;
+    color: var(--color-border-blue);
+    display: flex;
+    align-items: center;
+}
+
+.card.selected .icon {
+    color: var(--color-primary-blue);
+}
+
+/* ── Text ── */
+.text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+}
+
+.label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-secondary-blue);
+    line-height: 1.3;
+    transition: color 0.15s;
+}
+
+
+.description {
+    font-size: 0.8rem;
+    color: var(--color-secondary-blue);
+    line-height: 1.4;
+}
+
+.card.selected .label, 
+.card.selected .description {
+    color: var(--color-primary-blue);
+}
+

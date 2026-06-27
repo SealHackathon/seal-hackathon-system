@@ -56,7 +56,8 @@ public class KycService {
             throw new RuntimeException("Ảnh hồ sơ tối đa 2MB");
         }
         Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
-                .orElseGet(Student_profile::new);
+                .orElse(new Student_profile() {
+                });
 
         studentProfile.setUser(user);
         String imageUrl = cloudinaryStorageService.uploadStudentCard(file, user.getId());
@@ -69,7 +70,7 @@ public class KycService {
     }
 
     @Transactional
-    public void approveUser(Long userId , boolean approve) {
+    public void approveUser(Long userId ,boolean approve) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
@@ -102,6 +103,7 @@ public class KycService {
             throw new RuntimeException("Tai khoan chua xac nhan gmail");
 
         }
+
         if (user.getStatus() == UserStatus.BANNED) {
             throw new RuntimeException("tai khoan khong duoc cap nhat ho sơ");
         }
@@ -348,8 +350,7 @@ public class KycService {
 
         return response;
     }
-
- public List<AdminParticipantReviewResponse> getAllinformationUser(){
+    public List<AdminParticipantReviewResponse> getAllinformationUser(){
         return userRepository.findByRole(Role.USER)
                 .stream()
                 .map(user -> {
@@ -382,7 +383,8 @@ public class KycService {
 
                 })
                 .toList() ;
- }
     }
+}
+
 
 

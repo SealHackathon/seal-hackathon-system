@@ -37,7 +37,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
     private final JwtUtil jwtUtil;
-    private final UniversityRepository universityRepository ;
+    private final UniversityRepository universityRepository;
     @Autowired
     private MemberRepository memberRepository;
 
@@ -45,16 +45,13 @@ public class AuthService {
     public RegisterResponse register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("email nay da ton tai ");
-
         }
         if(userRepository.existsByPhoneNumber(registerRequest.getPhone())){
             throw new RuntimeException(" số điện thoại này  đã tồn tại ");
         }
-        if (registerRequest.getPassword() == null || registerRequest.getPassword().length() < 8) {
-            throw new RuntimeException("Mật khẩu phải có ít nhất 8 ký tự");
-        }
-        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() ->new RuntimeException("truong dai học khong ton tai"));
-        validateMssv(university,registerRequest.getStudentId());
+        // check xem truong co ton tai trong DB khong
+        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
+        validateMssv(university, registerRequest.getStudentId());
         //xoa pending cu neu co (Dang ki lai)
         User user = new User();
         user.setEmail(registerRequest.getEmail());
@@ -66,8 +63,8 @@ public class AuthService {
         user.setExpiredAt(LocalDateTime.now().plusMinutes(15));
         user.setStatus(UserStatus.PROFILE_PENDING);
         user.setRole(Role.USER);
-        user.setUniversity(university);
-        user.setSchoolName(university.getName());
+        user.setUniversity(null);
+        user.setSchoolName(registerRequest.getSchoolName());
         user.setStudentId(registerRequest.getStudentId().trim().toUpperCase());
         user.setPhoneNumber(registerRequest.getPhone());
         userRepository.save(user);
@@ -86,7 +83,7 @@ public class AuthService {
     public String resendEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
-        if(user.isActive()){
+        if (user.isActive()) {
             return "tai khoan da kich hoat";
         }
         LocalDateTime now = LocalDateTime.now();
@@ -107,9 +104,8 @@ public class AuthService {
         if (user.getResendEmailCount() != null && user.getResendEmailCount() >= 5) {
             return "Bạn đã gửi lại email quá số lần cho phép trong ngày";
         }
-
         user.setToken(UUID.randomUUID().toString());
-       //link se het han sau 15p
+        //link se het han sau 15p
         user.setExpiredAt(now.plusMinutes(15));
         user.setLastVerificationEmailSentAt(now);
         user.setResendEmailCount(
@@ -163,38 +159,43 @@ public class AuthService {
         return new CompleteProfileResponse(false, "Hoan Thien Ho So Khong Thanh Cong");
     }
 
-
-    public LoginResponse    login(LoginRequest req) {
+    //login
+    public LoginResponse login(LoginRequest req) {
         User user = userRepository.findByEmail((req.getEmail())).orElse(null);
 
-        String teamRole = "";
+        String teamRole = null;
         boolean hasTeam = false;
 
-
+        // Lấy team member của user
+        Member member = memberRepository.findByMemberIdAndStatusIn(user.getId(), List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE)).orElse(null);
+        if (member != null) {
+            hasTeam = true;
+            teamRole = member.getRole().name(); // "LEADER" | "MEMBER"
+        }
 
         if (user == null) {
-            return new LoginResponse(null, null, null, "tai khoan khong ton tai ", null, false, null,0,null);
+            return new LoginResponse(null, null, null, "tai khoan khong ton tai ", null, false, null, 0, null);
 
         }
         if (!user.isActive()) {
-            return new LoginResponse(null, null, null, "tai khoan chua duoc kich hoat email ", null, false, null,0,null);
+            return new LoginResponse(null, null, null, "tai khoan chua duoc kich hoat email ", null, false, null, 0, null);
         }
-        if (!req.getPassword().equals(user.getPassword())){
+        if (!req.getPassword().equals(user.getPassword())) {
             //passwordEncoder.encode(req.getPassword())
-            return new LoginResponse(null, null, null, "Mat khau khong chinh xac", null, false, null,0,null);
+            return new LoginResponse(null, null, null, "Mat khau khong chinh xac", null, false, null, 0, null);
         }
-        if(!req.getEmail().equals(user.getEmail())){
-            return new LoginResponse(null, null, null, "tai khoan  khong chinh xac", null, false, null,0,null);
+        if (!req.getEmail().equals(user.getEmail())) {
+            return new LoginResponse(null, null, null, "tai khoan  khong chinh xac", null, false, null, 0, null);
         }
 
-        if(user.getStatus() == UserStatus.BANNED){
+        if (user.getStatus() == UserStatus.BANNED) {
             throw new RuntimeException("tai khoan cua ban da bị khoa");
         }
-        if(user.getStatus() == UserStatus.REJECTED){
-            throw  new RuntimeException("ho so da bi tu choi duyệt ");
+        if (user.getStatus() == UserStatus.REJECTED) {
+            throw new RuntimeException("ho so da bi tu choi duyệt ");
         }
         String jwt = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
-        long expiredTime=jwtUtil.getExpiredTime();
+        long expiredTime = jwtUtil.getExpiredTime();
         return new LoginResponse(
                 jwt,
                 user.getRole().name(),
@@ -207,21 +208,21 @@ public class AuthService {
                 user.getStatus()
         );
     }
-   private void validateMssv (University university , String studendid){
-        if(studendid == null || studendid.isEmpty()){
-            throw  new RuntimeException("xin moi nhap mssv");
+
+    private void validateMssv(University university, String studendid) {
+        if (studendid == null || studendid.isEmpty()) {
+            throw new RuntimeException("xin moi nhap mssv");
         }
 
-       if (!university.isCheckMssv()) {
-           return;
-       }
+        if (!university.isCheckMssv()) {
+            return;
+        }
 
-       String mssv = studendid.trim().toUpperCase();
-       if(!(mssv.startsWith("SS")||mssv.startsWith("SE"))){
+        String mssv = studendid.trim().toUpperCase();
+        if (!(mssv.startsWith("SS") || mssv.startsWith("SE"))) {
 
-           throw  new RuntimeException("mssv cua truong phai theo dung format ") ;
-       }
-       //^(SS/SE)\d{5}$))
-   }
+            throw new RuntimeException("mssv cua truong phai theo dung format ");
+        }
+    }
 
 }

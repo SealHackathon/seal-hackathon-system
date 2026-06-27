@@ -1,0 +1,272 @@
+.wrapper {
+    position: relative;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+}
+
+/* ── Label row ── */
+.labelRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 0.5rem;
+}
+
+.label {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.asterisk {
+    color: var(--color-primary-orange);
+}
+
+.counter {
+    font-size: 0.9rem;
+    color: var(--color-secondary-blue);
+}
+
+.counterMax {
+    color: var(--color-primary-orange);
+}
+
+/* ── Trigger ── */
+.trigger {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: white;
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.15s;
+}
+
+.trigger:hover:not(.disabled) {
+    border-color: var(--color-secondary-blue);
+}
+
+.triggerOpen {
+    border: 1.5px solid var(--color-secondary-blue);
+}
+
+.disabled {
+    background: var(--color-bg-blue);
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.iconLeft {
+    display: flex;
+    align-items: center;
+    color: var(--color-primary-blue);
+    flex-shrink: 0;
+}
+
+/* Chip area */
+.chipArea {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    flex: 1;
+    min-width: 0;
+}
+
+.placeholder {
+    color: var(--color-text-secondary);
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.25rem 0.6rem 0.25rem 0.75rem;
+    background-color: var(--color-primary-blue);
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 999px;
+}
+
+.chipRemove {
+    display: flex;
+    align-items: center;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 0;
+    opacity: 0.8;
+}
+
+.chipRemove:hover {
+    opacity: 1;
+}
+
+.caret {
+    display: flex;
+    align-items: center;
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+    margin-left: auto;
+}
+
+/* ── Menu ── */
+.menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1.5px solid var(--color-secondary-blue);
+    border-radius: var(--inner-radius);
+    z-index: 50;
+    overflow: hidden;
+}
+
+.menuHint {
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    padding: 0.6rem 1rem 0.4rem;
+    margin: 0;
+    border-bottom: 1px solid var(--color-border-blue);
+}
+
+/* Search */
+.searchBox {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--color-border-blue);
+}
+
+.searchInput {
+    flex: 1;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    color: var(--color-primary-blue);
+    font-family: var(--body-font-main);
+}
+
+.searchInput::placeholder {
+    color: var(--color-border-blue);
+}
+
+.searchIcon {
+    color: var(--color-text-secondary);
+    flex-shrink: 0;
+}
+
+/* Option list */
+.optionList {
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+.group {
+    padding: 0.5rem;
+}
+
+.group + .group {
+    border-top: 1px solid var(--color-border-blue);
+}
+
+.groupCustom {
+    border-top: 1px solid var(--color-border-blue);
+}
+
+.sectionLabel {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    padding: 0.4rem 0.75rem 0.25rem;
+    margin: 0;
+}
+
+/* Option row */
+.option {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.1s;
+}
+
+.option:hover:not(.optionDisabled) {
+    background: var(--color-bg-blue);
+}
+
+.optionChecked {
+    color: var(--color-primary-blue);
+}
+
+.optionDisabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.optionLabel {
+    font-size: 0.9rem;
+    color: var(--color-primary-blue);
+}
+
+/* Checkbox */
+.checkbox {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    border: 2px solid var(--color-border-blue);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.checkboxChecked {
+    background: var(--color-primary-blue);
+    border-color: var(--color-primary-blue);
+    color: white;
+}
+
+/* Custom input */
+.customInputWrapper {
+    margin: 0.4rem 0.75rem 0;
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    padding: 0.5rem 0.75rem;
+}
+
+.customInput {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    font-family: var(--body-font-main);
+    color: var(--color-primary-blue);
+}
+
+.customInput::placeholder {
+    color: var(--color-border-blue);
+    font-weight: normal;
+}
+
+.customCharCount {
+    text-align: right;
+    font-size: 0.9rem;
+    color: var(--color-text-muted);
+    margin: 0.25rem 0.75rem 0.5rem;
+}

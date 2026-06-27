@@ -18,5 +18,7 @@ public class TeamMembersResponse {
     private boolean leader;
     @JsonProperty("isCurrentUser")
     private boolean currentUser;
+    @JsonProperty("isOffical")
+    private boolean offical;
 
 }

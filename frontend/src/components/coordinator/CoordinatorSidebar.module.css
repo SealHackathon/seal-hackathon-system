@@ -1,0 +1,45 @@
+
+.sidebar {
+    width: 7em;
+    height: 98vh;
+    flex-shrink: 0;
+
+    background-color: var(--color-bg-white);
+
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+
+    padding: 0.75em;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+
+    position: sticky;
+    top: 0.75em;
+}
+
+.groupLabel {
+    font-size: 0.75rem;
+    font-weight: bold;
+    letter-spacing: 0.06em;
+
+    color: var(--color-primary-blue);
+
+    padding-bottom: 0.75em;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid var(--color-border-blue);
+    margin: 0.5em;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+}

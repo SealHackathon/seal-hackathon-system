@@ -62,6 +62,11 @@ public class User {
         this.status = status;
     }
 
+    @Column
+    private String title;  // "Giảng viên AI", "Senior Engineer", ...
+
+    @Column
+    private String org;    // "FPT University", "Viettel Cyber", ...
 
     public boolean isExpired() {
         if (expiredAt == null) return true;

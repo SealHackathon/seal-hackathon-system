@@ -13,15 +13,18 @@ public class JudgeAssignment {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "track_id", nullable = false)
+    @JoinColumn(name = "track_id")
     private Track track;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "judge_id", nullable = false)
     private User user;
 
-    public JudgeAssignment(long id, Track track, User user) {
-        this.id = id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
+
+    public JudgeAssignment(Track track, User user) {
         this.track = track;
         this.user = user;
     }

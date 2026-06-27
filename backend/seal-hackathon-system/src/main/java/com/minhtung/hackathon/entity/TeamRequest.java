@@ -16,24 +16,24 @@ public class TeamRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 20, nullable = false)
     private RequestStatus status = RequestStatus.PENDING;
     @ManyToOne
-    @JoinColumn(name = "sender",nullable = false)
+    @JoinColumn(name = "sender", nullable = false)
     private User sender;
     @ManyToOne
-    @JoinColumn(name = "receiver",nullable = false)
+    @JoinColumn(name = "receiver", nullable = false)
     private User receiver;
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team",nullable = false)
+    @JoinColumn(name = "team", nullable = false)
     private Team team;
     //JOIN_REQUEST , INVATION ,  LEAVE_REQUEST, TEAM_SUBMISSION
     @Enumerated(EnumType.STRING)
     @Column(name = "Type", length = 255, nullable = false)
     private RequestType type;
-    @Column(name = "message")
+    @Column(name = "message", columnDefinition = "text")
     private String message;
 
 

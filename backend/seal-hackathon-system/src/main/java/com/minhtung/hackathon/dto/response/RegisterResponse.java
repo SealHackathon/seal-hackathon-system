@@ -13,6 +13,4 @@ public class RegisterResponse {
     private String studentId;
     private String email;
     private  String phone ;
-
-
 }

@@ -1,0 +1,71 @@
+.row {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    flex-wrap: wrap;
+}
+
+.tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3em;
+    padding: 0.3em 0.85em;
+    border-radius: 999px;
+    border: 1.5px solid var(--color-border-blue);
+    background: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--color-secondary-blue);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: border-color 0.1s, color 0.1s, background 0.1s;
+}
+
+.tab:hover {
+    border-color: var(--color-primary-blue);
+    color: var(--color-primary-blue);
+}
+
+.tabActive {
+    background-color: var(--color-primary-blue);
+    border-color: var(--color-primary-blue);
+    color: #fff;
+    font-weight: 600;
+}
+
+.tabActive:hover {
+    color: #fff;
+}
+
+.dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.dotDashed {
+    width: 7px;
+    height: 7px;
+    border-radius: 2px;
+    border: 1.5px dashed currentColor;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+.icon {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    opacity: 0.7;
+}
+
+/* Dot màu theo status */
+.dotGreen  { background-color: var(--color-primary-green); }
+.dotBlue   { background-color: var(--color-primary-blue); }
+.dotOrange { background-color: var(--color-primary-orange); }
+
+/* Khi tab đang active thì dot đổi sang trắng */
+.tabActive .dot { background-color: #fff; }
+.tabActive .dotDashed { border-color: #fff; }
+.tabActive .icon { opacity: 1; }
