@@ -38,6 +38,10 @@ public class FptAiService {
       private final ObjectMapper objectMapper ;
       private final RestTemplate restTemplate = new RestTemplate();
       public JsonNode scanCccd(MultipartFile image){
+          String contentType = image.getContentType();
+          if (contentType == null || !contentType.startsWith("image/")) {
+              throw new RuntimeException("Chi chap nhan file anh (jpg, png...)");
+          }
           try{
               HttpHeaders headers = new HttpHeaders();
               headers.setContentType(MediaType.MULTIPART_FORM_DATA);

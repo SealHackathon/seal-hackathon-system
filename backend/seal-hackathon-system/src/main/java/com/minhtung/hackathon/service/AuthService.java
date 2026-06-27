@@ -44,7 +44,11 @@ public class AuthService {
     // nếu không verify thi sau .... xoa
     public RegisterResponse register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            return null;
+            throw new RuntimeException("email nay da ton tai ");
+
+        }
+        if(userRepository.existsByPhoneNumber(registerRequest.getPhone())){
+            throw new RuntimeException(" số điện thoại này  đã tồn tại ");
         }
         if (registerRequest.getPassword() == null || registerRequest.getPassword().length() < 8) {
             throw new RuntimeException("Mật khẩu phải có ít nhất 8 ký tự");
@@ -214,9 +218,10 @@ public class AuthService {
 
        String mssv = studendid.trim().toUpperCase();
        if(!(mssv.startsWith("SS")||mssv.startsWith("SE"))){
-//           System.out.println("hello");
+
            throw  new RuntimeException("mssv cua truong phai theo dung format ") ;
        }
+       //^(SS/SE)\d{5}$))
    }
 
 }
