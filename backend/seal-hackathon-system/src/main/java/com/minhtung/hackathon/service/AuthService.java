@@ -44,10 +44,14 @@ public class AuthService {
     // nếu không verify thi sau .... xoa
     public RegisterResponse register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
-            return null;
+            throw new RuntimeException("email nay da ton tai ");
         }
-        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
-        validateMssv(university, registerRequest.getStudentId());
+        if(userRepository.existsByPhoneNumber(registerRequest.getPhone())){
+            throw new RuntimeException(" số điện thoại này  đã tồn tại ");
+        }
+        // check xem truong co ton tai trong DB khong
+//        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
+//        validateMssv(university, registerRequest.getStudentId());
         //xoa pending cu neu co (Dang ki lai)
         User user = new User();
         user.setEmail(registerRequest.getEmail());
@@ -59,8 +63,8 @@ public class AuthService {
         user.setExpiredAt(LocalDateTime.now().plusMinutes(15));
         user.setStatus(UserStatus.PROFILE_PENDING);
         user.setRole(Role.USER);
-        user.setUniversity(university);
-        user.setSchoolName(university.getName());
+        user.setUniversity(null);
+        user.setSchoolName(registerRequest.getSchoolName());
         user.setStudentId(registerRequest.getStudentId().trim().toUpperCase());
         user.setPhoneNumber(registerRequest.getPhone());
         userRepository.save(user);

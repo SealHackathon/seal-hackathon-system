@@ -3,7 +3,6 @@ package com.minhtung.hackathon.service;
 
 
 import com.cloudinary.Cloudinary;
-import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
 import com.minhtung.hackathon.dto.response.FaceMatchResponse;
@@ -51,6 +50,9 @@ public class KycService {
         if (!user.isActive()) {
             throw new RuntimeException("Tài khoản chưa xác nhận Gmail");
         }
+        if (file.getSize() > 2 * 1024 * 1024) {
+            throw new RuntimeException("Ảnh hồ sơ tối đa 2MB");
+        }
         Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
                 .orElse(new Student_profile() {
                 });
@@ -94,6 +96,7 @@ public class KycService {
             throw new RuntimeException("Tai khoan chua xac nhan gmail");
 
         }
+
         if (user.getStatus() == UserStatus.BANNED) {
             throw new RuntimeException("tai khoan khong duoc cap nhat ho sơ");
         }
