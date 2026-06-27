@@ -36,8 +36,5 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findUsersWithoutTeam(@Param("role") Role role, @Param("status") MemberStatus status);
 
     List<User> findByRoleAndFullNameContainingIgnoreCase(Role role, String query);
-    List<User> findByRole(Role role);
-
-    boolean existsByPhoneNumber(String phonenumber);
 }
 
