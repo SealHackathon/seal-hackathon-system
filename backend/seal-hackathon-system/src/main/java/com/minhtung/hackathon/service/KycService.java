@@ -54,8 +54,7 @@ public class KycService {
             throw new RuntimeException("Ảnh hồ sơ tối đa 2MB");
         }
         Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
-                .orElse(new Student_profile() {
-                });
+                .orElse(new Student_profile() );
 
         studentProfile.setUser(user);
         String imageUrl = cloudinaryStorageService.uploadStudentCard(file, user.getId());
