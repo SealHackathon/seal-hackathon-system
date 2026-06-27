@@ -5,7 +5,4 @@ public enum RequestType {
     INVITATION, //leader moi user ->user duyet
     LEAVE_REQUEST,//thanh vien xin rut leader duyet
     TEAM_SUBMISSION // leader chot doi gui admin
-
-
-
 }

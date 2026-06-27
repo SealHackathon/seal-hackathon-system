@@ -1,0 +1,264 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    width: 100%;
+}
+
+.label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--color-secondary-blue);
+    margin-left: 0.5rem;
+}
+
+.asterisk {
+    color: var(--color-primary-orange);
+}
+
+/* ── Input row ── */
+.inputWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    padding: 0.65rem 1rem;
+    background: white;
+    transition: border-color 0.15s;
+}
+
+.inputWrapper:focus-within {
+    border-color: var(--color-secondary-blue);
+    border-width: 2px;
+}
+
+.iconLeft,
+.iconRight {
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+}
+
+/* pickerWrapper bọc cái input bên trong */
+.pickerWrapper {
+    flex: 1;
+}
+
+.input {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--color-primary-blue);
+    font-family: var(--body-font-main);
+    background: transparent;
+    cursor: pointer;
+}
+
+.input::placeholder {
+    font-weight: 400;
+    color: var(--color-secondary-blue);
+    opacity: 0.7;
+}
+
+/* ── Calendar popup — override react-datepicker ── */
+.popper {
+    z-index: 100;
+}
+
+.calendar {
+    font-family: var(--body-font-main) !important;
+    border: 1.5px solid var(--color-secondary-blue) !important;
+    border-radius: var(--inner-radius) !important;
+    overflow: hidden;
+}
+
+/* Header tháng/năm */
+:global(.react-datepicker__header) {
+    background-color: var(--color-bg-blue) !important;
+    border-bottom: 1px solid var(--color-border-blue) !important;
+}
+
+:global(.react-datepicker-time__header) {
+    color: var(--color-primary-blue) !important;
+    font-weight: bold !important;
+}
+
+:global(.react-datepicker__input-container) {
+    color: var(--color-primary-blue) !important;
+    font-weight: bold !important;
+}
+
+:global(.react-datepicker__current-month),
+:global(.react-datepicker__day-name) {
+    color: var(--color-primary-blue) !important;
+    font-weight: 700 !important;
+}
+
+/* Ngày */
+:global(.react-datepicker__day) {
+    color: var(--color-primary-blue) !important;
+    border-radius: 6px !important;
+    font-size: 0.9rem !important;
+}
+
+:global(.react-datepicker__day:hover) {
+    background-color: var(--color-border-blue) !important;
+    color: var(--color-primary-blue) !important;
+}
+
+/* Ngày được chọn */
+:global(.react-datepicker__day--selected),
+:global(.react-datepicker__day--keyboard-selected) {
+    background-color: var(--color-bg-blue) !important;
+    color: var(--color-primary-blue) !important;
+    border: 1.5px solid var(--color-border-blue);
+    transform: scale(1.1) !important;
+    font-weight: bold !important;
+}
+
+/* Ngày hôm nay */
+:global(.react-datepicker__day--today) {
+    font-weight: bold !important;
+    color: var(--color-bg-white) !important;
+    background-color: var(--color-primary-blue) !important;
+}
+
+
+/* Time picker */
+:global(.react-datepicker__time-container) {
+    border-left: 1px solid var(--color-border-blue) !important;
+}
+
+:global(.react-datepicker__time-box) {
+     scrollbar-color: var(--color-secondary-blue) transparent !important;
+}
+
+:global(.react-datepicker__time-list-item) {
+    font-size: 0.9rem !important;
+    color: var(--color-primary-blue) !important;
+    border-radius: var(--radius);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+:global(.react-datepicker__time-list-item--selected) {
+    background-color: var(--color-bg-blue) !important;
+    color: var(--color-primary-blue) !important;
+    font-weight: bold !important;
+    border: 1.5px solid var(--color-border-blue) !important;
+}
+
+:global(.react-datepicker__time-list-item:hover) {
+    background-color: var(--color-border-blue) !important;
+}
+
+/* Nav buttons */
+:global(.react-datepicker__navigation-icon::before) {
+    border-color: var(--color-secondary-blue) !important;
+}
+
+
+
+/* ── Custom header ── */
+.customHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.navBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: 1px solid var(--color-border-blue);
+    border-radius: 6px;
+    background: white;
+    color: var(--color-secondary-blue);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.navBtn:hover:not(:disabled) {
+    background: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
+.navBtn:disabled {
+    opacity: 0.3;
+    cursor: default;
+}
+
+.headerSelect {
+    flex: 1;
+    height: 28px;
+    border: 1px solid var(--color-border-blue);
+    border-radius: 6px;
+    color: var(--color-primary-blue);
+    font-weight: 700;
+    font-size: 0.9rem;
+    padding: 0 0.3rem;
+    cursor: pointer;
+    outline: none;
+    background: white;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+}
+
+.headerRow {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    width: 100%;
+}
+
+.todayBtn {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--color-border-blue);
+    border-radius: 6px;
+    background: white;
+    color: var(--color-secondary-blue);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+}
+
+.todayBtn:hover {
+    background: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
+.inputWrapperError {
+    border-color: var(--color-primary-orange) !important;
+    border-width: 2px;
+}
+
+.errorMsg {
+    font-size: 0.85rem;
+    color: var(--color-primary-orange);
+    margin: 0;
+    padding-left: 0.25rem;
+}
+
+/* ── Error state ── */
+.inputWrapperError {
+    border-color: var(--color-primary-orange) !important;
+    border-width: 2px;
+}
+
+.errorMsg {
+    font-size: 0.85rem;
+    color: var(--color-primary-orange);
+    margin: 0.25rem 0 0;
+    padding-left: 0.25rem;
+}

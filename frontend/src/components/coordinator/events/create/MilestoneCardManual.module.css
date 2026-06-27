@@ -1,0 +1,95 @@
+.card {
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 12px;
+    background: white;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color 0.15s, background 0.15s;
+}
+
+.cardNoDate {
+    border: 2px dashed var(--color-border-orange);
+}
+
+.cardNoDate:hover {
+    border: 2px solid var(--color-border-orange);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    min-height: 1.25rem;
+}
+
+.noDateBadge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--color-primary-orange);
+    background: white;
+    border: 1.5px solid var(--color-border-orange);
+    border-radius: 6px;
+    padding: 0.1em 0.5em;
+    margin-right: auto;
+}
+
+.deleteBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: none;
+    color: var(--color-border-blue);
+    cursor: pointer;
+    border-radius: 6px;
+    transition: background 0.15s, color 0.15s;
+}
+
+.deleteBtn:hover {
+    background: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
+.titleInput,
+.descInput,
+.linkInput {
+    width: 100%;
+    border: none;
+    font-size: 0.875rem;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.titleInput {
+    font-weight: 600;
+    color: var(--color-primary-blue);
+}
+
+.descInput,
+.linkInput {
+    color: var(--color-primary-blue);
+    font-weight: bold;
+}
+
+.titleInput:hover,
+.descInput:hover,
+.linkInput:hover,
+.titleInput:focus,
+.descInput:focus,
+.linkInput:focus {
+    border-color: var(--color-border-blue);
+    background: white;
+}
+
+.titleInput::placeholder,
+.descInput::placeholder,
+.linkInput::placeholder {
+    color: var(--color-secondary-blue);
+    opacity: 0.55;
+    font-weight: 400;
+}

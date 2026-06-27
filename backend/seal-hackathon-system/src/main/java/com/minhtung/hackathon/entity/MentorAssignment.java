@@ -13,15 +13,18 @@ public class MentorAssignment {
     private long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "track_id", nullable = false)
+    @JoinColumn(name = "track_id")
     private Track track;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "mentor_id", nullable = false)
     private User user;
 
-    public MentorAssignment(long id, Track track, User user) {
-        this.id = id;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id", nullable = false)
+    private Event event;
+
+    public MentorAssignment( Track track, User user) {
         this.track = track;
         this.user = user;
     }

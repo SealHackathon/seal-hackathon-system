@@ -23,7 +23,6 @@ public class SecurityConfig {
     private final JwtAuthFilter jwtAuthFilter;
 
 
-
     //encoder o day
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -58,21 +57,27 @@ public class SecurityConfig {
                         .requestMatchers("/api/team/**").permitAll()
                         .requestMatchers("/api/teamrequest/**").permitAll()
                         .requestMatchers("/api/user/**").permitAll()
+                        .requestMatchers("/api/event/**").permitAll()
+                        .requestMatchers("/api/round/**").permitAll()
+                        .requestMatchers("/api/event-notes/**").permitAll()
+                        .requestMatchers("/api/prize/**").permitAll()
+                        .requestMatchers("/api/track/**").permitAll()
+                        .requestMatchers("/api/milestone/**").permitAll()
+                        .requestMatchers("/api/mentor-judge/**").permitAll()
                         // Role
-                        .requestMatchers("/role/admin").hasRole("ADMIN")
-                        .requestMatchers("/role/lecturer").hasAnyRole("LECTURER")
-                        .requestMatchers("/role/user").hasAnyRole( "USER")
-
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/lecturer/**")
+                        .hasAnyRole("ADMIN", "LECTURER")
+//                        judge-assignment
                         .requestMatchers("/api/user/student-profile").hasRole("USER")
                         .requestMatchers("/api/user/avatar").hasRole("USER")
-
 
 
                         .requestMatchers("/api/kyc/student-card").hasRole("USER")
                         .requestMatchers("/api/kyc/cccd").hasRole("USER")
                         .requestMatchers("/api/kyc/face-match").hasRole("USER")
+                        .requestMatchers("/api/kyc/*/approve").hasRole("ADMIN")
 
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
 

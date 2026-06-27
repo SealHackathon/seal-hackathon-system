@@ -1,0 +1,36 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.title {
+    color: var(--color-primary-blue);
+}
+
+/* Section body — padding duoi section header */
+.sectionBody {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.25rem 0;
+}
+
+/* Round form */
+.roundForm {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+/* Rubric placeholder */
+.rubricPlaceholder {
+    padding: 0.75rem 1rem;
+    border: 1.5px dashed var(--color-border-blue);
+    border-radius: 12px;
+    font-size: 0.875rem;
+    color: var(--color-text-muted);
+    background: var(--color-bg-blue);
+    cursor: not-allowed;
+    user-select: none;
+}

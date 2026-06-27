@@ -1,0 +1,189 @@
+/* ════════════════════════
+   Layout
+════════════════════════ */
+.banner {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.875rem 1rem;
+    border-radius: var(--inner-radius);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.icon {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    padding-top: 0.05rem;
+}
+
+.body {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    justify-content: centers
+}
+
+.title {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.4;
+}
+
+.message {
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.detail {
+    margin-top: 0.35rem;
+    line-height: 1.6;
+}
+.detail p {
+    font-size: 0.9rem;
+}
+
+/* Right column: badge + buttons */
+.right {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.5rem;
+    min-width: 120px;
+}
+
+.badge {
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    opacity: 0.7;
+}
+
+.buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    align-items: stretch;
+    width: 100%;
+}
+
+
+/* ════════════════════════
+   Variants
+════════════════════════ */
+.solid {
+    border-width: 1.5px;
+    border-style: solid;
+}
+
+.dashed {
+    border-width: 1.5px;
+    border-style: dashed;
+}
+
+.flat {
+    border: none;
+}
+
+
+/* ════════════════════════
+   Colors
+════════════════════════ */
+
+/* Blue */
+.blue {
+    background: var(--color-bg-blue);
+    border-color: var(--color-border-blue);
+    color: var(--color-primary-blue);
+}
+
+.blue .title {
+    color: var(--color-primary-blue);
+}
+
+.blue .message {
+    color: var(--color-primary-blue);
+}
+
+.blue .icon {
+    color: var(--color-secondary-blue);
+}
+
+.blue .badge {
+    color: var(--color-secondary-blue);
+}
+
+/* Green */
+.green {
+    background: #edfbf3;
+    border-color: #6ee7a0;
+    color: #166534;
+}
+
+.green .title {
+    color: #15803d;
+}
+
+.green .message {
+    color: #166534;
+}
+
+.green .icon {
+    color: #16a34a;
+}
+
+.green .badge {
+    color: #16a34a;
+}
+
+/* Orange */
+.orange {
+    background: var(--color-bg-orange);
+    border-color: #fbbf7a;
+    color: var(--color-primary-orange);
+}
+
+.orange .title {
+    color: var(--color-primary-orange);
+}
+
+.orange .message {
+    color: var(--color-primary-orange);
+}
+
+.orange .icon {
+    color: var(--color-primary-orange);
+}
+
+.orange .badge {
+    color: var(--color-primary-orange);
+}
+
+/* Gray / muted */
+.gray {
+    background: var(--color-bg-grey);
+    border-color: var(--color-text-muted);
+    color: #6b7a99;
+}
+
+.gray .title {
+    color: var(--color-text-secondary);
+}
+
+.gray .message {
+    color: var(--color-text-secondary);
+}
+
+.gray .icon {
+    color: var(--color-text-secondary);
+}
+
+.gray .badge {
+    color: var(--color-text-secondary);
+}

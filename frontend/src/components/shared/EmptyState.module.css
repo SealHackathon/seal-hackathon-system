@@ -1,0 +1,30 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6em;
+
+    border: 2px dashed var(--color-border-blue);
+    border-radius: var(--inner-radius);
+
+    padding: 2.5em 1.5em;
+    text-align: center;
+    color: var(--color-text-secondary);
+}
+
+.icon {
+    color: var(--color-border-blue);
+    opacity: 0.6;
+}
+
+.message {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--color-text-secondary);
+}
+
+.sub {
+    font-size: 0.85rem;
+    color: var(--color-text-muted);
+}

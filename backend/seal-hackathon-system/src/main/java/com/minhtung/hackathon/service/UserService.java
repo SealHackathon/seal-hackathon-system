@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.service;
 
+import com.minhtung.hackathon.dto.response.LecturerResponse;
 import com.minhtung.hackathon.dto.response.SearchMemberResponse;
 import com.minhtung.hackathon.entity.Team;
 import com.minhtung.hackathon.entity.TeamRequest;
@@ -56,6 +57,16 @@ public class UserService {
             members.add(response);
         }
         return members;
+    }
+
+    public List<LecturerResponse> getLecturers(String query) {
+        List<User> users = (query == null || query.isBlank())
+                ? userRepository.findByRole(Role.LECTURER)
+                : userRepository.findByRoleAndFullNameContainingIgnoreCase(Role.LECTURER, query);
+
+        return users.stream()
+                .map(u -> new LecturerResponse(u.getId(), u.getFullName(), u.getTitle(), u.getOrg()))
+                .toList();
     }
 
 }

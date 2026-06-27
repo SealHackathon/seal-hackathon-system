@@ -1,0 +1,141 @@
+.track {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0.5rem 0 0.5rem 2.5rem;  /* left padding cho dot + line */
+}
+
+/* Dường thẳng dọc xám */
+.line {
+    position: absolute;
+    left: 19px;     /* tâm của dot */
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--color-border-blue);
+}
+
+/* Dường xanh lá (done) */
+.lineDone {
+    position: absolute;
+    left: 19px;
+    top: 0;
+    width: 2px;
+    height: var(--done-h, 0px);
+    background: #22c55e;
+    pointer-events: none;
+    transition: height 0.3s ease;
+}
+
+/* HÔM NAY */
+.todayIndicator {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--today-top, 0px);
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    pointer-events: none;
+    z-index: 3;
+    opacity: var(--today-show, 0);
+    padding-left: 4px;
+}
+
+.todayLine {
+    width: 250px;
+    height: 2px;
+    border-bottom: 2px dashed var(--color-primary-orange);
+    flex-shrink: 0;
+}
+
+.todayLabel {
+    font-size: 0.6rem;
+    font-weight: 700;
+    color: var(--color-primary-orange);
+    background: white;
+    border: 1.5px solid var(--color-primary-orange);
+    border-radius: 4px;
+    padding: 0.1em 0.4em;
+    white-space: nowrap;
+}
+
+/* ── Node ── */
+.node {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.875rem;
+    padding: 0.75rem 0;
+    z-index: 1;
+}
+
+/* Dot */
+.dot {
+    position: absolute;
+    left: -2rem;      /* ra trái lại, nằm trên line */
+    top: 50%;
+    transform: translateY(-50%) translateX(-2px);
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 2px solid var(--color-border-blue);
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: transform 0.15s;
+    z-index: 2;
+}
+
+.dotDone     { background: #dcfce7; border-color: #22c55e; color: #16a34a; }
+.dotActive   { background: var(--color-primary-blue); border-color: var(--color-primary-blue); color: white; }
+.dotUpcoming { background: white; border-color: var(--color-border-blue); }
+
+/* Content */
+.content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.dateTime {
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    font-weight: 500;
+    margin: 0;
+}
+
+.title {
+    font-size: 0.925rem;
+    font-weight: 700;
+    margin: 0.1rem 0 0;
+}
+
+.titleDone     { color: #16a34a; }
+.titleActive   { color: var(--color-primary-blue); }
+.titleUpcoming { color: var(--color-secondary-blue); }
+
+.meta {
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    margin: 0.1rem 0 0;
+}
+
+.textMuted {
+    opacity: 0.55;
+}
+
+.link {
+    color: var(--color-primary-blue);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.2rem;
+}
+
+.link:hover { text-decoration: underline; }

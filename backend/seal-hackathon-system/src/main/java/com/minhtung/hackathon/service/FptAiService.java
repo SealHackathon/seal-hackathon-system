@@ -27,53 +27,56 @@ import java.net.URL;
 @RequiredArgsConstructor
 public class FptAiService {
     @Value("${fpt.ai.api-key}")
-    private String apikey ;
+    private String apikey;
 
     @Value("${fpt.ai.id-recognition-url}")
-    private String idRecongnition ;
+    private String idRecongnition;
 
     @Value("${fpt.ai.face-match-url}")
-    private String apiFaceMatch ;
+    private String apiFaceMatch;
 
-      private final ObjectMapper objectMapper ;
-      private final RestTemplate restTemplate = new RestTemplate();
-      public JsonNode scanCccd(MultipartFile image){
-          String contentType = image.getContentType();
-          if (contentType == null || !contentType.startsWith("image/")) {
-              throw new RuntimeException("Chi chap nhan file anh (jpg, png...)");
-          }
-          try{
-              HttpHeaders headers = new HttpHeaders();
-              headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-              headers.set("api-key",apikey);
+    private final ObjectMapper objectMapper;
+    private final RestTemplate restTemplate = new RestTemplate();
 
+    public JsonNode scanCccd(MultipartFile image) {
 
-              headers.set("image-type", "id-card");
-              MultiValueMap<String,Object>body = new LinkedMultiValueMap<>();
-              body.add("image",toResource(image));
+        String contentType = image.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new RuntimeException("Chi chap nhan file anh (jpg, png...)");
+        }
 
-              HttpEntity<MultiValueMap<String,Object>> request = new HttpEntity<>(body,headers) ;
-              ResponseEntity<String> response = restTemplate.postForEntity(idRecongnition , request , String.class);
-
-              return  objectMapper.readTree(response.getBody());
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            headers.set("api-key", apikey);
 
 
-          }catch (Exception e){
-              e.printStackTrace();
-              throw new RuntimeException("loi api FPT.AI OCR CCCD",e) ;
-          }
-      }
+            headers.set("image-type", "id-card");
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            body.add("image", toResource(image));
 
-      private ByteArrayResource  toResource(MultipartFile file) throws IOException {
-          return new ByteArrayResource(file.getBytes()){
-              @Override
-              public String getFilename(){
-                  return file.getOriginalFilename();
-              }
-          };
-      }
+            HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(body, headers);
+            ResponseEntity<String> response = restTemplate.postForEntity(idRecongnition, request, String.class);
 
-//    public JsonNode matchFaceByUrl(String portraitUrl, MultipartFile selfieImage) {
+            return objectMapper.readTree(response.getBody());
+
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("loi api FPT.AI OCR CCCD", e);
+        }
+    }
+
+    private ByteArrayResource toResource(MultipartFile file) throws IOException {
+        return new ByteArrayResource(file.getBytes()) {
+            @Override
+            public String getFilename() {
+                return file.getOriginalFilename();
+            }
+        };
+    }
+
+    //    public JsonNode matchFaceByUrl(String portraitUrl, MultipartFile selfieImage) {
 //        try {
 //            HttpHeaders headers = new HttpHeaders();
 //            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -107,47 +110,47 @@ public class FptAiService {
 //            throw new RuntimeException("Loi API FPT.AI face match", e);
 //        }
 //    }
-public JsonNode matchFaceByUrl(String portraitUrl, MultipartFile selfieImage) {
-    try {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.set("api-key", apikey);
+    public JsonNode matchFaceByUrl(String portraitUrl, MultipartFile selfieImage) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+            headers.set("api-key", apikey);
 
-        byte[] portraitBytes = new URL(portraitUrl).openStream().readAllBytes();
+            byte[] portraitBytes = new URL(portraitUrl).openStream().readAllBytes();
 
-        ByteArrayResource portraitResource = new ByteArrayResource(portraitBytes) {
-            @Override
-            public String getFilename() {
-                return "portrait.jpg";
-            }
-        };
+            ByteArrayResource portraitResource = new ByteArrayResource(portraitBytes) {
+                @Override
+                public String getFilename() {
+                    return "portrait.jpg";
+                }
+            };
 
-        ByteArrayResource selfieResource = new ByteArrayResource(selfieImage.getBytes()) {
-            @Override
-            public String getFilename() {
-                return selfieImage.getOriginalFilename();
-            }
-        };
+            ByteArrayResource selfieResource = new ByteArrayResource(selfieImage.getBytes()) {
+                @Override
+                public String getFilename() {
+                    return selfieImage.getOriginalFilename();
+                }
+            };
 
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+            MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
 
-        body.add("file[]", portraitResource);
-        body.add("file[]", selfieResource);
+            body.add("file[]", portraitResource);
+            body.add("file[]", selfieResource);
 
-        HttpEntity<MultiValueMap<String, Object>> request =
-                new HttpEntity<>(body, headers);
+            HttpEntity<MultiValueMap<String, Object>> request =
+                    new HttpEntity<>(body, headers);
 
-        ResponseEntity<String> response = restTemplate.postForEntity(
-                apiFaceMatch,
-                request,
-                String.class
-        );
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    apiFaceMatch,
+                    request,
+                    String.class
+            );
 
-        return objectMapper.readTree(response.getBody());
+            return objectMapper.readTree(response.getBody());
 
-    } catch (Exception e) {
-        e.printStackTrace();
-        throw new RuntimeException("Loi API FPT.AI face match", e);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("Loi API FPT.AI face match", e);
+        }
     }
-}
 }

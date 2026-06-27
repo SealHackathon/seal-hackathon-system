@@ -14,14 +14,16 @@ public class ScoringTemplate {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String name;
 
-    @Column(length = 255)
+    @Column( columnDefinition = "TEXT")
     private String description;
 
+    @Column( columnDefinition = "TEXT")
+    private String url;
     @Column
     private LocalDateTime createAt;
 

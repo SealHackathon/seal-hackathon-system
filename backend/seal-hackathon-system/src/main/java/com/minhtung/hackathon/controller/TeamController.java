@@ -5,6 +5,7 @@ import com.minhtung.hackathon.dto.request.CreateTeamDto;
 import com.minhtung.hackathon.dto.request.EdiTeamRequest;
 import com.minhtung.hackathon.dto.response.CreateTeamResponse;
 import com.minhtung.hackathon.dto.joinByCode;
+import com.minhtung.hackathon.dto.round.RoundTeamResponse;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
 import com.minhtung.hackathon.service.TeamService;
@@ -193,8 +194,6 @@ public class TeamController {
     }
 
 
-
-
     private Integer getUid(String authHeader) {
         try {
             String token = authHeader.substring(7);
@@ -238,7 +237,7 @@ public class TeamController {
         }
 
         try {
-            return ResponseEntity.ok().body(teamService.checkName(  name,uid));
+            return ResponseEntity.ok().body(teamService.checkName(name, uid));
         } catch (IllegalArgumentException e) {
             // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -263,7 +262,35 @@ public class TeamController {
         if (uid == null) {
             return unauthorized();
         }
-        return ResponseEntity.ok().body(teamService.editTeam(editTeamRequest,uid));
+        return ResponseEntity.ok().body(teamService.editTeam(editTeamRequest, uid));
+    }
+
+
+    /**
+     * API Lấy danh sách toàn bộ Đội thi trong một Vòng đấu cụ thể của Sự kiện
+     * Bao gồm: Thông tin đội, phân nhánh, trạng thái, các liên kết bài nộp (Github, Doc...) và danh sách thành viên.
+     * * URL Ví dụ: GET /api/v1/events/1/rounds/5/teams?currentUserId=12
+     */
+    @GetMapping("/{eventId}/rounds/{roundId}/teams")
+    public ResponseEntity<?> getTeamsInRound(
+            @PathVariable long eventId,
+            @PathVariable long roundId,
+            @RequestParam(value = "currentUserId", required = false, defaultValue = "0") long currentUserId) {
+
+        try {
+            // Gọi xuống hàm xử lý logic đặt trong TeamService
+            List<RoundTeamResponse> roundTeams = teamService.getTeamsInRoundOfEvent(eventId, roundId, currentUserId);
+
+            // Nếu danh sách rỗng, vẫn trả về 200 OK kèm mảng rỗng để Frontend dễ map giao diện
+            return ResponseEntity.ok(roundTeams);
+
+        } catch (IllegalArgumentException e) {
+            // Trả về lỗi 404 nếu truyền sai ID thực thể không tồn tại
+            return ResponseEntity.status(404).body(e.getMessage());
+        } catch (Exception e) {
+            // Phòng hờ các lỗi hệ thống hoặc lỗi ép kiểu NullPointerException dữ liệu dưới DB
+            return ResponseEntity.internalServerError().body("Đã xảy ra lỗi hệ thống: " + e.getMessage());
+        }
     }
 
 }

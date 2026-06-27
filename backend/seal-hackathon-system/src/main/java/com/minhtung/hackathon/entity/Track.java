@@ -1,13 +1,17 @@
 package com.minhtung.hackathon.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity
 @Table(name = "track")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Track {
 
     @Id
@@ -20,20 +24,31 @@ public class Track {
     @Column(length = 255)
     private String des;
 
+    @Column(name = "min_team_per_track")
+    private int minTeamPerTrack;
+
     @Column(name = "max_team_per_track")
     private int maxTeamPerTrack;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "round_id", nullable = false)
-    private Round round;
 
     @OneToMany(mappedBy = "track")
     private List<Team> teams;
 
-    public Track(String name, String des, int maxTeamPerTrack, Round round) {
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "event_id")
+    private Event event;
+
+
+    public int getTeamQuantity() {
+        if (teams == null) {
+            return 0;
+        }
+        return teams.size();
+    }
+
+    public Track(String name, String des, int maxTeamPerTrack, int minTeamPerTrack) {
         this.name = name;
         this.des = des;
         this.maxTeamPerTrack = maxTeamPerTrack;
-        this.round = round;
+        this.minTeamPerTrack = minTeamPerTrack;
     }
 }

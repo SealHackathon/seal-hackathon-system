@@ -1,0 +1,133 @@
+.sidebarWrapper {
+    background-color: var(--color-primary-blue);
+    border-radius: var(--radius);
+    padding: 0;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    background-color: var(--color-primary-blue);
+    border-radius: var(--radius);
+    padding: 1.25rem 1rem;
+    width: 180px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 1rem;
+}
+
+.stepWrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+/* ── Step row ── */
+.step {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    padding: 0.45rem 0.5rem;
+    border-radius: 999px;
+    border: none;
+    border: 1.5px solid var(--color-primary-blue);
+    background: transparent;
+    cursor: pointer;
+    text-align: left;
+    transition: background 0.15s;
+}
+
+.stepActive {
+    background-color: var(--color-bg-white);
+}
+
+/* ── Badge ── */
+.badge {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+    transition: background 0.15s, color 0.15s;
+}
+
+.badgeActive {
+    background-color: var(--color-primary-blue);
+    color: var(--color-bg-white);
+    transform: scale(1.1);
+}
+
+.badgeCompleted {
+    background-color: var(--color-primary-green);
+    color: var(--color-bg-white);
+}
+
+.badgeError {
+    background-color: var(--color-bg-orange);
+    color: var(--color-primary-orange);
+}
+
+.badgeUpcoming {
+    background-color: var(--color-border-blue);
+    color: var(--color-secondary-blue);
+}
+
+
+
+/* ── Label ── */
+.label {
+    font-weight: 600;
+    line-height: 1.3;
+    color: var(--color-border-blue);
+}
+
+.stepActive .label {
+    color: var(--color-primary-blue);
+}
+
+.stepError .label {
+    color: var(--color-bg-orange);
+}
+
+.stepCompleted .label {
+    color: var(--color-bg-green);
+}
+
+/* ── Connector ── */
+.connector {
+    width: 2px;
+    height: 20px;
+    margin-left: calc(0.5rem + 14px);
+    border-radius: 999px;
+}
+
+.connectorSolid {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.connectorDash {
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255, 255, 255, 0.35) 0px,
+        rgba(255, 255, 255, 0.35) 4px,
+        transparent 4px,
+        transparent 8px
+    );
+}
+
+
+/* * HOVER EFFECt */
+.stepUpcoming:hover, .stepError:hover, .stepCompleted:hover {
+    transform: scale(1.05);
+    transition: all 0.15s;
+}
+.stepUpcoming:hover .badgeUpcoming {
+    background-color: var(--color-bg-blue);
+}
+.stepUpcoming:hover .label {
+    color: var(--color-bg-blue);
+}

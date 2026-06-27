@@ -1,0 +1,36 @@
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1em;
+    padding-bottom: 1.5em;
+    background-color: var(--color-bg-white);
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    position: fixed;
+    bottom: 1em;
+    left: 2em;
+    right: 2em;
+    z-index: 10;
+}
+
+/* ── Nhóm nút bên phải ── */
+.rightGroup {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* ── Lưu nháp + timestamp ── */
+.saveDraftWrapper {
+    display: flex;
+    align-items: flex-end;
+    gap: 1rem;
+}
+
+.timestamp {
+    color: var(--color-secondary-blue);
+    white-space: nowrap;
+    font-size: 0.8rem;
+}

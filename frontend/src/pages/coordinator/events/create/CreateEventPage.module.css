@@ -1,0 +1,55 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    padding: 1em;
+}
+
+/* ── Body: sidebar + content ── */
+.body {
+    display: flex;
+    flex: 1;
+    gap: 1.5em;
+    /* Chừa chỗ cho header (~80px) và footer (~72px) */
+    padding-top: 1.5rem;
+    padding-bottom: calc(72px + 2rem);
+}
+
+.sidebar {
+    width: 220px;
+    flex-shrink: 0;
+    /* Sticky sidebar */
+    position: sticky;
+    top: 1.5rem;
+    align-self: flex-start;
+    max-height: calc(100vh - 80px - 72px - 3rem);
+    overflow-y: auto;
+}
+
+.content {
+    flex: 1;
+    padding: 0 1.5rem;
+    min-width: 0;      /* quan trọng: tránh overflow trong flex */
+
+    background-color: var(--color-bg-white);
+    padding: 2em;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--color-border-blue);
+}
+
+/* ── Step placeholder ── */
+.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+    border: 2px dashed var(--color-border-blue);
+    border-radius: var(--radius);
+    background: white;
+}
+
+.placeholderText {
+    font-size: 1rem;
+    color: var(--color-text-muted);
+    margin: 0;
+}

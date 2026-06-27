@@ -3,17 +3,18 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 0.2em;
 
-    width: 5.5em;
-    height: 5.5em;
-    
+    width: 100%;
+    height: auto;
+
     color: var(--color-secondary-blue);
     background-color: var(--color-bg-white);
 
-    border: none;
+    border: 2px solid transparent;
     border-radius: var(--inner-radius);
 
-    padding: 1em;
+    padding: 0.5em;
     cursor: pointer;
 }
 
@@ -27,6 +28,9 @@
 }
 
 .label {
-    font-size: 0.8rem;
-    font-weight: bolder;
+    font-size: 0.9rem;
+    font-weight: bold;
+    text-align: center;
+    line-height: 1.2;
+    word-break: keep-all;
 }

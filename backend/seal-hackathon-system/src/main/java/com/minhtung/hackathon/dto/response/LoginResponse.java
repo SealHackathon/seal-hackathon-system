@@ -21,5 +21,4 @@ public class LoginResponse {
     private long expiredTime;
     private UserStatus status ;
 
-
 }

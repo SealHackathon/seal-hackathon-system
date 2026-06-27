@@ -1,6 +1,7 @@
 package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
+import com.minhtung.hackathon.dto.response.LecturerResponse;
 import com.minhtung.hackathon.dto.response.SearchMemberResponse;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
@@ -88,6 +89,13 @@ public ResponseEntity<?> updateStudentProfile(
         return ResponseEntity.ok(
                 kycService.updateAvatar(authentication.getName(), file)
         );
+    }
+
+    // api get lecturor
+    @GetMapping("/lecturers")
+    public ResponseEntity<List<LecturerResponse>> getLecturers(
+            @RequestParam(required = false) String q) {
+        return ResponseEntity.ok(userService.getLecturers(q));
     }
 
 private ResponseEntity<String> unauthorized() {
