@@ -16,6 +16,9 @@ function isTokenValid() {
 export function AuthProvider({ children }) {
     const [role, setRole] = useState(() => isTokenValid() ? localStorage.getItem("role") : null);
     const [teamRole, setTeamRole] = useState(() => localStorage.getItem("teamRole") ?? null);
+    const [activeAccount, setActiveAccount] = useState(() => localStorage.getItem("activeAccount") ?? null);
+    const [userStatus, setUserStatus] = useState(() => localStorage.getItem("userStatus") ?? null);
+
     const [isAuthenticated, setIsAuthenticated] = useState(() => isTokenValid());
 
     const [userInfo, setUserInfo] = useState(() => {
@@ -42,6 +45,9 @@ export function AuthProvider({ children }) {
     const login = (loginResponse) => {
         localStorage.setItem("accessToken", loginResponse.token);
         localStorage.setItem("role", loginResponse.role);
+        localStorage.setItem("activeAccount", loginResponse.activeAccount);
+        localStorage.setItem("userStatus", loginResponse.status);
+
         //expired time đang set là 24h ở backend
         // login() trong AuthContext.jsx
         localStorage.setItem("expiredTime", String(Date.now() + loginResponse.expiredTime));
@@ -54,6 +60,9 @@ export function AuthProvider({ children }) {
         setRole(loginResponse.role ?? null);
         setTeamRole(resolvedTeamRole);
         setUserInfo(info);
+        setActiveAccount(loginResponse.activeAccount)
+        setUserStatus(loginResponse.status)
+
     };
 
     const clearAuth = () => {
@@ -74,6 +83,10 @@ export function AuthProvider({ children }) {
             teamRole,
             teamRoleLoading,
             userInfo,
+            userStatus
+            ,
+            activeAccount
+            ,
             fetchTeamRole,
             login,
             logout,
