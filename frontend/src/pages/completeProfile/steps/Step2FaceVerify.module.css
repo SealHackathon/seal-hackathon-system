@@ -1,0 +1,154 @@
+/* ============================
+   Card — layout 2 cột
+   ============================ */
+.card {
+    background: var(--color-bg-white);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border-blue);
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    align-items: stretch;
+}
+
+/* ============================
+   Sidebar trái
+   ============================ */
+.sidebar {
+    width: 18em;
+    flex-shrink: 0;
+    padding: 4em 2em;
+    border-right: 1px solid var(--color-border-blue);
+    display: flex;
+    align-items: flex-start;
+}
+
+/* ============================
+   Nội dung chính
+   ============================ */
+.content {
+    flex: 1;
+    padding: 3em 4em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-width: 0;
+}
+
+.pageTitle {
+    font-family: var(--title-font-main);
+    font-size: 1.9rem;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--color-primary-blue);
+    text-align: center;
+}
+
+/* ============================
+   Camera + Tips — 2 cột
+   ============================ */
+.captureRow {
+    display: grid;
+    grid-template-columns: 1fr 18em;
+    gap: 1.25rem;
+    align-items: stretch;
+}
+
+/* ============================
+   Tips box
+   ============================ */
+.tipsBox {
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    padding: 1.25rem 1rem;
+    background: var(--color-bg-blue);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.tipsTitle {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+.tipsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.tipsList li {
+    color: var(--color-text-primary);
+    position: relative;
+    line-height: 1.4;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.35rem;
+}
+
+.tipsList li svg {
+    flex-shrink: 0;
+    margin-top: 0.15em;
+}
+
+/* ============================
+   Section (banner area)
+   ============================ */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+/* ============================
+   Error banner buttons
+   ============================ */
+.errorButtons {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* ============================
+   Loading dots animation
+   ============================ */
+.dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+.dots span {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+    animation: dotBounce 0.8s infinite ease-in-out;
+}
+
+.dots span:nth-child(2) { animation-delay: 0.15s; }
+.dots span:nth-child(3) { animation-delay: 0.3s;  }
+
+@keyframes dotBounce {
+    0%, 100% { transform: translateY(0);       }
+    50%       { transform: translateY(-0.35rem); }
+}
+
+/* ============================
+   Footer
+   ============================ */
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    margin-top: auto;
+    padding-top: 0.5rem;
+}
