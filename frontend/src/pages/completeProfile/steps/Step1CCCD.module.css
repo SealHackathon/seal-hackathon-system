@@ -1,0 +1,182 @@
+/* ============================================================
+   Card: layout 2 cột (stepper trái + nội dung phải)
+   ============================================================ */
+.card {
+    background: var(--color-bg-white);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border-blue);
+    width: 100%;
+    max-width: 1400px;
+    display: flex;
+    align-items: stretch;
+}
+
+/* ============================================================
+   Sidebar trái: ProfileStepper
+   ============================================================ */
+.sidebar {
+    width: 15em;
+    flex-shrink: 0;
+    padding: 3em 2em;
+    border-right: 1px solid var(--color-border-blue);
+}
+
+/* ============================================================
+   Nội dung phải
+   ============================================================ */
+.content {
+    flex: 1;
+    padding: 3em 3.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    min-width: 0;
+}
+
+.pageTitle {
+    font-family: var(--title-font-main);
+    font-size: 1.9rem;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--color-primary-blue);
+    text-align: center;
+    margin: 0;
+}
+
+/* ============================================================
+   Section
+   ============================================================ */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+}
+
+.sectionTitle {
+    font-family: var(--title-font-main);
+    font-size: 1.4rem;
+    font-weight: 700;
+    font-style: italic;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+/* ============================================================
+   Upload: 2 cột nằm ngang
+   ============================================================ */
+.uploadRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+}
+
+/* ============================================================
+   Form trích xuất: 2 cột, hàng field
+   ============================================================ */
+.extractedForm {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 1.25rem;
+}
+
+/* Field chiếm toàn bộ chiều rộng */
+.fullWidth {
+    grid-column: 1 / -1;
+}
+
+/* ============================================================
+   Error hint list (trong Banner khi OCR thất bại)
+   ============================================================ */
+.errorHints {
+    list-style: none;
+    padding: 0;
+    margin: 0.25rem 0 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+}
+
+.errorHints li {
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+}
+
+.errorHints li::before {
+    content: '- ';
+}
+
+/* ============================================================
+   Error buttons: cột dọc trong Banner
+   ============================================================ */
+.errorButtons {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+/* ============================================================
+   Checkbox xác nhận
+   ============================================================ */
+.confirmRow {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    cursor: pointer;
+    width: fit-content;
+    padding: 0.25em 0;
+}
+
+.checkbox {
+    width: 1em;
+    height: 1em;
+    accent-color: var(--color-primary-blue);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.confirmLabel {
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+    user-select: none;
+}
+
+/* ============================================================
+   Footer: nút Quay lại + Tiếp tục
+   ============================================================ */
+.footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75em;
+    margin-top: auto;
+    padding-top: 0.5em;
+}
+
+/* ============================================================
+   Loading Dots Animation
+   ============================================================ */
+
+
+.dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    margin-right: 0.5rem;
+    vertical-align: middle;
+}
+
+.dots span {
+    display: inline-block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: currentColor;
+    animation: dotBounce 0.8s infinite ease-in-out;
+}
+
+.dots span:nth-child(2) { animation-delay: 0.15s; }
+.dots span:nth-child(3) { animation-delay: 0.3s;  }
+
+@keyframes dotBounce {
+    0%, 100% { transform: translateY(0) scale(1);      }
+    50%       { transform: translateY(-0.35rem); }
+}
