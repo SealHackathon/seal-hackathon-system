@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("api/kyc")
 @RequiredArgsConstructor
+@CrossOrigin("*")
 public class KycController {
     private final KycService kycService;
 
@@ -61,5 +62,8 @@ public class KycController {
 
         return ResponseEntity.ok("tu choi ho so thanh cong");
     }
+
+
+
 
 }
