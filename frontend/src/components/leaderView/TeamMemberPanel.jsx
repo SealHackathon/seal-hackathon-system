@@ -162,6 +162,7 @@ function TeamMemberPanel({
                     {officialMembers.map((member, i) => (
                         <MemberRow
                             key={member.id}
+                            member={member}
                             teamStatus={teamStatus}
                             index={i + 1}
                             name={member.name}
@@ -200,6 +201,7 @@ function TeamMemberPanel({
                         {reserveMembers.map((member, i) => (
                             <MemberRow
                                 key={member.id}
+                                member={member}
                                 teamStatus={teamStatus}
                                 index={i + 1}
                                 name={member.name}

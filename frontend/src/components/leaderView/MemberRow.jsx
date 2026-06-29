@@ -5,6 +5,7 @@ import styles from './MemberRow.module.css'
 import Button from '../shared/Button'
 import Badge from '../shared/Badge'
 import LeaveRequestDetailModal from './LeaveRequestDetailModal'
+import UserProfileModal from './UserProfileModal'
 import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 
 // Map joinMethod → Badge props — cùng màu green, khác variant theo cấp độ
@@ -17,6 +18,7 @@ const JOIN_METHOD_BADGE = {
 function MemberRow({
   index,
   teamStatus,
+  member,
   name,
   email,
   school,
@@ -34,6 +36,7 @@ function MemberRow({
   leaveRequest,
 }) {
   const [selectedRequest, setSelectedRequest] = useState(null)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
 
   const badge = !isLeader && joinMethod ? JOIN_METHOD_BADGE[joinMethod] : null
 
@@ -42,17 +45,18 @@ function MemberRow({
 
       <span className={styles.index}>{index}</span>
 
-      <div className={styles.avatar}>
+      <div className={`${styles.avatar} ${styles.clickable}`} onClick={() => setIsProfileOpen(true)}>
         <img src={avatarPlaceholder} alt="user avatar placeholder" className={styles.avatarImg} />
         {isLeader && (
           <CrownSimple size={32} weight="fill" className={styles.crownIcon} />
         )}
       </div>
 
-
       <div className={styles.info}>
         <div className={styles.nameRow}>
-          <span className={styles.name}>{name}</span>
+          <span className={`${styles.name} ${styles.clickable}`} onClick={() => setIsProfileOpen(true)}>
+            {name}
+          </span>
           {isCurrentUser && <span className={styles.youBadge}>(Bạn)</span>}
           {badge && (
             <span className={badge.dim ? styles.badgeDim : undefined}>
@@ -174,6 +178,12 @@ function MemberRow({
         onClose={() => setSelectedRequest(null)}
       />
 
+      {isProfileOpen && member && (
+        <UserProfileModal 
+          member={member} 
+          onClose={() => setIsProfileOpen(false)} 
+        />
+      )}
 
     </div>
   )
