@@ -7,7 +7,8 @@ import Step3StudentInfo from './steps/Step3StudentInfo'
 import Step4PersonalInfo from './steps/Step4PersonalInfo'
 import styles from './CompleteProfilePage.module.css'
 import axiosClient from '../../api/axiosClient';
-
+import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../../AuthContext'
 /**
  * CompleteProfilePage — điều phối toàn bộ luồng hoàn thiện hồ sơ
  *
@@ -17,11 +18,17 @@ import axiosClient from '../../api/axiosClient';
  *  Bước 3: Thông tin sinh viên (Step3StudentInfo)
  *  Bước 4: Hồ sơ cá nhân      (Step4PersonalInfo)
  */
+
 function CompleteProfilePage() {
+
+    const navigate=useNavigate();
+
     const [currentStep, setCurrentStep] = useState(0)
 
     const goNext = () => setCurrentStep(s => s + 1)
     const goBack = () => setCurrentStep(s => s - 1)
+
+    const { updateUserStatus } = useAuth();
 
     async function handleStep4Submit(data) {
         const formData = new FormData();
@@ -57,7 +64,8 @@ function CompleteProfilePage() {
 
             console.log('[CompleteProfile] Submitted Success:', response.data);
             // Logic chuyển trang hoặc thông báo thành công tại đây...
-
+     updateUserStatus(response.data.status || response.status);
+            navigate("/user/dashboard")
         } catch (error) {
             console.error('[CompleteProfile] Submit Failed:', error.response?.data || error.message);
             // Alert hoặc Toast thông báo lỗi từ Spring Boot (ví dụ: "Tiểu sử tối đa 300 ký tự")
