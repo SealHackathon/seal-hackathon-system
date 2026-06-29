@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserIdentityProfileResponse {
 
-        private Long id;
+        private Long id; // profile id
         private String fullName;
         private String cmnd;
         private String dateOfBirth;

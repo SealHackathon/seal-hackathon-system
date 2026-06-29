@@ -2,16 +2,16 @@ import NotificationDropdown from "./NotificationDropdown";
 import UserMenuDropdown from "./UserMenuDropdown";
 import styles from './Navbar.module.css';
 import Button from "../shared/Button";
+import { useNavigate } from "react-router-dom";
 // import { useState } from "react";
 // import RegisterPage from "../../pages/RegisterPage";
 // import LoginPage from "../../pages/LoginPage";
 function Navbar({ isLoggedIn, user }) {
 
-    
-  
-   
-  
-    
+    const navigate = useNavigate();
+
+
+
     return (
         <div className={styles.wrapper}>
             <img
@@ -30,11 +30,12 @@ function Navbar({ isLoggedIn, user }) {
                             label="Đăng ký"
                             variant="primary"
                             color="green"
+                            onClick={() => navigate("/register")}
                         />
                         <Button
                             label="Đăng nhập"
                             variant="outline"
-                        
+                            onClick={() => navigate("/login")}
                         />
                     </div>
                 ) : (

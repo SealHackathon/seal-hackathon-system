@@ -46,6 +46,7 @@ public class AuthService {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("email nay da ton tai ");
         }
+
         if(userRepository.existsByPhoneNumber(registerRequest.getPhone())){
             throw new RuntimeException(" số điện thoại này  đã tồn tại ");
         }
