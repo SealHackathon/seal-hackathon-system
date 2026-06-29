@@ -70,11 +70,12 @@ export default function Step2FaceVerify({ onNext, onBack }) {
     async function runVerification(file) {
         if (!file) return
         setVerifyState('loading')
-
-        // TODO: Gọi API xác thực khuôn mặt ở đây
-
-        // Mô phỏng API delay
-        setTimeout(() => {
+        const fd = new FormData()
+        fd.append('selfie_img', file)
+        try {
+            await axiosClient.post('/kyc/face-match', fd, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
             setVerifyState('success')
         }, 1500)
     }

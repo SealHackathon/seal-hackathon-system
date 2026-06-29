@@ -26,14 +26,21 @@ export default function Step3StudentInfo({ onNext, onBack }) {
     async function handleNext() {
         if (!canSubmit || loading) return
         setLoading(true)
-        // TODO: Gọi API lưu thông tin sinh viên & thẻ sinh viên ở đây
-
-
-
-        setTimeout(() => {
+        const fd = new FormData()
+        fd.append('school',           school === 'other' ? customSchool.trim() : school)
+        fd.append('mssv',       studentId.trim())
+        fd.append('file', cardFile)
+        try {
+            await axiosClient.post('/kyc/student-card', fd, {
+                headers: { 'Content-Type': 'multipart/form-data' },
+            })
+            onNext()
+        } catch (err) {
+            console.error(err)
+        } finally {
             setLoading(false)
             onNext()
-        }, 500)
+        }; 500)
     }
 
     return (

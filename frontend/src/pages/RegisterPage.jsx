@@ -6,13 +6,16 @@ import FormInput from '../components/shared/FormInput'
 import Dropdown from '../components/shared/Dropdown'
 import Button from '../components/shared/Button'
 import styles from './RegisterPage.module.css'
-
 const ROLE_OPTIONS = [
     { value: 'student_fpt', label: 'Sinh viên Đại học FPT' },
     { value: 'student_other', label: 'Sinh viên trường khác' },
 ]
 
+
+
 function RegisterPage() {
+    const navigate = useNavigate();
+
     const [form, setForm] = useState({
         role: 'student_fpt',
         studentId: '',
@@ -71,7 +74,7 @@ function RegisterPage() {
 
             localStorage.setItem('verifyEmail', form.email)
             localStorage.setItem('registerData', JSON.stringify(form))
-            // navigate('/verify-email', { state: { email: form.email } })
+            navigate('/verify-email', { state: { email: form.email } })
 
         } catch {
             console.log('Lỗi kết nối server')
@@ -158,6 +161,7 @@ function RegisterPage() {
                         label="Đăng kí"
                         variant="primary"
                         type="submit"
+                        onClick={()=>handleSubmit}
                     // disabled={!isFormValid || loading}
                     />
 
@@ -175,6 +179,7 @@ function RegisterPage() {
                         <button
                             type="button"
                             className={styles.loginLink}
+                            onClick={()=>navigate("/login")}
                         >
                             Đăng nhập ngay
                         </button>

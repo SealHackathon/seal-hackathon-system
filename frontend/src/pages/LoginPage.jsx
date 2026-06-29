@@ -31,24 +31,24 @@ function LoginPage() {
     }
 
     async function handleSubmit(e) {
-    e.preventDefault()
-    const e2 = validate()
-    if (Object.keys(e2).length > 0) { setErrors(e2); return }
+        e.preventDefault()
+        const e2 = validate()
+        if (Object.keys(e2).length > 0) { setErrors(e2); return }
 
-    try {
-        const res = await axiosClient.post('/auth/login', {
-            email: form.email,
-            password: form.password,
-        })
-        const data = res.data
-        if (data.token) {
-            login(data)
-            navigate(data.role === "ADMIN" ? "/admin/coordinator/events" : "/user/dashboard")
+        try {
+            const res = await axiosClient.post('/auth/login', {
+                email: form.email,
+                password: form.password,
+            })
+            const data = res.data
+            if (data.token) {
+                login(data)
+                navigate(data.role === "ADMIN" ? "/admin/coordinator/events" : "/user/dashboard")
+            }
+        } catch (err) {
+            setErrors({ submit: err.response?.data?.message || 'Đăng nhập thất bại' })
         }
-    } catch (err) {
-        setErrors({ submit: err.response?.data?.message || 'Đăng nhập thất bại' })
     }
-}
 
     return (
         <AuthLayout>
@@ -104,8 +104,11 @@ function LoginPage() {
 
                     <p className={styles.loginPrompt}>
                         Chưa có tài khoản?{' '}
-                        <button type="button" className={styles.loginLink}>
+                        <button type="button" className={styles.loginLink}
+                            onClick={() => navigate("/register")}
+                        >
                             Tạo tài khoản ngay
+
                         </button>
                     </p>
 

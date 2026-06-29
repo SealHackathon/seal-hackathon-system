@@ -4,7 +4,7 @@ import AuthLayout from '../layouts/AuthLayout'
 import Button from '../components/shared/Button'
 import styles from './RegisterPage.module.css'
 
-const FAKE_EMAIL = 'ntbi533@gmail.com'
+const FAKE_EMAIL = localStorage.getItem('verifyEmail');
 const COOLDOWN = 60
 
 function VerifyEmailPage() {
