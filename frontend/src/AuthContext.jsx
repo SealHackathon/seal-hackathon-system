@@ -27,6 +27,13 @@ export function AuthProvider({ children }) {
     });
     const [teamRoleLoading, setTeamRoleLoading] = useState(false);
 
+    // update userStatus
+    const updateUserStatus = (newStatus) => {
+        localStorage.setItem("userStatus", newStatus);
+        setUserStatus(newStatus); // Dòng này sẽ kích hoạt React re-render toàn hệ thống
+    };
+
+
     const fetchTeamRole = async () => {
         setTeamRoleLoading(true);
         try {
@@ -87,6 +94,7 @@ export function AuthProvider({ children }) {
             ,
             activeAccount
             ,
+            updateUserStatus,
             fetchTeamRole,
             login,
             logout,

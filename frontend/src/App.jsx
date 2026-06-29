@@ -129,6 +129,9 @@ function AppRoutes() {
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
+
+            <Route path="/user/dashboard" element={<UserDashboard />} />
+
             {/* <Route path="/complete-profile" element={<CompleteProfilePage />} /> */}
 
             {isAuthenticated ? (
@@ -145,13 +148,16 @@ function AppRoutes() {
 
                         <>
 
-                            {/* 
-                         //todo 
-                         <Route
+
+                         //todo
+                            // tạm thời hard code để PENDING_APPROVAL vào DASH BOARD        
+                            {console.log(userStatus)}
+                            <Route
+
                                 path="/user/dashboard"
-                                element={userStatus === "PENDING_APPROVAL" ? <Navigate to="/user/messaege(hay gì đó)" replace /> : <Page để show message />}
+                                element={userStatus === "PENDING_APPROVAL" ? <UserDashboard /> : <CompleteProfilePage />}
                             />
-                          */}
+
 
                             <Route
                                 path="/user/dashboard"
@@ -161,7 +167,15 @@ function AppRoutes() {
                             {/* Chặn luôn trang /team nếu chưa được duyệt tài khoản (Tùy chọn nhưng nên làm) */}
                             <Route
                                 path="/team"
-                                element={userStatus === "PROFILE_PENDING" ? <Navigate to="/user/complete-profile" replace /> : <TeamRoute />}
+                                element={
+                                    userStatus === "PROFILE_PENDING" ? (
+                                        <Navigate to="/user/complete-profile" replace />
+                                    ) : userStatus === "PENDING_APPROVAL" ? (
+                                        <Navigate to="/user/dashboard" replace />
+                                    ) : (
+                                        <TeamRoute />
+                                    )
+                                }
                             />
 
                             {/* Trang chỉnh sửa thông tin thực sự */}

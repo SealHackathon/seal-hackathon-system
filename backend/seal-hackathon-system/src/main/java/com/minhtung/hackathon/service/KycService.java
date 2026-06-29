@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
 import com.minhtung.hackathon.dto.response.AdminParticipantReviewResponse;
 import com.minhtung.hackathon.dto.response.FaceMatchResponse;
+import com.minhtung.hackathon.dto.response.StudentProfileResponse;
 import com.minhtung.hackathon.dto.response.UserIdentityProfileResponse;
 import com.minhtung.hackathon.entity.Student_profile;
 import com.minhtung.hackathon.entity.User;
@@ -301,7 +302,7 @@ public class KycService {
 
 
     // Thêm tham số MultipartFile avatarFile vào hàm
-    public Student_profile updatesStudentProfile(String email, UpdateStudentProfileRequest req, MultipartFile avatarFile) {
+    public StudentProfileResponse updatesStudentProfile(String email, UpdateStudentProfileRequest req, MultipartFile avatarFile) {
         User user = userRepository.findByEmail(email).orElseThrow(() ->
                 new RuntimeException("khong tim thay user"));
 
@@ -350,11 +351,22 @@ public class KycService {
         profile.setPositions(req.getPositons());
         profile.setTechTags(req.getTechTags());
         profile.setTopics(req.getTopics());
-
+        user.setStatus(UserStatus.PENDING_APPROVAL);
+        studentprofileRepository.save(profile);
         // Nếu trong request có gửi kèm cvLink thì map luôn nhé (Entity của bạn chưa thấy khai báo cvLink nhưng DTO có)
         // profile.setCvLink(req.getCvLink());
+        StudentProfileResponse res = new StudentProfileResponse();
+        res.setId(profile.getId());
+        res.setImg_studentcard(profile.getImg_studentcard());
+        res.setBio(profile.getBio());
+        res.setPositions(profile.getPositions());
+        res.setTechTags(profile.getTechTags());
+        res.setTopics(profile.getTopics());
+        res.setAvatar(profile.getAvatar())
+        ;
+        res.setStatus(UserStatus.PENDING_APPROVAL.toString());
 
-        return studentprofileRepository.save(profile);
+        return res;
     }
 
 
