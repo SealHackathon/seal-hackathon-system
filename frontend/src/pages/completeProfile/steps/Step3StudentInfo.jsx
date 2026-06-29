@@ -28,10 +28,10 @@ export default function Step3StudentInfo({ onNext, onBack }) {
         setLoading(true)
         const fd = new FormData()
         fd.append('school',           school === 'other' ? customSchool.trim() : school)
-        fd.append('student_id',       studentId.trim())
-        fd.append('student_card_img', cardFile)
+        fd.append('mssv',       studentId.trim())
+        fd.append('file', cardFile)
         try {
-            await axiosClient.post('/api/kyc/student-card', fd, {
+            await axiosClient.post('/kyc/student-card', fd, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
             onNext()

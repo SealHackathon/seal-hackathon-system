@@ -110,7 +110,7 @@ function Step1CCCD({ onNext, onBack }) {
         fd.append('back_img', back)
 
         try {
-            const res = await axiosClient.post('/api/kyc/cccd', fd, {
+            const res = await axiosClient.post('/kyc/cccd', fd, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
             setFormData({

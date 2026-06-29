@@ -71,9 +71,9 @@ export default function Step2FaceVerify({ onNext, onBack }) {
         if (!file) return
         setVerifyState('loading')
         const fd = new FormData()
-        fd.append('face_img', file)
+        fd.append('selfie_img', file)
         try {
-            await axiosClient.post('/api/kyc/face-match', fd, {
+            await axiosClient.post('/kyc/face-match', fd, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
             setVerifyState('success')
