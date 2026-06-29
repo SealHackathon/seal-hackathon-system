@@ -2,14 +2,24 @@ import { useState, useEffect } from 'react'
 import { EnvelopeSimple, ArrowCounterClockwise, ArrowLeft } from '@phosphor-icons/react'
 import AuthLayout from '../layouts/AuthLayout'
 import Button from '../components/shared/Button'
+import ModalShell from '../components/shared/ModalShell'
+import FormInput from '../components/shared/FormInput'
 import styles from './RegisterPage.module.css'
 
 const FAKE_EMAIL = localStorage.getItem('verifyEmail');
 const COOLDOWN = 60
 
 function VerifyEmailPage() {
+    // Read the email from localStorage that was saved during registration
+    const initialEmail = localStorage.getItem('verifyEmail') || 'ntbi533@gmail.com'
+    const [currentEmail, setCurrentEmail] = useState(initialEmail)
+
     const [resendSuccess, setResendSuccess] = useState(false)
     const [countdown, setCountdown] = useState(0)
+
+    // Modal state
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [newEmail, setNewEmail] = useState('')
 
     useEffect(() => {
         if (countdown <= 0) return
@@ -20,9 +30,9 @@ function VerifyEmailPage() {
 
 
     function handleResend() {
-        console.log('Gửi lại link xác nhận tới:', FAKE_EMAIL)
+        console.log('Gửi lại link xác nhận tới:', currentEmail)
         setResendSuccess(true)
-        setCountdown(COOLDOWN) 
+        setCountdown(COOLDOWN)
     }
 
     function formatCountdown(seconds) {
@@ -32,7 +42,36 @@ function VerifyEmailPage() {
     }
 
     function handleChangeEmail() {
-        console.log('Quay lại trang đăng ký')
+        setIsModalOpen(true)
+    }
+
+    function handleConfirmChangeEmail() {
+        console.log('Gọi API đổi email pending thành:', newEmail)
+        
+        // TODO: Call API PUT /api/auth/change-pending-email here.
+        // Assuming API call is successful:
+        
+        // 1. Update localStorage
+        localStorage.setItem('verifyEmail', newEmail)
+        
+        // Also update registerData if it exists
+        const registerDataStr = localStorage.getItem('registerData')
+        if (registerDataStr) {
+            try {
+                const registerData = JSON.parse(registerDataStr)
+                registerData.email = newEmail
+                localStorage.setItem('registerData', JSON.stringify(registerData))
+            } catch (e) {
+                console.error("Error parsing registerData from localStorage", e)
+            }
+        }
+
+        // 2. Update state to reflect on UI immediately
+        setCurrentEmail(newEmail)
+
+        // 3. Reset and close modal
+        setIsModalOpen(false)
+        setNewEmail('')
     }
 
     return (
@@ -48,7 +87,7 @@ function VerifyEmailPage() {
                 <div className={styles.form}>
 
                     <p className={styles.verifyText}>
-                        Link xác nhận đã được gửi đến <strong>{FAKE_EMAIL}</strong>
+                        Link xác nhận đã được gửi đến <strong>{currentEmail}</strong>
                     </p>
 
                     <p className={styles.verifyText}>
@@ -85,14 +124,47 @@ function VerifyEmailPage() {
 
                     <Button
                         label="Đổi địa chỉ email"
-                        icon={ArrowLeft}
-                        iconPosition="left"
                         variant="outline"
                         onClick={handleChangeEmail}
                     />
 
                 </div>
             </div>
+
+            {isModalOpen && (
+                <ModalShell
+                    onClose={() => setIsModalOpen(false)}
+                    size="md"
+                    footer={
+                        <div className={styles.modalFooter}>
+                            <Button
+                                label="Huỷ"
+                                variant="outline"
+                                onClick={() => setIsModalOpen(false)}
+                            />
+                            <Button
+                                label="Cập nhật"
+                                variant="primary"
+                                onClick={handleConfirmChangeEmail}
+                                disabled={!newEmail}
+                            />
+                        </div>
+                    }
+                >
+                    <div className={styles.modalContent}>
+                        <h2 className={styles.modalTitle}>
+                            Đổi địa chỉ email
+                        </h2>
+                        <FormInput
+                            label="Email mới"
+                            placeholder="Nhập địa chỉ email mới"
+                            type="email"
+                            value={newEmail}
+                            onChange={(e) => setNewEmail(e.target.value)}
+                        />
+                    </div>
+                </ModalShell>
+            )}
         </AuthLayout>
     )
 }
