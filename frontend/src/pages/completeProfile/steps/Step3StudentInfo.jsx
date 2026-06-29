@@ -39,8 +39,7 @@ export default function Step3StudentInfo({ onNext, onBack }) {
             console.error(err)
         } finally {
             setLoading(false)
-            onNext()
-        }; 500)
+        }
     }
 
     return (

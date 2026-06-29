@@ -76,162 +76,164 @@ export default function Step2FaceVerify({ onNext, onBack }) {
             await axiosClient.post('/kyc/face-match', fd, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
-            setVerifyState('success')
-        }, 1500)
+            setTimeout(() => setVerifyState('success'), 1500)
+        } catch (err) {
+            setVerifyState('error')
+        }
     }
 
     // ── Handlers ────────────────────────
-    function handleCapture(file) {
-        setCapturedFile(file)
-        if (file) runVerification(file)
-    }
+        function handleCapture(file) {
+            setCapturedFile(file)
+            if (file) runVerification(file)
+        }
 
-    // Thử lại — dùng lại ảnh cũ
-    function handleRetry() {
-        if (capturedFile) runVerification(capturedFile)
-    }
+        // Thử lại — dùng lại ảnh cũ
+        function handleRetry() {
+            if (capturedFile) runVerification(capturedFile)
+        }
 
-    // Chụp ảnh khác — reset camera về idle
-    function handleRetake() {
-        setCapturedFile(null)
-        setCameraResetKey(k => k + 1)
-        setVerifyState('idle')
-    }
+        // Chụp ảnh khác — reset camera về idle
+        function handleRetake() {
+            setCapturedFile(null)
+            setCameraResetKey(k => k + 1)
+            setVerifyState('idle')
+        }
 
-    // ── Derived ─────────────────────────
-    const isBusy = verifyState === 'loading'
-    const showBanner = verifyState !== 'idle'
-    const canProceed = verifyState === 'success' || verifyState === 'error_exhausted'
+        // ── Derived ─────────────────────────
+        const isBusy = verifyState === 'loading'
+        const showBanner = verifyState !== 'idle'
+        const canProceed = verifyState === 'success' || verifyState === 'error_exhausted'
 
-    return (
-        <div className={styles.card}>
+        return (
+            <div className={styles.card}>
 
-            {/* ── Stepper ── */}
-            <aside className={styles.sidebar}>
-                <ProfileStepper currentStep={2} />
-            </aside>
+                {/* ── Stepper ── */}
+                <aside className={styles.sidebar}>
+                    <ProfileStepper currentStep={2} />
+                </aside>
 
-            {/* ── Content ── */}
-            <div className={styles.content}>
-                <h1 className={styles.pageTitle}>Xác minh khuôn mặt</h1>
+                {/* ── Content ── */}
+                <div className={styles.content}>
+                    <h1 className={styles.pageTitle}>Xác minh khuôn mặt</h1>
 
-                {/* Info banner */}
-                <Banner
-                    color="blue" variant="flat"
-                    message="Hệ thống sẽ so khớp khuôn mặt của bạn với ảnh trên CCCD để xác nhận danh tính."
-                />
-
-                {/* Camera + Tips */}
-                <div className={styles.captureRow}>
-                    <CameraCapture
-                        key={cameraResetKey}
-                        onCapture={handleCapture}
-                        disabled={isBusy || verifyState === 'success'}
+                    {/* Info banner */}
+                    <Banner
+                        color="blue" variant="flat"
+                        message="Hệ thống sẽ so khớp khuôn mặt của bạn với ảnh trên CCCD để xác nhận danh tính."
                     />
 
-                    <div className={styles.tipsBox}>
-                        <p className={styles.tipsTitle}>Bạn hãy đảm bảo</p>
-                        <ul className={styles.tipsList}>
-                            {TIPS.map(t => <li key={t}><ArrowRight size='18' color='var(--color-primary-blue)' weight='bold' /> {t}</li>)}
-                        </ul>
+                    {/* Camera + Tips */}
+                    <div className={styles.captureRow}>
+                        <CameraCapture
+                            key={cameraResetKey}
+                            onCapture={handleCapture}
+                            disabled={isBusy || verifyState === 'success'}
+                        />
+
+                        <div className={styles.tipsBox}>
+                            <p className={styles.tipsTitle}>Bạn hãy đảm bảo</p>
+                            <ul className={styles.tipsList}>
+                                {TIPS.map(t => <li key={t}><ArrowRight size='18' color='var(--color-primary-blue)' weight='bold' /> {t}</li>)}
+                            </ul>
+                        </div>
+                    </div>
+
+                    {/* Status banner */}
+                    {showBanner && (
+                        <section className={styles.section}>
+
+                            {/* Loading */}
+                            {verifyState === 'loading' && (
+                                <Banner
+                                    color="blue"
+                                    variant="dashed"
+                                    title={<><Dots /> Đang xác minh khuôn mặt</>}
+                                    message="Hệ thống đang so khớp khuôn mặt của bạn với ảnh trên CCCD."
+                                    badge={`Còn ${retriesLeft} lần thử`}
+                                />
+                            )}
+
+                            {/* Success */}
+                            {verifyState === 'success' && (
+                                <Banner
+                                    icon={CheckCircle} iconSize={42}
+                                    color="green" variant="solid"
+                                    title="Xác minh thành công!"
+                                    message="Khuôn mặt của bạn khớp với thông tin trên CCCD."
+                                />
+                            )}
+
+
+                            {/* Error — còn lượt thử */}
+                            {verifyState === 'error_retry' && (
+                                <Banner
+                                    color="orange" variant="solid"
+                                    icon={XSquare}
+                                    iconSize={42}
+                                    title="Khuôn mặt không khớp"
+                                    message={
+                                        <>
+                                            Không thể xác nhận khuôn mặt của bạn khớp với ảnh trên CCCD.<br />
+                                            Vui lòng thực hiện đúng các hướng dẫn trong khung lưu ý bên trên và thử lại.
+                                        </>
+                                    }
+                                    badge={`Còn ${retriesLeft} lần thử`}
+                                    buttons={
+                                        <div className={styles.errorButtons}>
+                                            <Button
+                                                label="Thử lại"
+                                                color="orange" variant="outline" labelSize={15}
+                                                onClick={handleRetry}
+                                            />
+                                            <Button
+                                                label="Chụp ảnh khác"
+                                                color="orange" variant="outline" labelSize={15}
+                                                onClick={handleRetake}
+                                            />
+                                        </div>
+                                    }
+                                />
+                            )}
+
+                            {/* Error — hết lượt */}
+                            {verifyState === 'error_exhausted' && (
+                                <Banner
+                                    icon={Warning} iconSize={42}
+                                    color="orange" variant="solid"
+                                    title="Không thể xác minh khuôn mặt tự động"
+                                    message={
+                                        <>
+                                            Ảnh của bạn sẽ được lưu lại để Ban Tổ Chức xem xét thủ công.<br />
+                                            Bạn vẫn có thể tiếp tục hoàn thiện hồ sơ trong lúc chờ kết quả.
+                                        </>
+                                    }
+                                // buttons={
+                                //     <Button
+                                //         label="Liên hệ BTC"
+                                //         color="orange" variant="outline"
+                                //         icon={Phone} iconPosition="left" iconSize={18} labelSize={15}
+                                //     />
+                                // }
+                                />
+                            )}                    </section>
+                    )}
+
+                    {/* Footer */}
+                    <div className={styles.footer}>
+                        <Button
+                            label="Quay lại" variant="outline"
+                            icon={ArrowLeft} iconPosition="left" iconSize={20}
+                            onClick={onBack}
+                        />
+                        <Button
+                            label="Tiếp tục"
+                            icon={ArrowRight} iconPosition="right" iconSize={20}
+                            disabled={!canProceed}
+                            onClick={() => canProceed && onNext()}
+                        />
                     </div>
                 </div>
-
-                {/* Status banner */}
-                {showBanner && (
-                    <section className={styles.section}>
-
-                        {/* Loading */}
-                        {verifyState === 'loading' && (
-                            <Banner
-                                color="blue"
-                                variant="dashed"
-                                title={<><Dots /> Đang xác minh khuôn mặt</>}
-                                message="Hệ thống đang so khớp khuôn mặt của bạn với ảnh trên CCCD."
-                                badge={`Còn ${retriesLeft} lần thử`}
-                            />
-                        )}
-
-                        {/* Success */}
-                        {verifyState === 'success' && (
-                            <Banner
-                                icon={CheckCircle} iconSize={42}
-                                color="green" variant="solid"
-                                title="Xác minh thành công!"
-                                message="Khuôn mặt của bạn khớp với thông tin trên CCCD."
-                            />
-                        )}
-
-
-                        {/* Error — còn lượt thử */}
-                        {verifyState === 'error_retry' && (
-                            <Banner
-                                color="orange" variant="solid"
-                                icon={XSquare}
-                                iconSize={42}
-                                title="Khuôn mặt không khớp"
-                                message={
-                                    <>
-                                        Không thể xác nhận khuôn mặt của bạn khớp với ảnh trên CCCD.<br />
-                                        Vui lòng thực hiện đúng các hướng dẫn trong khung lưu ý bên trên và thử lại.
-                                    </>
-                                }
-                                badge={`Còn ${retriesLeft} lần thử`}
-                                buttons={
-                                    <div className={styles.errorButtons}>
-                                        <Button
-                                            label="Thử lại"
-                                            color="orange" variant="outline" labelSize={15}
-                                            onClick={handleRetry}
-                                        />
-                                        <Button
-                                            label="Chụp ảnh khác"
-                                            color="orange" variant="outline" labelSize={15}
-                                            onClick={handleRetake}
-                                        />
-                                    </div>
-                                }
-                            />
-                        )}
-
-                        {/* Error — hết lượt */}
-                        {verifyState === 'error_exhausted' && (
-                            <Banner
-                                icon={Warning} iconSize={42}
-                                color="orange" variant="solid"
-                                title="Không thể xác minh khuôn mặt tự động"
-                                message={
-                                    <>
-                                        Ảnh của bạn sẽ được lưu lại để Ban Tổ Chức xem xét thủ công.<br />
-                                        Bạn vẫn có thể tiếp tục hoàn thiện hồ sơ trong lúc chờ kết quả.
-                                    </>
-                                }
-                            // buttons={
-                            //     <Button
-                            //         label="Liên hệ BTC"
-                            //         color="orange" variant="outline"
-                            //         icon={Phone} iconPosition="left" iconSize={18} labelSize={15}
-                            //     />
-                            // }
-                            />
-                        )}                    </section>
-                )}
-
-                {/* Footer */}
-                <div className={styles.footer}>
-                    <Button
-                        label="Quay lại" variant="outline"
-                        icon={ArrowLeft} iconPosition="left" iconSize={20}
-                        onClick={onBack}
-                    />
-                    <Button
-                        label="Tiếp tục"
-                        icon={ArrowRight} iconPosition="right" iconSize={20}
-                        disabled={!canProceed}
-                        onClick={() => canProceed && onNext()}
-                    />
-                </div>
             </div>
-        </div>
-    )
-}
+        )
+    }
