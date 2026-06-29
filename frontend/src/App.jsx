@@ -102,6 +102,8 @@ import UserDashboard from './pages/UserDashboard';
 import EventListPage from './pages/EventListPage';
 import CreateEventPage from './pages/coordinator/events/create/CreateEventPage';
 import RegisterPage from './pages/RegisterPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
 
@@ -124,6 +126,7 @@ function AppRoutes() {
         <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/verify-email" element={<VerifyEmailPage  />} />
 
             {isAuthenticated ? (
                 <>
