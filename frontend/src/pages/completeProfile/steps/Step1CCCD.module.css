@@ -15,7 +15,7 @@
    Sidebar trái: ProfileStepper
    ============================================================ */
 .sidebar {
-    width: 15em;
+    width: 18em;
     flex-shrink: 0;
     padding: 3em 2em;
     border-right: 1px solid var(--color-border-blue);

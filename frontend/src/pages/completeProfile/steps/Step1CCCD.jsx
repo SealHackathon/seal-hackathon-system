@@ -227,7 +227,7 @@ function Step1CCCD({ onNext, onBack }) {
                         {/* Loading */}
                         {extractionState === 'loading' && (
                             <Banner
-                                color="blue" variant="solid"
+                                color="blue" variant="dashed"
                                 title={
                                     <>
                                         Đang phân tích CCCD của bạn

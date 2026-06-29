@@ -34,7 +34,7 @@ function ProfileStepper({ currentStep }) {
                     >
                         <span className={styles.indicator}>
                             {isDone
-                                ? <Check size={14} weight="bold" />
+                                ? <Check size={24} weight="bold" />
                                 : <span className={styles.dash} />
                             }
                         </span>
