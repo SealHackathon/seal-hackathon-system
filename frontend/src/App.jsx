@@ -103,7 +103,7 @@ import EventListPage from './pages/EventListPage';
 import CreateEventPage from './pages/coordinator/events/create/CreateEventPage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
-import CompleteProfilePage from './pages/CompleteProfilePage';
+import CompleteProfilePage from './pages/completeProfile/CompleteProfilePage';
 
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
@@ -111,7 +111,6 @@ function TeamRoute() {
     useEffect(() => {
         fetchTeamRole();
     }, []);
-    // todo : nếu userStatus === PENDING_APPROVAL đang chờ BTC duyệt thì ntn ? trả về page nào
     if (role !== "USER") return <Navigate to="/admin/coordinator/events" replace />;
     if (teamRoleLoading) return <div>Loading...</div>;
     if (teamRole === null) return <div>Loading...</div>;
@@ -145,7 +144,15 @@ function AppRoutes() {
                     {role === "USER" && (
 
                         <>
-                            
+
+                            {/* 
+                         //todo 
+                         <Route
+                                path="/user/dashboard"
+                                element={userStatus === "PENDING_APPROVAL" ? <Navigate to="/user/messaege(hay gì đó)" replace /> : <Page để show message />}
+                            />
+                          */}
+
                             <Route
                                 path="/user/dashboard"
                                 element={userStatus === "PROFILE_PENDING" ? <Navigate to="/user/complete-profile" replace /> : <UserDashboard />}
