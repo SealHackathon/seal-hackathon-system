@@ -1,18 +1,18 @@
 import { useState, useRef, useEffect } from 'react'
 import {
     ArrowLeft, ArrowRight,
-    CheckCircle, Phone, Warning, 
+    CheckCircle, Phone, Warning,
     XSquare
 } from '@phosphor-icons/react'
-import axiosClient    from '../../../api/axiosClient'
-import CameraCapture  from '../../../components/shared/CameraCapture'
-import Banner         from '../../../components/shared/Banner'
-import Button         from '../../../components/shared/Button'
+import axiosClient from '../../../api/axiosClient'
+import CameraCapture from '../../../components/shared/CameraCapture'
+import Banner from '../../../components/shared/Banner'
+import Button from '../../../components/shared/Button'
 import ProfileStepper from '../../../components/shared/ProfileStepper'
 import styles from './Step2FaceVerify.module.css'
 
 // ── Constants ────────────────────────────
-const MAX_RETRIES  = 3
+const MAX_RETRIES = 3
 const RETRY_WAIT_S = 30 * 60   // 30 phút
 
 const TIPS = [
@@ -42,7 +42,7 @@ export default function Step2FaceVerify({ onNext, onBack }) {
 
     // ─ Camera
     const [cameraResetKey, setCameraResetKey] = useState(0)
-    const [capturedFile,   setCapturedFile]   = useState(null)
+    const [capturedFile, setCapturedFile] = useState(null)
 
     // ─ Verify state
     //   'idle' | 'loading' | 'success' | 'error_retry' | 'error_exhausted'
@@ -50,7 +50,7 @@ export default function Step2FaceVerify({ onNext, onBack }) {
     const [retriesLeft, setRetriesLeft] = useState(MAX_RETRIES)
 
     // ─ Countdown khi hết lượt
-    const [countdown,   setCountdown]   = useState(RETRY_WAIT_S)
+    const [countdown, setCountdown] = useState(RETRY_WAIT_S)
     const countdownRef = useRef(null)
 
     useEffect(() => {
@@ -70,18 +70,13 @@ export default function Step2FaceVerify({ onNext, onBack }) {
     async function runVerification(file) {
         if (!file) return
         setVerifyState('loading')
-        const fd = new FormData()
-        fd.append('face_img', file)
-        try {
-            await axiosClient.post('/api/kyc/face-match', fd, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            })
+
+        // TODO: Gọi API xác thực khuôn mặt ở đây
+
+        // Mô phỏng API delay
+        setTimeout(() => {
             setVerifyState('success')
-        } catch {
-            const next = retriesLeft - 1
-            setRetriesLeft(next)
-            setVerifyState(next > 0 ? 'error_retry' : 'error_exhausted')
-        }
+        }, 1500)
     }
 
     // ── Handlers ────────────────────────
@@ -103,9 +98,9 @@ export default function Step2FaceVerify({ onNext, onBack }) {
     }
 
     // ── Derived ─────────────────────────
-    const isBusy       = verifyState === 'loading'
-    const showBanner   = verifyState !== 'idle'
-    const canProceed   = verifyState === 'success' || verifyState === 'error_exhausted'
+    const isBusy = verifyState === 'loading'
+    const showBanner = verifyState !== 'idle'
+    const canProceed = verifyState === 'success' || verifyState === 'error_exhausted'
 
     return (
         <div className={styles.card}>
@@ -210,13 +205,13 @@ export default function Step2FaceVerify({ onNext, onBack }) {
                                         Bạn vẫn có thể tiếp tục hoàn thiện hồ sơ trong lúc chờ kết quả.
                                     </>
                                 }
-                                // buttons={
-                                //     <Button
-                                //         label="Liên hệ BTC"
-                                //         color="orange" variant="outline"
-                                //         icon={Phone} iconPosition="left" iconSize={18} labelSize={15}
-                                //     />
-                                // }
+                            // buttons={
+                            //     <Button
+                            //         label="Liên hệ BTC"
+                            //         color="orange" variant="outline"
+                            //         icon={Phone} iconPosition="left" iconSize={18} labelSize={15}
+                            //     />
+                            // }
                             />
                         )}                    </section>
                 )}

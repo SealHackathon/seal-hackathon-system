@@ -103,30 +103,7 @@ function Step1CCCD({ onNext, onBack }) {
 
     // ─ API call ───────────────────────────
     async function runExtraction(front, back) {
-        setExtractionState('loading')
-
-        const fd = new FormData()
-        fd.append('front_img', front)   // đúng field name theo API
-        fd.append('back_img', back)
-
-        try {
-            const res = await axiosClient.post('/api/kyc/cccd', fd, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-            })
-            setFormData({
-                fullName: res.data.fullName || '',
-                cmnd: res.data.cmnd || '',
-                dateOfBirth: parseApiDate(res.data.dateOfBirth),
-                gender: res.data.gender || '',
-                hometown: res.data.hometown || '',
-                thuongtru: res.data.thuongtru || '',
-            })
-            setExtractionState('success')
-        } catch {
-            const next = retriesLeft - 1
-            setRetriesLeft(next)
-            setExtractionState(next > 0 ? 'error_retry' : 'error_exhausted')
-        }
+        // TODO: Gọi API trích xuất thông tin CCCD ở đây
     }
 
     // ─ Handlers ──────────────────────────
