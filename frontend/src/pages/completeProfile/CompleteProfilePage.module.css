@@ -1,6 +1,6 @@
 .pageWrapper {
-    min-height: calc(100vh - 64px); /* trừ navbar */
     background: var(--color-bg-blue);
+    height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
