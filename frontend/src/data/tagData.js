@@ -11,9 +11,9 @@
  */
 
 // ──────────────────────────────────────────────
-// Công nghệ sử dụng  (dùng ở Step 4)
+// Tất cả tech sections (toàn bộ map, dùng để filter)
 // ──────────────────────────────────────────────
-export const techSections = [
+const ALL_TECH_SECTIONS = [
     {
         id: 'backend',
         label: 'Backend',
@@ -56,8 +56,8 @@ export const techSections = [
     {
         id: 'mobile',
         label: 'Mobile',
-        required: false,
-        min: 0,
+        required: true,
+        min: 1,
         description:
             'Phát triển ứng dụng di động cho iOS và Android. Chọn nền tảng và framework bạn đã làm việc.',
         options: [
@@ -66,22 +66,10 @@ export const techSections = [
         ],
     },
     {
-        id: 'database',
-        label: 'Database',
-        required: false,
-        min: 0,
-        description:
-            'Hệ thống lưu trữ và quản lý dữ liệu. Chọn các loại database bạn đã sử dụng trong dự án.',
-        options: [
-            'MySQL', 'PostgreSQL', 'MongoDB', 'Redis', 'SQLite',
-            'Firebase', 'Supabase', 'Elasticsearch', 'Cassandra', 'DynamoDB',
-        ],
-    },
-    {
         id: 'devops',
         label: 'DevOps / Cloud',
-        required: false,
-        min: 0,
+        required: true,
+        min: 1,
         description:
             'Triển khai, vận hành và tự động hoá hệ thống. Chọn các công cụ bạn đã sử dụng.',
         options: [
@@ -93,8 +81,8 @@ export const techSections = [
     {
         id: 'ai_ml',
         label: 'AI / ML',
-        required: false,
-        min: 0,
+        required: true,
+        min: 1,
         description:
             'Trí tuệ nhân tạo và học máy. Chọn thư viện và framework bạn đã áp dụng trong dự án.',
         options: [
@@ -103,23 +91,107 @@ export const techSections = [
             'Stable Diffusion', 'OpenAI API',
         ],
     },
+    {
+        id: 'testing',
+        label: 'Tester / QA',
+        required: true,
+        min: 1,
+        description:
+            'Kiểm thử và đảm bảo chất lượng phần mềm. Chọn các công cụ và kỹ thuật bạn sử dụng.',
+        options: [
+            'Selenium', 'JUnit', 'Jest', 'Cypress', 'Postman',
+            'JMeter', 'Appium', 'TestNG', 'Playwright', 'k6',
+            'Manual Testing', 'Automation Testing',
+        ],
+    },
+    {
+        id: 'ba',
+        label: 'Business Analysis',
+        required: true,
+        min: 1,
+        description:
+            'Phân tích yêu cầu và quản lý dự án phần mềm. Chọn các công cụ bạn thường dùng.',
+        options: [
+            'Jira', 'Confluence', 'Trello', 'Notion', 'Miro',
+            'UML', 'BPMN', 'User Stories', 'Figma', 'Draw.io',
+        ],
+    },
+    {
+        // Section đặc biệt cho vị trí nhập thủ công — không có preset options
+        id: '__other__',
+        label: 'Vị trí khác',
+        required: true,
+        min: 1,
+        description: 'Thêm công nghệ liên quan đến vị trí này.',
+        options: [],
+    },
 ]
+
+/**
+ * Map từ position value (MultiSelectDropdown) → sectionId trong TagPicker
+ */
+export const POSITION_TO_SECTION = {
+    backend: 'backend',
+    frontend: 'frontend',
+    uiux: 'uiux',
+    mobile: 'mobile',
+    devops: 'devops',
+    ai_ml: 'ai_ml',
+    tester: 'testing',
+    ba: 'ba',
+    // 'custom:...' → '__other__' (xử lý ở runtime)
+}
+
+/**
+ * Trả về danh sách tech sections tương ứng với các positions đã chọn.
+ *
+ * @param {string[]} positions — mảng position values từ MultiSelectDropdown
+ *   (bao gồm cả 'custom:Tên vị trí' cho nhập thủ công)
+ */
+export function getFilteredSections(positions) {
+    if (!positions || positions.length === 0) return []
+
+    const sectionIds = new Set()
+    let hasCustom = false
+
+    for (const pos of positions) {
+        if (typeof pos === 'string' && pos.startsWith('custom:')) {
+            hasCustom = true
+        } else {
+            const id = POSITION_TO_SECTION[pos]
+            if (id) sectionIds.add(id)
+        }
+    }
+
+    const ordered = ALL_TECH_SECTIONS.filter(s => {
+        if (s.id === '__other__') return false   // xử lý riêng bên dưới
+        return sectionIds.has(s.id)
+    })
+
+    if (hasCustom) {
+        ordered.push(ALL_TECH_SECTIONS.find(s => s.id === '__other__'))
+    }
+
+    return ordered
+}
 
 // ──────────────────────────────────────────────
 // Lĩnh vực quan tâm  (dùng ở Step 4)
 // ──────────────────────────────────────────────
-export const topicSections = [
-    {
-        id: 'topics',
-        label: 'Lĩnh vực quan tâm',
-        required: false,
-        min: 0,
-        description:
-            'Chọn các lĩnh vực bạn muốn khám phá hoặc có kinh nghiệm làm việc.',
-        options: [
-            'FinTech', 'EdTech', 'HealthTech', 'AI/ML', 'Blockchain',
-            'E-Commerce', 'SaaS', 'Gaming', 'AR/VR', 'IoT',
-            'Open Source', 'Sustainability', 'Web3', 'Cybersecurity',
-        ],
-    },
+export const topicOptions = [
+    { value: 'fintech', label: 'FinTech' },
+    { value: 'edtech', label: 'EdTech' },
+    { value: 'healthtech', label: 'HealthTech' },
+    { value: 'ai_ml', label: 'AI/ML' },
+    { value: 'blockchain', label: 'Blockchain' },
+    { value: 'ecommerce', label: 'E-Commerce' },
+    { value: 'saas', label: 'SaaS' },
+    { value: 'gaming', label: 'Gaming' },
+    { value: 'arvr', label: 'AR/VR' },
+    { value: 'iot', label: 'IoT' },
+    { value: 'opensource', label: 'Open Source' },
+    { value: 'sustainability', label: 'Sustainability' },
+    { value: 'web3', label: 'Web3' },
+    { value: 'cybersecurity', label: 'Cybersecurity' },
 ]
+
