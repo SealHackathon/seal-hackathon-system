@@ -60,7 +60,12 @@ const MOCK_MEMBERS = [
     isLeader: true,
     isCurrentUser: true,
     memberStatus: 'OFFICAL',
-    joinMethod: undefined,        // leader không hiển badge
+    joinMethod: undefined,
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình có kinh nghiệm làm việc với React và Spring Boot, từng tham gia dự án nhóm và đảm nhận vai trò Frontend và hỗ trợ Backend.',
+    positions: ['Frontend Developer'],
+    techTags: { frontend: ['React', 'Next.js', 'Tailwind CSS'], backend: ['Spring Boot'] },
+    topics: ['Web Development'],
+    cvLink: 'https://github.com/Thaibc',
   },
   {
     id: 2,
@@ -70,7 +75,12 @@ const MOCK_MEMBERS = [
     isLeader: false,
     isCurrentUser: false,
     memberStatus: 'OFFICAL',
-    joinMethod: 'INVITE',         // Badge: Được mời (blue)
+    joinMethod: 'INVITE',
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình có kinh nghiệm làm việc với các công nghệ Frontend như React và Vue, luôn thích tối ưu hóa UI/UX để mang lại trải nghiệm tốt nhất.',
+    positions: ['Frontend Developer'],
+    techTags: { frontend: ['React', 'Vue', 'Tailwind CSS'] },
+    topics: ['Web Development', 'Frontend Architecture'],
+    cvLink: 'https://github.com/in/Kbuiii',
   },
   {
     id: 3,
@@ -80,7 +90,12 @@ const MOCK_MEMBERS = [
     isLeader: false,
     isCurrentUser: false,
     memberStatus: 'OFFICAL',
-    joinMethod: 'REQUEST',        // Badge: Xin vào (green)
+    joinMethod: 'REQUEST',
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình chuyên về phía Backend, có kinh nghiệm làm việc với Java, Spring Boot và quản trị cơ sở dữ liệu MySQL, Redis.',
+    positions: ['Backend Developer'],
+    techTags: { backend: ['Java', 'Spring Boot', 'MySQL', 'Redis'] },
+    topics: ['System Design', 'Cloud Computing'],
+    cvLink: 'https://github.com/Mtung0603',
   },
   {
     id: 4,
@@ -90,7 +105,27 @@ const MOCK_MEMBERS = [
     isLeader: false,
     isCurrentUser: false,
     memberStatus: 'RESERVE',
-    joinMethod: 'CODE',           // Badge: Dùng mã (gray) — ít nổi bật
+    joinMethod: 'CODE',
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình yêu thích sự kết hợp giữa thiết kế và công nghệ, đảm nhận tốt cả hai vai trò Frontend Developer và UI/UX Designer.',
+    positions: ['Frontend Developer', 'UI/UX Designer'],
+    techTags: { frontend: ['React', 'Tailwind CSS'], design: ['Figma', 'Adobe XD'] },
+    topics: ['UI/UX Design', 'Web Development'],
+    cvLink: 'https://github.net/hngbtran',
+  },
+  {
+    id: 5,
+    name: 'Phạm Khắc Đăng Khoa',
+    email: 'khoapkd@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: false,
+    isCurrentUser: false,
+    memberStatus: 'RESERVE',
+    joinMethod: 'INVITE',
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình đam mê học hỏi các công nghệ web mới, chuyên phát triển Frontend với React và luôn sẵn sàng hỗ trợ team.',
+    positions: ['Frontend Developer'],
+    techTags: { frontend: ['React', 'JavaScript', 'HTML/CSS'] },
+    topics: ['Web Development', 'Creative Coding'],
+    cvLink: 'https://github.com/khoa2099',
   },
 ]
 
