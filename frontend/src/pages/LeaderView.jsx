@@ -45,6 +45,56 @@ import { Bell } from '@phosphor-icons/react'
 const MAX_SLOTS = 4 // ! Sau này sẽ cho BTC config
 
 
+// ============================================================
+// MOCK DATA — chỉ dùng để test UI, xóa / comment lại khi dùng API thật
+//
+// memberStatus:  'OFFICAL' | 'RESERVE'   ← đối chiếu với backend trước khi dùng
+// joinMethod:    'INVITE'  | 'REQUEST' | 'CODE'  ← tương tự
+// ============================================================
+const MOCK_MEMBERS = [
+  {
+    id: 1,
+    name: 'Nguyễn Thành Thái',
+    email: 'nthai@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: true,
+    isCurrentUser: true,
+    memberStatus: 'OFFICAL',
+    joinMethod: undefined,        // leader không hiển badge
+  },
+  {
+    id: 2,
+    name: 'Bùi Thiên Khánh',
+    email: 'btkhanh123@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: false,
+    isCurrentUser: false,
+    memberStatus: 'OFFICAL',
+    joinMethod: 'INVITE',         // Badge: Được mời (blue)
+  },
+  {
+    id: 3,
+    name: 'Mạc Minh Tùng',
+    email: 'mtung638@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: false,
+    isCurrentUser: false,
+    memberStatus: 'OFFICAL',
+    joinMethod: 'REQUEST',        // Badge: Xin vào (green)
+  },
+  {
+    id: 4,
+    name: 'Hồ Ngọc Bảo Trân',
+    email: 'hngbtran@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: false,
+    isCurrentUser: false,
+    memberStatus: 'RESERVE',
+    joinMethod: 'CODE',           // Badge: Dùng mã (gray) — ít nổi bật
+  },
+]
+
+
 
 function LeaderView() {
   // lay du lieu tu API len 
@@ -52,7 +102,8 @@ function LeaderView() {
   const [confirmModal, setConfirmModal] = useState(null)
 
   const [teamStatus, setTeamStatus] = useState('OPEN')
-  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
+  // ↓ Để test UI: dùng MOCK_MEMBERS. Khi dùng API thật: đổi lại thành useState([])
+  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState(MOCK_MEMBERS);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
@@ -445,13 +496,48 @@ function LeaderView() {
 
         setTeamStatus('PENDING_APPROVAL')
 
-        // alert("Bạn đã tu choi yeu cau roi nhóm thành công!");
+        // alert("Đã chốt đội thành công!");
         window.location.reload();
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+        alert("Đã có lỗi xảy ra, không thể chốt đội lúc này.");
       });
+  }
+
+
+  // TODO: Gọi API PUT /api/team/move-to-official/:id khi backend sẵn sàng
+  const handleMoveToOfficial = (id) => {
+    setConfirmModal({
+      title: 'Nâng lên hàng chính thức',
+      message: 'Bạn có chắc muốn chuyển thành viên này lên hàng chính thức không?',
+      confirmLabel: 'Xác nhận',
+      denyLabel: 'Không',
+      onConfirm: () => {
+        console.log('TODO: Gọi API promote RESERVE → OFFICAL, memberId:', id)
+        // axios.put()
+        //   .then(() => window.location.reload())
+        //   .catch(err => console.log(err))
+        setConfirmModal(null)
+      }
+    })
+  }
+
+  // TODO: Gọi API PUT /api/team/move-to-reserve/:id khi backend sẵn sàng
+  const handleMoveToReserve = (id) => {
+    setConfirmModal({
+      title: 'Chuyển xuống hàng dự bị',
+      message: 'Bạn có chắc muốn chuyển thành viên này xuống hàng dự bị không?',
+      confirmLabel: 'Xác nhận',
+      denyLabel: 'Không',
+      onConfirm: () => {
+        console.log('TODO: Gọi API demote OFFICAL → RESERVE, memberId:', id)
+        // axios.put()
+        //   .then(() => window.location.reload())
+        //   .catch(err => console.log(err))
+        setConfirmModal(null)
+      }
+    })
   }
 
 
@@ -513,6 +599,8 @@ function LeaderView() {
               onApproveLeave={(id) => handleOnApproveLeave(id)}
               onCancelLeave={(id) => handleOnCancelLeave(id)}
               onLeave={handleOnLeave}
+              onMoveToOfficial={(id) => handleMoveToOfficial(id)}
+              onMoveToReserve={(id) => handleMoveToReserve(id)}
               leaveRequests={FAKE_LEAVE_REQUESTS}
               onLock={handleOnLockTeam}
             />

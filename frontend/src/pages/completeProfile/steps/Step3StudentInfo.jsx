@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { ArrowLeft, ArrowRight, Buildings } from '@phosphor-icons/react'
-import axiosClient    from '../../../api/axiosClient'
-import Button         from '../../../components/shared/Button'
-import Dropdown       from '../../../components/shared/Dropdown'
-import FormInput      from '../../../components/shared/FormInput'
-import FileUpload     from '../../../components/shared/FileUpload'
+import axiosClient from '../../../api/axiosClient'
+import Button from '../../../components/shared/Button'
+import Dropdown from '../../../components/shared/Dropdown'
+import FormInput from '../../../components/shared/FormInput'
+import FileUpload from '../../../components/shared/FileUpload'
 import ProfileStepper from '../../../components/shared/ProfileStepper'
 import { schoolOptions } from '../../../data/schoolList'
 import styles from './Step3StudentInfo.module.css'
@@ -12,16 +12,16 @@ import styles from './Step3StudentInfo.module.css'
 const ACCEPT_IMG = ['image/png', 'image/jpeg', 'image/jpg']
 
 export default function Step3StudentInfo({ onNext, onBack }) {
-    const [school,           setSchool]           = useState('')
-    const [customSchool,     setCustomSchool]     = useState('')
-    const [studentId,        setStudentId]        = useState('')
-    const [cardFile,         setCardFile]         = useState(null)
-    const [cardAspectRatio,  setCardAspectRatio]  = useState(4 / 3)   // default landscape
-    const [cardOrientation,  setCardOrientation]  = useState(null)    // 'landscape' | 'portrait'
-    const [loading,          setLoading]          = useState(false)
+    const [school, setSchool] = useState('')
+    const [customSchool, setCustomSchool] = useState('')
+    const [studentId, setStudentId] = useState('')
+    const [cardFile, setCardFile] = useState(null)
+    const [cardAspectRatio, setCardAspectRatio] = useState(4 / 3)   // default landscape
+    const [cardOrientation, setCardOrientation] = useState(null)    // 'landscape' | 'portrait'
+    const [loading, setLoading] = useState(false)
 
     const schoolValid = school && (school !== 'other' || customSchool.trim())
-    const canSubmit   = schoolValid && studentId.trim() && cardFile
+    const canSubmit = schoolValid && studentId.trim() && cardFile
 
     async function handleNext() {
         if (!canSubmit || loading) return
