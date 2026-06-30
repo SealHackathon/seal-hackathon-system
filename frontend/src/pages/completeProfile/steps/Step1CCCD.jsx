@@ -19,8 +19,8 @@ const MAX_RETRIES = 3
 const RETRY_WAIT_S = 30 * 60   // 30 phút
 
 const GENDER_OPTIONS = [
-    { value: 'Nam', label: 'Nam' },
-    { value: 'Nữ', label: 'Nữ' },
+    { value: 'NAM', label: 'Nam' },
+    { value: 'NỮ', label: 'Nữ' },
     { value: 'Khác', label: 'Khác' },
 ]
 
