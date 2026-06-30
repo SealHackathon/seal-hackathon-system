@@ -105,6 +105,10 @@ function MemberView() {
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' });
   const [leaveRequest, setLeaveRequest] = useState([])
 
+  useEffect(() => {
+    localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
+  }, []);
+
   // api lấy team info - comment out to use mock data for testing
   /*
   useEffect(() => {

@@ -22,6 +22,20 @@ function NoTeamView() {
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_TEAMS, setFAKE_TEAMS] = useState([]);
   const [confirmModal, setConfirmModal] = useState(null)
+  
+  // Modal thông báo bị kick
+  const [showKickedModal, setShowKickedModal] = useState(false);
+
+  useEffect(() => {
+    if (localStorage.getItem('lastKnownTeamRole') === 'IN_TEAM') {
+      setShowKickedModal(true);
+      localStorage.removeItem('lastKnownTeamRole'); // clear immediately so it only shows once
+    }
+  }, []);
+
+  const handleCloseKickedModal = () => {
+    setShowKickedModal(false);
+  };
 
   // api sinh vien xem những invitation gui toi minh
   useEffect(() => {
@@ -242,6 +256,16 @@ console.log(FAKE_INVITES)
         confirmColor={confirmModal?.confirmColor}
         onConfirm={confirmModal?.onConfirm}
         onCancel={() => setConfirmModal(null)}
+      />
+
+      <ConfirmModal
+        isOpen={showKickedModal}
+        title="Thông báo"
+        message="Bạn đã bị xoá (kick) khỏi nhóm."
+        confirmLabel="Đã hiểu"
+        isNotification={true}
+        onConfirm={handleCloseKickedModal}
+        onCancel={handleCloseKickedModal}
       />
 
     </EventLayout >

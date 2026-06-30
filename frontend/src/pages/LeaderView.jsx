@@ -135,16 +135,21 @@ function LeaderView() {
   // lay du lieu tu API len 
   //gia lap login luu accesstoken vao localStorage
   const [confirmModal, setConfirmModal] = useState(null)
+  const [teamStatus, setTeamStatus] = useState('pending')
+  const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' })
+  const token = localStorage.getItem("accessToken")
 
-  const [teamStatus, setTeamStatus] = useState('OPEN')
+  useEffect(() => {
+    localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
+  }, []);
+
   // ↓ Để test UI: dùng MOCK_MEMBERS. Khi dùng API thật: đổi lại thành useState([])
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState(MOCK_MEMBERS);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
-  const token = localStorage.getItem("accessToken")
-  const [teamInfo, setTeamInfo] = useState({ teamName: '', description: '', teamCode: '' });
   const emptyCount = MAX_SLOTS - FAKE_MEMBERS.length
+
   // api lấy team members thành viên đội 
   useEffect(() => {
     axios
