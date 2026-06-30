@@ -156,47 +156,37 @@ function AppRoutes() {
 
 
                     {role === "USER" && (
-
                         <>
+                            {userStatus === "PROFILE_PENDING" ? (
+                                // User chưa hoàn thiện hồ sơ -> Chỉ cho phép ở trang complete-profile
+                                <>
+                                    <Route path="/user/complete-profile" element={<CompleteProfilePage />} />
+                                    <Route path="*" element={<Navigate to="/user/complete-profile" replace />} />
+                                </>
+                            ) : (
+                                // User đã hoàn thiện hồ sơ -> Các trang bình thường
+                                <>
+                                    <Route path="/user/dashboard" element={<UserDashboard />} />
+                                    
+                                    <Route path="/team" element={
+                                        userStatus === "PENDING_APPROVAL" ? (
+                                            <Navigate to="/user/dashboard" replace />
+                                        ) : (
+                                            <TeamRoute />
+                                        )
+                                    } />
 
-                            {console.log(userStatus)}
-                         //todo
-                            // tạm thời hard code để PENDING_APPROVAL vào DASH BOARD        
-                            {console.log(userStatus)}
-                            {/* <Route
-
-                                path="/user/dashboard"
-                                element={userStatus === "PENDING_APPROVAL" ? <UserDashboard /> : <CompleteProfilePage />}
-                            /> */}
-
-
-                            <Route
-                                path="/user/dashboard"
-                                element={userStatus === "PROFILE_PENDING" ? <Navigate to="/user/complete-profile" replace /> : <UserDashboard />}
-                            />
-
-                            {/* Chặn luôn trang /team nếu chưa được duyệt tài khoản (Tùy chọn nhưng nên làm) */}
-                            <Route
-                                path="/team"
-                                element={
-                                    userStatus === "PROFILE_PENDING" ? (
-                                        <Navigate to="/user/complete-profile" replace />
-                                    ) : userStatus === "PENDING_APPROVAL" ? (
-                                        <Navigate to="/user/dashboard" replace />
-                                    ) : (
-                                        <TeamRoute />
-                                    )
-                                }
-                            />
-
-                            {/* Trang chỉnh sửa thông tin thực sự */}
-                            <Route path="/user/complete-profile" element={<CompleteProfilePage />} />
+                                    {/* Không cho phép quay lại complete-profile nếu đã xong */}
+                                    <Route path="/user/complete-profile" element={<Navigate to="/user/dashboard" replace />} />
+                                    <Route path="*" element={<Navigate to="/user/dashboard" replace />} />
+                                </>
+                            )}
                         </>
                     )}
 
-                    <Route path="*" element={
-                        <Navigate to={role === "ADMIN" ? "/admin/coordinator/events" : "/user/dashboard"} replace />
-                    } />
+                    {role === "ADMIN" && (
+                        <Route path="*" element={<Navigate to="/admin/coordinator/events" replace />} />
+                    )}
                 </>
             ) : (
                 <Route path="*" element={<Navigate to="/login" replace />} />
