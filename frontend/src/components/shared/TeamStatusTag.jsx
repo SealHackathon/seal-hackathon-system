@@ -10,7 +10,7 @@ const STATUS_CONFIG = {
 
 function TeamStatusTag({ status = 'OPEN' }) {
 
-    console.log("TeamStatusTag status =", status);
+    // console.log("TeamStatusTag status =", status);
 
   const config = STATUS_CONFIG[status]
 
