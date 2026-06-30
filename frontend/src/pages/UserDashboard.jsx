@@ -1,7 +1,9 @@
 import UserLayout from '../layouts/UserLayout'
 import MilestoneBanner from '../components/dashboard/MilestoneBanner'
 import LiveEventCard from '../components/dashboard/LiveEventCard'
+import ProfilePendingModal from '../components/dashboard/ProfilePendingModal'
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../AuthContext'
 // import styles from './UserDashboard.module.css'
 
 const FAKE_TIMELINE = [
@@ -20,15 +22,25 @@ const FAKE_EVENT = {
 }
 
 function UserDashboard() {
-        console.log("UserDashboard rendered")
+    console.log("UserDashboard rendered")
+    const { userStatus } = useAuth();
+    const navigate = useNavigate();
 
-    const navigate= useNavigate();
+    const handleJoinClick = () => {
+        if (userStatus === 'PROFILE_PENDING') {
+            alert('Hồ sơ của bạn đang được BTC duyệt. Vui lòng chờ để được tham gia!');
+        } else {
+            navigate('/team');
+        }
+    }
+
     return (
         <UserLayout showCard={false}>
+            <ProfilePendingModal />
             <MilestoneBanner timeline={FAKE_TIMELINE} />
             <LiveEventCard
                 event={FAKE_EVENT}
-                onJoin={() =>navigate('/team')}
+                onJoin={handleJoinClick}
                 onViewRules={() => console.log('Chi tiết thể lệ')}
             />
         </UserLayout>
