@@ -309,5 +309,23 @@ public class TeamController {
         }
     }
 
+
+
+    // move to offical
+    @PutMapping("/move-to-reserve/${id}")
+    public ResponseEntity<?> moveMemberToReserve(@RequestHeader("Authorization") String auth, @PathVariable("id") String userId) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+        }
+
+        try {
+            return ResponseEntity.ok().body(teamService.moveMemberToOffical(uid));
+        } catch (IllegalArgumentException e) {
+            // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
 }
 

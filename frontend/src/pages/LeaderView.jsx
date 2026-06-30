@@ -482,8 +482,12 @@ function LeaderView() {
       denyLabel: 'Không',
       onConfirm: () => {
         console.log('TODO: Gọi API promote RESERVE → OFFICAL, memberId:', id)
-        // đang check là cái id này là MEMBER id FK của bảng MEMBER
-         axiosClient.put(`/team/move-to-official/${id}`)
+        // ! đang check là cái id này là MEMBER id FK của bảng MEMBER
+        axiosClient.put(`/team/move-to-official/${id}`).then(() => {
+          window.location.reload
+        }).catch((error) => {
+          console.log(error)
+        })
         setConfirmModal(null)
       }
     })
@@ -498,9 +502,12 @@ function LeaderView() {
       denyLabel: 'Không',
       onConfirm: () => {
         console.log('TODO: Gọi API demote OFFICAL → RESERVE, memberId:', id)
-        // axios.put()
-        //   .then(() => window.location.reload())
-        //   .catch(err => console.log(err))
+        // ! đang check là cái id này là MEMBER id FK của bảng MEMBER
+        axiosClient.put(`/team/move-to-reserve/${id}`).then(() => {
+          window.location.reload
+        }).catch((error) => {
+          console.log(error)
+        })
         setConfirmModal(null)
       }
     })

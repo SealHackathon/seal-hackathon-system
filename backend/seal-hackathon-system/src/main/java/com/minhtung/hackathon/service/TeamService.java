@@ -1078,4 +1078,17 @@ public class TeamService {
 
     }
 
+    // move to reserve
+    public String moveMemberToReserve(long memberId) {
+
+        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.OFFICAL).orElse(null);
+        if (member == null) {
+            throw new IllegalArgumentException("member khong ton tai");
+        }
+        member.setStatus(MemberStatus.RESERVE);
+        memberRepository.save(member);
+        return "move to offical sucessfully !";
+
+    }
+
 }
