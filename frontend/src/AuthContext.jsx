@@ -49,6 +49,16 @@ export function AuthProvider({ children }) {
         }
     };
 
+    const fetchUserStatus = async () => {
+        try {
+            const res = await axiosClient.get("/user/user-status"); // endpoint riêng, không phụ thuộc team
+                console.log(res.data)
+            updateUserStatus(res.data);
+        } catch (err) {
+            console.error("Failed to fetch user status", err);
+        }
+    };
+
     const login = (loginResponse) => {
         localStorage.setItem("accessToken", loginResponse.token);
         localStorage.setItem("role", loginResponse.role);
@@ -98,6 +108,7 @@ export function AuthProvider({ children }) {
             fetchTeamRole,
             login,
             logout,
+            fetchUserStatus,
             isAuthenticated: isAuthenticated
         }}>
             {children}

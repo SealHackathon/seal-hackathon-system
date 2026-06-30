@@ -104,13 +104,17 @@ import CreateEventPage from './pages/coordinator/events/create/CreateEventPage';
 import RegisterPage from './pages/RegisterPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import CompleteProfilePage from './pages/completeProfile/CompleteProfilePage';
+import EmailVerifiedPage from './pages/EmailVerifiedPage';
+
 
 function TeamRoute() {
-    const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
+    const { role, teamRole, teamRoleLoading, fetchTeamRole, fetchUserStatus } = useAuth();
 
     useEffect(() => {
         fetchTeamRole();
+        fetchUserStatus();
     }, []);
+
     if (role !== "USER") return <Navigate to="/admin/coordinator/events" replace />;
     if (teamRoleLoading) return <div>Loading...</div>;
     if (teamRole === null) return <div>Loading...</div>;
@@ -122,15 +126,22 @@ function TeamRoute() {
 
 
 function AppRoutes() {
-    const { role, isAuthenticated, userStatus } = useAuth();
+    const { role, isAuthenticated, userStatus,fetchUserStatus } = useAuth();
+    // console.log(userStatus)
+    // console.log(teamRole)
+      useEffect(() => {
+        fetchUserStatus();
+    }, []);
 
     return (
         <Routes>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/verified-email" element={<EmailVerifiedPage />} />
 
-            <Route path="/user/dashboard" element={<UserDashboard />} />
+
+            {/* <Route path="/user/dashboard" element={<UserDashboard />} /> */}
 
             {/* <Route path="/complete-profile" element={<CompleteProfilePage />} /> */}
 
@@ -148,15 +159,15 @@ function AppRoutes() {
 
                         <>
 
-
+                            {console.log(userStatus)}
                          //todo
                             // tạm thời hard code để PENDING_APPROVAL vào DASH BOARD        
                             {console.log(userStatus)}
-                            <Route
+                            {/* <Route
 
                                 path="/user/dashboard"
                                 element={userStatus === "PENDING_APPROVAL" ? <UserDashboard /> : <CompleteProfilePage />}
-                            />
+                            /> */}
 
 
                             <Route

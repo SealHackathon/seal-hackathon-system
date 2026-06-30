@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -67,6 +68,25 @@ public class UserController {
             summary = "update thong tin sv",
             description = "topic , bio ,...."
     )
+
+
+
+    // UserStatus
+    @GetMapping("/user-status")
+    public ResponseEntity<?> getUserStatus(@RequestHeader("Authorization") String auth) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+        }
+
+        try {
+            return ResponseEntity.ok(userService.getUserStatus(uid));
+        } catch (IllegalArgumentException e) {
+            // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
 
 
     //
