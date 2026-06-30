@@ -23,14 +23,14 @@ const MAX_BIO      = 300
 // ─────────────────────────────────────────────────────────────
 //  Step4PersonalInfo
 // ─────────────────────────────────────────────────────────────
-function Step4PersonalInfo({ onBack, onSubmit }) {
+function Step4PersonalInfo({ onBack, onSubmit, initialData, onSaveData }) {
     // ── State ──────────────────────────────────────────────
-    const [avatar,    setAvatar]    = useState(null)
-    const [bio,       setBio]       = useState('')
-    const [positions, setPositions] = useState([])    // string[] — position values
-    const [techTags,  setTechTags]  = useState({})    // { sectionId: string[] }
-    const [topics,    setTopics]    = useState([])    // string[] — topic values
-    const [cvLink,    setCvLink]    = useState('')
+    const [avatar,    setAvatar]    = useState(initialData?.avatar || null)
+    const [bio,       setBio]       = useState(initialData?.bio || '')
+    const [positions, setPositions] = useState(initialData?.positions || [])    // string[] — position values
+    const [techTags,  setTechTags]  = useState(initialData?.techTags || {})    // { sectionId: string[] }
+    const [topics,    setTopics]    = useState(initialData?.topics || [])    // string[] — topic values
+    const [cvLink,    setCvLink]    = useState(initialData?.cvLink || '')
 
     // ── Sections hiển thị trong TagPicker ─────────────────
     // Được tính lại mỗi khi positions thay đổi
@@ -67,6 +67,15 @@ function Step4PersonalInfo({ onBack, onSubmit }) {
         setPositions(newPositions)
     }
 
+    function saveData() {
+        onSaveData?.({ avatar, bio, positions, techTags, topics, cvLink })
+    }
+
+    function handleBack() {
+        saveData()
+        onBack()
+    }
+
     function handleSubmit() {
         if (!canSubmit) return
         onSubmit?.({ avatar, bio, positions, techTags, topics, cvLink })
@@ -78,7 +87,7 @@ function Step4PersonalInfo({ onBack, onSubmit }) {
                 <ProfileStepper currentStep={4} />
             </aside>
 
-            <div className={styles.content}>
+            <div className={`${styles.content} ${'scrollbar'}`}>
                 <h1 className={styles.pageTitle}>Hồ sơ cá nhân</h1>
 
                 {/* Info banner */}
@@ -180,7 +189,7 @@ function Step4PersonalInfo({ onBack, onSubmit }) {
                         icon={ArrowLeft}
                         iconPosition="left"
                         iconSize={20}
-                        onClick={onBack}
+                        onClick={handleBack}
                     />
                     <Button
                         label="Xác nhận"

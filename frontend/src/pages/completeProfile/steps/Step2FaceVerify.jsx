@@ -38,16 +38,16 @@ function Dots() {
 }
 
 // ── Component ────────────────────────────
-export default function Step2FaceVerify({ onNext, onBack }) {
+export default function Step2FaceVerify({ onNext, onBack, initialData, onSaveData }) {
 
     // ─ Camera
     const [cameraResetKey, setCameraResetKey] = useState(0)
-    const [capturedFile, setCapturedFile] = useState(null)
+    const [capturedFile, setCapturedFile] = useState(initialData?.capturedFile || null)
 
     // ─ Verify state
     //   'idle' | 'loading' | 'success' | 'error_retry' | 'error_exhausted'
-    const [verifyState, setVerifyState] = useState('idle')
-    const [retriesLeft, setRetriesLeft] = useState(MAX_RETRIES)
+    const [verifyState, setVerifyState] = useState(initialData?.verifyState || 'idle')
+    const [retriesLeft, setRetriesLeft] = useState(initialData?.retriesLeft || MAX_RETRIES)
 
     // ─ Countdown khi hết lượt
     const [countdown, setCountdown] = useState(RETRY_WAIT_S)
@@ -68,15 +68,15 @@ export default function Step2FaceVerify({ onNext, onBack }) {
 
     // ── API call ──────────────────────────
     async function runVerification(file) {
-        if (!file) return
         setVerifyState('loading')
+        if (!file) return
         const fd = new FormData()
         fd.append('selfie_img', file)
         try {
             await axiosClient.post('/kyc/face-match', fd, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
-            setTimeout(() => setVerifyState('success'), 1500)
+            setTimeout(() => setVerifyState('success'), 1000)
         } catch (err) {
             setVerifyState('error')
         }
@@ -98,6 +98,20 @@ export default function Step2FaceVerify({ onNext, onBack }) {
             setCapturedFile(null)
             setCameraResetKey(k => k + 1)
             setVerifyState('idle')
+        }
+
+        function saveData() {
+            onSaveData?.({ capturedFile, verifyState, retriesLeft })
+        }
+    
+        function handleBack() {
+            saveData()
+            onBack()
+        }
+    
+        function handleNext() {
+            saveData()
+            onNext()
         }
 
         // ── Derived ─────────────────────────
@@ -129,6 +143,7 @@ export default function Step2FaceVerify({ onNext, onBack }) {
                             key={cameraResetKey}
                             onCapture={handleCapture}
                             disabled={isBusy || verifyState === 'success'}
+                            verifyState={verifyState}
                         />
 
                         <div className={styles.tipsBox}>
@@ -224,13 +239,13 @@ export default function Step2FaceVerify({ onNext, onBack }) {
                         <Button
                             label="Quay lại" variant="outline"
                             icon={ArrowLeft} iconPosition="left" iconSize={20}
-                            onClick={onBack}
+                            onClick={handleBack}
                         />
                         <Button
                             label="Tiếp tục"
                             icon={ArrowRight} iconPosition="right" iconSize={20}
                             disabled={!canProceed}
-                            onClick={() => canProceed && onNext()}
+                            onClick={() => canProceed && handleNext()}
                         />
                     </div>
                 </div>

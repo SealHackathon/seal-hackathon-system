@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 // import UserLayout        from '../../layouts/UserLayout'
 import Step0Intro from './steps/Step0Intro'
 import Step1CCCD from './steps/Step1CCCD'
@@ -21,9 +21,22 @@ import { useAuth } from '../../AuthContext'
 
 function CompleteProfilePage() {
 
-    const navigate=useNavigate();
+    const navigate = useNavigate();
 
-    const [currentStep, setCurrentStep] = useState(0)
+    // ── Khôi phục step hiện tại từ localStorage ──
+    const [currentStep, setCurrentStep] = useState(() => {
+        const saved = localStorage.getItem('completeProfileStep')
+        return saved !== null ? parseInt(saved, 10) : 0
+    })
+
+    useEffect(() => {
+        localStorage.setItem('completeProfileStep', currentStep)
+    }, [currentStep])
+
+    const [step1Data, setStep1Data] = useState(null)
+    const [step2Data, setStep2Data] = useState(null)
+    const [step3Data, setStep3Data] = useState(null)
+    const [step4Data, setStep4Data] = useState(null)
 
     const goNext = () => setCurrentStep(s => s + 1)
     const goBack = () => setCurrentStep(s => s - 1)
@@ -31,6 +44,7 @@ function CompleteProfilePage() {
     const { updateUserStatus } = useAuth();
 
     async function handleStep4Submit(data) {
+        setStep4Data(data); // save state
         const formData = new FormData();
 
         // 1. Append file avatar tách riêng
@@ -63,8 +77,12 @@ function CompleteProfilePage() {
             });
 
             console.log('[CompleteProfile] Submitted Success:', response.data);
+            
+            // Xoá trạng thái lưu step vì đã hoàn thành
+            localStorage.removeItem('completeProfileStep');
+            
             // Logic chuyển trang hoặc thông báo thành công tại đây...
-     updateUserStatus(response.data.status || response.status);
+            updateUserStatus(response.data.status || response.status);
             navigate("/user/dashboard")
         } catch (error) {
             console.error('[CompleteProfile] Submit Failed:', error.response?.data || error.message);
@@ -83,6 +101,8 @@ function CompleteProfilePage() {
                 <Step1CCCD
                     onNext={goNext}
                     onBack={goBack}
+                    initialData={step1Data}
+                    onSaveData={setStep1Data}
                 />
             )}
 
@@ -90,6 +110,8 @@ function CompleteProfilePage() {
                 <Step2FaceVerify
                     onNext={goNext}
                     onBack={goBack}
+                    initialData={step2Data}
+                    onSaveData={setStep2Data}
                 />
             )}
 
@@ -97,6 +119,8 @@ function CompleteProfilePage() {
                 <Step3StudentInfo
                     onNext={goNext}
                     onBack={goBack}
+                    initialData={step3Data}
+                    onSaveData={setStep3Data}
                 />
             )}
 
@@ -104,6 +128,8 @@ function CompleteProfilePage() {
                 <Step4PersonalInfo
                     onBack={goBack}
                     onSubmit={handleStep4Submit}
+                    initialData={step4Data}
+                    onSaveData={setStep4Data}
                 />
             )}
 

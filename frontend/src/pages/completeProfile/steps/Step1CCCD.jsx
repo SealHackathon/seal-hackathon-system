@@ -58,27 +58,27 @@ function formatCountdown(seconds) {
 }
 
 // ── Component ────────────────────────────
-function Step1CCCD({ onNext, onBack }) {
+function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
 
     // ─ Files
-    const [frontFile, setFrontFile] = useState(null)
-    const [backFile, setBackFile] = useState(null)
+    const [frontFile, setFrontFile] = useState(initialData?.frontFile || initialData?.frontcmnd_img || null)
+    const [backFile, setBackFile] = useState(initialData?.backFile || null)
     const [fileResetKey, setFileResetKey] = useState(0)
 
     // ─ Extraction state
     //   'idle' | 'loading' | 'success' | 'error_retry' | 'error_exhausted'
-    const [extractionState, setExtractionState] = useState('idle')
-    const [retriesLeft, setRetriesLeft] = useState(MAX_RETRIES)
+    const [extractionState, setExtractionState] = useState(initialData?.extractionState || 'idle')
+    const [retriesLeft, setRetriesLeft] = useState(initialData?.retriesLeft || MAX_RETRIES)
 
     // ─ Editable form — pre-populate sau khi OCR xong
-    const [formData, setFormData] = useState(EMPTY_FORM)
+    const [formData, setFormData] = useState(initialData?.formData || EMPTY_FORM)
 
     // ─ Countdown khi hết lượt
     const [countdown, setCountdown] = useState(RETRY_WAIT_S)
     const countdownRef = useRef(null)
 
     // ─ Checkbox xác nhận
-    const [confirmed, setConfirmed] = useState(false)
+    const [confirmed, setConfirmed] = useState(initialData?.confirmed || false)
 
     // Auto-trigger khi đủ cả 2 file và đang idle
     useEffect(() => {
@@ -130,6 +130,20 @@ function Step1CCCD({ onNext, onBack }) {
     }
 
     // ─ Handlers ──────────────────────────
+    function saveData() {
+        onSaveData?.({ frontFile, backFile, extractionState, retriesLeft, formData, confirmed })
+    }
+
+    function handleBack() {
+        saveData()
+        onBack()
+    }
+
+    function handleNext() {
+        saveData()
+        onNext()
+    }
+
     function handleRetry() {
         // Giữ nguyên file, gọi lại API
         setExtractionState('idle')
@@ -206,6 +220,7 @@ function Step1CCCD({ onNext, onBack }) {
                             accept={['image/png', 'image/jpeg', 'image/jpg']}
                             maxSizeMB={5}
                             aspectRatio={3 / 2}
+                            value={frontFile}
                             onFileChange={handleFrontChange}
                         />
                         <FileUpload
@@ -214,6 +229,7 @@ function Step1CCCD({ onNext, onBack }) {
                             accept={['image/png', 'image/jpeg', 'image/jpg']}
                             maxSizeMB={5}
                             aspectRatio={3 / 2}
+                            value={backFile}
                             onFileChange={handleBackChange}
                         />
                     </div>
@@ -230,10 +246,10 @@ function Step1CCCD({ onNext, onBack }) {
                                 color="blue" variant="dashed"
                                 title={
                                     <>
-                                        Đang phân tích CCCD của bạn
                                         <span className={styles.dots}>
                                             <span /><span /><span />
                                         </span>
+                                        Đang phân tích CCCD của bạn
                                     </>
                                 }
                                 message="Quá trình này có thể mất vài giây, vui lòng không tắt trang."
@@ -390,13 +406,13 @@ function Step1CCCD({ onNext, onBack }) {
                     <Button
                         label="Quay lại" variant="outline"
                         icon={ArrowLeft} iconPosition="left" iconSize={20}
-                        onClick={onBack}
+                        onClick={handleBack}
                     />
                     <Button
                         label="Tiếp tục"
                         icon={ArrowRight} iconPosition="right" iconSize={20}
                         disabled={!canProceed}
-                        onClick={onNext}
+                        onClick={handleNext}
                     />
                 </div>
             </div>
