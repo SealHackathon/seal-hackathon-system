@@ -11,20 +11,39 @@ import styles from './Step3StudentInfo.module.css'
 
 const ACCEPT_IMG = ['image/png', 'image/jpeg', 'image/jpg']
 
-export default function Step3StudentInfo({ onNext, onBack }) {
-    const [school, setSchool] = useState('')
-    const [customSchool, setCustomSchool] = useState('')
-    const [studentId, setStudentId] = useState('')
-    const [cardFile, setCardFile] = useState(null)
-    const [cardAspectRatio, setCardAspectRatio] = useState(4 / 3)   // default landscape
-    const [cardOrientation, setCardOrientation] = useState(null)    // 'landscape' | 'portrait'
+export default function Step3StudentInfo({ onNext, onBack, initialData, onSaveData }) {
+    const [school, setSchool] = useState(initialData?.school || '')
+    const [customSchool, setCustomSchool] = useState(initialData?.customSchool || '')
+    const [studentId, setStudentId] = useState(initialData?.studentId || '')
+    const [cardFile, setCardFile] = useState(initialData?.cardFile || null)
+    const [cardAspectRatio, setCardAspectRatio] = useState(initialData?.cardAspectRatio || 4 / 3)   // default landscape
+    const [cardOrientation, setCardOrientation] = useState(initialData?.cardOrientation || null)    // 'landscape' | 'portrait'
     const [loading, setLoading] = useState(false)
+    const [apiSuccess, setApiSuccess] = useState(initialData?.apiSuccess || false)
 
     const schoolValid = school && (school !== 'other' || customSchool.trim())
     const canSubmit = schoolValid && studentId.trim() && cardFile
 
+    function saveData(successOverride) {
+        const isSuccess = successOverride !== undefined ? successOverride : apiSuccess
+        onSaveData?.({ school, customSchool, studentId, cardFile, cardAspectRatio, cardOrientation, apiSuccess: isSuccess })
+    }
+
+    function handleBack() {
+        saveData()
+        onBack()
+    }
+
     async function handleNext() {
         if (!canSubmit || loading) return
+
+        // Bỏ qua gọi API nếu đã gửi thành công trước đó (dữ liệu chưa đổi)
+        if (apiSuccess) {
+            saveData()
+            onNext()
+            return
+        }
+
         setLoading(true)
         const fd = new FormData()
         fd.append('school',           school === 'other' ? customSchool.trim() : school)
@@ -34,6 +53,8 @@ export default function Step3StudentInfo({ onNext, onBack }) {
             await axiosClient.post('/kyc/student-card', fd, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
+            setApiSuccess(true)
+            saveData(true)
             onNext()
         } catch (err) {
             console.error(err)
@@ -58,7 +79,7 @@ export default function Step3StudentInfo({ onNext, onBack }) {
                         placeholder="Chọn từ danh sách"
                         options={schoolOptions}
                         value={school}
-                        onChange={val => { setSchool(val); setCustomSchool('') }}
+                        onChange={val => { setSchool(val); setCustomSchool(''); setApiSuccess(false); }}
                         searchable
                         disabled={loading}
                     />
@@ -66,7 +87,7 @@ export default function Step3StudentInfo({ onNext, onBack }) {
                         label="Mã số sinh viên" required
                         placeholder="XXXXXXXXXXXXX"
                         value={studentId}
-                        onChange={e => setStudentId(e.target.value)}
+                        onChange={e => { setStudentId(e.target.value); setApiSuccess(false); }}
                         disabled={loading}
                     />
                 </div>
@@ -76,7 +97,7 @@ export default function Step3StudentInfo({ onNext, onBack }) {
                         label="Tên trường của bạn" required
                         placeholder="Nhập tên trường đại học..."
                         value={customSchool}
-                        onChange={e => setCustomSchool(e.target.value)}
+                        onChange={e => { setCustomSchool(e.target.value); setApiSuccess(false); }}
                         disabled={loading}
                     />
                 )}
@@ -87,8 +108,10 @@ export default function Step3StudentInfo({ onNext, onBack }) {
                         accept={ACCEPT_IMG}
                         maxSizeMB={5}
                         aspectRatio={cardAspectRatio}
+                        value={cardFile}
                         onFileChange={file => {
                             setCardFile(file)
+                            setApiSuccess(false)
                             if (!file) {
                                 setCardAspectRatio(4 / 3)
                                 setCardOrientation(null)
@@ -112,7 +135,7 @@ export default function Step3StudentInfo({ onNext, onBack }) {
                     <Button
                         label="Quay lại" variant="outline"
                         icon={ArrowLeft} iconPosition="left" iconSize={20}
-                        onClick={onBack} disabled={loading}
+                        onClick={handleBack} disabled={loading}
                     />
                     <Button
                         label="Tiếp tục"

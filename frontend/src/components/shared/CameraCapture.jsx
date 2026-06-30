@@ -1,6 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import Webcam from 'react-webcam'
-import { Camera, ArrowCounterClockwise } from '@phosphor-icons/react'
+import { Camera, ArrowCounterClockwise, CheckCircle } from '@phosphor-icons/react'
 import styles from './CameraCapture.module.css'
 
 const VIDEO_CONSTRAINTS = {
@@ -12,14 +12,18 @@ const VIDEO_CONSTRAINTS = {
 /**
  * CameraCapture
  * Props:
- *   onCapture(file)  — gọi khi chụp xong, trả về File object
- *   onRetake()       — gọi khi user bấm "Chụp lại" (internal button)
- *   disabled         — khoá tương tác khi đang loading / success
+ *   onCapture(file)   — gọi khi chụp xong, trả về File object
+ *   disabled          — khoá tương tác khi đang loading / success
+ *   verifyState       — 'idle' | 'loading' | 'success' | 'error_retry' | 'error_exhausted'
+ *                       Dùng để render đúng visual:
+ *                         loading → scan animation chạy
+ *                         success → corner xanh lá, không scan
+ *                         error_*  → ảnh giữ nguyên, không scan
  */
-export default function CameraCapture({ onCapture, disabled = false }) {
+export default function CameraCapture({ onCapture, disabled = false, verifyState = 'idle' }) {
     const webcamRef = useRef(null)
 
-    // 'idle' | 'countdown' | 'preview'
+    // 'idle' | 'countdown' | 'loading' | 'preview'
     const [camState, setCamState] = useState('idle')
     const [countdown, setCountdown] = useState(null)
     const [previewSrc, setPreviewSrc] = useState(null)
@@ -46,6 +50,7 @@ export default function CameraCapture({ onCapture, disabled = false }) {
         const imageSrc = webcamRef.current?.getScreenshot()
         if (!imageSrc) return
         setPreviewSrc(imageSrc)
+        // Chuyển sang 'loading' — Step2 sẽ set verifyState tương ứng
         setCamState('preview')
         // Convert base64 → File
         fetch(imageSrc)
@@ -63,15 +68,23 @@ export default function CameraCapture({ onCapture, disabled = false }) {
         onCapture?.(null)
     }
 
+    // ── Derived visual flags ─────────────────────────────────────────
+    const isScanning = camState === 'preview' && verifyState === 'loading'
+    const isSuccess = camState === 'preview' && verifyState === 'success'
+    const isDone = camState === 'preview' && verifyState !== 'loading'
+
     return (
         <div className={styles.wrapper}>
-            <div className={styles.cameraBox}>
+            <div className={[
+                styles.cameraBox,
+                isSuccess ? styles.cameraBoxSuccess : '',
+            ].filter(Boolean).join(' ')}>
 
-                {/* Corner decorations */}
-                <span className={`${styles.corner} ${styles.tl}`} />
-                <span className={`${styles.corner} ${styles.tr}`} />
-                <span className={`${styles.corner} ${styles.bl}`} />
-                <span className={`${styles.corner} ${styles.br}`} />
+                {/* Corner decorations — xanh lá khi success */}
+                <span className={`${styles.corner} ${styles.tl} ${isSuccess ? styles.cornerSuccess : ''}`} />
+                <span className={`${styles.corner} ${styles.tr} ${isSuccess ? styles.cornerSuccess : ''}`} />
+                <span className={`${styles.corner} ${styles.bl} ${isSuccess ? styles.cornerSuccess : ''}`} />
+                <span className={`${styles.corner} ${styles.br} ${isSuccess ? styles.cornerSuccess : ''}`} />
 
                 {/* Feed hoặc Preview */}
                 {camState === 'preview' ? (
@@ -95,12 +108,20 @@ export default function CameraCapture({ onCapture, disabled = false }) {
                     </div>
                 )}
 
-                {/* Scanning overlay — chỉ hiện sau khi chụp */}
-                {camState === 'preview' && (
+                {/* ── LOADING: scan animation + overlay mờ ── */}
+                {isScanning && (
                     <div className={styles.scanOverlay}>
                         <div className={styles.scanLine} />
                     </div>
                 )}
+
+                {/* ── SUCCESS: badge check ở giữa ── */}
+                {/* {isSuccess && (
+                    <div className={styles.successBadge}>
+                        <CheckCircle size={38} weight="fill" color="var(--color-success, #22c55e)" />
+                        <span>Xác minh thành công</span>
+                    </div>
+                )} */}
 
                 {/* Nút Chụp hình */}
                 {camState === 'idle' && !disabled && (
@@ -110,8 +131,8 @@ export default function CameraCapture({ onCapture, disabled = false }) {
                     </button>
                 )}
 
-                {/* Nút Chụp lại */}
-                {camState === 'preview' && !disabled && (
+                {/* Nút Chụp lại — chỉ hiện khi đã có ảnh, không phải loading/success */}
+                {isDone && !disabled && (
                     <button className={styles.captureBtn} onClick={handleRetake}>
                         <ArrowCounterClockwise size={24} weight="bold" />
                         Chụp lại

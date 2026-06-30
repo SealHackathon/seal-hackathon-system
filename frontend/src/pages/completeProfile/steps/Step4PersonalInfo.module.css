@@ -9,6 +9,8 @@
     max-width: 1400px;
     display: flex;
     align-items: stretch;
+    padding: 0.5em;
+    height: 95vh;
 }
 
 /* ============================
@@ -37,6 +39,8 @@
     flex-direction: column;
     gap: 1.5rem;
     min-width: 0;
+    border-left: 1px solid var(--color-border-blue);
+    overflow: scroll;
 }
 
 .pageTitle {

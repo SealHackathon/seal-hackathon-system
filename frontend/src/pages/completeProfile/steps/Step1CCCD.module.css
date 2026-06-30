@@ -127,16 +127,17 @@
 }
 
 .checkbox {
-    width: 1em;
-    height: 1em;
+    width: 1.5em;
+    height: 1.5em;
     accent-color: var(--color-primary-blue);
     cursor: pointer;
     flex-shrink: 0;
+    margin: 1em;
 }
 
 .confirmLabel {
-    font-size: 0.9rem;
     color: var(--color-text-primary);
+    font-weight:bold;
     user-select: none;
 }
 
