@@ -3,7 +3,7 @@ name: Sync Repository Files to Notion
 on:
   push:
     branches:
-      - main # Thay đổi thành tên nhánh chính của bạn nếu là master, develop...
+      - "feature/thai/test-flow-2"
 
 jobs:
   sync-to-notion:
