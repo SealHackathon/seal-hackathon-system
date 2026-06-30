@@ -3,30 +3,29 @@ name: Sync Repository Files to Notion
 on:
   push:
     branches:
-      - "feature/thai/test-flow-2"
+      - "feature/thai/test-flow-2" 
 
 jobs:
   sync-to-notion:
     runs-on: ubuntu-latest
 
     steps:
-      # Bước 1: Lấy mã nguồn từ repo về máy ảo của GitHub Actions
       - name: Checkout Code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 2 # Lấy ít nhất 2 commit gần nhất để so sánh sự thay đổi
+          fetch-depth: 0 
 
-      # Bước 2: Cài đặt môi trường Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '24'
 
-      # Bước 3: Cài đặt thư viện SDK chính thức của Notion
+      - name: Fix Git Directory Permissions
+        run: git config --global --add safe.directory ${{ github.workspace }}
+
       - name: Install Dependencies
         run: npm install @notionhq/client
 
-      # Bước 4: Chạy script xử lý đồng bộ dữ liệu
       - name: Run Sync Script
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
