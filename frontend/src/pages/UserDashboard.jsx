@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import UserLayout from '../layouts/UserLayout'
 import MilestoneBanner from '../components/dashboard/MilestoneBanner'
 import LiveEventCard from '../components/dashboard/LiveEventCard'
@@ -26,9 +27,23 @@ function UserDashboard() {
     const { userStatus } = useAuth();
     const navigate = useNavigate();
 
+    const [showPendingModal, setShowPendingModal] = useState(() => {
+        if (userStatus === 'PENDING_APPROVAL') {
+            const hasSeen = sessionStorage.getItem('hasSeenProfilePendingModal');
+            return !hasSeen;
+        }
+        return false;
+    });
+
+    const handleCloseModal = () => {
+        setShowPendingModal(false);
+        sessionStorage.setItem('hasSeenProfilePendingModal', 'true');
+    };
+
     const handleJoinClick = () => {
-        if (userStatus === 'PROFILE_PENDING') {
-            alert('Hồ sơ của bạn đang được BTC duyệt. Vui lòng chờ để được tham gia!');
+        // userStatus PROFILE_PENDING không thể vào trang này nữa nhờ routing
+        if (userStatus === 'PENDING_APPROVAL') {
+            setShowPendingModal(true);
         } else {
             navigate('/team');
         }
@@ -36,7 +51,7 @@ function UserDashboard() {
 
     return (
         <UserLayout showCard={false}>
-            <ProfilePendingModal />
+            <ProfilePendingModal isOpen={showPendingModal} onClose={handleCloseModal} />
             <MilestoneBanner timeline={FAKE_TIMELINE} />
             <LiveEventCard
                 event={FAKE_EVENT}

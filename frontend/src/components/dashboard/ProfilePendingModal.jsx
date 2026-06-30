@@ -1,30 +1,9 @@
-import { useEffect, useState } from 'react';
 import { CheckCircle } from '@phosphor-icons/react';
 import Button from '../shared/Button';
 import styles from './ProfilePendingModal.module.css';
-import { useAuth } from '../../AuthContext';
 
-export default function ProfilePendingModal() {
-    const { userStatus } = useAuth();
-    const [isOpen, setIsOpen] = useState(false);
-
-    useEffect(() => {
-        // Only show if status is PROFILE_PENDING
-        if (userStatus === 'PROFILE_PENDING') {
-            // Check session storage so it only shows once per session
-            const hasSeen = sessionStorage.getItem('hasSeenProfilePendingModal');
-            if (!hasSeen) {
-                setIsOpen(true);
-            }
-        }
-    }, [userStatus]);
-
+export default function ProfilePendingModal({ isOpen, onClose }) {
     if (!isOpen) return null;
-
-    const handleClose = () => {
-        setIsOpen(false);
-        sessionStorage.setItem('hasSeenProfilePendingModal', 'true');
-    };
 
     return (
         <div className={styles.overlay}>
@@ -43,7 +22,7 @@ export default function ProfilePendingModal() {
                         label="Đã hiểu" 
                         variant="primary" 
                         fullWidth 
-                        onClick={handleClose} 
+                        onClick={onClose} 
                     />
                 </div>
             </div>
