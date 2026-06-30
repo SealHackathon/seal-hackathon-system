@@ -1,0 +1,35 @@
+name: Sync Repository Files to Notion
+
+on:
+  push:
+    branches:
+      - "feature/thai/test-flow-2" 
+
+jobs:
+  sync-to-notion:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Fix Git Directory Permissions
+        run: git config --global --add safe.directory ${{ github.workspace }}
+
+      - name: Install Dependencies
+        run: npm install @notionhq/client
+
+      - name: Run Sync Script
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          GITHUB_REPO: ${{ github.repository }}
+          GITHUB_SHA: ${{ github.sha }}
+        run: node .github/scripts/sync.js
