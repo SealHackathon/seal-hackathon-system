@@ -143,7 +143,7 @@ public class AuthService {
 
         return "\"\"\"\n" +
                 "            xac nhan email thanh cong.\n" +
-                "            <a href=\"http://localhost:5173/login\">\n" +
+                "            <a href=\"http://localhost:5173/verified-email\">\n" +
                 "                Bam Vao Day De Hoan Thien Thong tin\n" +
                 "            </a>\n" +
                 "            \"\"\"";
@@ -163,7 +163,9 @@ public class AuthService {
     //login
     public LoginResponse login(LoginRequest req) {
         User user = userRepository.findByEmail((req.getEmail())).orElse(null);
-
+        if(user==null){
+            throw new RuntimeException("User name or password is invalid");
+        }
         String teamRole = null;
         boolean hasTeam = false;
 

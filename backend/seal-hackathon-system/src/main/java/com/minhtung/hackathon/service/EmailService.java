@@ -27,11 +27,8 @@ public class EmailService {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-<<<<<<< Updated upstream
       helper.setFrom("thainguyenthanh504@gmail.com");
-=======
-      helper.setFrom("scarletdiamond912@gmail.com");
->>>>>>> Stashed changes
+
       helper.setTo(email);
       helper.setSubject("Xác  nhận đăng kí tài khoản");
 
@@ -87,11 +84,8 @@ public class EmailService {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-<<<<<<< Updated upstream
       helper.setFrom("thainguyenthanh504@gmail.com");
-=======
-      helper.setFrom("scarletdiamond912@gmail.com");
->>>>>>> Stashed changes
+
       helper.setTo(email);
       helper.setSubject("Xác  nhận đăng kí tài khoản");
 
