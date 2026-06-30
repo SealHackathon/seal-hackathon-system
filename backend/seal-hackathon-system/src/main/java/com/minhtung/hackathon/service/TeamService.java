@@ -51,7 +51,7 @@ public class TeamService {
         if (newTeam.getDescription().length() > 200) {
             throw new IllegalArgumentException("mo ta không thể lớn hơn 200 kí tự ");
         }
-        if(leader.getStatus() !=UserStatus.ACCEPTED){
+        if (leader.getStatus() != UserStatus.ACCEPTED) {
             throw new IllegalArgumentException("chua duoc admin duyet ");
         }
 
@@ -170,8 +170,6 @@ public class TeamService {
         return "tham gia đội " + team.getName() + " thành công";
 
     }
-
-
 
 
     //ham nay de gui join request
@@ -520,9 +518,6 @@ public class TeamService {
     }
 
 
-
-
-
     // day la ham dung de leader duyet viec leave_request trong team
     // memberId trong đây là primary key của bảng member á nha.
     @Transactional
@@ -548,8 +543,6 @@ public class TeamService {
 
         return "Duyet yeu cau roi doi ko thanh cong";
     }
-
-
 
 
     //Admin duyet / tu choi team submisson
@@ -1011,8 +1004,6 @@ public class TeamService {
     }
 
 
-
-
     // lấy tất cả team trong sự kiện
     public List<RoundTeamResponse> getTeamsInRoundOfEvent(long eventId, long roundId, long currentUserId) {
         // 1. Lấy tất cả các đội thi thuộc về sự kiện (Tìm thông qua cấu trúc quan hệ Track -> Event)
@@ -1072,4 +1063,19 @@ public class TeamService {
 
         return responseList;
     }
+
+
+    // move to offical
+    public String moveMemberToOffical(long memberId) {
+
+        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.RESERVE).orElse(null);
+        if (member == null) {
+            throw new IllegalArgumentException("member khong ton tai");
+        }
+        member.setStatus(MemberStatus.OFFICAL);
+        memberRepository.save(member);
+        return "move to offical sucessfully !";
+
+    }
+
 }

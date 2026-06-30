@@ -145,7 +145,7 @@ function LeaderView() {
   }, []);
 
   // ↓ Để test UI: dùng MOCK_MEMBERS. Khi dùng API thật: đổi lại thành useState([])
-  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState(MOCK_MEMBERS);
+  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([MOCK_MEMBERS]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
@@ -482,9 +482,8 @@ function LeaderView() {
       denyLabel: 'Không',
       onConfirm: () => {
         console.log('TODO: Gọi API promote RESERVE → OFFICAL, memberId:', id)
-        // axios.put()
-        //   .then(() => window.location.reload())
-        //   .catch(err => console.log(err))
+        // đang check là cái id này là MEMBER id FK của bảng MEMBER
+         axiosClient.put(`/team/move-to-official/${id}`)
         setConfirmModal(null)
       }
     })
