@@ -17,7 +17,6 @@
     width: 90%;
     max-width: 450px;
     padding: 2rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     text-align: center;
     display: flex;
     flex-direction: column;
@@ -28,8 +27,8 @@
 .iconWrapper {
     width: 64px;
     height: 64px;
-    background-color: rgba(13, 176, 75, 0.1);
-    color: var(--color-primary-green);
+    background-color: var(--color-bg-blue);
+    color: var(--color-primary-blue);
     border-radius: 50%;
     display: flex;
     justify-content: center;

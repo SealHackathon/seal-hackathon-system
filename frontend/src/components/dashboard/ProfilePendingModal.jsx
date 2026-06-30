@@ -1,4 +1,4 @@
-import { CheckCircle } from '@phosphor-icons/react';
+import { Info } from '@phosphor-icons/react';
 import Button from '../shared/Button';
 import styles from './ProfilePendingModal.module.css';
 
@@ -9,7 +9,7 @@ export default function ProfilePendingModal({ isOpen, onClose }) {
         <div className={styles.overlay}>
             <div className={styles.modal}>
                 <div className={styles.iconWrapper}>
-                    <CheckCircle size={40} weight="fill" />
+                    <Info size={40} weight="fill" />
                 </div>
                 <h2 className={styles.title}>Hoàn thiện hồ sơ thành công!</h2>
                 <p className={styles.description}>

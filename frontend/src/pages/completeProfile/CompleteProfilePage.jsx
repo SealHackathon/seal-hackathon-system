@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-// import UserLayout        from '../../layouts/UserLayout'
+import UserLayout from '../../layouts/UserLayout'
 import Step0Intro from './steps/Step0Intro'
 import Step1CCCD from './steps/Step1CCCD'
 import Step2FaceVerify from './steps/Step2FaceVerify'
@@ -71,16 +71,16 @@ function CompleteProfilePage() {
 
             const response = await axiosClient.put('/user/student-profile', formData, {
                 headers: {
-                
+
                     'Content-Type': 'multipart/form-data'
                 }
             });
 
             console.log('[CompleteProfile] Submitted Success:', response.data);
-            
+
             // Xoá trạng thái lưu step vì đã hoàn thành
             localStorage.removeItem('completeProfileStep');
-            
+
             // Logic chuyển trang hoặc thông báo thành công tại đây...
             updateUserStatus(response.data.status || response.status);
             navigate("/user/dashboard")
@@ -91,49 +91,51 @@ function CompleteProfilePage() {
     }
 
     return (
-        <div className={styles.pageWrapper}>
+        <UserLayout showCard={false} >
+            <div className={styles.pageWrapper}>
 
-            {currentStep === 0 && (
-                <Step0Intro onStart={goNext} />
-            )}
+                {currentStep === 0 && (
+                    <Step0Intro onStart={goNext} />
+                )}
 
-            {currentStep === 1 && (
-                <Step1CCCD
-                    onNext={goNext}
-                    onBack={goBack}
-                    initialData={step1Data}
-                    onSaveData={setStep1Data}
-                />
-            )}
+                {currentStep === 1 && (
+                    <Step1CCCD
+                        onNext={goNext}
+                        onBack={goBack}
+                        initialData={step1Data}
+                        onSaveData={setStep1Data}
+                    />
+                )}
 
-            {currentStep === 2 && (
-                <Step2FaceVerify
-                    onNext={goNext}
-                    onBack={goBack}
-                    initialData={step2Data}
-                    onSaveData={setStep2Data}
-                />
-            )}
+                {currentStep === 2 && (
+                    <Step2FaceVerify
+                        onNext={goNext}
+                        onBack={goBack}
+                        initialData={step2Data}
+                        onSaveData={setStep2Data}
+                    />
+                )}
 
-            {currentStep === 3 && (
-                <Step3StudentInfo
-                    onNext={goNext}
-                    onBack={goBack}
-                    initialData={step3Data}
-                    onSaveData={setStep3Data}
-                />
-            )}
+                {currentStep === 3 && (
+                    <Step3StudentInfo
+                        onNext={goNext}
+                        onBack={goBack}
+                        initialData={step3Data}
+                        onSaveData={setStep3Data}
+                    />
+                )}
 
-            {currentStep === 4 && (
-                <Step4PersonalInfo
-                    onBack={goBack}
-                    onSubmit={handleStep4Submit}
-                    initialData={step4Data}
-                    onSaveData={setStep4Data}
-                />
-            )}
+                {currentStep === 4 && (
+                    <Step4PersonalInfo
+                        onBack={goBack}
+                        onSubmit={handleStep4Submit}
+                        initialData={step4Data}
+                        onSaveData={setStep4Data}
+                    />
+                )}
 
-        </div>
+            </div>
+        </UserLayout>
     )
 }
 

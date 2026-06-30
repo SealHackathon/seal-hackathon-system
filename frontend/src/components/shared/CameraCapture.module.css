@@ -25,6 +25,7 @@
     height: 100%;
     object-fit: cover;
     display: block;
+    border-radius: var(--inner-radius);
 }
 
 /* ============================
@@ -41,10 +42,37 @@
     pointer-events: none;
 }
 
-.tl { top: 1.5rem;    left: 1.5rem;  border-top-width: 3px; border-left-width:  3px; border-top-left-radius:     6px; }
-.tr { top: 1.5rem;    right: 1.5rem; border-top-width: 3px; border-right-width: 3px; border-top-right-radius:    6px; }
-.bl { bottom: 1.5rem; left: 1.5rem;  border-bottom-width: 3px; border-left-width:  3px; border-bottom-left-radius:  6px; }
-.br { bottom: 1.5rem; right: 1.5rem; border-bottom-width: 3px; border-right-width: 3px; border-bottom-right-radius: 6px; }
+.tl {
+    top: 1.5rem;
+    left: 1.5rem;
+    border-top-width: 3px;
+    border-left-width: 3px;
+    border-top-left-radius: 6px;
+}
+
+.tr {
+    top: 1.5rem;
+    right: 1.5rem;
+    border-top-width: 3px;
+    border-right-width: 3px;
+    border-top-right-radius: 6px;
+}
+
+.bl {
+    bottom: 1.5rem;
+    left: 1.5rem;
+    border-bottom-width: 3px;
+    border-left-width: 3px;
+    border-bottom-left-radius: 6px;
+}
+
+.br {
+    bottom: 1.5rem;
+    right: 1.5rem;
+    border-bottom-width: 3px;
+    border-right-width: 3px;
+    border-bottom-right-radius: 6px;
+}
 
 /* ============================
    Countdown badge — góc trên giữa
@@ -89,11 +117,9 @@
     z-index: 3;
     overflow: hidden;
     pointer-events: none;
-    background: linear-gradient(
-        to bottom,
-        rgba(8, 76, 221, 0.04) 0%,
-        rgba(8, 76, 221, 0.10) 100%
-    );
+    background: rgba(8, 76, 221, 0.05);
+    animation: scanDown 1.8s ease-in-out infinite;
+
 }
 
 .scanLine {
@@ -101,25 +127,31 @@
     left: 0;
     right: 0;
     height: 3px;
-    background: var(--color-border-blue);
+    background: var(--color-secondary-blue, #084cdd);
 }
 
 @keyframes scanDown {
-    0%   { top: 0%; }
-    100% { top: 100%; }
+    0% {
+        top: 0%;
+    }
+
+    100% {
+        top: 100%;
+    }
 }
 
 /* ============================
    Success state — border + corner xanh lá
    ============================ */
 .cameraBoxSuccess {
-    border-color: #22c55e;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+    background: var(--color-bg-green);
+    border-color: var(--color-primary-green);
+    padding: 0.3em;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .cornerSuccess {
-    border-color: #22c55e !important;
+    border-color: var(--color-primary-green);
     transition: border-color 0.3s ease;
 }
 
@@ -138,18 +170,24 @@
     padding: 0.45rem 1.1rem;
     border-radius: 2rem;
     background: rgba(255, 255, 255, 0.92);
-    border: 1.5px solid #22c55e;
-    color: #16a34a;
+    border: 1.5px solid var(--color-primary-green);
+    color: var(--color-primary-green);
     font-size: 0.9rem;
     font-weight: 700;
     white-space: nowrap;
-    box-shadow: 0 2px 10px rgba(34, 197, 94, 0.2);
     animation: badgePop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 @keyframes badgePop {
-    from { opacity: 0; transform: translateX(-50%) scale(0.75); }
-    to   { opacity: 1; transform: translateX(-50%) scale(1); }
+    from {
+        opacity: 0;
+        transform: translateX(-50%) scale(0.75);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) scale(1);
+    }
 }
 
 /* ============================
