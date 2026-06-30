@@ -697,7 +697,6 @@ public class TeamService {
         Member member = memberRepository.findByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE))
                 .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND")); // Ném ra ngoại lệ rõ ràng
 
-
         return member.getRole().toString(); // Trả về "LEADER" hoặc "MEMBER"
     }
 

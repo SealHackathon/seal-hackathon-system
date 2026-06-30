@@ -136,7 +136,7 @@ function LeaderView() {
   // lay du lieu tu API len 
   //gia lap login luu accesstoken vao localStorage
   const [confirmModal, setConfirmModal] = useState(null)
-  const [teamStatus, setTeamStatus] = useState('pending')
+  const [teamStatus, setTeamStatus] = useState('OPEN') // ! fix chỗ này lại thành OPEN vì trong TeamStatusTag.jsx không có 'pending'
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' })
   const token = localStorage.getItem("accessToken")
 
