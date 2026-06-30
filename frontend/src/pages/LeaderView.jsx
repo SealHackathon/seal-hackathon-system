@@ -145,7 +145,7 @@ function LeaderView() {
   }, []);
 
   // ↓ Để test UI: dùng MOCK_MEMBERS. Khi dùng API thật: đổi lại thành useState([])
-  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([MOCK_MEMBERS]);
+  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
