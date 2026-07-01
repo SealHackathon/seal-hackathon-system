@@ -33,10 +33,37 @@ function CompleteProfilePage() {
         localStorage.setItem('completeProfileStep', currentStep)
     }, [currentStep])
 
-    const [step1Data, setStep1Data] = useState(null)
-    const [step2Data, setStep2Data] = useState(null)
-    const [step3Data, setStep3Data] = useState(null)
-    const [step4Data, setStep4Data] = useState(null)
+    const [step1Data, setStep1Data] = useState(() => {
+        const saved = localStorage.getItem('completeProfileStep1')
+        return saved ? JSON.parse(saved) : null
+    })
+    useEffect(() => {
+        if (step1Data) localStorage.setItem('completeProfileStep1', JSON.stringify(step1Data))
+    }, [step1Data])
+
+    const [step2Data, setStep2Data] = useState(() => {
+        const saved = localStorage.getItem('completeProfileStep2')
+        return saved ? JSON.parse(saved) : null
+    })
+    useEffect(() => {
+        if (step2Data) localStorage.setItem('completeProfileStep2', JSON.stringify(step2Data))
+    }, [step2Data])
+
+    const [step3Data, setStep3Data] = useState(() => {
+        const saved = localStorage.getItem('completeProfileStep3')
+        return saved ? JSON.parse(saved) : null
+    })
+    useEffect(() => {
+        if (step3Data) localStorage.setItem('completeProfileStep3', JSON.stringify(step3Data))
+    }, [step3Data])
+
+    const [step4Data, setStep4Data] = useState(() => {
+        const saved = localStorage.getItem('completeProfileStep4')
+        return saved ? JSON.parse(saved) : null
+    })
+    useEffect(() => {
+        if (step4Data) localStorage.setItem('completeProfileStep4', JSON.stringify(step4Data))
+    }, [step4Data])
 
     const goNext = () => setCurrentStep(s => s + 1)
     const goBack = () => setCurrentStep(s => s - 1)
@@ -78,8 +105,12 @@ function CompleteProfilePage() {
 
             console.log('[CompleteProfile] Submitted Success:', response.data);
 
-            // Xoá trạng thái lưu step vì đã hoàn thành
+            // Xoá trạng thái lưu data và step vì đã hoàn thành
             localStorage.removeItem('completeProfileStep');
+            localStorage.removeItem('completeProfileStep1');
+            localStorage.removeItem('completeProfileStep2');
+            localStorage.removeItem('completeProfileStep3');
+            localStorage.removeItem('completeProfileStep4');
 
             // Logic chuyển trang hoặc thông báo thành công tại đây...
             updateUserStatus(response.data.status || response.status);
@@ -91,7 +122,7 @@ function CompleteProfilePage() {
     }
 
     return (
-        <UserLayout showCard={false} >
+        <UserLayout showCard={false}>
             <div className={styles.pageWrapper}>
 
                 {currentStep === 0 && (
@@ -133,7 +164,6 @@ function CompleteProfilePage() {
                         onSaveData={setStep4Data}
                     />
                 )}
-
             </div>
         </UserLayout>
     )
