@@ -33,6 +33,10 @@ export function AuthProvider({ children }) {
         setUserStatus(newStatus); // Dòng này sẽ kích hoạt React re-render toàn hệ thống
     };
 
+    const updateTeamRole = (newRole) => {
+        localStorage.setItem("teamRole", newRole);
+        setTeamRole(newRole);
+    };
 
     const fetchTeamRole = async () => {
         setTeamRoleLoading(true);
@@ -106,6 +110,7 @@ export function AuthProvider({ children }) {
             activeAccount
             ,
             updateUserStatus,
+            updateTeamRole,
             fetchTeamRole,
             login,
             logout,

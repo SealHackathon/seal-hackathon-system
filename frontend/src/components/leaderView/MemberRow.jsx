@@ -10,9 +10,9 @@ import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 
 // Map joinMethod → Badge props — cùng màu green, khác variant theo cấp độ
 const JOIN_METHOD_BADGE = {
-  INVITE: { variant: 'greenSolid', label: 'Được mời', dim: false },
-  REQUEST: { variant: 'green', label: 'Xin vào', dim: false },
-  CODE: { variant: 'dashedGreen', label: 'Dùng mã', dim: true }, // opacity 0.45 qua CSS
+  JOINBYINVITATION: { variant: 'greenSolid', label: 'Được mời', dim: false },
+  JOINBYREQUEST: { variant: 'green', label: 'Xin vào', dim: false },
+  JOINBYCODE: { variant: 'dashedGreen', label: 'Dùng mã', dim: true }, // opacity 0.45 qua CSS
 }
 
 function MemberRow({
@@ -95,7 +95,17 @@ function MemberRow({
                 <Tooltip content="Rời đội">
                   <button
                     className={styles.actionBtn}
-                    onClick={isLeader ? onLeave : () => setSelectedRequest({ compose: true })}
+                    onClick={() => {
+                      if (isLeader) {
+                        onLeave();
+                      } else if (memberStatus === 'RESERVE') {
+                        if (window.confirm('Bạn có chắc chắn muốn rời nhóm ngay lập tức không? Hành động này không thể hoàn tác.')) {
+                          onLeave('');
+                        }
+                      } else {
+                        setSelectedRequest({ compose: true });
+                      }
+                    }}
                   // thêm một trường compose vào request gốc để phân biệt việc gửi leave request của member
                   >
                     <SignOut size={28} weight='bold' color="var(--color-secondary-blue)" />

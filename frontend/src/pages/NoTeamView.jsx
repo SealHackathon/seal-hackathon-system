@@ -25,11 +25,20 @@ function NoTeamView() {
   
   // Modal thông báo bị kick
   const [showKickedModal, setShowKickedModal] = useState(false);
+  const [showApprovedLeaveModal, setShowApprovedLeaveModal] = useState(false);
 
   useEffect(() => {
-    if (localStorage.getItem('lastKnownTeamRole') === 'IN_TEAM') {
-      setShowKickedModal(true);
-      localStorage.removeItem('lastKnownTeamRole'); // clear immediately so it only shows once
+    const wasInTeam = localStorage.getItem('lastKnownTeamRole') === 'IN_TEAM';
+    const hadPendingLeave = localStorage.getItem('pendingLeaveRequest') === 'true';
+
+    if (wasInTeam) {
+      if (hadPendingLeave) {
+        setShowApprovedLeaveModal(true);
+      } else {
+        setShowKickedModal(true);
+      }
+      localStorage.removeItem('lastKnownTeamRole'); 
+      localStorage.removeItem('pendingLeaveRequest'); 
     }
   }, []);
 
@@ -265,6 +274,16 @@ console.log(FAKE_INVITES)
         isNotification={true}
         onConfirm={handleCloseKickedModal}
         onCancel={handleCloseKickedModal}
+      />
+
+      <ConfirmModal
+        isOpen={showApprovedLeaveModal}
+        title="Thông báo"
+        message="Yêu cầu rời nhóm của bạn đã được duyệt. Bạn đã rời khỏi nhóm."
+        confirmLabel="Đã hiểu"
+        isNotification={true}
+        onConfirm={() => setShowApprovedLeaveModal(false)}
+        onCancel={() => setShowApprovedLeaveModal(false)}
       />
 
     </EventLayout >

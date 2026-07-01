@@ -10,6 +10,7 @@ import NoticeBox from '../components/shared/NoticeBox'
 import axios from 'axios'
 import { Bell } from '@phosphor-icons/react'
 import axiosClient from '../api/axiosClient'
+import { useAuth } from '../AuthContext'
 
 // Data tạm — sau này thay bằng API
 // const FAKE_MEMBERS = [
@@ -139,6 +140,7 @@ function LeaderView() {
   const [teamStatus, setTeamStatus] = useState('OPEN') // ! fix chỗ này lại thành OPEN vì trong TeamStatusTag.jsx không có 'pending'
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' })
   const token = localStorage.getItem("accessToken")
+  const { updateTeamRole } = useAuth();
 
   useEffect(() => {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
@@ -207,31 +209,22 @@ function LeaderView() {
 
 
   const handleOnAccept = ((requestId, isAccept) => {
-    setConfirmModal({
-      title: 'Phê duyệt thành viên vào đội',
-      message: 'Bạn có chắc chắn muốn PHÊ DUYỆT thành viên này vào đội không?',
-      confirmLabel: 'Phê duyệt',
-      onConfirm: () => {
-        axiosClient
-          .put('/teamrequest/Join-request/respond', {
-            requestId: requestId,
-            accept: isAccept
-          })
-          .then((response) => {
-            console.log(response.data);
-            // alert("Đã chấp nhận thành viên vào đội thành công!");
+    axiosClient
+      .put('/teamrequest/Join-request/respond', {
+        requestId: requestId,
+        accept: isAccept
+      })
+      .then((response) => {
+        console.log(response.data);
+        // alert("Đã chấp nhận thành viên vào đội thành công!");
 
-            // 2. Reload lại trang để cập nhật danh sách mới
-            window.location.reload();
-          })
-          .catch((error) => {
-            console.log(error);
-            alert("Có lỗi xảy ra khi thực hiện phê duyệt!");
-          });
-
-        setConfirmModal(null)
-      }
-    })
+        // 2. Reload lại trang để cập nhật danh sách mới
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Có lỗi xảy ra khi thực hiện phê duyệt!");
+      });
   });
 
 
@@ -393,9 +386,9 @@ function LeaderView() {
               message: 'Bạn đã rời nhóm thành công!',
               confirmLabel: 'Xác nhận',
               isNotification: true,
-              onConfirm: () => { 
+              onConfirm: () => {
                 localStorage.removeItem('lastKnownTeamRole');
-                window.location.reload() 
+                updateTeamRole('NO_TEAM');
               }
             })
           })

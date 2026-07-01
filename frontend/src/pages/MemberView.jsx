@@ -168,6 +168,7 @@ function MemberView() {
           id: response.data?.id, name: response.data?.name, message: response.data?.message
         }
         setLeaveRequest([responseData])
+        localStorage.setItem('pendingLeaveRequest', 'true');
         alert("Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.");
       })
       .catch((error) => {
@@ -186,6 +187,7 @@ function MemberView() {
       })
       .then((response) => {
         console.log(response.data);
+        localStorage.removeItem('pendingLeaveRequest');
         alert("Bạn đã hủy yêu cầu rời nhóm thành công!");
         window.location.reload();
       })
