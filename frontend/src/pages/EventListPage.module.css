@@ -4,6 +4,21 @@
     gap: 1em;
 }
 
+.pageContainer {
+    min-height: 100vh;
+    background-color: var(--color-bg-white);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border-blue);
+    padding: 2.5em 1.5em;
+}
+
+.maxWidthWrapper {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}
+
 /* Header */
 .header {
     display: flex;
@@ -13,14 +28,16 @@
     border-radius: var(--radius);
     padding: 0.9em 1.25em;
 }
+
 .topRow {
     display: flex;
     align-items: center;
     gap: 1em;
 }
 
-.topRow > :first-child {
-    flex: 1; /* SectionHeader chiếm hết phần còn lại */
+.topRow> :first-child {
+    flex: 1;
+    /* SectionHeader chiếm hết phần còn lại */
 }
 
 .pageTitle {

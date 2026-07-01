@@ -4,6 +4,7 @@ import EventCard from '../components/coordinator/EventCard'
 import Button from '../components/shared/Button'
 import SectionHeader from '../components/shared/SectionHeader'
 import SearchFilterBar from '../components/shared/SearchFilterBar/SearchFilterBar'
+import EmptyEventState from '../components/coordinator/events/EmptyEventState'
 import CoordinatorLayout from '../layouts/CoordinatorLayout'
 import styles from './EventListPage.module.css'
 import axiosClient from '../api/axiosClient'
@@ -46,7 +47,7 @@ const SORT_OPTIONS = [
 //     ],
 //     teamCount: 42, participantCount: 168, categoryCount: 4, roundCount: 2,
 //   },
-
+//
 //   // 2. UPCOMING — sắp diễn ra, chưa có đội nào đăng ký
 //   {
 //     id: '2',
@@ -61,7 +62,7 @@ const SORT_OPTIONS = [
 //     timeline: [],
 //     teamCount: 0, participantCount: 0, categoryCount: 6, roundCount: 3,
 //   },
-
+//
 //   // 3. ENDED — đã kết thúc, nhiều đội tham gia
 //   {
 //     id: '3',
@@ -76,7 +77,7 @@ const SORT_OPTIONS = [
 //     timeline: [],
 //     teamCount: 89, participantCount: 312, categoryCount: 5, roundCount: 4,
 //   },
-
+//
 //   // 4. DRAFT — chưa công bố, dữ liệu còn sơ sài
 //   {
 //     id: '4',
@@ -91,7 +92,7 @@ const SORT_OPTIONS = [
 //     timeline: [],
 //     teamCount: 0, participantCount: 0, categoryCount: 3, roundCount: 2,
 //   },
-
+//
 //   // 5. CANCELLED — đã hủy giữa chừng
 //   {
 //     id: '5',
@@ -106,7 +107,7 @@ const SORT_OPTIONS = [
 //     timeline: [],
 //     teamCount: 17, participantCount: 34, categoryCount: 2, roundCount: 2,
 //   },
-
+//
 //   // 6. ARCHIVED — lưu trữ, sự kiện cũ
 //   {
 //     id: '6',
@@ -224,6 +225,11 @@ function EventListPage({ onManageEvent }) {
     })
   }
 
+  const handleNavigation = (id) => {
+        if (id === 'events') navigate('/admin/coordinator/events');
+        if (id === 'rubric') navigate('/admin/coordinator/rubrics');
+    };
+
 
   // ── SỬA CHỖ NÀY: Đổi MOCK_EVENTS thành biến events trong useMemo lọc ──
   const filtered = useMemo(() => {
@@ -248,7 +254,7 @@ function EventListPage({ onManageEvent }) {
   }, [events]) // Đổi sang dependency là [events]
 
   return (
-    <CoordinatorLayout>
+    <CoordinatorLayout onNavigate={ handleNavigation }>
 
     
     <div className={styles.page}>
@@ -270,26 +276,28 @@ function EventListPage({ onManageEvent }) {
       </div>
 
 
-      {/* Search */}
-      <SearchFilterBar
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Tìm kiếm tên sự kiện"
-        filters={STATUS_FILTERS}
-        countByKey={countByStatus}
-        activeFilter={activeFilter}
-        onFilterChange={setActiveFilter}
-        sortOptions={SORT_OPTIONS}
-        activeSort={activeSort}
-        onSortChange={setActiveSort}
-        sortLabel="Sắp xếp theo"
-      />
+      <div className={styles.pageContainer}>
+        <div className={styles.maxWidthWrapper}>
+          {/* Search */}
+          <SearchFilterBar
+            searchValue={searchQuery}
+            onSearchChange={setSearchQuery}
+            searchPlaceholder="Tìm kiếm tên sự kiện"
+            filters={STATUS_FILTERS}
+            countByKey={countByStatus}
+            activeFilter={activeFilter}
+            onFilterChange={setActiveFilter}
+            sortOptions={SORT_OPTIONS}
+            activeSort={activeSort}
+            onSortChange={setActiveSort}
+            sortLabel="Sắp xếp theo"
+          />
 
 
-      {/* Event cards */}
-      <div className={styles.cardList}>
-        {filtered.length === 0
-          ? <p className={styles.empty}>Không có sự kiện nào.</p>
+          {/* Event cards */}
+          <div className={styles.cardList}>
+            {filtered.length === 0
+              ? <EmptyEventState searchQuery={searchQuery} activeFilter={activeFilter} />
           : filtered.map(event => (
             <EventCard
               key={event.id}
@@ -305,6 +313,8 @@ function EventListPage({ onManageEvent }) {
             />
           ))
         }
+          </div>
+        </div>
       </div>
     </div>
     </CoordinatorLayout>
