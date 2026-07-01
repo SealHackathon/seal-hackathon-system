@@ -98,7 +98,7 @@ const FAKE_LEAVE_REQUESTS = []
 function MemberView() {
   const [teamStatus, setTeamStatus] = useState('OPEN')
   // Use mock data for testing UI
-  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState(MOCK_MEMBERS);
+  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState(MOCK_INVITES);
 
   const token = localStorage.getItem("accessToken")
@@ -128,7 +128,7 @@ function MemberView() {
   */
 
   // api lấy team members - comment out to use mock data
-  /*
+
   useEffect(() => {
     axios
       .get('http://localhost:8080/api/team/my-team', {
@@ -142,7 +142,7 @@ function MemberView() {
       })
       .catch((error) => console.log(error));
   }, []);
-  */
+
 
   const handleOnLeave = (message) => {
     axios
