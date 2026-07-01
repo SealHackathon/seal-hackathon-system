@@ -53,13 +53,9 @@ public class KycController {
         return ResponseEntity.ok(imageUrl);
     }
     @PutMapping("/{userId}/approve")
-    public ResponseEntity<?>approverUser(@PathVariable Long userId,@RequestParam boolean approve){
-        kycService.approveUser(userId,approve);
-        if (approve) {
-            return ResponseEntity.ok("duyet ho so thanh cong");
-        }
-
-        return ResponseEntity.ok("tu choi ho so thanh cong");
+    public ResponseEntity<?>approverUser(@PathVariable Long userId){
+        kycService.approveUser(userId);
+        return  ResponseEntity.ok("duyet ho so thanh cong");
     }
 
 }

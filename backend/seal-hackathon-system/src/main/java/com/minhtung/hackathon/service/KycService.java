@@ -1,16 +1,15 @@
 package com.minhtung.hackathon.service;
 
 
+
 import com.cloudinary.Cloudinary;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
-import com.minhtung.hackathon.dto.response.AdminParticipantReviewResponse;
 import com.minhtung.hackathon.dto.response.FaceMatchResponse;
 import com.minhtung.hackathon.dto.response.UserIdentityProfileResponse;
 import com.minhtung.hackathon.entity.Student_profile;
 import com.minhtung.hackathon.entity.User;
 import com.minhtung.hackathon.entity.UserIdentityProfile;
-import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.UserStatus;
 import com.minhtung.hackathon.repository.StudentprofileRepository;
 import com.minhtung.hackathon.repository.UserIdentityProfileRepository;
@@ -20,7 +19,6 @@ import lombok.RequiredArgsConstructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -42,11 +40,9 @@ public class KycService {
 
 
     @Value("${kyc.face-match-threshold}")
-    private double faceMatchThreshold;
+    private double faceMatchThreshold ;
     @Value("${kyc.face-match-max-attempts}")
-    private int faceMatchMaxAttempts;
-
-
+    private int faceMatchMaxAttempts ;
     @Transactional
 
     public String uploadStudentCart(String email, MultipartFile file, String mssv, String school) {
@@ -58,9 +54,8 @@ public class KycService {
             throw new RuntimeException("Ảnh hồ sơ tối đa 2MB");
         }
         Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
-
-                .orElse(new Student_profile() );
-
+                .orElse(new Student_profile() {
+                });
 
         studentProfile.setUser(user);
         String imageUrl = cloudinaryStorageService.uploadStudentCard(file, user.getId());
@@ -73,7 +68,7 @@ public class KycService {
     }
 
     @Transactional
-    public void approveUser(Long userId, boolean approve) {
+    public void approveUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
@@ -87,15 +82,10 @@ public class KycService {
             throw new RuntimeException("Hồ sơ chưa đầy đủ");
         }
 
-        if (approve) {
-            user.setStatus(UserStatus.ACCEPTED);
-            emailService.emailxacnhantuadmin(user.getEmail());
-        } else {
-            user.setStatus(UserStatus.REJECTED);
-
-        }
-
+        user.setStatus(UserStatus.ACCEPTED);
         userRepository.save(user);
+
+        emailService.emailxacnhantuadmin(user.getEmail());
     }
 
     @Transactional
@@ -159,11 +149,11 @@ public class KycService {
         profile.setUser(user);
         profile.setHometown(frontData.path("home").asText(null));
         profile.setFace_image(faceUrl);
-        // profile.setQrRaw(frontData.path("qr").asText(null));
+       // profile.setQrRaw(frontData.path("qr").asText(null));
         profileRepository.save(profile);
         userRepository.save(user);
 
-        return mapToUserIdentityProfileResponse(profile, user);
+        return  mapToUserIdentityProfileResponse(profile , user)  ;
     }
 
 
@@ -215,25 +205,26 @@ public class KycService {
                 .build();
 
 
+
+
     }
-
     @Transactional
-    public FaceMatchResponse verifySelfie(String email, MultipartFile selfieImg) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("khong tim thay user"));
+    public FaceMatchResponse verifySelfie(String email , MultipartFile selfieImg ){
+        User user = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("khong tim thay user")) ;
 
-        if (!user.isActive()) {
-            throw new RuntimeException("chua xac nhan gmail");
+        if(!user.isActive()){
+            throw new RuntimeException("chua xac nhan gmail") ;
 
         }
 
-        UserIdentityProfile profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new RuntimeException("chua quet cccd "));
+        UserIdentityProfile profile = profileRepository.findByUserId(user.getId()).orElseThrow(()->new RuntimeException("chua quet cccd ")) ;
 
-        if (profile.getFace_image() == null || profile.getFace_image().isBlank()) {
-            throw new RuntimeException("chua co anh chan dung tu cccd");
+        if(profile.getFace_image() == null || profile.getFace_image().isBlank()){
+            throw  new RuntimeException("chua co anh chan dung tu cccd") ;
         }
-        String selffieUrl = cloudinaryStorageService.uploadKycImage(selfieImg, user.getId(), "selfie");
+        String selffieUrl = cloudinaryStorageService.uploadKycImage(selfieImg , user.getId(), "selfie");
 
-        JsonNode faceResult = fptAiService.matchFaceByUrl(profile.getFace_image(), selfieImg);
+        JsonNode faceResult = fptAiService.matchFaceByUrl(profile.getFace_image(),selfieImg) ;
         System.out.println("Face match result " + faceResult.toPrettyString());
 
         JsonNode data = faceResult.path("data");
@@ -246,11 +237,11 @@ public class KycService {
                 : profile.getFaceMatchAttempts();
 
         if (matched) {
-            attempts = 0;
+            attempts = 0 ;
             profile.setNeedsManualFaceReview(false);
             profile.setAdminnote(null);
-        } else {
-            attempts++;
+        }else {
+            attempts++ ;
         }
         boolean needsManualReview = !matched && attempts >= faceMatchMaxAttempts;
         boolean canContinue = matched || needsManualReview;
@@ -259,6 +250,9 @@ public class KycService {
         profile.setFaceMatched(matched);
         profile.setFaceMatchAttempts(attempts);
         profile.setNeedsManualFaceReview(needsManualReview);
+
+
+
 
 
         if (needsManualReview) {
@@ -283,19 +277,19 @@ public class KycService {
         );
     }
 
-    public Student_profile updatesStudentProfile(String email, UpdateStudentProfileRequest req) {
-        User user = userRepository.findByEmail(email).orElseThrow(() ->
-                new RuntimeException("khong tim thay user"));
+    public Student_profile updatesStudentProfile(String email , UpdateStudentProfileRequest req){
+        User user = userRepository.findByEmail(email).orElseThrow(()->
+                new RuntimeException("khong tim thay user")) ;
         Student_profile profile = studentprofileRepository.findByUserId(user.getId()).orElse(new Student_profile());
-        profile.setUser(user);
+       profile.setUser(user);
 
 
         if (req.getBio() != null && req.getBio().length() > 300) {
             throw new RuntimeException("Tiểu sử tối đa 300 ký tự");
         }
 
-        if (req.getPositons().size() > 3) {
-            throw new RuntimeException("chi duoc chon 3 vi tri ");
+        if(req.getPositons().size() > 3){
+            throw  new RuntimeException("chi duoc chon 3 vi tri ");
         }
         if (req.getTags() != null && req.getTags().size() > 10) {
             throw new RuntimeException("Chỉ được chọn tối đa 10 công nghệ");
@@ -335,8 +329,7 @@ public class KycService {
             throw new RuntimeException("Ảnh hồ sơ chỉ hỗ trợ JPG hoặc PNG");
         }
     }
-
-    public Map<String, Object> updateAvatar(String email, MultipartFile file) {
+    public Map<String,Object> updateAvatar(String email ,MultipartFile file){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
         validateAvatar(file);
@@ -350,41 +343,6 @@ public class KycService {
 
         return response;
     }
-
-    public List<AdminParticipantReviewResponse> getAllinformationUser() {
-        return userRepository.findByRole(Role.USER)
-                .stream()
-                .map(user -> {
-                    UserIdentityProfile identity = profileRepository.findByUserId(user.getId())
-                            .orElse(null);
-                    Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId()).orElse(null);
-
-                    return AdminParticipantReviewResponse.builder()
-                            .userId(user.getId())
-                            .fullname(user.getFullName())
-                            .email(user.getEmail())
-                            .phone(user.getPhoneNumber())
-                            .avatar(user.getAvt_img())
-                            .status(user.getStatus())
-
-                            //cccd
-                            .fullnameCccd(identity != null ? identity.getFullName() : null)
-                            .cccd(identity != null ? identity.getCmnd() : null)
-                            .dateofbirth(identity != null ? identity.getDateOfBirth() : null)
-                            .gender(identity != null ? identity.getGender() : null)
-                            .thuongtru(identity != null ? identity.getThuongtru() : null)
-                            .frontcccd(identity != null ? identity.getFrontcmnd_img() : null)
-                            .backcccd(identity != null ? identity.getCmndBack_image() : null)
-
-                            //thong tin sinh vien
-                            .mssv(user.getStudentId())
-                            .SchoolName(user.getSchoolName())
-                            .StudentCartImg(studentProfile != null ? studentProfile.getImg_studentcard() : null)
-                            .build();
-
-                })
-                .toList();
     }
-}
 
 
