@@ -2,13 +2,11 @@ package com.minhtung.hackathon.service;
 
 
 import com.minhtung.hackathon.dto.request.LoginRequest;
-import com.minhtung.hackathon.dto.request.UpdateEmailRequest;
 import com.minhtung.hackathon.dto.response.LoginResponse;
 import com.minhtung.hackathon.dto.request.RegisterRequest;
 import com.minhtung.hackathon.dto.response.RegisterResponse;
 import com.minhtung.hackathon.dto.request.CompleteProfileRequest;
 import com.minhtung.hackathon.dto.response.CompleteProfileResponse;
-import com.minhtung.hackathon.dto.response.UpdateEmailResponse;
 import com.minhtung.hackathon.entity.Member;
 import com.minhtung.hackathon.entity.University;
 import com.minhtung.hackathon.entity.User;
@@ -52,8 +50,8 @@ public class AuthService {
             throw new RuntimeException(" số điện thoại này  đã tồn tại ");
         }
         // check xem truong co ton tai trong DB khong
-        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
-        validateMssv(university, registerRequest.getStudentId());
+//        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
+//        validateMssv(university, registerRequest.getStudentId());
         //xoa pending cu neu co (Dang ki lai)
         User user = new User();
         user.setEmail(registerRequest.getEmail());
@@ -225,25 +223,6 @@ public class AuthService {
 
             throw new RuntimeException("mssv cua truong phai theo dung format ");
         }
-    }
-    public UpdateEmailResponse updateEmail(UpdateEmailRequest requestt){
-        String email = requestt.getNewEmail();
-        User user = userRepository.findByEmail(requestt.getCurrentEmail())
-                .orElseThrow(() -> new RuntimeException("Email không tồn tại"));
-        if(user.isActive()){
-            throw new RuntimeException(" đã kich hoạt email rồi   ") ;
-        }
-      if(user.getEmail().equalsIgnoreCase(email)){
-          throw new  RuntimeException("email moi trung voi email cu ");
-      }
-
-      if(userRepository.existsByEmail(email)){
-          throw new RuntimeException("email mới đã được sử dụng bởi tài khoản khác");
-
-      }
-        user.setEmail(email);
-        userRepository.save(user);
-        return new UpdateEmailResponse(true , email,"cập nhật thành công " );
     }
 
 }

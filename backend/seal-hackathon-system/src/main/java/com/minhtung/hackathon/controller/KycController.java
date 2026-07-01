@@ -39,14 +39,23 @@ public class KycController {
     @PostMapping(value = "/student-card", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadStudentCard(
             @RequestParam MultipartFile file,
+            @RequestParam String mssv,
+            @RequestParam String school,
             Authentication authentication
     ) {
         String imageUrl = kycService.uploadStudentCart(
                 authentication.getName(),
-                file
+                file,
+                mssv,
+                school
         );
 
         return ResponseEntity.ok(imageUrl);
+    }
+    @PutMapping("/{userId}/approve")
+    public ResponseEntity<?>approverUser(@PathVariable Long userId){
+        kycService.approveUser(userId);
+        return  ResponseEntity.ok("duyet ho so thanh cong");
     }
 
 }

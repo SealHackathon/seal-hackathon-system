@@ -49,9 +49,61 @@ public class DataInitializer implements CommandLineRunner {
             user2.setSchoolName("Khoa Học Xã Hội và Nhân Văn");
             user2.setActive(true);
             user2.setFullName("Mạc Minh Tùng");
-            user2.setStatus(UserStatus.PROFILE_PENDING);
+            user2.setStatus(UserStatus.ACCEPTED);
 
             userRepository.save(user2);
+
+            User u4 = new User();
+            u4.setEmail("le.minh.tri@uit.edu.vn");
+            u4.setPassword("123456");
+            u4.setFullName("TS. Lê Minh Trí");
+            u4.setTitle("Trưởng khoa CNTT");
+            u4.setOrg("UIT");
+            u4.setRole(Role.LECTURER);
+            u4.setActive(true);
+            u4.setStatus(UserStatus.ACCEPTED);
+
+            User u5 = new User();
+            u5.setEmail("pham.thi.lan@vinai.io");
+            u5.setPassword("123456");
+            u5.setFullName("ThS. Phạm Thị Lan");
+            u5.setTitle("AI Research Engineer");
+            u5.setOrg("VinAI Research");
+            u5.setRole(Role.LECTURER);
+            u5.setActive(true);
+            u5.setStatus(UserStatus.ACCEPTED);
+
+            User u6 = new User();
+            u6.setEmail("hoang.van.minh@hcmut.edu.vn");
+            u6.setPassword("123456");
+            u6.setFullName("PGS. Hoàng Văn Minh");
+            u6.setTitle("Phó Giáo sư");
+            u6.setOrg("Đại học Bách Khoa HCM");
+            u6.setRole(Role.LECTURER);
+            u6.setActive(true);
+            u6.setStatus(UserStatus.ACCEPTED);
+
+            User u7 = new User();
+            u7.setEmail("nguyen.thi.hong@zalo.me");
+            u7.setPassword("123456");
+            u7.setFullName("ThS. Nguyễn Thị Hồng");
+            u7.setTitle("Tech Lead");
+            u7.setOrg("Zalo");
+            u7.setRole(Role.LECTURER);
+            u7.setActive(true);
+            u7.setStatus(UserStatus.ACCEPTED);
+
+            User u8 = new User();
+            u8.setEmail("tran.quoc.bao@momo.vn");
+            u8.setPassword("123456");
+            u8.setFullName("TS. Trần Quốc Bảo");
+            u8.setTitle("CTO");
+            u8.setOrg("MoMo");
+            u8.setRole(Role.LECTURER);
+            u8.setActive(true);
+            u8.setStatus(UserStatus.ACCEPTED);
+
+            userRepository.saveAll(java.util.List.of(u4, u5, u6, u7, u8));
 
 //            User user3 = new User();
 //            user3.setEmail("user3@gmail.com");
@@ -152,7 +204,7 @@ public class DataInitializer implements CommandLineRunner {
             user12.setFullName("ADMIN");
             user12.setEmail("admin@gmail.com");
             user12.setPassword("123456");
-            user12.setRole(Role.USER);
+            user12.setRole(Role.ADMIN);
             user12.setActive(true);
             user12.setStatus(UserStatus.ACCEPTED);
             userRepository.save(user12);
