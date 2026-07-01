@@ -105,6 +105,8 @@ import RegisterPage from './pages/RegisterPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import CompleteProfilePage from './pages/completeProfile/CompleteProfilePage';
 import EmailVerifiedPage from './pages/EmailVerifiedPage';
+import RubricLibraryPage from './pages/coordinator/rubrics/RubricLibraryPage';
+import CreateRubricPage from './pages/coordinator/rubrics/CreateRubricPage';
 
 
 function TeamRoute() {
@@ -150,6 +152,8 @@ function AppRoutes() {
                         <>
                             <Route path="/admin/coordinator/events" element={<EventListPage />} />
                             <Route path="/admin/coordinator/events/create" element={<CreateEventPage />} />
+                            <Route path="/admin/coordinator/rubrics" element={<RubricLibraryPage />} />
+                            <Route path="/admin/coordinator/rubrics/create" element={<CreateRubricPage />} />
                         </>
                     )}
 
