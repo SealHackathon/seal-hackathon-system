@@ -54,4 +54,5 @@
     gap: 0.5em;
     position: relative; /* giúp buttons nằm trên so với cái wrapper (cái vệt sáng) */
     z-index: 1;
+    align-items: center;
 }

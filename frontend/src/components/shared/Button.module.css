@@ -34,16 +34,16 @@
 .outline {
   background-color: var(--color-bg-white);
   color: var(--color-primary-blue);
-  border: 1.5px solid var(--color-secondary-blue);
-  box-shadow: 0 0.5em var(--color-secondary-blue);
+  border: 1.5px solid var(--color-border-blue);
+  box-shadow: 0 0.5em var(--color-border-blue);
 }
 .outline:hover:not(:disabled) {
   transform: translateY(0.15em);
-  box-shadow: 0 0.45em var(--color-secondary-blue);
+  box-shadow: 0 0.45em var(--color-border-blue);
 }
 .outline:active:not(:disabled) {
   transform: translateY(0.5em);
-  box-shadow: 0 0 var(--color-secondary-blue);
+  box-shadow: 0 0 var(--color-border-blue);
 }
 
 

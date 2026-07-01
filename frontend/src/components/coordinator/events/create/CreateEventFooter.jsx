@@ -37,7 +37,7 @@ function CreateEventFooter({
         labelSize={18}
         iconPosition="left"
         variant="outline"
-        color='orange'
+        color='blue'
         onClick={onCancel}
       />
 

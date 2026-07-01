@@ -20,7 +20,7 @@
     flex-shrink: 0;
     /* Sticky sidebar */
     position: sticky;
-    top: 1.5rem;
+    top: 5em;
     align-self: flex-start;
     max-height: calc(100vh - 80px - 72px - 3rem);
     overflow-y: auto;
@@ -29,7 +29,8 @@
 .content {
     flex: 1;
     padding: 0 1.5rem;
-    min-width: 0;      /* quan trọng: tránh overflow trong flex */
+    min-width: 0;
+    /* quan trọng: tránh overflow trong flex */
 
     background-color: var(--color-bg-white);
     padding: 2em;

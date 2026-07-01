@@ -110,24 +110,26 @@
 }
 
 .connectorDash {
-    background: repeating-linear-gradient(
-        to bottom,
-        rgba(255, 255, 255, 0.35) 0px,
-        rgba(255, 255, 255, 0.35) 4px,
-        transparent 4px,
-        transparent 8px
-    );
+    background: repeating-linear-gradient(to bottom,
+            rgba(255, 255, 255, 0.35) 0px,
+            rgba(255, 255, 255, 0.35) 4px,
+            transparent 4px,
+            transparent 8px);
 }
 
 
 /* * HOVER EFFECt */
-.stepUpcoming:hover, .stepError:hover, .stepCompleted:hover {
+.stepUpcoming:hover,
+.stepError:hover,
+.stepCompleted:hover {
     transform: scale(1.05);
     transition: all 0.15s;
 }
+
 .stepUpcoming:hover .badgeUpcoming {
     background-color: var(--color-bg-blue);
 }
+
 .stepUpcoming:hover .label {
     color: var(--color-bg-blue);
 }
