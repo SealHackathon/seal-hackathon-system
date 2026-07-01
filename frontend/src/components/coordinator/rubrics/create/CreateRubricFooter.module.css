@@ -1,0 +1,99 @@
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid var(--color-border-blue);
+  z-index: 40;
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+/* Progress bar container */
+.progressContainer {
+  flex: 1;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.progressHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  padding: 0 0.25rem;
+}
+
+.weightInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.weightLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.weightValue {
+  font-size: 1.25rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.weightMax {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.validText {
+  color: var(--color-primary-green);
+}
+
+.warningText {
+  color: var(--color-primary-orange);
+}
+
+/* Badges */
+.badgeValid,
+.badgeWarning {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.25rem 0.5rem;
+  border-radius: 999px;
+}
+
+.badgeValid {
+  color: var(--color-primary-green);
+  background-color: var(--color-bg-green);
+  border: 1px solid var(--color-primary-green);
+}
+
+.badgeWarning {
+  color: var(--color-primary-orange);
+  background-color: var(--color-bg-orange);
+  border: 1px solid var(--color-border-orange);
+}
+
+/* Progress Bar Wrapper */
+.progressBarWrapper {
+  width: 100%;
+}

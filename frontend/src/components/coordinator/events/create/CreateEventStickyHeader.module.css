@@ -1,0 +1,84 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  margin: -1em -1em 1em -1em;
+  /* Bù lại padding 1em của .page */
+  padding: 1rem 1em;
+  /* Căn thẳng hàng với các block bên dưới */
+  background-color: transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+  border: 0px solid var(--color-border-blue);
+  will-change: transform, margin, background-color;
+}
+
+.header.isStuck {
+  transform: translateZ(0) scale(0.99);
+  /* Chiều rộng sidebar (220) + gap (1.5em) */
+  /* Do element đang là flex child dạng stretch nên margin-left sẽ tự động đẩy cạnh phải vừa khít container */
+  padding: 0.75rem 1.5rem;
+  background-color: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  /* Safari support */
+  border-radius: 0 0 var(--radius) var(--radius);
+  border: 1px solid var(--color-border-blue);
+  backface-visibility: hidden;
+}
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-left: -0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--color-border-blue);
+  transition: all 0.2s ease;
+}
+
+.backLink .title {
+  color: var(--color-secondary-blue);
+}
+
+.backLink:hover {
+  background-color: var(--color-bg-blue);
+  color: var(--color-primary-blue);
+}
+
+.backLink:hover .title {
+  color: var(--color-primary-blue);
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  font-family: var(--body-font-main);
+  font-style: normal;
+  transition: color 0.2s ease;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+}
