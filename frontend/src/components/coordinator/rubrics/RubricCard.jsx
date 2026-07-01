@@ -1,6 +1,7 @@
 import { SquaresFour, FileText, Clock, PencilSimple, Copy, Trash } from '@phosphor-icons/react';
 import Tooltip from '../../shared/Tooltip';
 import StatusBadge from '../StatusBadge';
+import SegmentedWeightBar from './SegmentedWeightBar';
 import styles from './RubricCard.module.css';
 
 const getSegmentColor = (index, total) => {
@@ -80,60 +81,7 @@ export default function RubricCard({ rubric, onDelete }) {
                     <span className={styles.weightTitle}>Phân bổ trọng số</span>
                 </div>
 
-                <div className={styles.segmentedBar}>
-                    {rubric.criteria.map((c, i) => (
-                        <div
-                            key={i}
-                            style={{
-                                width: `${c.weight}%`,
-                                backgroundColor: getSegmentColor(i, rubric.criteria.length)
-                            }}
-                            className={styles.segment}
-                        >
-                            <Tooltip
-                                position="top"
-                                bgColor="white"
-                                textColor="blue"
-                                content={
-                                    <div className={styles.tooltipContent}>
-                                        <div className={styles.tooltipHeader}>
-                                            <span className={styles.tooltipName}>{c.name}</span>
-                                            <span className={styles.tooltipWeight}>{c.weight}%</span>
-                                        </div>
-                                        {c.description && (
-                                            <p className={styles.tooltipDesc}>{c.description}</p>
-                                        )}
-                                    </div>
-                                }
-                            >
-                                <div className={styles.segmentHitbox}></div>
-                            </Tooltip>
-                        </div>
-                    ))}
-                    {totalWeight < 100 && (
-                        <div
-                            style={{ width: `${100 - totalWeight}%` }}
-                            className={`${styles.segment} ${styles.segmentEmpty}`}
-                        >
-                            <Tooltip
-                                position="top"
-                                bgColor="white"
-                                textColor="blue"
-                                content={
-                                    <div className={styles.tooltipContent}>
-                                        <span className={styles.tooltipName}>
-                                            Phần trọng số còn thiếu: <span className={styles.tooltipWeight}>{100 - totalWeight}%</span>
-                                        </span>
-                                    </div>
-                                }
-                            >
-                                <div className={styles.segmentHitbox}>
-                                    <div className={styles.emptyPattern}></div>
-                                </div>
-                            </Tooltip>
-                        </div>
-                    )}
-                </div>
+                <SegmentedWeightBar criteria={rubric.criteria} size="large" />
 
                 <div className={styles.legend}>
                     {rubric.criteria.map((c, i) => (
