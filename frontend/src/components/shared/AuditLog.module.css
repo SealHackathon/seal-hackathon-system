@@ -1,0 +1,76 @@
+.container {
+  background-color: var(--color-bg-white);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-bg-grey);
+  padding: 1.5rem;
+}
+
+.header {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--color-bg-grey);
+  margin-bottom: 1.5rem;
+  font-family: var(--body-font-main);
+  font-style: normal;
+}
+
+.timeline {
+  position: relative;
+  padding-left: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.line {
+  position: absolute;
+  left: 0;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background-color: var(--color-bg-grey);
+}
+
+.logItem {
+  position: relative;
+}
+
+.dot {
+  position: absolute;
+  left: -1.35rem; /* adjusted for relative positioning */
+  top: 0.25rem;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-text-muted);
+  border: 3px solid var(--color-bg-white);
+  box-sizing: content-box;
+}
+
+.dotActive {
+  background-color: var(--color-primary-blue);
+}
+
+.userName {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin-bottom: 0.2rem;
+}
+
+.action {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.3rem;
+}
+
+.time {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
