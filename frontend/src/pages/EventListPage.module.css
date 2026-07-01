@@ -60,6 +60,7 @@
 .searchWrapper {
     flex: 1;
     position: relative;
+    margin: 0 1em;
 }
 
 .searchInput {

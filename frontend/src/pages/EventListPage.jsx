@@ -226,9 +226,9 @@ function EventListPage({ onManageEvent }) {
   }
 
   const handleNavigation = (id) => {
-        if (id === 'events') navigate('/admin/coordinator/events');
-        if (id === 'rubric') navigate('/admin/coordinator/rubrics');
-    };
+    if (id === 'events') navigate('/admin/coordinator/events');
+    if (id === 'rubric') navigate('/admin/coordinator/rubrics');
+  };
 
 
   // ── SỬA CHỖ NÀY: Đổi MOCK_EVENTS thành biến events trong useMemo lọc ──
@@ -254,69 +254,71 @@ function EventListPage({ onManageEvent }) {
   }, [events]) // Đổi sang dependency là [events]
 
   return (
-    <CoordinatorLayout onNavigate={ handleNavigation }>
-
-    
-    <div className={styles.page}>
-
-      {/* Header */}
-      <div className={styles.topRow}>
-        <SectionHeader
-          icon={Flag}
-          title="Quản lí toàn bộ sự kiện"
-          level="h1"
-        />
-        <Button
-          label="Tạo sự kiện"
-          variant="primary"
-          color="green"
-          icon={Plus}
-          onClick={() => navigate('/admin/coordinator/events/create')}
-        />
-      </div>
+    <CoordinatorLayout onNavigate={handleNavigation}>
 
 
-      <div className={styles.pageContainer}>
-        <div className={styles.maxWidthWrapper}>
-          {/* Search */}
-          <SearchFilterBar
-            searchValue={searchQuery}
-            onSearchChange={setSearchQuery}
-            searchPlaceholder="Tìm kiếm tên sự kiện"
-            filters={STATUS_FILTERS}
-            countByKey={countByStatus}
-            activeFilter={activeFilter}
-            onFilterChange={setActiveFilter}
-            sortOptions={SORT_OPTIONS}
-            activeSort={activeSort}
-            onSortChange={setActiveSort}
-            sortLabel="Sắp xếp theo"
+      <div className={styles.page}>
+
+        {/* Header */}
+        <div className={styles.topRow}>
+          <SectionHeader
+            icon={Flag}
+            title="Quản lí toàn bộ sự kiện"
+            level="h1"
           />
+          <Button
+            label="Tạo sự kiện"
+            variant="primary"
+            color="green"
+            icon={Plus}
+            onClick={() => navigate('/admin/coordinator/events/create')}
+          />
+        </div>
 
 
-          {/* Event cards */}
-          <div className={styles.cardList}>
-            {filtered.length === 0
-              ? <EmptyEventState searchQuery={searchQuery} activeFilter={activeFilter} />
-          : filtered.map(event => (
-            <EventCard
-              key={event.id}
-              event={event}
-              onManage={() => onManageEvent?.(event.id)}
-              onView={() => console.log('view', event.id)}
-              onCopyLink={() => navigator.clipboard?.writeText(window.location.href)}
-              onExport={() => console.log('export', event.id)}
-              onDuplicate={() => console.log('duplicate', event.id)}
-              onArchive={() => console.log('archive', event.id)}
-              onCancel={() => console.log('cancel', event.id)}
-              onDelete={()=>{handleOnDelete(event.id)}}
-            />
-          ))
-        }
+        <div className={styles.pageContainer}>
+          <div className={styles.maxWidthWrapper}>
+            <div className={styles.searchWrapper}>
+              {/* Search */}
+              <SearchFilterBar
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
+                searchPlaceholder="Tìm kiếm tên sự kiện"
+                filters={STATUS_FILTERS}
+                countByKey={countByStatus}
+                activeFilter={activeFilter}
+                onFilterChange={setActiveFilter}
+                sortOptions={SORT_OPTIONS}
+                activeSort={activeSort}
+                onSortChange={setActiveSort}
+                sortLabel="Sắp xếp theo"
+              />
+            </div>
+
+
+            {/* Event cards */}
+            <div className={styles.cardList}>
+              {filtered.length === 0
+                ? <EmptyEventState searchQuery={searchQuery} activeFilter={activeFilter} />
+                : filtered.map(event => (
+                  <EventCard
+                    key={event.id}
+                    event={event}
+                    onManage={() => onManageEvent?.(event.id)}
+                    onView={() => console.log('view', event.id)}
+                    onCopyLink={() => navigator.clipboard?.writeText(window.location.href)}
+                    onExport={() => console.log('export', event.id)}
+                    onDuplicate={() => console.log('duplicate', event.id)}
+                    onArchive={() => console.log('archive', event.id)}
+                    onCancel={() => console.log('cancel', event.id)}
+                    onDelete={() => { handleOnDelete(event.id) }}
+                  />
+                ))
+              }
+            </div>
           </div>
         </div>
       </div>
-    </div>
     </CoordinatorLayout>
   )
 }
