@@ -38,6 +38,7 @@ export function AuthProvider({ children }) {
         setTeamRoleLoading(true);
         try {
             const res = await axiosClient.get("/team/my-role");
+            console.log(res.data)
             localStorage.setItem("teamRole", res.data);
             setTeamRole(res.data);
         } catch (err) {

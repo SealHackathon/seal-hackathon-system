@@ -294,7 +294,7 @@ public class TeamController {
 
 
     // move to offical
-    @PutMapping("/move-to-official/${id}")
+    @PutMapping("/move-to-official/{id}")
     public ResponseEntity<?> moveMemberToOffical(@RequestHeader("Authorization") String auth, @PathVariable("id") String userId) {
         Integer uid = getUid(auth);
         if (uid == null) {
@@ -312,7 +312,7 @@ public class TeamController {
 
 
     // move to offical
-    @PutMapping("/move-to-reserve/${id}")
+    @PutMapping("/move-to-reserve/{id}")
     public ResponseEntity<?> moveMemberToReserve(@RequestHeader("Authorization") String auth, @PathVariable("id") String userId) {
         Integer uid = getUid(auth);
         if (uid == null) {

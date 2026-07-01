@@ -108,11 +108,10 @@ import EmailVerifiedPage from './pages/EmailVerifiedPage';
 
 
 function TeamRoute() {
-    const { role, teamRole, teamRoleLoading, fetchTeamRole, fetchUserStatus } = useAuth();
+    const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
 
     useEffect(() => {
         fetchTeamRole();
-        fetchUserStatus();
     }, []);
 
     if (role !== "USER") return <Navigate to="/admin/coordinator/events" replace />;

@@ -31,7 +31,7 @@ public class TeamService {
     private final UserRepository userRepository;
     private final EmailService emailService;
     private final SubmissionRepository submissionRepository;
-
+    private final StudentprofileRepository studentprofileRepository;
     //tao 1 team moi
 
 
@@ -622,6 +622,15 @@ public class TeamService {
         for (Member member1 : memberList) {
             if (member1.getStatus() != MemberStatus.OUT) {
                 TeamMembersResponse membersResponse = new TeamMembersResponse();
+                User user = member1.getMember();
+                Student_profile profile= studentprofileRepository.findByUserId(user.getId()).orElse(null);
+                membersResponse.setBio(profile.getBio());
+                membersResponse.setPositions(profile.getPositions());
+                membersResponse.setTechTags(profile.getTechTags());
+                membersResponse.setTopics(profile.getTopics());
+                membersResponse.setCvLink("đang hard code chưa fix chỗ cv này");
+                membersResponse.setJoinMethod(member1.getJoinMethod().toString());
+                membersResponse.setMemberStatus(member1.getStatus().toString());
                 membersResponse.setId(member1.getId());
                 membersResponse.setName(member1.getMember().getFullName());
                 membersResponse.setEmail(member1.getMember().getEmail());
@@ -687,7 +696,6 @@ public class TeamService {
     public String getTeamRole(long userId) {
         Member member = memberRepository.findByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE))
                 .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND")); // Ném ra ngoại lệ rõ ràng
-
 
         return member.getRole().toString(); // Trả về "LEADER" hoặc "MEMBER"
     }

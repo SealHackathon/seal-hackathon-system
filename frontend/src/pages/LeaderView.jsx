@@ -136,7 +136,7 @@ function LeaderView() {
   // lay du lieu tu API len 
   //gia lap login luu accesstoken vao localStorage
   const [confirmModal, setConfirmModal] = useState(null)
-  const [teamStatus, setTeamStatus] = useState('pending')
+  const [teamStatus, setTeamStatus] = useState('OPEN') // ! fix chỗ này lại thành OPEN vì trong TeamStatusTag.jsx không có 'pending'
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' })
   const token = localStorage.getItem("accessToken")
 
@@ -145,7 +145,7 @@ function LeaderView() {
   }, []);
 
   // ↓ Để test UI: dùng MOCK_MEMBERS. Khi dùng API thật: đổi lại thành useState([])
-  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([MOCK_MEMBERS]);
+  const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
