@@ -2,6 +2,7 @@ import { useState } from 'react'
 // import CoordinatorLayout from '../../../../layouts/CoordinatorLayout'
 import CreateEventSidebar from '../../../../components/coordinator/events/create/CreateEventSidebar'
 import CreateEventHeader from '../../../../components/coordinator/events/create/CreateEventHeader'
+import CreateEventStickyHeader from '../../../../components/coordinator/events/create/CreateEventStickyHeader'
 import CreateEventFooter from '../../../../components/coordinator/events/create/CreateEventFooter'
 import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
@@ -14,6 +15,7 @@ import styles from './CreateEventPage.module.css'
 import Step5Categories from './steps/Step5Categories'
 import axiosClient from '../../../../api/axiosClient'
 import { useNavigate } from 'react-router-dom';
+import ConfirmModal from '../../../../components/shared/ConfirmModal'
 const TOTAL_STEPS = 7
 
 
@@ -28,6 +30,8 @@ const TOTAL_STEPS = 7
 
 function CreateEventPage() {
   const navigate = useNavigate(); // 1. Khởi tạo hàm điều hướng
+  const [confirmModal, setConfirmModal] = useState(null)
+  const [lastUpdated, setLastUpdated] = useState('');
   const [currentStep, setCurrentStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState([1])
   const [errorSteps, setErrorSteps] = useState([])
@@ -88,7 +92,7 @@ function CreateEventPage() {
     if (step === 1) {
       if (!formData.name?.trim()) return false
       if (!formData.openDate || !formData.closeDate) return false
-      
+
       const open = new Date(formData.openDate).getTime()
       const close = new Date(formData.closeDate).getTime()
       if (close <= open) return false
@@ -163,7 +167,7 @@ function CreateEventPage() {
         if (r.submissionType === 'new') {
           if (!r.submissionDeadline) return false
           const subDeadline = new Date(r.submissionDeadline).getTime()
-          
+
           // Hạn nộp bài phải nằm trong thời gian diễn ra vòng
           if (subDeadline <= start || subDeadline >= end) return false
 
@@ -213,7 +217,7 @@ function CreateEventPage() {
     setVisitedSteps(prev => prev.includes(step) ? prev : [...prev, step])
   }
   // --------------------------------------handleNext---------------------------
-  function handleNext() {
+  async function handleNext() {
     // Chỉ validate form client trước khi cho phép bấm nút gửi
     if (!validateStep(currentStep)) {
       alert("Vui lòng điền đầy đủ các thông tin bắt buộc trước khi tiếp tục!");
@@ -221,7 +225,7 @@ function CreateEventPage() {
     }
 
     // Chờ gọi API lưu dữ liệu thành công rồi mới cho phép chuyển bước
-    const isSaveSuccess = handleSaveDraft();
+    const isSaveSuccess = await onSaveDraft();
 
     if (isSaveSuccess && currentStep < TOTAL_STEPS) {
       goToStep(currentStep + 1);
@@ -233,33 +237,39 @@ function CreateEventPage() {
 
 
   // Trong component:
-  function onSaveDraft() {
-   
-    return handleSaveDraft({ currentStep, formData, axiosClient, handleFormChange })
+  async function onSaveDraft() {
+    const isSuccess = await handleSaveDraft({ currentStep, formData, axiosClient, handleFormChange });
+    if (isSuccess) {
+      const now = new Date();
+      const pad = n => n.toString().padStart(2, '0');
+      const timeString = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
+      setLastUpdated(timeString);
+    }
+    return isSuccess;
   }
   //------------------------------------------------------------------------------------------------
 
   function handlePublish() { setStatus('live'); console.log('Công bố:', formData) }
   function handlePreview() { console.log('Xem trước:', formData) }
   function handleCancel() {
-    //todo add vào 1 api xóa hết tất cả những gì nãy giờ lưu nháp
-    if (confirm('các thông tin bạn cấu hình sẽ không đc lưu lại !')
-    ) {
-
-      if (formData.id != null) {
-        axiosClient.delete(`/event/${formData.id}`).then(
-          () => {
-            console.log('cancel create event sucess !');
-
-          }
-        ).catch((error) => {
-          console.log(error)
-        })
+    setConfirmModal({
+      title: 'Xác nhận hủy',
+      message: 'Các thông tin cấu hình chưa được bạn Lưu nháp sẽ mất!',
+      confirmLabel: 'Đồng ý',
+      onConfirm: () => {
+        if (formData.id != null) {
+          axiosClient.delete(`/event/${formData.id}`).then(
+            () => {
+              console.log('cancel create event sucess !');
+            }
+          ).catch((error) => {
+            console.log(error)
+          })
+        }
+        navigate('/coordinator/events');
+        setConfirmModal(null)
       }
-      navigate('/coordinator/events');
-    }
-
-
+    })
   }
 
   function renderStep() {
@@ -281,14 +291,17 @@ function CreateEventPage() {
 
     <div className={styles.page}>
 
-        {/* ── Header ── */}
-        <CreateEventHeader
-          title={formData.name?.trim() || 'Sự kiện mới'}
-          status={status}
-          onPublish={handlePublish}
-          onPreview={handlePreview}
-          isPublishDisabled={isPublishDisabled}
-        />
+      {/* ── Sticky Header ── */}
+      <CreateEventStickyHeader isEditing={true} lastUpdated={lastUpdated} />
+
+      {/* ── Header ── */}
+      <CreateEventHeader
+        title={formData.name?.trim() || 'Sự kiện mới'}
+        status={status}
+        onPublish={handlePublish}
+        onPreview={handlePreview}
+        isPublishDisabled={isPublishDisabled}
+      />
 
       {/* ── Body: create sidebar + step content ── */}
       <div className={styles.body}>
@@ -318,6 +331,15 @@ function CreateEventPage() {
         onNext={handleNext}
       />
 
+      <ConfirmModal
+        isOpen={!!confirmModal}
+        title={confirmModal?.title}
+        message={confirmModal?.message}
+        confirmLabel={confirmModal?.confirmLabel}
+        onConfirm={confirmModal?.onConfirm}
+        onCancel={() => setConfirmModal(null)}
+        isNotification={confirmModal?.isNotification}
+      />
     </div>
   )
 }

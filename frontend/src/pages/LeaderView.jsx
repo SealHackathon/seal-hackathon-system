@@ -379,31 +379,30 @@ function LeaderView() {
       return;
     }
 
-    const isConfirmed = window.confirm("Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!");
+    setConfirmModal({
+      title: 'Xác nhận rời nhóm',
+      message: 'Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!',
+      confirmLabel: 'Xác nhận',
+      onConfirm: () => {
+        axiosClient
+          .post('/teamrequest/out-team', {})
+          .then((response) => {
+            console.log(response.data);
 
-    if (isConfirmed) {
-      axiosClient
-        .post('/teamrequest/out-team', {})
-        .then((response) => {
-          console.log(response.data);
-
-          setConfirmModal({
-            message: 'Bạn đã rời nhóm thành công!',
-            confirmLabel: 'Xác nhận',
-            isNotification: true,
-            onConfirm: () => { window.location.reload() }
+            setConfirmModal({
+              message: 'Bạn đã rời nhóm thành công!',
+              confirmLabel: 'Xác nhận',
+              isNotification: true,
+              onConfirm: () => { window.location.reload() }
+            })
           })
-
-          // alert("Bạn đã rời nhóm thành công!");
-          window.location.reload();
-        })
-        .catch((error) => {
-          console.log(error);
-          alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
-        });
-    } else {
-      console.log("Người dùng đã hủy bỏ yêu cầu rời nhóm.");
-    }
+          .catch((error) => {
+            console.log(error);
+            alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+            setConfirmModal(null)
+          });
+      }
+    })
   };
 
 
@@ -603,7 +602,6 @@ function LeaderView() {
         title={confirmModal?.title}
         message={confirmModal?.message}
         confirmLabel={confirmModal?.confirmLabel}
-        confirmColor={confirmModal?.confirmColor}
         onConfirm={confirmModal?.onConfirm}
         onCancel={() => setConfirmModal(null)}
         isNotification={confirmModal?.isNotification}

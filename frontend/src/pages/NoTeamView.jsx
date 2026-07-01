@@ -253,7 +253,6 @@ console.log(FAKE_INVITES)
         title={confirmModal?.title}
         message={confirmModal?.message}
         confirmLabel={confirmModal?.confirmLabel}
-        confirmColor={confirmModal?.confirmColor}
         onConfirm={confirmModal?.onConfirm}
         onCancel={() => setConfirmModal(null)}
       />
