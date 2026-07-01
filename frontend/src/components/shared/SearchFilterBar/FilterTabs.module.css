@@ -12,7 +12,7 @@
     padding: 0.3em 0.85em;
     border-radius: 999px;
     border: 1.5px solid var(--color-border-blue);
-    background: none;
+    background: var(--color-bg-white);
     font-size: 0.9rem;
     font-weight: 500;
     color: var(--color-secondary-blue);
@@ -61,11 +61,27 @@
 }
 
 /* Dot màu theo status */
-.dotGreen  { background-color: var(--color-primary-green); }
-.dotBlue   { background-color: var(--color-primary-blue); }
-.dotOrange { background-color: var(--color-primary-orange); }
+.dotGreen {
+    background-color: var(--color-primary-green);
+}
+
+.dotBlue {
+    background-color: var(--color-primary-blue);
+}
+
+.dotOrange {
+    background-color: var(--color-primary-orange);
+}
 
 /* Khi tab đang active thì dot đổi sang trắng */
-.tabActive .dot { background-color: #fff; }
-.tabActive .dotDashed { border-color: #fff; }
-.tabActive .icon { opacity: 1; }
+.tabActive .dot {
+    background-color: #fff;
+}
+
+.tabActive .dotDashed {
+    border-color: #fff;
+}
+
+.tabActive .icon {
+    opacity: 1;
+}
