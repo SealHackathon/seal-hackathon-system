@@ -393,7 +393,10 @@ function LeaderView() {
               message: 'Bạn đã rời nhóm thành công!',
               confirmLabel: 'Xác nhận',
               isNotification: true,
-              onConfirm: () => { window.location.reload() }
+              onConfirm: () => { 
+                localStorage.removeItem('lastKnownTeamRole');
+                window.location.reload() 
+              }
             })
           })
           .catch((error) => {
