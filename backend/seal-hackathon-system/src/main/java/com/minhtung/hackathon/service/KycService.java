@@ -1,7 +1,6 @@
 package com.minhtung.hackathon.service;
 
 
-
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -22,6 +21,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -43,9 +43,10 @@ public class KycService {
 
 
     @Value("${kyc.face-match-threshold}")
-    private double faceMatchThreshold ;
+    private double faceMatchThreshold;
     @Value("${kyc.face-match-max-attempts}")
-    private int faceMatchMaxAttempts ;
+    private int faceMatchMaxAttempts;
+
     @Transactional
 
     public String uploadStudentCart(String email, MultipartFile file, String mssv, String school) {
@@ -153,11 +154,11 @@ public class KycService {
         profile.setUser(user);
         profile.setHometown(frontData.path("home").asText(null));
         profile.setFace_image(faceUrl);
-       // profile.setQrRaw(frontData.path("qr").asText(null));
+        // profile.setQrRaw(frontData.path("qr").asText(null));
         profileRepository.save(profile);
         userRepository.save(user);
 
-        return  mapToUserIdentityProfileResponse(profile , user)  ;
+        return mapToUserIdentityProfileResponse(profile, user);
     }
 
 
@@ -209,26 +210,25 @@ public class KycService {
                 .build();
 
 
-
-
     }
+
     @Transactional
-    public FaceMatchResponse verifySelfie(String email , MultipartFile selfieImg ){
-        User user = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("khong tim thay user")) ;
+    public FaceMatchResponse verifySelfie(String email, MultipartFile selfieImg) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("khong tim thay user"));
 
-        if(!user.isActive()){
-            throw new RuntimeException("chua xac nhan gmail") ;
+        if (!user.isActive()) {
+            throw new RuntimeException("chua xac nhan gmail");
 
         }
 
-        UserIdentityProfile profile = profileRepository.findByUserId(user.getId()).orElseThrow(()->new RuntimeException("chua quet cccd ")) ;
+        UserIdentityProfile profile = profileRepository.findByUserId(user.getId()).orElseThrow(() -> new RuntimeException("chua quet cccd "));
 
-        if(profile.getFace_image() == null || profile.getFace_image().isBlank()){
-            throw  new RuntimeException("chua co anh chan dung tu cccd") ;
+        if (profile.getFace_image() == null || profile.getFace_image().isBlank()) {
+            throw new RuntimeException("chua co anh chan dung tu cccd");
         }
-        String selffieUrl = cloudinaryStorageService.uploadKycImage(selfieImg , user.getId(), "selfie");
+        String selffieUrl = cloudinaryStorageService.uploadKycImage(selfieImg, user.getId(), "selfie");
 
-        JsonNode faceResult = fptAiService.matchFaceByUrl(profile.getFace_image(),selfieImg) ;
+        JsonNode faceResult = fptAiService.matchFaceByUrl(profile.getFace_image(), selfieImg);
         System.out.println("Face match result " + faceResult.toPrettyString());
 
         JsonNode data = faceResult.path("data");
@@ -241,11 +241,11 @@ public class KycService {
                 : profile.getFaceMatchAttempts();
 
         if (matched) {
-            attempts = 0 ;
+            attempts = 0;
             profile.setNeedsManualFaceReview(false);
             profile.setAdminnote(null);
-        }else {
-            attempts++ ;
+        } else {
+            attempts++;
         }
         boolean needsManualReview = !matched && attempts >= faceMatchMaxAttempts;
         boolean canContinue = matched || needsManualReview;
@@ -254,9 +254,6 @@ public class KycService {
         profile.setFaceMatched(matched);
         profile.setFaceMatchAttempts(attempts);
         profile.setNeedsManualFaceReview(needsManualReview);
-
-
-
 
 
         if (needsManualReview) {
@@ -281,11 +278,11 @@ public class KycService {
         );
     }
 
-    public Student_profile updatesStudentProfile(String email , UpdateStudentProfileRequest req){
-        User user = userRepository.findByEmail(email).orElseThrow(()->
-                new RuntimeException("khong tim thay user")) ;
+    public StudentProfileResponse updatesStudentProfile(String email, UpdateStudentProfileRequest req, MultipartFile avatarFile) {
+        User user = userRepository.findByEmail(email).orElseThrow(() ->
+                new RuntimeException("khong tim thay user"));
         Student_profile profile = studentprofileRepository.findByUserId(user.getId()).orElse(new Student_profile());
-       profile.setUser(user);
+        profile.setUser(user);
 
         // --- 1. Xử lý logic Upload Avatar lên Cloudinary ---
         if (avatarFile != null && !avatarFile.isEmpty()) {
@@ -304,8 +301,8 @@ public class KycService {
             throw new RuntimeException("Tiểu sử tối đa 300 ký tự");
         }
 
-        if(req.getPositons().size() > 3){
-            throw  new RuntimeException("chi duoc chon 3 vi tri ");
+        if (req.getPositons().size() > 3) {
+            throw new RuntimeException("chi duoc chon 3 vi tri ");
         }
 
         // Validate tổng số lượng công nghệ trong Map techTags
@@ -370,7 +367,8 @@ public class KycService {
             throw new RuntimeException("Ảnh hồ sơ chỉ hỗ trợ JPG hoặc PNG");
         }
     }
-    public Map<String,Object> updateAvatar(String email ,MultipartFile file){
+
+    public Map<String, Object> updateAvatar(String email, MultipartFile file) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
         validateAvatar(file);
@@ -384,6 +382,20 @@ public class KycService {
 
         return response;
     }
+
+
+    // Hàm helper xử lý upload file lên Cloudinary độc lập
+    private String uploadToCloudinary(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return null;
+        }
+        try {
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi upload ảnh hệ thống: " + e.getMessage());
+        }
     }
+}
 
 
