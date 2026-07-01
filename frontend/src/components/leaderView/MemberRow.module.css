@@ -21,6 +21,14 @@
 
     text-align: center;
 }
+.clickable {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.clickable:hover {
+    opacity: 0.8;
+}
 
 .avatar {
     flex-shrink: 0;
@@ -31,7 +39,6 @@
     height: 3.5em;
     
     border-radius: var(--radius-circle);
-    border: 1.5px solid var(--color-border-blue);
     
     background-color: var(--color-bg-blue);
 }
@@ -42,6 +49,7 @@
     position: relative;
 
     border-radius: var(--radius-circle);
+    border: 1px solid var(--color-border-blue);
     
     width: 3.5em;
     height: 3.5em;
@@ -85,6 +93,10 @@
     font-size: 0.9rem;
     color: var(--color-secondary-blue);
     font-weight: 600;
+}
+
+.badgeDim {
+    opacity: 0.45;
 }
 
 .email {

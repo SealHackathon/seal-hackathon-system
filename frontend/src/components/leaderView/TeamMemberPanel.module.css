@@ -31,3 +31,18 @@
     display: flex;
     flex-direction: column;
 }
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.sectionLabel {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-secondary-blue);
+
+    padding: 0.4em 0;
+    margin-bottom: 0;
+}

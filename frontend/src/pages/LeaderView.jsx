@@ -9,6 +9,7 @@ import styles from './LeaderView.module.css'
 import NoticeBox from '../components/shared/NoticeBox'
 import axios from 'axios'
 import { Bell } from '@phosphor-icons/react'
+import axiosClient from '../api/axiosClient'
 
 // Data tạm — sau này thay bằng API
 // const FAKE_MEMBERS = [
@@ -45,31 +46,115 @@ import { Bell } from '@phosphor-icons/react'
 const MAX_SLOTS = 4 // ! Sau này sẽ cho BTC config
 
 
+// ============================================================
+// MOCK DATA — chỉ dùng để test UI, xóa / comment lại khi dùng API thật
+//
+// memberStatus:  'OFFICAL' | 'RESERVE'   ← đối chiếu với backend trước khi dùng
+// joinMethod:    'INVITE'  | 'REQUEST' | 'CODE'  ← tương tự
+// ============================================================
+const MOCK_MEMBERS = [
+  {
+    id: 1,
+    name: 'Nguyễn Thành Thái',
+    email: 'nthai@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: true,
+    isCurrentUser: true,
+    memberStatus: 'OFFICAL',
+    joinMethod: undefined,
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình có kinh nghiệm làm việc với React và Spring Boot, từng tham gia dự án nhóm và đảm nhận vai trò Frontend và hỗ trợ Backend.',
+    positions: ['Frontend Developer'],
+    techTags: { frontend: ['React', 'Next.js', 'Tailwind CSS'], backend: ['Spring Boot'] },
+    topics: ['Web Development'],
+    cvLink: 'https://github.com/Thaibc',
+  },
+  {
+    id: 2,
+    name: 'Bùi Thiên Khánh',
+    email: 'btkhanh123@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: false,
+    isCurrentUser: false,
+    memberStatus: 'OFFICAL',
+    joinMethod: 'INVITE',
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình có kinh nghiệm làm việc với các công nghệ Frontend như React và Vue, luôn thích tối ưu hóa UI/UX để mang lại trải nghiệm tốt nhất.',
+    positions: ['Frontend Developer'],
+    techTags: { frontend: ['React', 'Vue', 'Tailwind CSS'] },
+    topics: ['Web Development', 'Frontend Architecture'],
+    cvLink: 'https://github.com/in/Kbuiii',
+  },
+  {
+    id: 3,
+    name: 'Mạc Minh Tùng',
+    email: 'mtung638@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: false,
+    isCurrentUser: false,
+    memberStatus: 'OFFICAL',
+    joinMethod: 'REQUEST',
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình chuyên về phía Backend, có kinh nghiệm làm việc với Java, Spring Boot và quản trị cơ sở dữ liệu MySQL, Redis.',
+    positions: ['Backend Developer'],
+    techTags: { backend: ['Java', 'Spring Boot', 'MySQL', 'Redis'] },
+    topics: ['System Design', 'Cloud Computing'],
+    cvLink: 'https://github.com/Mtung0603',
+  },
+  {
+    id: 4,
+    name: 'Hồ Ngọc Bảo Trân',
+    email: 'hngbtran@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: false,
+    isCurrentUser: false,
+    memberStatus: 'RESERVE',
+    joinMethod: 'CODE',
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình yêu thích sự kết hợp giữa thiết kế và công nghệ, đảm nhận tốt cả hai vai trò Frontend Developer và UI/UX Designer.',
+    positions: ['Frontend Developer', 'UI/UX Designer'],
+    techTags: { frontend: ['React', 'Tailwind CSS'], design: ['Figma', 'Adobe XD'] },
+    topics: ['UI/UX Design', 'Web Development'],
+    cvLink: 'https://github.net/hngbtran',
+  },
+  {
+    id: 5,
+    name: 'Phạm Khắc Đăng Khoa',
+    email: 'khoapkd@gmail.com',
+    school: 'Đại học FPT',
+    isLeader: false,
+    isCurrentUser: false,
+    memberStatus: 'RESERVE',
+    joinMethod: 'INVITE',
+    bio: 'Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình đam mê học hỏi các công nghệ web mới, chuyên phát triển Frontend với React và luôn sẵn sàng hỗ trợ team.',
+    positions: ['Frontend Developer'],
+    techTags: { frontend: ['React', 'JavaScript', 'HTML/CSS'] },
+    topics: ['Web Development', 'Creative Coding'],
+    cvLink: 'https://github.com/khoa2099',
+  },
+]
+
+
 
 function LeaderView() {
   // lay du lieu tu API len 
   //gia lap login luu accesstoken vao localStorage
   const [confirmModal, setConfirmModal] = useState(null)
+  const [teamStatus, setTeamStatus] = useState('OPEN') // ! fix chỗ này lại thành OPEN vì trong TeamStatusTag.jsx không có 'pending'
+  const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' })
+  const token = localStorage.getItem("accessToken")
 
-  const [teamStatus, setTeamStatus] = useState('OPEN')
+  useEffect(() => {
+    localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
+  }, []);
+
+  // ↓ Để test UI: dùng MOCK_MEMBERS. Khi dùng API thật: đổi lại thành useState([])
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
-  const token = localStorage.getItem("accessToken")
-  const [teamInfo, setTeamInfo] = useState({ teamName: '', description: '', teamCode: '' });
   const emptyCount = MAX_SLOTS - FAKE_MEMBERS.length
+
   // api lấy team members thành viên đội 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/team/my-team'
-        , {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        }
-      )
+    axiosClient
+      .get('/team/my-team')
       .then((response) => {
         setFAKE_MEMBERS(response.data);
       })
@@ -78,15 +163,8 @@ function LeaderView() {
 
   // api lấy team info
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/team/team-info'
-        , {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        }
-      )
+    axiosClient
+      .get('/team/team-info')
       .then((response) => {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus)
@@ -97,15 +175,8 @@ function LeaderView() {
 
   // api teamLeader xem những join request gửi đến team này 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/teamrequest/joinrequest'
-        , {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        }
-      )
+    axiosClient
+      .get('/teamrequest/joinrequest')
       .then((response) => {
         setFAKE_REQUESTS(response.data);
       })
@@ -114,15 +185,8 @@ function LeaderView() {
 
   // api teamLeader xem những invitation da gui di 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/teamrequest/leader-invitation'
-        , {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        }
-      )
+    axiosClient
+      .get('/teamrequest/leader-invitation')
       .then((response) => {
         setFAKE_INVITES(response.data);
       })
@@ -131,15 +195,8 @@ function LeaderView() {
 
   // api teamLeader xem những leave request da gui di 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/teamrequest/leave_request'
-        , {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        }
-      )
+    axiosClient
+      .get('/teamrequest/leave_request')
       .then((response) => {
         setFAKE_LEAVE_REQUESTS(response.data);
       })
@@ -155,15 +212,10 @@ function LeaderView() {
       message: 'Bạn có chắc chắn muốn PHÊ DUYỆT thành viên này vào đội không?',
       confirmLabel: 'Phê duyệt',
       onConfirm: () => {
-        axios
-          .put('http://localhost:8080/api/teamrequest/Join-request/respond', {
+        axiosClient
+          .put('/teamrequest/Join-request/respond', {
             requestId: requestId,
             accept: isAccept
-          }, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}` // nếu có JWT
-            }
           })
           .then((response) => {
             console.log(response.data);
@@ -192,15 +244,10 @@ function LeaderView() {
       confirmLabel: 'Từ chối',
       onConfirm: () => {
 
-        axios
-          .put('http://localhost:8080/api/teamrequest/Join-request/respond', {
+        axiosClient
+          .put('/teamrequest/Join-request/respond', {
             requestId: requestId,
             accept: isAccept
-          }, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}` // nếu có JWT
-            }
           })
           .then((response) => {
             console.log(response.data);
@@ -230,13 +277,8 @@ function LeaderView() {
       denyLabel: 'Không',
       onConfirm: () => {
 
-        axios
-          .delete(`http://localhost:8080/api/teamrequest/invitation-bymember?memberId=${memberId}`, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            }
-          })
+        axiosClient
+          .delete(`/teamrequest/invitation-bymember?memberId=${memberId}`)
           .then((response) => {
             console.log(response.data);
 
@@ -263,13 +305,9 @@ function LeaderView() {
       confirmLabel: 'Xác nhận',
       denyLabel: 'Không',
       onConfirm: () => {
-        axios
-          .put(`http://localhost:8080/api/team/kick/${id}`, {}, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            }
-          })
+        axiosClient
+          .put(`/team/kick/${id}`, {}
+          )
           .then((response) => {
             console.log(response.data);
             //thêm reload trang
@@ -344,13 +382,8 @@ function LeaderView() {
     const isConfirmed = window.confirm("Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!");
 
     if (isConfirmed) {
-      axios
-        .post('http://localhost:8080/api/teamrequest/out-team', {}, {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        })
+      axiosClient
+        .post('/teamrequest/out-team', {})
         .then((response) => {
           console.log(response.data);
 
@@ -379,12 +412,7 @@ function LeaderView() {
 
   const handleOnApproveLeave = (id) => {
     axios
-      .put(`http://localhost:8080/api/teamrequest/Leave-request/${id}/respond`, {}, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` // nếu có JWT
-        }
-      })
+      .put(`/teamrequest/Leave-request/${id}/respond`, {})
       .then((response) => {
         console.log(response.data);
 
@@ -406,13 +434,8 @@ function LeaderView() {
   } // TODO: Xử lí rời đội
 
   const handleOnCancelLeave = (id) => {
-    axios
-      .post('http://localhost:8080/api/teamrequest/out-team/cancle', id, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` // nếu có JWT
-        }
-      })
+    axiosClient
+      .post('/teamrequest/out-team/cancle', id)
       .then((response) => {
         console.log(response.data);
 
@@ -433,25 +456,61 @@ function LeaderView() {
   }
 
   const handleOnLockTeam = () => {
-    axios
-      .post('http://localhost:8080/api/teamrequest/lock-team', {}, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}` // nếu có JWT
-        }
-      })
+    axiosClient
+      .post('/teamrequest/lock-team', {})
       .then((response) => {
         console.log(response.data);
 
         setTeamStatus('PENDING_APPROVAL')
 
-        // alert("Bạn đã tu choi yeu cau roi nhóm thành công!");
+        // alert("Đã chốt đội thành công!");
         window.location.reload();
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+        alert("Đã có lỗi xảy ra, không thể chốt đội lúc này.");
       });
+  }
+
+
+  // TODO: Gọi API PUT /api/team/move-to-official/:id khi backend sẵn sàng
+  const handleMoveToOfficial = (id) => {
+    setConfirmModal({
+      title: 'Nâng lên hàng chính thức',
+      message: 'Bạn có chắc muốn chuyển thành viên này lên hàng chính thức không?',
+      confirmLabel: 'Xác nhận',
+      denyLabel: 'Không',
+      onConfirm: () => {
+        console.log('TODO: Gọi API promote RESERVE → OFFICAL, memberId:', id)
+        // ! đang check là cái id này là MEMBER id FK của bảng MEMBER
+        axiosClient.put(`/team/move-to-official/${id}`).then(() => {
+          window.location.reload
+        }).catch((error) => {
+          console.log(error)
+        })
+        setConfirmModal(null)
+      }
+    })
+  }
+
+  // TODO: Gọi API PUT /api/team/move-to-reserve/:id khi backend sẵn sàng
+  const handleMoveToReserve = (id) => {
+    setConfirmModal({
+      title: 'Chuyển xuống hàng dự bị',
+      message: 'Bạn có chắc muốn chuyển thành viên này xuống hàng dự bị không?',
+      confirmLabel: 'Xác nhận',
+      denyLabel: 'Không',
+      onConfirm: () => {
+        console.log('TODO: Gọi API demote OFFICAL → RESERVE, memberId:', id)
+        // ! đang check là cái id này là MEMBER id FK của bảng MEMBER
+        axiosClient.put(`/team/move-to-reserve/${id}`).then(() => {
+          window.location.reload
+        }).catch((error) => {
+          console.log(error)
+        })
+        setConfirmModal(null)
+      }
+    })
   }
 
 
@@ -513,6 +572,8 @@ function LeaderView() {
               onApproveLeave={(id) => handleOnApproveLeave(id)}
               onCancelLeave={(id) => handleOnCancelLeave(id)}
               onLeave={handleOnLeave}
+              onMoveToOfficial={(id) => handleMoveToOfficial(id)}
+              onMoveToReserve={(id) => handleMoveToReserve(id)}
               leaveRequests={FAKE_LEAVE_REQUESTS}
               onLock={handleOnLockTeam}
             />
