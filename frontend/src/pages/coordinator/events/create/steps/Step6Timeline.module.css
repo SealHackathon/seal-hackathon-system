@@ -18,6 +18,22 @@
     gap: 0.75rem;
 }
 
+.cardWrapper {
+    position: relative;
+    z-index: 1;
+}
+
+.activeCardWrapper {
+    position: relative;
+    z-index: 10;
+}
+
+/* Override nền của các card bên trong khi được active */
+.activeCardWrapper > div {
+    background-color: var(--color-bg-blue) !important;
+    border-color: var(--color-primary-blue) !important;
+}
+
 /* Auto card */
 .autoCard {
     padding: 0.75rem 1rem;

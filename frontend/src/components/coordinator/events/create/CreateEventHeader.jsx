@@ -10,12 +10,6 @@ function CreateEventHeader({ title, status = 'draft', onBack, onPublish, onPrevi
   return (
     <div className={styles.outer}>
 
-      {/* ── Back link ── */}
-      <button className={styles.backLink} onClick={()=>navigate('/admin/coordinator/events')}>
-        <ArrowLeft size={14} weight="bold" />
-        Quay lại trang quản lí các sự kiện
-      </button>
-
       {/* ── Header banner ── */}
       <div className={styles.wrapper}>
 

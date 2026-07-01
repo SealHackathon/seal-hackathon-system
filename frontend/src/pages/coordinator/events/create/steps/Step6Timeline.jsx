@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import SectionHeader from '../../../../../components/shared/SectionHeader'
 import Banner from '../../../../../components/shared/Banner'
 import TimelineVertical from '../../../../../components/shared/TimelineVertical'
@@ -64,8 +65,9 @@ function Step6Timeline({ formData, onChange }) {
     const [manuals, setManuals] = useState(() =>
         (formData?.manualMilestones ?? []).map(deserialize)
     )
+    const [activeId, setActiveId] = useState(null)
 
-    const autoMs  = useMemo(() => getAutoMilestones(formData), [formData])
+    const autoMs = useMemo(() => getAutoMilestones(formData), [formData])
     const cardRefs = useRef({})
     const prevOrder = useRef([])
 
@@ -75,29 +77,42 @@ function Step6Timeline({ formData, onChange }) {
         onChange?.({ ...formData, manualMilestones: next.map(serialize) })
     }
 
-    const sorted  = useMemo(() => sortMs([...autoMs, ...manuals]), [autoMs, manuals])
-    const dated   = sorted.filter(m => m.date)
+    const sorted = useMemo(() => sortMs([...autoMs, ...manuals]), [autoMs, manuals])
+    const dated = sorted.filter(m => m.date)
     const undated = sorted.filter(m => !m.date)
 
     // Scroll card về giữa màn hình khi nó đổi vị trí
     useEffect(() => {
         const newOrder = sorted.map(m => m.id)
         const prev = prevOrder.current
+        let timer;
         if (prev.length > 0 && prev.length === newOrder.length) {
             const movedId = newOrder.find((id, i) => id !== prev[i])
             if (movedId && cardRefs.current[movedId]) {
-                cardRefs.current[movedId].scrollIntoView({ behavior: 'smooth', block: 'center' })
+                timer = setTimeout(() => {
+                    const el = cardRefs.current[movedId];
+                    if (el) {
+                        const rect = el.getBoundingClientRect();
+                        // Cuộn màn hình dựa vào đỉnh của thẻ (trừ đi một khoảng offset để nó nằm ở nửa trên màn hình).
+                        const offset = window.innerHeight / 2 - 100;
+                        window.scrollTo({
+                            top: window.scrollY + rect.top - offset,
+                            behavior: 'smooth'
+                        });
+                    }
+                }, 200);
             }
         }
         prevOrder.current = newOrder
+        return () => clearTimeout(timer);
     }, [sorted])
 
     // Preview milestones
     const previewMs = dated.map(m => ({
         ...m,
-        location           : m.meta?.location ?? null,
-        submissionDeadline : m.meta?.submissionDeadline ?? null,
-        link               : m.type === 'manual' ? m.link : (m.meta?.meetingLink ?? null),
+        location: m.meta?.location ?? null,
+        submissionDeadline: m.meta?.submissionDeadline ?? null,
+        link: m.type === 'manual' ? m.link : (m.meta?.meetingLink ?? null),
     }))
 
     return (
@@ -117,32 +132,48 @@ function Step6Timeline({ formData, onChange }) {
                 <div className={styles.cardList}>
 
                     {dated.map(m => (
-                        <div key={m.id} ref={el => cardRefs.current[m.id] = el}>
+                        <motion.div
+                            key={m.id}
+                            ref={el => cardRefs.current[m.id] = el}
+                            layout
+                            transition={{ type: 'tween', duration: 0.5, ease: 'easeInOut' }}
+                            onFocus={() => setActiveId(m.id)}
+                            onClick={() => setActiveId(m.id)}
+                            className={activeId === m.id ? styles.activeCardWrapper : styles.cardWrapper}
+                        >
                             {m.type === 'auto'
                                 ? <MilestoneCardAuto ms={m} />
                                 : <MilestoneCardManual
                                     ms={m}
                                     onChange={upd => syncManuals(manuals.map(x => x.id === upd.id ? upd : x))}
                                     onDelete={() => syncManuals(manuals.filter(x => x.id !== m.id))}
-                                  />
+                                />
                             }
-                        </div>
+                        </motion.div>
                     ))}
 
                     {undated.length > 0 && (
                         <>
                             <div className={styles.manualHeading}>
                                 CHƯA CÓ NGÀY
-                                <hr/>    
+                                <hr />
                             </div>
                             {undated.map(m => (
-                                <div key={m.id} ref={el => cardRefs.current[m.id] = el}>
+                                <motion.div
+                                    key={m.id}
+                                    ref={el => cardRefs.current[m.id] = el}
+                                    layout
+                                    transition={{ type: 'tween', duration: 0.25, ease: 'easeInOut' }}
+                                    onFocus={() => setActiveId(m.id)}
+                                    onClick={() => setActiveId(m.id)}
+                                    className={activeId === m.id ? styles.activeCardWrapper : styles.cardWrapper}
+                                >
                                     <MilestoneCardManual
                                         ms={m}
                                         onChange={upd => syncManuals(manuals.map(x => x.id === upd.id ? upd : x))}
                                         onDelete={() => syncManuals(manuals.filter(x => x.id !== m.id))}
                                     />
-                                </div>
+                                </motion.div>
                             ))}
                         </>
                     )}
@@ -157,7 +188,7 @@ function Step6Timeline({ formData, onChange }) {
                 {/* ── Right: preview ── */}
                 <div className={styles.preview}>
                     <div className={styles.previewHeader}>
-                       <CalendarBlank weight='fill' color='var(--color-border-blue)'/>  <span className={styles.previewTitle}>Dòng thời gian hiển thị trên trang sự kiện</span>
+                        <CalendarBlank weight='fill' color='var(--color-border-blue)' />  <span className={styles.previewTitle}>Dòng thời gian hiển thị trên trang sự kiện</span>
                     </div>
                     <div className={styles.previewBody}>
                         <TimelineVertical milestones={previewMs} showToday />
