@@ -2,14 +2,17 @@ package com.minhtung.hackathon.controller;
 
 
 import com.minhtung.hackathon.dto.request.LoginRequest;
+import com.minhtung.hackathon.dto.request.UpdateEmailRequest;
 import com.minhtung.hackathon.dto.response.LoginResponse;
 import com.minhtung.hackathon.dto.request.RegisterRequest;
 import com.minhtung.hackathon.dto.response.RegisterResponse;
 import com.minhtung.hackathon.dto.request.CompleteProfileRequest;
+import com.minhtung.hackathon.dto.response.UpdateEmailResponse;
 import com.minhtung.hackathon.repository.UniversityRepository;
 import com.minhtung.hackathon.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -81,6 +84,14 @@ public class AuthController {
     @GetMapping("/api/university")
     public ResponseEntity<?>getallUniversity(){
         return ResponseEntity.ok(universityRepository.findAll());
+    }
+
+    @PutMapping("/update-email")
+    public ResponseEntity<UpdateEmailResponse>updateEmail
+            (@Valid @RequestBody UpdateEmailRequest requestl){
+        UpdateEmailResponse response = authService.updateEmail(requestl);
+            return ResponseEntity.ok(response);
+
     }
 }
 
