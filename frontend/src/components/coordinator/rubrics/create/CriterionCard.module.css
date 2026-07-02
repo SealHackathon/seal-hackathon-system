@@ -1,42 +1,37 @@
 .card {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.25em;
   background-color: var(--color-bg-white);
-  border: 1px solid var(--color-bg-grey);
+  border: 1px dashed var(--color-bg-blue);
   border-radius: var(--radius);
-  padding: 1.5rem;
+  padding: 0.75em;
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .card:hover {
-  border-color: var(--color-secondary-blue);
+  border-color: var(--color-border-blue);
+  background-color: var(--color-bg-blue);
 }
 
 .card.active {
   background-color: var(--color-bg-blue);
-  border-color: var(--color-primary-blue);
-}
-
-.topRow {
-  display: flex;
-  align-items: baseline;
-  gap: 1rem;
-  width: 100%;
+  border: 1px solid var(--color-secondary-blue);
 }
 
 .nameContainer {
   flex: 1;
 }
 
-.weightContainer {
-  width: 200px;
-  flex-shrink: 0;
+.descContainer {
+  flex: 2;
 }
 
-.bottomRow {
-  width: 100%;
+.weightContainer {
+  width: 180px;
+  flex-shrink: 0;
 }
 
 .weightBox {
@@ -60,8 +55,7 @@ input {
 .percentSign {
   position: absolute;
   right: 0.75rem;
-  top: 46px;
-  /* Cập nhật lại top vì bên trên có thêm label */
+  top: 50%;
   transform: translateY(-50%);
   font-size: 1rem;
   font-weight: 700;
@@ -71,7 +65,7 @@ input {
 
 /* Đẩy % icon lên tí nếu có thêm error state outline của FormInput */
 .percentSignError {
-  top: 46px;
+  top: 25%;
 }
 
 .deleteBtn {
@@ -91,5 +85,5 @@ input {
 
 .deleteBtn:hover {
   color: var(--color-primary-orange);
-  background-color: var(--color-bg-orange);
+  background-color: var(--color-bg-white);
 }

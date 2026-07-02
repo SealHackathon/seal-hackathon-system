@@ -80,55 +80,51 @@ function CriterionCard({ criterion, isActive, onClick, onUpdate, onDelete }) {
         if (onClick) onClick(e);
       }}
     >
-      <div className={styles.topRow}>
-        <div className={styles.nameContainer}>
-          <FormInput
-            label="Tên tiêu chí"
-            required={true}
-            type="text"
-            placeholder="VD: Tính khả thi..."
-            value={criterion.name}
-            onChange={(e) => onUpdate('name', e.target.value)}
-          />
-        </div>
-        
-        <div className={styles.weightContainer}>
-          <div className={styles.weightBox}>
-            <FormInput
-              label="Trọng số"
-              required={true}
-              type="text"
-              value={localWeight}
-              onChange={handleWeightChange}
-              onBlur={handleWeightBlur}
-              status={error ? 'error' : ''}
-              message={error}
-            />
-            <span className={`${styles.percentSign} ${error ? styles.percentSignError : ''}`}>%</span>
-          </div>
-        </div>
-
-        <button
-          className={styles.deleteBtn}
-          onClick={(e) => {
-            e.stopPropagation();
-            onDelete();
-          }}
-          title="Xóa tiêu chí"
-        >
-          <Trash size={20} weight="fill" />
-        </button>
-      </div>
-
-      <div className={styles.bottomRow}>
-        <FormTextarea
-          label="Mô tả tiêu chí"
-          placeholder="Hướng dẫn chấm điểm cho giám khảo..."
-          value={criterion.description}
-          onChange={(e) => onUpdate('description', e.target.value)}
-          rows={2}
+      <div className={styles.nameContainer}>
+        <FormInput
+          required={true}
+          type="text"
+          placeholder="VD: Tính khả thi..."
+          value={criterion.name}
+          onChange={(e) => onUpdate('name', e.target.value)}
         />
       </div>
+
+      <div className={styles.descContainer}>
+        <FormTextarea
+          required={false}
+          type="text"
+          placeholder="Mô tả tiêu chí..."
+          value={criterion.description}
+          onChange={(e) => onUpdate('description', e.target.value)}
+        />
+      </div>
+      
+      <div className={styles.weightContainer}>
+        <div className={styles.weightBox}>
+          <FormInput
+            required={true}
+            type="text"
+            value={localWeight}
+            onChange={handleWeightChange}
+            onBlur={handleWeightBlur}
+            status={error ? 'error' : ''}
+            message={error}
+          />
+          <span className={`${styles.percentSign} ${error ? styles.percentSignError : ''}`}>%</span>
+        </div>
+      </div>
+
+      <button
+        className={styles.deleteBtn}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
+        title="Xóa tiêu chí"
+      >
+        <Trash size={20} weight="fill" />
+      </button>
     </div>
   )
 }
