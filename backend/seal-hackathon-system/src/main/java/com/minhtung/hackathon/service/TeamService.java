@@ -433,12 +433,12 @@ public class TeamService {
             }
 
             Member member = memberRepository.findByMemberIdAndStatus(userId, MemberStatus.RESERVE).orElse(null);
-            if (member == null) {
-                throw new RuntimeException("MEMBER NOT FOUND");
+            if (member != null) {
+                member.setStatus(MemberStatus.OUT);
+                memberRepository.save(member);
             }
 
-            member.setStatus(MemberStatus.OUT);
-            memberRepository.save(member);
+
             User user = userRepository.findById(userId).orElseThrow();
 
             if (!user.isActive()) {
