@@ -13,7 +13,7 @@ const getSegmentColor = (index, total) => {
     return `rgba(8, 76, 221, ${opacity})`;
 };
 
-export default function RubricCard({ rubric, onDelete }) {
+export default function RubricCard({ rubric, onDelete, onEdit, onDuplicate }) {
     const totalWeight = rubric.criteria.reduce((sum, c) => sum + c.weight, 0);
     const isUsed = rubric.usageCount > 0;
 
@@ -49,7 +49,7 @@ export default function RubricCard({ rubric, onDelete }) {
 
                 <div className={styles.actions}>
                     <Tooltip content="Chỉnh sửa" bgColor="blue" textColor="white" position="top">
-                        <button className={styles.actionBtn}>
+                        <button className={styles.actionBtn} onClick={() => onEdit && onEdit(rubric.id)}>
                             <PencilSimple size={20} weight='fill' />
                         </button>
                     </Tooltip>
@@ -57,7 +57,7 @@ export default function RubricCard({ rubric, onDelete }) {
                     <div className={styles.divider}></div>
 
                     <Tooltip content="Nhân bản" bgColor="blue" textColor="white" position="top">
-                        <button className={styles.actionBtn}>
+                        <button className={styles.actionBtn} onClick={() => onDuplicate && onDuplicate(rubric.id)}>
                             <Copy size={20} weight='fill' />
                         </button>
                     </Tooltip>

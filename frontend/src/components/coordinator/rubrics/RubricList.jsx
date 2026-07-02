@@ -2,7 +2,7 @@ import RubricCard from './RubricCard';
 import EmptyRubricState from './EmptyRubricState';
 import styles from './RubricList.module.css';
 
-export default function RubricList({ rubrics, searchQuery, onDelete }) {
+export default function RubricList({ rubrics, searchQuery, onDelete, onDuplicate, onEdit }) {
     if (!rubrics || rubrics.length === 0) {
         return <EmptyRubricState searchQuery={searchQuery} />;
     }
@@ -14,6 +14,8 @@ export default function RubricList({ rubrics, searchQuery, onDelete }) {
                     key={rubric.id} 
                     rubric={rubric} 
                     onDelete={onDelete} 
+                    onDuplicate={onDuplicate}
+                    onEdit={onEdit}
                 />
             ))}
         </div>

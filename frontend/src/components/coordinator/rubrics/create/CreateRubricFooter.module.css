@@ -1,17 +1,17 @@
 .footer {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background-color: rgba(255, 255, 255, 0.8);
-  backdrop-filter: blur(6px);
-  border-top: 1px solid var(--color-border-blue);
-  z-index: 40;
-  padding: 1.5rem 2rem;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 2rem;
+  gap: 1rem;
+  padding: 1em;
+  background-color: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  position: sticky;
+  bottom: 1em;
+  width: 100%;
+  box-sizing: border-box;
+  z-index: 40;
 }
 
 .actions {

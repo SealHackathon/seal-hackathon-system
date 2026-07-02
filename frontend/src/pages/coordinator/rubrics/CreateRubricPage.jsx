@@ -1,5 +1,5 @@
-import { useState, useMemo } from 'react';
-import { Plus, FileText, ListDashes, Gear } from '@phosphor-icons/react';
+import { useState, useMemo, useRef, useEffect } from 'react';
+import { FileText, Plus } from '@phosphor-icons/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -9,10 +9,13 @@ import Banner from '../../../components/shared/Banner';
 import ToggleSwitch from '../../../components/shared/ToggleSwitch';
 import AuditLog from '../../../components/shared/AuditLog';
 import Badge from '../../../components/shared/Badge';
-
+import NestedSmoothScroll from '../../../components/shared/NestedSmoothScroll';
+import SectionHeader from '../../../components/shared/SectionHeader';
+import ConfirmModal from '../../../components/shared/ConfirmModal'
 import CreateRubricHeader from '../../../components/coordinator/rubrics/create/CreateRubricHeader';
 import CreateRubricFooter from '../../../components/coordinator/rubrics/create/CreateRubricFooter';
 import CriterionCard from '../../../components/coordinator/rubrics/create/CriterionCard';
+import useSticky from '../../../../src/hooks/useSticky';
 
 import styles from './CreateRubricPage.module.css';
 
@@ -30,10 +33,72 @@ export default function CreateRubricPage() {
 
     // Mock data giả lập chế độ Edit
     const [isEditing] = useState(true);
+
+    // Modal state
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [criterionToDelete, setCriterionToDelete] = useState(null);
+
     const [inUseCount] = useState(3);
     const [status] = useState('draft'); // 'unsaved' | 'draft' | 'published'
     const [lastUpdated, setLastUpdated] = useState('25/06/2026 10:30');
 
+    // Sticky hooks
+    const [sentinelRef, isSticky] = useSticky('-73px 0px 0px 0px');
+    const criteriaInnerRef = useRef(null);
+    const pageWrapperRef = useRef(null);
+
+    // Scroll hijacking: bắt wheel event trên pageWrapper, redirect vào inner container khi sticky
+    useEffect(() => {
+        const wrapper = pageWrapperRef.current;
+        if (!wrapper) return;
+
+        const handleWheel = (e) => {
+            const el = criteriaInnerRef.current;
+            if (!el) return;
+
+            const isStickyNow = el.classList.contains(styles.contentSticky);
+            const outsideContent = !el.contains(e.target);
+
+            // Cursor ngoài content + chưa sticky → để browser tự xử lý
+            if (outsideContent && !isStickyNow) return;
+
+            const isAtTop = el.scrollTop <= 0;
+            const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2;
+
+            if (e.deltaY > 0) {
+                // Scroll xuống
+                if (!isStickyNow) {
+                    // Page chưa sticky → scroll page trước (cho tới khi sticky trigger)
+                    e.preventDefault();
+                    window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+                } else if (!isAtBottom) {
+                    // Đã sticky → redirect vào inner content
+                    e.preventDefault();
+                    el.scrollTop += e.deltaY;
+                }
+            } else {
+                // Scroll lên
+                if (!isAtTop) {
+                    // Inner đã scroll → scroll inner về trước
+                    e.preventDefault();
+                    el.scrollTop += e.deltaY;
+                } else {
+                    // Inner ở đỉnh → redirect ra window để scroll lên (thoát sticky)
+                    e.preventDefault();
+                    window.scrollBy({ top: e.deltaY, behavior: 'auto' });
+                }
+            }
+        };
+
+        wrapper.addEventListener('wheel', handleWheel, { passive: false });
+        return () => wrapper.removeEventListener('wheel', handleWheel);
+    }, []);
+
+    // Ẩn window scrollbar khi ở trang này
+    useEffect(() => {
+        document.documentElement.classList.add('hide-scrollbar');
+        return () => document.documentElement.classList.remove('hide-scrollbar');
+    }, []);
     const [formData, setFormData] = useState({
         name: 'SEAL Default Hackathon 2026',
         description: 'Bộ tiêu chí mặc định dành cho các vòng thi chung của SEAL Hackathon, tập trung vào khả năng triển khai thực tế và tính sáng tạo.',
@@ -68,10 +133,10 @@ export default function CreateRubricPage() {
 
     // Kiểm tra tên bộ tiêu chí không được rỗng
     const isRubricNameValid = formData.name?.trim() !== '';
-    
+
     // Kiểm tra tất cả tiêu chí phải có tên và trọng số > 0, đồng thời không bị lỗi (error)
     const isCriteriaValid = criteria.length > 0 && criteria.every(c => c.name?.trim() !== '' && c.weight > 0 && !c.error);
-    
+
     const isValid = totalWeight === 100 && isCriteriaValid && isRubricNameValid;
     const remainingWeight = 100 - totalWeight;
 
@@ -84,8 +149,20 @@ export default function CreateRubricPage() {
     };
 
     const handleRemoveCriterion = (id) => {
-        setCriteria(criteria.filter(c => c.id !== id));
-        if (activeCriterionId === id) setActiveCriterionId(null);
+        const criterion = criteria.find(c => c.id === id);
+        if (criterion) {
+            setCriterionToDelete(criterion);
+            setDeleteModalOpen(true);
+        }
+    };
+
+    const confirmDeleteCriterion = () => {
+        if (criterionToDelete) {
+            setCriteria(criteria.filter(c => c.id !== criterionToDelete.id));
+            if (activeCriterionId === criterionToDelete.id) setActiveCriterionId(null);
+            setDeleteModalOpen(false);
+            setCriterionToDelete(null);
+        }
     };
 
     const handleUpdateCriterion = (id, field, value) => {
@@ -113,7 +190,7 @@ export default function CreateRubricPage() {
     };
 
     return (
-        <div className={styles.pageWrapper} onClick={() => setActiveCriterionId(null)}>
+        <div ref={pageWrapperRef} className={styles.pageWrapper} onClick={() => setActiveCriterionId(null)}>
             <CreateRubricHeader
                 isEditing={isEditing}
                 lastUpdated={lastUpdated}
@@ -142,127 +219,136 @@ export default function CreateRubricPage() {
                     {/* ================= MAIN COLUMN ================= */}
                     <div className={styles.mainCol}>
 
-                        <div className={styles.topRow}>
-                            {/* Section 1: Thông tin chung */}
-                            <section className={styles.section}>
-                                <h2 className={styles.sectionTitle}>
-                                    <FileText size={16} weight="bold" className={styles.sectionTitleIcon} />
-                                    Thông tin chung
-                                </h2>
+                        {/* Sentinel cho Sticky Wrapper */}
+                        <div ref={sentinelRef} className={styles.sentinel} />
 
-                                <div className={styles.formRow}>
-                                    <FormInput
-                                        label="Tên bộ tiêu chí"
-                                        required
-                                        value={formData.name}
-                                        onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                        placeholder="VD: Tiêu chí vòng sơ loại..."
-                                    />
+                        <div className={styles.contentWrapper}>
+                            <NestedSmoothScroll
+                                innerRef={criteriaInnerRef}
+                                className={`${styles.content} ${isSticky ? styles.contentSticky : ''}`}
+                                innerClassName={styles.contentInner}
+                            >
+                                <div className={styles.topRow}>
+                                    {/* Section 1: Thông tin chung */}
+                                    <section className={styles.section}>
+                                        <SectionHeader title="Thông tin chung" icon={FileText} />
 
-                                    <FormTextarea
-                                        label="Mô tả / Mục đích sử dụng"
-                                        value={formData.description}
-                                        onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                                        placeholder="Mô tả ngắn gọn về hoàn cảnh sử dụng của bộ tiêu chí này..."
-                                        rows={3}
-                                    />
-                                </div>
-                            </section>
-
-                            {/* Section 3: Cài đặt nâng cao */}
-                            <section className={styles.section}>
-                                <h2 className={styles.sectionTitle}>
-                                    <Gear size={16} weight="bold" className={styles.sectionTitleIcon} />
-                                    Cài đặt nâng cao
-                                </h2>
-
-                                <div className={styles.settingRow}>
-                                    <div className={styles.settingInfo}>
-                                        <h4>Ngưỡng độ lệch chuẩn</h4>
-                                        <p>Hệ thống cảnh báo nếu điểm giữa các giám khảo chênh lệch quá giới hạn.</p>
-                                    </div>
-                                    <div className={styles.settingAction}>
-                                        <div className={styles.thresholdWrapper}>
-                                            <input
-                                                type="number"
-                                                value={formData.deviationThreshold}
-                                                onChange={(e) => setFormData({ ...formData, deviationThreshold: e.target.value })}
-                                                className={styles.thresholdInput}
-                                                min="0"
-                                                max="100"
+                                        <div className={styles.formRow}>
+                                            <FormInput
+                                                label="Tên bộ tiêu chí"
+                                                required
+                                                value={formData.name}
+                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                placeholder="VD: Tiêu chí vòng sơ loại..."
                                             />
-                                            <span className={styles.percentSign}>%</span>
+
+                                            <FormTextarea
+                                                label="Mô tả / Mục đích sử dụng"
+                                                value={formData.description}
+                                                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                                                placeholder="Mô tả ngắn gọn về hoàn cảnh sử dụng của bộ tiêu chí này..."
+                                                rows={3}
+                                            />
+                                        </div>
+                                    </section>
+
+                                    {/* Section 3: Cài đặt nâng cao */}
+                                    <section className={styles.section}>
+                                        <SectionHeader title="Cài đặt nâng cao" />
+
+                                        <div className={styles.advancedSetting}>
+                                            <div className={styles.settingRow}>
+                                                <div className={styles.settingInfo}>
+                                                    <h4>Ngưỡng độ lệch chuẩn</h4>
+                                                    <p>Hệ thống cảnh báo nếu điểm giữa các giám khảo chênh lệch quá giới hạn.</p>
+                                                </div>
+                                                <div className={styles.settingAction}>
+                                                    <div className={styles.thresholdWrapper}>
+                                                        <input
+                                                            type="number"
+                                                            value={formData.deviationThreshold}
+                                                            onChange={(e) => setFormData({ ...formData, deviationThreshold: e.target.value })}
+                                                            className={styles.thresholdInput}
+                                                            min="0"
+                                                            max="100"
+                                                        />
+                                                        <span className={styles.percentSign}>%</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className={styles.settingRow}>
+                                                <div className={styles.settingInfo}>
+                                                    <h4>Phá vỡ thế hòa (Tie-breaking)</h4>
+                                                    <p>Ưu tiên đội có điểm cao hơn ở tiêu chí có trọng số lớn nhất.</p>
+                                                </div>
+                                                <div className={styles.settingAction}>
+                                                    <ToggleSwitch
+                                                        checked={formData.tieBreaker}
+                                                        onChange={(val) => setFormData({ ...formData, tieBreaker: val })}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
+
+                                    </section>
+                                </div>
+
+                                {/* Section 2: Tiêu chí đánh giá */}
+                                <div className={styles.criteriaWrapper}>
+                                    <div className={`${styles.section} ${styles.criteriaSection}`}>
+                                        <SectionHeader title="Danh sách Tiêu chí" />
+
+                                        <div className={styles.listContainer}>
+                                            <div className={styles.criteriaTableHeader}>
+                                                <div className={styles.nameHeader}>Tên tiêu chí</div>
+                                                <div className={styles.descHeader}>Mô tả tiêu chí</div>
+                                                <div className={styles.weightHeader}>Trọng số</div>
+                                                <div className={styles.actionHeader}></div>
+                                            </div>
+
+                                            <div className={styles.criteriaList}>
+                                                {sortedCriteria.map((criterion) => (
+                                                    <motion.div
+                                                        key={criterion.id}
+                                                        layout
+                                                        transition={{ type: 'spring', stiffness: 150, damping: 20 }}
+                                                    >
+                                                        <CriterionCard
+                                                            criterion={criterion}
+                                                            isActive={activeCriterionId === criterion.id}
+                                                            onClick={() => setActiveCriterionId(criterion.id)}
+                                                            onUpdate={(field, value) => handleUpdateCriterion(criterion.id, field, value)}
+                                                            onDelete={() => handleRemoveCriterion(criterion.id)}
+                                                        />
+                                                    </motion.div>
+                                                ))}
+
+                                                {criteria.length === 0 && (
+                                                    <div className={styles.emptyState}>
+                                                        <p>Chưa có tiêu chí nào. Bấm "Thêm tiêu chí" để bắt đầu.</p>
+                                                    </div>
+                                                )}
+
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        handleAddCriterion();
+                                                    }}
+                                                    className={styles.addBtn}
+                                                >
+                                                    <Plus size={16} weight="bold" /> Thêm tiêu chí
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className={styles.settingRow}>
-                                    <div className={styles.settingInfo}>
-                                        <h4>Phá vỡ thế hòa (Tie-breaking)</h4>
-                                        <p>Ưu tiên đội có điểm cao hơn ở tiêu chí có trọng số lớn nhất.</p>
-                                    </div>
-                                    <div className={styles.settingAction}>
-                                        <ToggleSwitch
-                                            checked={formData.tieBreaker}
-                                            onChange={(val) => setFormData({ ...formData, tieBreaker: val })}
-                                        />
-                                    </div>
-                                </div>
-                            </section>
+                            </NestedSmoothScroll>
                         </div>
-
-                        {/* Section 2: Tiêu chí đánh giá */}
-                        <div className={`${styles.section} ${styles.criteriaSection}`}>
-                            <div className={styles.criteriaHeader}>
-                                <h2 className={styles.sectionTitle}>
-                                    <ListDashes size={16} weight="bold" className={styles.sectionTitleIcon} />
-                                    Danh sách Tiêu chí
-                                </h2>
-                            </div>
-
-                            <div className={styles.criteriaTableHeader}>
-                                <div className={styles.nameHeader}>Tên tiêu chí</div>
-                                <div className={styles.descHeader}>Mô tả tiêu chí</div>
-                                <div className={styles.weightHeader}>Trọng số</div>
-                                <div className={styles.actionHeader}></div>
-                            </div>
-
-                            <div className={styles.criteriaList}>
-                                {sortedCriteria.map((criterion) => (
-                                    <motion.div
-                                        key={criterion.id}
-                                        layout
-                                        transition={{ type: 'spring', stiffness: 150, damping: 20 }}
-                                    >
-                                        <CriterionCard
-                                            criterion={criterion}
-                                            isActive={activeCriterionId === criterion.id}
-                                            onClick={() => setActiveCriterionId(criterion.id)}
-                                            onUpdate={(field, value) => handleUpdateCriterion(criterion.id, field, value)}
-                                            onDelete={() => handleRemoveCriterion(criterion.id)}
-                                        />
-                                    </motion.div>
-                                ))}
-
-                                {criteria.length === 0 && (
-                                    <div className={styles.emptyState}>
-                                        <p>Chưa có tiêu chí nào. Bấm "Thêm tiêu chí" để bắt đầu.</p>
-                                    </div>
-                                )}
-
-                                <button
-                                    onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleAddCriterion();
-                                    }}
-                                    className={styles.addBtn}
-                                >
-                                    <Plus size={16} weight="bold" /> Thêm tiêu chí
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* ================= BOTTOM: Warnings & History ================= */}
                         {/* {isEditing && inUseCount > 0 && (
                             <Banner
                                 type="warning"
@@ -277,7 +363,14 @@ export default function CreateRubricPage() {
                     </div>
 
                 </div>
-
+                {/* Modal xoá tiêu chí */}
+                <ConfirmModal
+                    isOpen={deleteModalOpen}
+                    title="Xoá tiêu chí"
+                    message={`Bạn có chắc chắn muốn xoá tiêu chí "${criterionToDelete?.name || 'này'}" không? Thao tác này không thể hoàn tác.`}
+                    onConfirm={confirmDeleteCriterion}
+                    onCancel={() => setDeleteModalOpen(false)}
+                />
                 <CreateRubricFooter
                     totalWeight={totalWeight}
                     criteria={sortedCriteria}
