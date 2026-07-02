@@ -37,5 +37,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     List<User> findByRoleAndFullNameContainingIgnoreCase(Role role, String query);
 
+    boolean existsByStudentId(String studentId);
+
 }
 
