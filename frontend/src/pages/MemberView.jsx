@@ -113,7 +113,7 @@ function MemberView() {
   }, []);
 
 
- // api sinh vien xem những invitation gui toi minh
+  // api sinh vien xem những invitation gui toi minh
   useEffect(() => {
     axiosClient.get('/teamrequest/member-invitation')
       .then((response) => {
@@ -208,14 +208,44 @@ function MemberView() {
 
 
 
-  const handleAcceptInvite = (id) => {
-    alert("Đã chấp nhận lời mời. Bạn sẽ rời team hiện tại.");
-    setFAKE_INVITES(prev => prev.filter(inv => inv.id !== id));
+  const handleAcceptInvite = (requestId, isAccepted) => {
+    axiosClient
+      .put('/teamrequest/invitation-response', {
+        requestId: requestId,
+        accept: isAccepted
+      })
+      .then((response) => {
+        console.log(response.data);
+        setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Có lỗi xảy ra khi chấp nhận lời mời!");
+      });
   }
 
-  const handleRejectInvite = (id) => {
-    alert("Đã từ chối lời mời.");
-    setFAKE_INVITES(prev => prev.filter(inv => inv.id !== id));
+
+  // (id) => {
+  //   alert("Đã chấp nhận lời mời. Bạn sẽ rời team hiện tại.");
+  //   setFAKE_INVITES(prev => prev.filter(inv => inv.id !== id));
+  // }
+
+  const handleRejectInvite = (requestId, isAccepted) => {
+    axiosClient
+      .put('/teamrequest/invitation-response', {
+        requestId: requestId,
+        accept: isAccepted
+      })
+      .then((response) => {
+        console.log(response.data);
+        setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Có lỗi xảy ra khi Từ Chối lời mời!");
+      });
   }
 
   const currentUser = FAKE_MEMBERS.find(m => m.isCurrentUser);
@@ -247,8 +277,8 @@ function MemberView() {
           <div className={styles.side}>
             <InviteTeamCard
               invites={currentUser?.memberStatus === 'OFFICAL' ? [] : FAKE_INVITES}
-              onAccept={handleAcceptInvite}
-              onReject={handleRejectInvite}
+              onAccept={(id) => handleAcceptInvite(id, true)}
+              onReject={(id) => handleRejectInvite(id, false)}
               isFromTeam={true}
               emptyText={
                 currentUser?.memberStatus === 'OFFICAL'

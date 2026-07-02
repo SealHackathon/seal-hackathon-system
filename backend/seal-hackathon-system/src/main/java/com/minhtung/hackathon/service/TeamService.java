@@ -426,11 +426,19 @@ public class TeamService {
                 teamRequestRepository.save(req);
                 return "doi cua bạn da dong va khong con nhan thanh vien nua";
             }
-            if (memberRepository.existsByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE))) {
+
+            // đang là dự bị vẫn có thể vào team khác
+            if (memberRepository.existsByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL))) {
                 return "ban thuoc team khac roi can out de vao nhom khac";
             }
 
+            Member member = memberRepository.findByMemberIdAndStatus(userId, MemberStatus.RESERVE).orElse(null);
+            if (member == null) {
+                throw new RuntimeException("MEMBER NOT FOUND");
+            }
 
+            member.setStatus(MemberStatus.OUT);
+            memberRepository.save(member);
             User user = userRepository.findById(userId).orElseThrow();
 
             if (!user.isActive()) {
