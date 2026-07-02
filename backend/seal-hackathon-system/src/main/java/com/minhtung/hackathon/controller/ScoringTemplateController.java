@@ -1,6 +1,7 @@
 package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.ScoringTemplateRequest;
+import com.minhtung.hackathon.dto.response.ScoringTemplateResponse;
 import com.minhtung.hackathon.entity.ScoringTemplate;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
@@ -57,16 +58,14 @@ public class ScoringTemplateController {
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    // API PUT bạn cần bổ sung thêm
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestHeader("Authorization") String auth, @PathVariable Long id, @RequestBody ScoringTemplateRequest request) {
-        if (getUid(auth) == null) return unauthorized();
-        try {
-            ScoringTemplate updated = templateService.updateTemplate(id, request);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi cập nhật biểu mẫu chấm điểm: " + e.getMessage());
-        }
+    public ResponseEntity<ScoringTemplateResponse> updateTemplate(
+            @PathVariable Long id,
+            @RequestBody ScoringTemplateRequest request) {
+
+        ScoringTemplateResponse updatedResponse = templateService.updateTemplate(id, request);
+        return ResponseEntity.ok(updatedResponse);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

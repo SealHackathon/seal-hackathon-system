@@ -68,9 +68,33 @@ public class ScoringTemplateService {
         return responses;
     }
 
-    public ScoringTemplate getTemplateById(Long id) {
-        return templateRepository.findById(id)
+    public ScoringTemplateResponse getTemplateById(Long id) {
+        ScoringTemplate template = templateRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy mẫu chấm điểm với ID: " + id));
+
+        // Mapping sang DTO Response
+        ScoringTemplateResponse response = new ScoringTemplateResponse();
+        response.setId(template.getId());
+        response.setName(template.getName());
+        response.setDescription(template.getDescription());
+        response.setLastModified(template.getUpdateAt());
+        response.setUsageCount(template.getUsageCount());
+        response.setDraft(ScoringTemplateStatus.DRAFT.equals(template.getStatus()));
+
+        if (template.getCriteria() != null) {
+            List<ScoringTemplateResponse.CriterionResponse> criteriaResponses = template.getCriteria().stream()
+                    .map(criterion -> {
+                        ScoringTemplateResponse.CriterionResponse critDto = new ScoringTemplateResponse.CriterionResponse();
+                        critDto.setName(criterion.getName());
+                        critDto.setWeight(criterion.getWeight());
+                        critDto.setDescription(criterion.getDescription());
+                        return critDto;
+                    })
+                    .toList();
+            response.setCriteria(criteriaResponses);
+        }
+
+        return response;
     }
 
     @Transactional
@@ -129,6 +153,7 @@ public class ScoringTemplateService {
 
         return response;
     }
+
     @Transactional
     public ScoringTemplateResponse updateTemplate(Long id, ScoringTemplateRequest request) {
         // 1. Tìm template cũ trong DB, nếu không thấy thì báo lỗi
@@ -186,6 +211,17 @@ public class ScoringTemplateService {
         }
 
         return response;
+    }
+
+
+    @Transactional
+    public String deleteTemplate(Long id) {
+        ScoringTemplate template= templateRepository.findById(id).orElse(null);
+        if (template == null) {
+            return "TEMPLATE NOT FOUND";
+        }
+        templateRepository.delete(template);
+        return "TEMPLATE DELETED";
     }
 
 

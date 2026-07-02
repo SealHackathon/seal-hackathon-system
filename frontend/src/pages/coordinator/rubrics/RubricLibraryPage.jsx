@@ -1,4 +1,4 @@
-import  { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { MagnifyingGlass, Plus, Trophy } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import RubricList from '../../../components/coordinator/rubrics/RubricList';
@@ -70,6 +70,24 @@ export default function RubricLibraryPage() {
     const [rubrics, setRubrics] = useState(MOCK_RUBRICS);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('date_desc');
+
+    useState(() => {
+        axiosClient.get('/scoring-template')
+            .then((response) => {
+                setRubrics(response.data);
+            })
+            .catch((error) => console.log(error));
+    }, []);
+    const handleDelete2 = (id) => {
+        axiosClient.delete(`/scoring-template/${id}`)
+            .then(() => {
+                // Sau khi xóa thành công, gọi lại API để lấy danh sách rubrics mới
+                fetchRubrics();
+            })
+            .catch((error) => console.log(error));
+    }
+
+
 
     const processedRubrics = useMemo(() => {
         let result = [...rubrics];
