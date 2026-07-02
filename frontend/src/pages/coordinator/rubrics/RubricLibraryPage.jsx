@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import  { useState, useMemo } from 'react';
 import { MagnifyingGlass, Plus, Trophy } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import RubricList from '../../../components/coordinator/rubrics/RubricList';
@@ -8,7 +8,7 @@ import Dropdown from '../../../components/shared/Dropdown';
 import CoordinatorLayout from '../../../layouts/CoordinatorLayout';
 import SectionHeader from '../../../components/shared/SectionHeader';
 import styles from './RubricLibraryPage.module.css';
-
+import axiosClient from '../../../api/axiosClient';
 const MOCK_RUBRICS = [
     // {
     //     id: 1,

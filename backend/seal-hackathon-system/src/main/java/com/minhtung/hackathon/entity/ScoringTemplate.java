@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.entity;
 
+import com.minhtung.hackathon.enums.ScoringTemplateStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -27,6 +28,22 @@ public class ScoringTemplate {
     @Column
     private LocalDateTime createAt;
 
+    @Column
+    private LocalDateTime updateAt;
+
+    @Column
+    private int usageCount;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
+    private ScoringTemplateStatus status;
+
+    @Column(name = "is_tie_breaking")
+    private boolean isTieBreaking; // Thêm trường tiêu chí phụ
+
+    @Column(name = "standard_deviation")
+    private double standardDeviation; // Thêm trường độ lệch chuẩn
+
     @OneToMany(mappedBy = "scoringTemplate",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
@@ -42,5 +59,14 @@ public class ScoringTemplate {
         this.name = name;
         this.description = description;
         this.createAt = createAt;
+    }
+
+
+    public void addCriterion(Criterion criterion) {
+        this.criteria.add(criterion);
+        criterion.setScoringTemplate(this);
+    }
+
+    public void setDraft(String status) {
     }
 }

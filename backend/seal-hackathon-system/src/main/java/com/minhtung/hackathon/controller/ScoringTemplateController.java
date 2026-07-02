@@ -8,6 +8,7 @@ import com.minhtung.hackathon.service.ScoringTemplateService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -48,8 +49,10 @@ public class ScoringTemplateController {
         if (getUid(auth) == null) return unauthorized();
         try {
             ScoringTemplate created = templateService.createTemplate(request);
-            return ResponseEntity.status(201).body(created);
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (Exception e) {
+            // In log ra để dễ debug khi phát triển
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Lỗi tạo biểu mẫu chấm điểm: " + e.getMessage());
         }
     }

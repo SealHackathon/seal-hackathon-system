@@ -14,6 +14,7 @@ import CreateRubricHeader from '../../../components/coordinator/rubrics/create/C
 import CreateRubricFooter from '../../../components/coordinator/rubrics/create/CreateRubricFooter';
 import CriterionCard from '../../../components/coordinator/rubrics/create/CriterionCard';
 
+import axiosClient from '../../../api/axiosClient';
 import styles from './CreateRubricPage.module.css';
 
 export default function CreateRubricPage() {
@@ -59,10 +60,10 @@ export default function CreateRubricPage() {
 
     // Kiểm tra tên bộ tiêu chí không được rỗng
     const isRubricNameValid = formData.name?.trim() !== '';
-    
+
     // Kiểm tra tất cả tiêu chí phải có tên và trọng số > 0, đồng thời không bị lỗi (error)
     const isCriteriaValid = criteria.length > 0 && criteria.every(c => c.name?.trim() !== '' && c.weight > 0 && !c.error);
-    
+
     const isValid = totalWeight === 100 && isCriteriaValid && isRubricNameValid;
     const remainingWeight = 100 - totalWeight;
 
@@ -87,6 +88,81 @@ export default function CreateRubricPage() {
         if (id === 'events') navigate('/admin/coordinator/events');
         if (id === 'rubric') navigate('/admin/coordinator/rubrics');
     };
+
+
+    // todo : add handleSaveTemplateDraft function to send data to backend
+    const handleSaveTemplateDraft = async () => {
+        try {
+            const formattedCriteria = criteria.map(({ id, name, description, weight }) => ({
+                name,
+                description,
+                weight: Number(weight) // Đảm bảo weight truyền lên là kiểu số (float/double)
+            }));
+
+            const requestBody = {
+                name: formData.name,
+                description: formData.description,
+                tieBreaker: formData.tieBreaker,
+                deviationThreshold: Number(formData.deviationThreshold), // Ép kiểu số cho đúng kiểu double bên Java
+                status: "DRAFT", // "DRAFT" hoặc "OFFICIAL" đúng dạng Enum String
+                criteria: formattedCriteria
+            };
+            
+            const now = new Date();
+            const pad = n => n.toString().padStart(2, '0');
+            setLastUpdated(`${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+
+
+            console.log("Payload gửi lên BE:", requestBody);
+
+            const response = await axiosClient.post("/scoring-template", requestBody);
+            console.log("Response từ BE:", response.data);
+       
+
+        } catch (error) {
+            console.error("Lỗi khi tạo template:", error);
+            const errorMsg = error.response?.data || "Đã xảy ra lỗi hệ thống, vui lòng thử lại sau.";
+            alert(errorMsg);
+        }
+    };  
+
+
+     // todo : add handleSaveTemplate function to send data to backend
+        const handleSaveTemplate = async () => {
+        try {
+            const formattedCriteria = criteria.map(({ id, name, description, weight }) => ({
+                name,
+                description,
+                weight: Number(weight) // Đảm bảo weight truyền lên là kiểu số (float/double)
+            }));
+
+            const requestBody = {
+                name: formData.name,
+                description: formData.description,
+                tieBreaker: formData.tieBreaker,
+                deviationThreshold: Number(formData.deviationThreshold), // Ép kiểu số cho đúng kiểu double bên Java
+                status: "OFFICIAL", // "DRAFT" hoặc "OFFICIAL" đúng dạng Enum String
+                criteria: formattedCriteria
+            };
+            
+            const now = new Date();
+            const pad = n => n.toString().padStart(2, '0');
+            setLastUpdated(`${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+
+
+            console.log("Payload gửi lên BE:", requestBody);
+
+            const response = await axiosClient.post("/scoring-template", requestBody);
+            console.log("Response từ BE:", response.data);
+
+        } catch (error) {
+            console.error("Lỗi khi tạo template:", error);
+            const errorMsg = error.response?.data || "Đã xảy ra lỗi hệ thống, vui lòng thử lại sau.";
+            alert(errorMsg);
+        }
+    };  
+
+
 
     return (
         <div className={styles.pageWrapper} onClick={() => setActiveCriterionId(null)}>
@@ -255,13 +331,8 @@ export default function CreateRubricPage() {
                     criteria={sortedCriteria}
                     isValid={isValid}
                     onCancel={() => navigate('/admin/coordinator/rubrics')}
-                    onSaveDraft={() => {
-                        console.log('Lưu nháp', { formData, criteria });
-                        const now = new Date();
-                        const pad = n => n.toString().padStart(2, '0');
-                        setLastUpdated(`${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
-                    }}
-                    onSave={() => console.log('Lưu Rubric', { formData, criteria })}
+                    onSaveDraft={handleSaveTemplateDraft}
+                    onSave={handleSaveTemplate}
                 />
 
             </div>

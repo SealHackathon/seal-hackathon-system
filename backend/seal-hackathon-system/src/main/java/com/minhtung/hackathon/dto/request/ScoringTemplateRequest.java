@@ -1,6 +1,9 @@
 package com.minhtung.hackathon.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
@@ -8,8 +11,18 @@ import java.util.List;
 public class ScoringTemplateRequest {
     private String name;
     private String description;
-    private String url;
 
-    // Nhận cấu trúc JSON dạng mảng động từ Frontend
+    private boolean tieBreaker;
+    private double deviationThreshold;
+
+    private String status;
+
     private List<CriterionRequest> criteria;
+
+    @Data
+    public static class CriterionRequest {
+        private String name;
+        private String description;
+        private float weight;
+    }
 }
