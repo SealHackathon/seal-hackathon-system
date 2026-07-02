@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 // import CoordinatorLayout from '../../../../layouts/CoordinatorLayout'
 import CreateEventSidebar from '../../../../components/coordinator/events/create/CreateEventSidebar'
 import CreateEventHeader from '../../../../components/coordinator/events/create/CreateEventHeader'
@@ -11,11 +11,14 @@ import Step4Rounds from './steps/Step4Rounds'
 import Step6Timeline from './steps/Step6Timeline';
 import Step7MentorJudge from './steps/Step7MentorJudge';
 import { handleSaveDraft } from '../../../../api/handleSaveDraft'
+import useSticky from '../../../../hooks/useSticky'
 import styles from './CreateEventPage.module.css'
 import Step5Categories from './steps/Step5Categories'
 import axiosClient from '../../../../api/axiosClient'
 import { useNavigate } from 'react-router-dom';
 import ConfirmModal from '../../../../components/shared/ConfirmModal'
+import NestedSmoothScroll from '../../../../components/shared/NestedSmoothScroll';
+
 const TOTAL_STEPS = 7
 
 
@@ -30,11 +33,83 @@ const TOTAL_STEPS = 7
 
 function CreateEventPage() {
   const navigate = useNavigate(); // 1. Khởi tạo hàm điều hướng
+  const [sentinelRef, isSidebarSticky] = useSticky('-73px 0px 0px 0px')
   const [confirmModal, setConfirmModal] = useState(null)
   const [lastUpdated, setLastUpdated] = useState('');
   const [currentStep, setCurrentStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState([1])
   const [errorSteps, setErrorSteps] = useState([])
+  const contentInnerRef = useRef(null)
+  const pageRef = useRef(null)
+  const [naturalHeight, setNaturalHeight] = useState(0)
+
+  useEffect(() => {
+    if (!contentInnerRef.current) return
+    const observer = new ResizeObserver((entries) => {
+      setNaturalHeight(entries[0].target.scrollHeight)
+    })
+    observer.observe(contentInnerRef.current)
+    return () => observer.disconnect()
+  }, [])
+
+  // Scroll hijacking: khi content sticky, wheel bất kỳ đâu trên trang ⇒ redirect vào content
+  useEffect(() => {
+    const page = pageRef.current
+    if (!page) return
+
+    const handleWheel = (e) => {
+      const el = contentInnerRef.current
+      if (!el) return
+
+      const maxWindowScroll = document.documentElement.scrollHeight - window.innerHeight
+      const isWindowAtBottom = window.scrollY >= maxWindowScroll - 2
+      const outsideContent = !el.contains(e.target)
+
+      // Cursor ngoài content + page còn scroll được → để browser tự xử lý
+      if (outsideContent && !isWindowAtBottom) return
+
+      const isAtTop = el.scrollTop <= 0
+      const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2
+
+      if (e.deltaY > 0) {
+        // Scroll xuống
+        if (!isWindowAtBottom) {
+          // Page vẫn còn scroll được → scroll page trước (cho tới khi info header khuất hết)
+          e.preventDefault()
+          window.scrollBy({ top: e.deltaY, behavior: 'auto' })
+        } else if (!isAtBottom) {
+          // Page đã chạm đáy → redirect vào inner content
+          e.preventDefault()
+          el.scrollTop += e.deltaY
+        }
+        // Cả hai đều ở đáy → không làm gì
+      } else {
+        // Scroll lên
+        if (!isAtTop) {
+          // Inner đã scroll → scroll inner về trước
+          e.preventDefault()
+          el.scrollTop += e.deltaY
+        } else {
+          // Inner ở đỉnh → redirect ra window để scroll lên (thoát sticky)
+          e.preventDefault()
+          window.scrollBy({ top: e.deltaY, behavior: 'auto' })
+        }
+      }
+    }
+
+    page.addEventListener('wheel', handleWheel, { passive: false })
+    return () => page.removeEventListener('wheel', handleWheel)
+  }, [])  // Chạy 1 lần, handler tự đọc state từ DOM
+
+
+  // Ẩn window scrollbar khi ở trang này
+  useEffect(() => {
+    document.documentElement.classList.add('hide-scrollbar')
+    return () => document.documentElement.classList.remove('hide-scrollbar')
+  }, [])
+
+
+
   const [formData, setFormData] = useState({
     deadlineSameAsClose: true,
     minMembers: 3,
@@ -289,7 +364,7 @@ function CreateEventPage() {
     // <CoordinatorLayout>
     // </CoordinatorLayout>
 
-    <div className={styles.page}>
+    <div ref={pageRef} className={styles.page}>
 
       {/* ── Sticky Header ── */}
       <CreateEventStickyHeader isEditing={true} lastUpdated={lastUpdated} />
@@ -305,19 +380,34 @@ function CreateEventPage() {
 
       {/* ── Body: create sidebar + step content ── */}
       <div className={styles.body}>
+        {/* Sentinel element to track when sidebar becomes sticky */}
+        <div ref={sentinelRef} className={styles.sidebarSentinel} />
 
-        <aside className={styles.sidebar}>
+        <NestedSmoothScroll 
+            className={`${styles.sidebar} ${isSidebarSticky ? styles.sidebarSticky : ''}`}
+            innerClassName={styles.sidebarInner}
+        >
           <CreateEventSidebar
             currentStep={currentStep}
             visitedSteps={visitedSteps}
             errorSteps={errorSteps}
             onStepClick={goToStep}
           />
-        </aside>
+        </NestedSmoothScroll>
 
-        <main className={styles.content}>
-          {renderStep()}
+        <main className={styles.contentWrapper}>
+          <NestedSmoothScroll
+            innerRef={contentInnerRef}
+            className={`${styles.content} ${isSidebarSticky ? styles.contentSticky : ''}`}
+          >
+            {renderStep()}
+            <div className={styles.extraSpace}></div>
+          </NestedSmoothScroll>
         </main>
+
+
+
+
 
       </div>
 
