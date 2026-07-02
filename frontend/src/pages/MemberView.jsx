@@ -112,6 +112,21 @@ function MemberView() {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
   }, []);
 
+
+ // api sinh vien xem những invitation gui toi minh
+  useEffect(() => {
+    axiosClient.get('/teamrequest/member-invitation')
+      .then((response) => {
+        setFAKE_INVITES(response.data);
+
+      })
+      .catch((error) => console.log(error));
+  }, []);
+
+
+
+
+
   // api lấy team info - comment out to use mock data for testing
 
   useEffect(() => {
@@ -190,6 +205,8 @@ function MemberView() {
         alert("Có lỗi xảy ra, không thể hủy rời nhóm lúc này.");
       });
   }
+
+
 
   const handleAcceptInvite = (id) => {
     alert("Đã chấp nhận lời mời. Bạn sẽ rời team hiện tại.");
