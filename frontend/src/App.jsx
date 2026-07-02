@@ -119,18 +119,22 @@ function TeamRoute() {
     if (role !== "USER") return <Navigate to="/admin/coordinator/events" replace />;
     if (teamRoleLoading) return <div>Loading...</div>;
     if (teamRole === null) return <div>Loading...</div>;
-    if (teamRole === "LEADER") return <LeaderView />;
-    if (teamRole === "MEMBER") return <MemberView />;
+     
+    if(teamRole === "LEADER") return <LeaderView />;
+
+   if(teamRole === "MEMBER") return <MemberView />;
+
     return <NoTeamView />;
 }
 
 
 
+
 function AppRoutes() {
-    const { role, isAuthenticated, userStatus,fetchUserStatus } = useAuth();
+    const { role, isAuthenticated, userStatus, fetchUserStatus } = useAuth();
     // console.log(userStatus)
     // console.log(teamRole)
-      useEffect(() => {
+    useEffect(() => {
         fetchUserStatus();
     }, []);
 
@@ -170,7 +174,7 @@ function AppRoutes() {
                                 // User đã hoàn thiện hồ sơ -> Các trang bình thường
                                 <>
                                     <Route path="/user/dashboard" element={<UserDashboard />} />
-                                    
+
                                     <Route path="/team" element={
                                         userStatus === "PENDING_APPROVAL" ? (
                                             <Navigate to="/user/dashboard" replace />

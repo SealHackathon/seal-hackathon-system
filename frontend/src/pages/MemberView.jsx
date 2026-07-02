@@ -5,6 +5,7 @@ import TeamMemberPanel from '../components/leaderView/TeamMemberPanel'
 import InviteTeamCard from '../components/noTeamView/InviteTeamCard'
 import styles from './MemberView.module.css'
 import axios from 'axios'
+import axiosClient from '../api/axiosClient'
 import { useAuth } from '../AuthContext'
 
 // const MOCK_MEMBERS = [
@@ -114,13 +115,8 @@ function MemberView() {
   // api lấy team info - comment out to use mock data for testing
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/team/team-info', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      })
+    axiosClient
+      .get('/team/team-info')
       .then((response) => {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus);
@@ -132,13 +128,8 @@ function MemberView() {
   // api lấy team members - comment out to use mock data
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/team/my-team', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      })
+    axiosClient
+      .get('/team/my-team')
       .then((response) => {
         setFAKE_MEMBERS(response.data);
       })
@@ -147,13 +138,8 @@ function MemberView() {
 
 
   const handleOnLeave = (message) => {
-    axios
-      .post('http://localhost:8080/api/teamrequest/out-team', { message: message }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      })
+    axiosClient
+      .post('/teamrequest/out-team', { message: message })
       .then((response) => {
         console.log(response.data);
         if (currentUser?.memberStatus === 'RESERVE') {
@@ -177,14 +163,22 @@ function MemberView() {
       });
   };
 
-  const handleOnCancelLeave = (id) => {
-    axios
-      .post('http://localhost:8080/api/teamrequest/out-team/cancle', id, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
+
+  // api member xem những leave request da gui di 
+  useEffect(() => {
+    axiosClient
+      .get('/teamrequest/leave_request')
+      .then((response) => {
+        setLeaveRequest(response.data);
       })
+      .catch((error) => console.log(error));
+  }, []);
+
+
+
+  const handleOnCancelLeave = (id) => {
+    axiosClient
+      .post('/teamrequest/out-team/cancle', id)
       .then((response) => {
         console.log(response.data);
         localStorage.removeItem('pendingLeaveRequest');
