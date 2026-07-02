@@ -52,6 +52,7 @@ public class AuthService {
         if(userRepository.existsByPhoneNumber(registerRequest.getPhone())){
             throw new RuntimeException(" số điện thoại này  đã tồn tại ");
         }
+
         // check xem truong co ton tai trong DB khong
 //        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
 //        validateMssv(university, registerRequest.getStudentId());
