@@ -91,6 +91,7 @@
 
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect } from 'react';
+import Lenis from 'lenis';
 import './App.css';
 import { AuthProvider, useAuth } from './AuthContext';
 
@@ -127,10 +128,10 @@ function TeamRoute() {
 
 
 function AppRoutes() {
-    const { role, isAuthenticated, userStatus,fetchUserStatus } = useAuth();
+    const { role, isAuthenticated, userStatus, fetchUserStatus } = useAuth();
     // console.log(userStatus)
     // console.log(teamRole)
-      useEffect(() => {
+    useEffect(() => {
         fetchUserStatus();
     }, []);
 
@@ -154,6 +155,7 @@ function AppRoutes() {
                             <Route path="/admin/coordinator/events/create" element={<CreateEventPage />} />
                             <Route path="/admin/coordinator/rubrics" element={<RubricLibraryPage />} />
                             <Route path="/admin/coordinator/rubrics/create" element={<CreateRubricPage />} />
+                            <Route path="/admin/coordinator/rubrics/create/:id" element={<CreateRubricPage />} />
                         </>
                     )}
 
@@ -170,7 +172,7 @@ function AppRoutes() {
                                 // User đã hoàn thiện hồ sơ -> Các trang bình thường
                                 <>
                                     <Route path="/user/dashboard" element={<UserDashboard />} />
-                                    
+
                                     <Route path="/team" element={
                                         userStatus === "PENDING_APPROVAL" ? (
                                             <Navigate to="/user/dashboard" replace />
@@ -198,13 +200,28 @@ function AppRoutes() {
     );
 }
 
+function SmoothScroll({ children }) {
+    useEffect(() => {
+        const lenis = new Lenis({
+            autoRaf: true,
+            lerp: 0.25, // Tốc độ nội suy nhanh, không bị hiệu ứng slow-motion
+        });
+        return () => {
+            lenis.destroy();
+        };
+    }, []);
+    return children;
+}
+
 function App() {
     return (
-        <AuthProvider>
-            <BrowserRouter>
-                <AppRoutes />
-            </BrowserRouter>
-        </AuthProvider>
+        <SmoothScroll>
+            <AuthProvider>
+                <BrowserRouter>
+                    <AppRoutes />
+                </BrowserRouter>
+            </AuthProvider>
+        </SmoothScroll>
     );
 }
 
