@@ -11,6 +11,10 @@
     align-items: start;
 }
 
+.title {
+    color: var(--color-primary-blue);
+}
+
 /* ── Card list ── */
 .cardList {
     display: flex;
@@ -29,7 +33,7 @@
 }
 
 /* Override nền của các card bên trong khi được active */
-.activeCardWrapper > div {
+.activeCardWrapper>div {
     background-color: var(--color-bg-blue) !important;
     border-color: var(--color-primary-blue) !important;
 }
@@ -136,7 +140,7 @@
     width: 80%;
     height: 1px;
     color: var(--color-bg-blue);
-    background-color:  var(--color-bg-blue);
+    background-color: var(--color-bg-blue);
     border: 1px solid var(--color-primary-orange);
 }
 

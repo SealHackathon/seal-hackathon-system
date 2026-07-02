@@ -10,7 +10,7 @@
 }
 
 .cardNoDate {
-    border: 1px dashed var(--color-border-orange);
+    border: 1px dashed var(--color-primary-orange);
 }
 
 .cardNoDate:hover {

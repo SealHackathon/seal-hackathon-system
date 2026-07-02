@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import SectionHeader from '../../../../../components/shared/SectionHeader'
 import Banner from '../../../../../components/shared/Banner'
 import TimelineVertical from '../../../../../components/shared/TimelineVertical'
 import MilestoneCardAuto from '../../../../../components/coordinator/events/create/MilestoneCardAuto'
@@ -117,7 +116,7 @@ function Step6Timeline({ formData, onChange }) {
 
     return (
         <div className={styles.wrapper} onClick={() => setActiveId(null)}>
-            <SectionHeader level="h1" title="Dòng thời gian" />
+            <h1 className={styles.title}>Dòng thời gian</h1>
 
             <Banner
                 color="blue" variant="flat"

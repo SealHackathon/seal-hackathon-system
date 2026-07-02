@@ -31,18 +31,18 @@ function createJudge(person) {
 function Step7MentorJudge({ formData, onFormChange }) {
     // ── Local state — giống pattern Step6Timeline
     const [mentors, setMentors] = useState(() => formData?.mentors ?? [])
-     const [judges,  setJudges]  = useState(() => formData?.judges  ?? [])
-​
+    const [judges, setJudges] = useState(() => formData?.judges ?? [])
+
     const categories = (formData?.categories ?? [])
         .filter(c => c.name?.trim())
         .map(c => ({ value: c.id ?? c, label: c.name ?? c }))
-    const rounds     = (formData?.rounds     ?? [])
+    const rounds = (formData?.rounds ?? [])
         .filter(r => r.name?.trim())
         .map(r => ({ value: r.id ?? r, label: r.name ?? r }))
-​
+
     // Modal state
-    const [modal,     setModal]     = useState(null)  // null | 'mentor' | 'judge'
-    const [persons,   setPersons]   = useState([])
+    const [modal, setModal] = useState(null)  // null | 'mentor' | 'judge'
+    const [persons, setPersons] = useState([])
     const [searching, setSearching] = useState(false)
 
     async function handleSearch(query) {
@@ -68,10 +68,10 @@ function Step7MentorJudge({ formData, onFormChange }) {
         onFormChange?.('judges', next)
     }
 
- // ── Mentor handlers
+    // ── Mentor handlers
     function addMentors(selected) {
         const existing = new Set(mentors.map(m => m.id))
-        const newOnes  = selected.filter(p => !existing.has(p.id)).map(createMentor)
+        const newOnes = selected.filter(p => !existing.has(p.id)).map(createMentor)
         syncMentors([...mentors, ...newOnes])
     }
     function updateMentor(updated) {
@@ -188,7 +188,7 @@ function Step7MentorJudge({ formData, onFormChange }) {
                 .catch((err) => console.error(`Lỗi gửi bulk invite cho Track ${catId}:`, err));
         });
     }
-    
+
     // ==========================================
     // JUDGE HANDLERS (Giữ nguyên cấu trúc categoryIds, roundIds)
     // ==========================================
@@ -300,12 +300,14 @@ function Step7MentorJudge({ formData, onFormChange }) {
 
     return (
         <div className={styles.wrapper}>
-            <SectionHeader level="h1" title="Mentor & Giám khảo" />
+            <h1 className={styles.title}>Mentor & Giám khảo</h1>
 
             <Banner
-                color="blue" variant="flat" icon={Info} iconSize={20}
+                color="blue" variant="flat" icon={Info} iconSize={32}
                 detail="Sau khi tạo sự kiện, bạn có thể assign mentor cho từng đội cụ thể trong trang Quản lý sự kiện."
             />
+
+            <SectionHeader level="h1" title="Mentor" />
 
             {/* ── Mentor section ── */}
             <div className={styles.section}>
@@ -356,6 +358,8 @@ function Step7MentorJudge({ formData, onFormChange }) {
                     </div>
                 )}
             </div>
+
+            <SectionHeader level="h1" title="Giám khảo" />
 
             {/* ── Judge section ── */}
             <div className={styles.section}>

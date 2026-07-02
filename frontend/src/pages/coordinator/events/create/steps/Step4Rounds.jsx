@@ -329,7 +329,7 @@ function Step4Rounds({ formData, onChange }) {
 
     return (
         <div className={styles.wrapper}>
-            <h1 className={styles.title}>Thông tin cơ bản</h1>
+            <h1 className={styles.title}>Vòng thi</h1>
 
             <Banner
                 color="blue" variant="dashed"

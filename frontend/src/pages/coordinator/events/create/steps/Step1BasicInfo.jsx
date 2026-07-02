@@ -291,49 +291,40 @@ function Step1BasicInfo({ formData, onFormChange }) {
       ════════════════════════ */}
             <FieldGroup icon={Image} title="Ảnh đại diện và ảnh bìa">
 
-                {/* Hàng trên: avatar (trái) + hướng dẫn cả 2 (phải) */}
-                <div className={styles.imageTopRow}>
-
-                    <div className={styles.avatarUpload}>
-                        <FileUpload
-                            label="Ảnh đại diện"
-                            required
-                            accept={['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']}
-                            maxSizeMB={5}
-                            aspectRatio={1}
-                            onFileChange={file => onFormChange?.('avatarFile', file)}
-                        />
+                <div className={styles.imageGuide}>
+                    <div className={styles.imageGuideItem}>
+                        <p className={styles.imageGuideTitle}>Ảnh đại diện sự kiện</p>
+                        <p className={styles.imageGuideText}>
+                            Hiển thị tại trang danh sách và kết quả tìm kiếm. Tỉ lệ 1:1, tối thiểu 300×300px.
+                        </p>
                     </div>
-
-                    <div className={styles.imageGuide}>
-                        <div className={styles.imageGuideItem}>
-                            <p className={styles.imageGuideTitle}>Ảnh đại diện sự kiện</p>
-                            <p className={styles.imageGuideText}>
-                                Hiển thị tại trang danh sách và kết quả tìm kiếm.
-                                Nên dùng logo hoặc hình ảnh rõ nét. Tỉ lệ 1:1, tối thiểu 300×300px.
-                            </p>
-                        </div>
-                        <div className={styles.imageGuideItem}>
-                            <p className={styles.imageGuideTitle}>Ảnh bìa sự kiện</p>
-                            <p className={styles.imageGuideText}>
-                                Hiển thị ở đầu trang chi tiết sự kiện. Chọn ảnh ngang, nội dung
-                                quan trọng nên đặt ở giữa vì hai cạnh có thể bị cắt trên một số thiết bị.
-                                Tỉ lệ 8:1, tối thiểu 1170×156px.
-                            </p>
-                        </div>
+                    <div className={styles.imageGuideItem}>
+                        <p className={styles.imageGuideTitle}>Ảnh bìa sự kiện</p>
+                        <p className={styles.imageGuideText}>
+                            Hiển thị ở đầu trang chi tiết sự kiện. Chọn ảnh ngang, nội dung quan trọng nên đặt ở giữa vì hai cạnh có thể bị cắt trên một số thiết bị. Tỉ lệ 8:1, tối thiểu 1170×156px.
+                        </p>
                     </div>
-
                 </div>
 
-                {/* Hàng dưới: thumbnail full width */}
-                <FileUpload
-                    label="Ảnh bìa"
-                    required
-                    accept={['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']}
-                    maxSizeMB={5}
-                    aspectRatio={8 / 1}
-                    onFileChange={file => onFormChange?.('coverFile', file)}
-                />
+                <div className={styles.imageUploadRow}>
+                    <FileUpload
+                        label="Ảnh đại diện"
+                        required
+                        accept={['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']}
+                        maxSizeMB={5}
+                        aspectRatio={1}
+                        onFileChange={file => onFormChange?.('avatarFile', file)}
+                    />
+                    
+                    <FileUpload
+                        label="Ảnh bìa"
+                        required
+                        accept={['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']}
+                        maxSizeMB={5}
+                        aspectRatio={2.63 / 1}
+                        onFileChange={file => onFormChange?.('coverFile', file)}
+                    />
+                </div>
 
             </FieldGroup>
 

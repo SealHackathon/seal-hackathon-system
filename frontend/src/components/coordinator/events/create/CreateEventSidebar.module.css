@@ -2,6 +2,7 @@
     background-color: var(--color-primary-blue);
     border-radius: var(--radius);
     padding: 0;
+    height: 100%;
 }
 
 .sidebar {
@@ -10,10 +11,8 @@
     background-color: var(--color-primary-blue);
     border-radius: var(--radius);
     padding: 1.25rem 1rem;
-    width: 180px;
-    flex-shrink: 0;
-    position: sticky;
-    top: 1rem;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .stepWrapper {

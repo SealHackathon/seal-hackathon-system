@@ -8,10 +8,10 @@
     background-color: var(--color-bg-white);
     border: 1px solid var(--color-border-blue);
     border-radius: var(--radius);
-    position: fixed;
+    position: sticky;
     bottom: 1em;
-    left: 2em;
-    right: 2em;
+    width: 100%;
+    box-sizing: border-box;
     z-index: 10;
 }
 

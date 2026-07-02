@@ -4,6 +4,10 @@
     gap: 1.5rem;
 }
 
+.title {
+    color: var(--color-primary-blue);
+}
+
 /* Section card */
 .section {
     border: 1.5px solid var(--color-border-blue);
