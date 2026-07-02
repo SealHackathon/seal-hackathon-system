@@ -1,8 +1,8 @@
 .card {
     padding: 0.75rem 1rem;
-    border: 1.5px solid var(--color-border-blue);
+    border: 1.5px solid var(--color-text-muted);
     border-radius: 12px;
-    background: var(--color-bg-blue);
+    background: var(--color-bg-grey);
     display: flex;
     flex-direction: column;
     gap: 0.2rem;
@@ -20,19 +20,19 @@
 }
 
 .icon {
-    color: var(--color-secondary-blue);
+    color: var(--color-text-secondary);
     flex-shrink: 0;
 }
 
 .date {
     font-size: 0.82rem;
     font-weight: 700;
-    color: var(--color-secondary-blue);
+    color: var(--color-text-secondary);
 }
 
 .time {
     font-size: 0.78rem;
-    color: var(--color-secondary-blue);
+    color: var(--color-text-secondary);
 }
 
 .right {
@@ -44,7 +44,7 @@
 
 .hint {
     font-size: 0.75em;
-    color: var(--color-secondary-blue);
+    color: var(--color-text-secondary);
 }
 
 .badge {
@@ -52,14 +52,14 @@
     font-size: 0.7rem;
     font-weight: 700;
     color: white;
-    background: var(--color-secondary-blue);
+    background: var(--color-text-secondary);
     border-radius: 6px;
     padding: 0.1em 0.5em;
 }
 
 .title {
     font-weight: 700;
-    color: var(--color-primary-blue);
+    color: var(--color-text-secondary);
     margin: 0.2rem 0 0;
 }
 

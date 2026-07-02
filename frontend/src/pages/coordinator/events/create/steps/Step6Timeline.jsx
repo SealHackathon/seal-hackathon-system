@@ -116,7 +116,7 @@ function Step6Timeline({ formData, onChange }) {
     }))
 
     return (
-        <div className={styles.wrapper}>
+        <div className={styles.wrapper} onClick={() => setActiveId(null)}>
             <SectionHeader level="h1" title="Dòng thời gian" />
 
             <Banner
@@ -137,9 +137,14 @@ function Step6Timeline({ formData, onChange }) {
                             ref={el => cardRefs.current[m.id] = el}
                             layout
                             transition={{ type: 'tween', duration: 0.5, ease: 'easeInOut' }}
-                            onFocus={() => setActiveId(m.id)}
-                            onClick={() => setActiveId(m.id)}
-                            className={activeId === m.id ? styles.activeCardWrapper : styles.cardWrapper}
+                            onFocus={() => {
+                                if (m.type !== 'auto') setActiveId(m.id)
+                            }}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                if (m.type !== 'auto') setActiveId(m.id)
+                            }}
+                            className={activeId === m.id && m.type !== 'auto' ? styles.activeCardWrapper : styles.cardWrapper}
                         >
                             {m.type === 'auto'
                                 ? <MilestoneCardAuto ms={m} />
@@ -165,7 +170,10 @@ function Step6Timeline({ formData, onChange }) {
                                     layout
                                     transition={{ type: 'tween', duration: 0.25, ease: 'easeInOut' }}
                                     onFocus={() => setActiveId(m.id)}
-                                    onClick={() => setActiveId(m.id)}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveId(m.id);
+                                    }}
                                     className={activeId === m.id ? styles.activeCardWrapper : styles.cardWrapper}
                                 >
                                     <MilestoneCardManual

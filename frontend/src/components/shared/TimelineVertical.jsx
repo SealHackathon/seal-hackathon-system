@@ -1,4 +1,5 @@
 import { useRef, useLayoutEffect, useMemo } from 'react'
+import { motion } from 'framer-motion'
 import { Check, ArrowSquareOut } from '@phosphor-icons/react'
 import styles from './TimelineVertical.module.css'
 
@@ -119,7 +120,12 @@ function TimelineVertical({ milestones = [], showToday = true }) {
                     : ''
 
                 return (
-                    <div key={node.id ?? i} className={styles.node}>
+                    <motion.div
+                        layout
+                        transition={{ type: 'tween', duration: 0.4, ease: 'easeInOut' }}
+                        key={node.id ?? i}
+                        className={styles.node}
+                    >
                         <div
                             className={`${styles.dot} ${
                                 s === 'done'   ? styles.dotDone   :
@@ -168,7 +174,7 @@ function TimelineVertical({ milestones = [], showToday = true }) {
                                 </p>
                             )}
                         </div>
-                    </div>
+                    </motion.div>
                 )
             })}
         </div>

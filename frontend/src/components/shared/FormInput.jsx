@@ -10,6 +10,9 @@ function FormInput({
   hint,
   iconLeft,
   iconRight,
+  iconSize = 28,
+  iconWeight = 'regular',
+  iconColor,
   onIconRightClick,
   actionIcon,           // icon nằm ngoài input, bên phải
   onActionIconClick,
@@ -53,7 +56,7 @@ function FormInput({
         <div className={`${styles.box} ${status ? styles[status] : ''} ${disabled ? styles.disabled : ''}`}>
           {IconLeft && (
             <span className={styles.iconLeft}>
-              <IconLeft size={28} />
+              <IconLeft size={iconSize} weight={iconWeight} color={iconColor} />
             </span>
           )}
 
@@ -78,7 +81,7 @@ function FormInput({
               onClick={onIconRightClick}
               tabIndex={-1}
             >
-              <IconRight size={28} />
+              <IconRight size={iconSize} weight={iconWeight} color={iconColor} />
             </button>
           )}
         </div>
@@ -89,7 +92,7 @@ function FormInput({
             onClick={onActionIconClick}
             style={onActionIconClick ? { cursor: 'pointer' } : {}}
           >
-            <ActionIcon size={28} />
+            <ActionIcon size={iconSize} weight={iconWeight} color={iconColor} />
           </span>
         )}
 
