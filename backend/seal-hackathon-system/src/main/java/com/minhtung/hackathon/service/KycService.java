@@ -5,11 +5,13 @@ package com.minhtung.hackathon.service;
 import com.cloudinary.Cloudinary;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
+import com.minhtung.hackathon.dto.response.AdminParticipantReviewResponse;
 import com.minhtung.hackathon.dto.response.FaceMatchResponse;
 import com.minhtung.hackathon.dto.response.UserIdentityProfileResponse;
 import com.minhtung.hackathon.entity.Student_profile;
 import com.minhtung.hackathon.entity.User;
 import com.minhtung.hackathon.entity.UserIdentityProfile;
+import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.UserStatus;
 import com.minhtung.hackathon.repository.StudentprofileRepository;
 import com.minhtung.hackathon.repository.UserIdentityProfileRepository;
@@ -68,7 +70,7 @@ public class KycService {
     }
 
     @Transactional
-    public void approveUser(Long userId) {
+    public void approveUser(Long userId , boolean approve ) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
 
@@ -81,11 +83,18 @@ public class KycService {
         if (profile.getCmnd() == null || studentProfile.getImg_studentcard() == null) {
             throw new RuntimeException("Hồ sơ chưa đầy đủ");
         }
+        if (approve) {
+            user.setStatus(UserStatus.ACCEPTED);
+            emailService.emailxacnhantuadmin(user.getEmail());
+        } else {
+            user.setStatus(UserStatus.REJECTED);
 
-        user.setStatus(UserStatus.ACCEPTED);
+        }
+
+
         userRepository.save(user);
 
-        emailService.emailxacnhantuadmin(user.getEmail());
+
     }
 
     @Transactional
@@ -343,6 +352,41 @@ public class KycService {
 
         return response;
     }
+
+    public List<AdminParticipantReviewResponse> getAllinformationUser(){
+        return userRepository.findByRole(Role.USER)
+                .stream()
+                .map(user -> {
+                    UserIdentityProfile identity = profileRepository.findByUserId(user.getId())
+                            .orElse(null);
+                    Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId()).orElse(null);
+
+                    return AdminParticipantReviewResponse.builder()
+                            .userId(user.getId())
+                            .fullname(user.getFullName())
+                            .email(user.getEmail())
+                            .phone(user.getPhoneNumber())
+                            .avatar(user.getAvt_img())
+                            . status(user.getStatus())
+
+                            //cccd
+                            .fullnameCccd(identity != null ? identity.getFullName() : null)
+                            .cccd(identity != null ? identity.getCmnd() : null)
+                            .dateofbirth(identity != null ? identity.getDateOfBirth() : null)
+                            .gender(identity != null ? identity.getGender() : null)
+                            .thuongtru(identity != null ? identity.getThuongtru() : null)
+                            .frontcccd(identity != null ? identity.getFrontcmnd_img() : null)
+                            .backcccd(identity != null ? identity.getCmndBack_image() : null)
+
+                            //thong tin sinh vien
+                            .mssv(user.getStudentId())
+                            .SchoolName(user.getSchoolName())
+                            .StudentCartImg(studentProfile != null ? studentProfile.getImg_studentcard() : null)
+                            .build() ;
+
+                })
+                .toList() ;
+        }
     }
 
 
