@@ -78,15 +78,7 @@ export default function RubricLibraryPage() {
             })
             .catch((error) => console.log(error));
     }, []);
-    const handleDelete2 = (id) => {
-        axiosClient.delete(`/scoring-template/${id}`)
-            .then(() => {
-                // Sau khi xóa thành công, gọi lại API để lấy danh sách rubrics mới
-                fetchRubrics();
-            })
-            .catch((error) => console.log(error));
-    }
-
+  
 
 
     const processedRubrics = useMemo(() => {
@@ -111,7 +103,12 @@ export default function RubricLibraryPage() {
     }, [rubrics, searchQuery, sortBy]);
 
     const handleDelete = (id) => {
-        setRubrics(rubrics.filter(r => r.id !== id));
+          axiosClient.delete(`/scoring-template/${id}`)
+            .then(() => {
+                   setRubrics(rubrics.filter(r => r.id !== id));
+                // Sau khi xóa thành công, gọi lại API để lấy danh sách rubrics mới
+            })
+            .catch((error) => console.log(error));
     };
 
     const handleNavigation = (id) => {
