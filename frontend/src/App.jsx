@@ -156,6 +156,7 @@ function AppRoutes() {
                         <>
                             <Route path="/admin/coordinator/events" element={<EventListPage />} />
                             <Route path="/admin/coordinator/events/create" element={<CreateEventPage />} />
+                            <Route path="/admin/coordinator/events/manage/:id" element={<CreateEventPage />} />
                             <Route path="/admin/coordinator/rubrics" element={<RubricLibraryPage />} />
                             <Route path="/admin/coordinator/rubrics/create" element={<CreateRubricPage />} />
                             <Route path="/admin/coordinator/rubrics/:id/edit" element={<CreateRubricPage />} />

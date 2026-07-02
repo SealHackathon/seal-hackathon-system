@@ -25,7 +25,10 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       if (formData.avatarFile) sendData.append('bannerFile', formData.avatarFile);
       if (formData.coverFile) sendData.append('thumbnailFile', formData.coverFile);
 
-      return axiosClient.post(apiEndpoint, sendData)
+      const method = formData.id ? 'put' : 'post';
+      const url = formData.id ? `${apiEndpoint}/${formData.id}` : apiEndpoint;
+
+      return axiosClient[method](url, sendData)
         .then(response => {
           console.log(`Lưu bản nháp Step ${currentStep} thành công!`, response.data);
           if (response.data && response.data.id) {
@@ -46,8 +49,10 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         eventRules: formData.generalRules || '',
         notes: formData.notes || []
       };
+      const method = formData.id ? 'put' : 'post';
+      const url = formData.id ? `/event-notes/${formData.id}` : '/event-notes';
 
-      return axiosClient.post('/event-notes', step2Payload)
+      return axiosClient[method](url, step2Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 2 thành công!`, response.data);
           return true;
@@ -82,7 +87,10 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         prizes: [...mappedMain, ...mappedExtended]
       };
 
-      return axiosClient.post('/prize', step3Payload)
+      const method = formData.id ? 'put' : 'post';
+      const url = formData.id ? `/prize/${formData.id}` : '/prize';
+
+      return axiosClient[method](url, step3Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 3 thành công!`, response.data);
           return true;
@@ -133,7 +141,10 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         })),
       };
 
-      return axiosClient.post('/round', step4Payload)
+      const method = formData.id ? 'put' : 'post';
+      const url = formData.id ? `/round/${formData.id}` : '/round';
+
+      return axiosClient[method](url, step4Payload)
         .then(response => {
           console.log('Lưu bản nháp Step 4 thành công!', response.data);
 
@@ -176,7 +187,10 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         }))
       };
 
-      return axiosClient.post('/track', step5Payload)
+      const method = formData.id ? 'put' : 'post';
+      const url = formData.id ? `/track/${formData.id}` : '/track';
+
+      return axiosClient[method](url, step5Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 5 thành công!`, response.data);
 
@@ -242,12 +256,15 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         }))
       };
 
-      return axiosClient.post('/milestone', step6Payload)
+      const method = formData.id ? 'put' : 'post';
+      const url = formData.id ? `/milestone/${formData.id}` : '/milestone';
+
+      return axiosClient[method](url, step6Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 6 thành công!`, response.data);
           return true;
         })
-        .catch(error => {
+        .catch(() => {
           alert(`Không thể lưu mốc thời gian sự kiện (Step 6)`);
           return false;
         });
@@ -275,8 +292,10 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           // roundIds: (j.roundIds || []).map(id => parseInt(id)),
         })),
       };
+      const method = formData.id ? 'put' : 'post';
+      const url = formData.id ? `${apiEndpoint}/${formData.id}` : apiEndpoint;
 
-      return axiosClient.post(apiEndpoint, step7Payload)
+      return axiosClient[method](url, step7Payload)
         .then(response => {
           console.log('Lưu bản nháp Step 7 thành công!', response.data);
           return true;

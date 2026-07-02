@@ -304,7 +304,7 @@ function EventListPage({ onManageEvent }) {
                   <EventCard
                     key={event.id}
                     event={event}
-                    onManage={() => onManageEvent?.(event.id)}
+                    onManage={() => navigate(`/admin/coordinator/events/manage/${event.id}`)}
                     onView={() => console.log('view', event.id)}
                     onCopyLink={() => navigator.clipboard?.writeText(window.location.href)}
                     onExport={() => console.log('export', event.id)}
