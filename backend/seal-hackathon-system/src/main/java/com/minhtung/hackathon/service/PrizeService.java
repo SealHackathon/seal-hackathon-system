@@ -53,8 +53,15 @@ public class PrizeService {
         // 1. Tìm Event chung một lần duy nhất từ eventId ở ngoài request
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Event với ID: " + request.getEventId()));
+
+        // Cập nhật thông tin quyền lợi tham gia sự kiện
         event.setParticipationBenefits(request.getParticipationBenefits());
         eventRepository.save(event);
+
+        // GHI ĐÈ: Xóa toàn bộ các giải thưởng cũ thuộc về Event này trước khi lưu mới
+        prizeRepository.deleteByEventId(event.getId());
+        // Hoặc nếu bạn chưa viết method trên trong Repository, có thể dùng: prizeRepository.deleteAll(event.getPrizes());
+
         List<Prize> prizesToSave = new ArrayList<>();
 
         // 2. Duyệt qua từng item giải thưởng trong mảng gửi lên từ Front-end
@@ -68,13 +75,12 @@ public class PrizeService {
 
             // Lưu đúng quantity gửi từ FE
             prize.setQuantity(item.getQuantity());
-
             prize.setEvent(event);
 
             prizesToSave.add(prize);
         }
 
-        // 3. Thực hiện lưu hàng loạt (Batch Insert) xuống DB
+        // 3. Thực hiện lưu hàng loạt (Batch Insert) xuống DB danh sách mới thay thế hoàn toàn
         List<Prize> savedPrizes = prizeRepository.saveAll(prizesToSave);
 
         // 4. MAP SANG DTO: Chuyển đổi danh sách thực thể sang PrizeResponse kèm số lượng
@@ -91,7 +97,9 @@ public class PrizeService {
                             p.getPrizeName(),
                             (double) p.getMoney(),
                             p.getDescription(),
-                            item.getQuantity(), p.getEvent().getId(), p.getPrizeType().toString()    // Gán đúng số lượng tổng của nhóm giải này (Ví dụ: 2)
+                            item.getQuantity(),
+                            p.getEvent().getId(),
+                            p.getPrizeType().toString()
                     ));
                 })
                 .toList();
