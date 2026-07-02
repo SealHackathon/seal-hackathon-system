@@ -24,16 +24,20 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     // Tìm các User có Role là USER và ID của họ KHÔNG NẰM TRONG danh sách memberID đang có team (status = true)
     @Query("""
-        SELECT u
-        FROM User u
-        WHERE u.role = :role
-        AND u.id NOT IN (
-            SELECT m.member.id
-            FROM Member m
-            WHERE m.status = :status
-        )
-    """)
-    List<User> findUsersWithoutTeam(@Param("role") Role role, @Param("status") MemberStatus status);
+    SELECT u
+    FROM User u
+    WHERE u.role = :role
+    AND NOT EXISTS (
+        SELECT 1 
+        FROM Member m 
+        WHERE m.member.id = u.id 
+        AND m.status IN :excludedStatuses
+    )
+""")
+    List<User> findUsersWithoutTeam(
+            @Param("role") Role role,
+            @Param("excludedStatuses") List<MemberStatus> excludedStatuses
+    );
 
     List<User> findByRoleAndFullNameContainingIgnoreCase(Role role, String query);
 
