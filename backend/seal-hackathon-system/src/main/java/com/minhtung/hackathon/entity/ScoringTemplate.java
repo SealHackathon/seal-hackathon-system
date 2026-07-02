@@ -67,6 +67,5 @@ public class ScoringTemplate {
         criterion.setScoringTemplate(this);
     }
 
-    public void setDraft(String status) {
-    }
+
 }

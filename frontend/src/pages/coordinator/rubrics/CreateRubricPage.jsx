@@ -1,6 +1,6 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Plus, FileText, ListDashes, Gear } from '@phosphor-icons/react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 import FormInput from '../../../components/shared/FormInput';
@@ -17,13 +17,31 @@ import CriterionCard from '../../../components/coordinator/rubrics/create/Criter
 import axiosClient from '../../../api/axiosClient';
 import styles from './CreateRubricPage.module.css';
 
+
+// { id: 1, name: 'Tính khả thi & Thực tiễn', description: 'Đánh giá khả năng áp dụng sản phẩm vào thực tế, mô hình kinh doanh và khả năng sinh lời.', weight: 35 },
+//         { id: 2, name: 'Đổi mới sáng tạo', description: 'Mức độ mới lạ, độc đáo của giải pháp so với các sản phẩm hiện có trên thị trường.', weight: 25 },
+//         { id: 3, name: 'Công nghệ & Kỹ thuật', description: 'Độ phức tạp của công nghệ, tính hoàn thiện của source code.', weight: 25 },
+
+
+
+//  { userName: 'Admin User', action: 'Cập nhật trọng số "Tính khả thi" lên 35%', time: 'Hôm nay, 10:30' },
+//         { userName: 'Bùi Minh Tuấn', action: 'Đổi tên Rubric và thêm mô tả', time: '20/06/2026, 14:15' },
+//         { userName: 'Hệ thống', action: 'Tạo mới bản nháp Rubric', time: '18/06/2026, 09:00' },
+
+
+
 export default function CreateRubricPage() {
+
+
     const navigate = useNavigate();
+    const { id } = useParams(); // route: /admin/coordinator/rubrics/create hoặc /:id/edit
 
     // Mock data giả lập chế độ Edit
-    const [isEditing] = useState(true);
-    const [inUseCount] = useState(3);
-    const [status] = useState('draft'); // 'unsaved' | 'draft' | 'published'
+    const isEditing = Boolean(id);
+    const [loading, setLoading] = useState(isEditing);
+
+    const [inUseCount, setInUseCount] = useState(3);
+    const [status, setStatus] = useState('draft'); // 'unsaved' | 'draft' | 'published'
     const [lastUpdated, setLastUpdated] = useState('25/06/2026 10:30');
 
     const [formData, setFormData] = useState({
@@ -33,20 +51,48 @@ export default function CreateRubricPage() {
         tieBreaker: true,
     });
 
-    const [criteria, setCriteria] = useState([
-        { id: 1, name: 'Tính khả thi & Thực tiễn', description: 'Đánh giá khả năng áp dụng sản phẩm vào thực tế, mô hình kinh doanh và khả năng sinh lời.', weight: 35 },
-        { id: 2, name: 'Đổi mới sáng tạo', description: 'Mức độ mới lạ, độc đáo của giải pháp so với các sản phẩm hiện có trên thị trường.', weight: 25 },
-        { id: 3, name: 'Công nghệ & Kỹ thuật', description: 'Độ phức tạp của công nghệ, tính hoàn thiện của source code.', weight: 25 },
-    ]);
+    const [criteria, setCriteria] = useState([]);
 
     const [activeCriterionId, setActiveCriterionId] = useState(null);
+    const [logs, setLogs] = useState([]);
 
     // Lịch sử thao tác mock
-    const MOCK_LOGS = [
-        { userName: 'Admin User', action: 'Cập nhật trọng số "Tính khả thi" lên 35%', time: 'Hôm nay, 10:30' },
-        { userName: 'Bùi Minh Tuấn', action: 'Đổi tên Rubric và thêm mô tả', time: '20/06/2026, 14:15' },
-        { userName: 'Hệ thống', action: 'Tạo mới bản nháp Rubric', time: '18/06/2026, 09:00' },
-    ];
+    const MOCK_LOGS = [];
+
+
+    // ── Fetch rubric cũ nếu đang edit ──
+    useEffect(() => {
+        if (!isEditing) return;
+
+        const fetchRubric = async () => {
+            try {
+                const res = await axiosClient.get(`/scoring-template/${id}`);
+                const data = res.data;
+
+                setFormData({
+                    name: data.name,
+                    description: data.description,
+                    deviationThreshold: data.deviationThreshold,
+                    tieBreaker: data.tieBreaker,
+                });
+                setCriteria(data.criteria.map((c, idx) => ({ ...c, id: c.id ?? idx + 1 })));
+                setInUseCount(data.inUseCount ?? 0);
+                setStatus(data.status?.toLowerCase() ?? 'draft'); // DRAFT/OFFICIAL -> draft/published
+                setLastUpdated(data.updatedAt);
+                setLogs(data.auditLogs ?? []);
+            } catch (error) {
+                console.error('Lỗi khi lấy rubric:', error);
+                alert('Không tải được dữ liệu rubric.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRubric();
+    }, [id, isEditing]);
+
+
+
 
     // Tự động sắp xếp các tiêu chí theo trọng số (từ cao xuống thấp)
     const sortedCriteria = useMemo(() => {
@@ -90,77 +136,51 @@ export default function CreateRubricPage() {
     };
 
 
-    // todo : add handleSaveTemplateDraft function to send data to backend
-    const handleSaveTemplateDraft = async () => {
+    // ── Save: dùng chung 1 hàm, chỉ đổi method + status ──
+    const saveTemplate = async (targetStatus) => {
         try {
-            const formattedCriteria = criteria.map(({ id, name, description, weight }) => ({
+            const formattedCriteria = criteria.map(({ name, description, weight }) => ({
                 name,
                 description,
-                weight: Number(weight) // Đảm bảo weight truyền lên là kiểu số (float/double)
+                weight: Number(weight),
             }));
 
             const requestBody = {
                 name: formData.name,
                 description: formData.description,
                 tieBreaker: formData.tieBreaker,
-                deviationThreshold: Number(formData.deviationThreshold), // Ép kiểu số cho đúng kiểu double bên Java
-                status: "DRAFT", // "DRAFT" hoặc "OFFICIAL" đúng dạng Enum String
-                criteria: formattedCriteria
+                deviationThreshold: Number(formData.deviationThreshold),
+                status: targetStatus, // "DRAFT" | "OFFICIAL"
+                criteria: formattedCriteria,
             };
-            
+
+            const response = isEditing
+                ? await axiosClient.put(`/scoring-template/${id}`, requestBody)
+                : await axiosClient.post('/scoring-template', requestBody);
+
             const now = new Date();
             const pad = n => n.toString().padStart(2, '0');
             setLastUpdated(`${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
 
+            console.log('Response từ BE:', response.data);
 
-            console.log("Payload gửi lên BE:", requestBody);
-
-            const response = await axiosClient.post("/scoring-template", requestBody);
-            console.log("Response từ BE:", response.data);
-       
-
+            // Nếu vừa tạo mới thành công -> điều hướng sang route edit với id thật
+            if (!isEditing && response.data?.id) {
+                navigate(`/admin/coordinator/rubrics/${response.data.id}/edit`, { replace: true });
+            }
         } catch (error) {
-            console.error("Lỗi khi tạo template:", error);
-            const errorMsg = error.response?.data || "Đã xảy ra lỗi hệ thống, vui lòng thử lại sau.";
+            console.error('Lỗi khi lưu template:', error);
+            const errorMsg = error.response?.data || 'Đã xảy ra lỗi hệ thống, vui lòng thử lại sau.';
             alert(errorMsg);
         }
-    };  
+    };
+
+    const handleSaveTemplateDraft = () => saveTemplate('DRAFT');
+    const handleSaveTemplate = () => saveTemplate('OFFICIAL');
+
+    // if (loading) return <div className={styles.pageWrapper}>Đang tải...</div>;
 
 
-     // todo : add handleSaveTemplate function to send data to backend
-        const handleSaveTemplate = async () => {
-        try {
-            const formattedCriteria = criteria.map(({ id, name, description, weight }) => ({
-                name,
-                description,
-                weight: Number(weight) // Đảm bảo weight truyền lên là kiểu số (float/double)
-            }));
-
-            const requestBody = {
-                name: formData.name,
-                description: formData.description,
-                tieBreaker: formData.tieBreaker,
-                deviationThreshold: Number(formData.deviationThreshold), // Ép kiểu số cho đúng kiểu double bên Java
-                status: "OFFICIAL", // "DRAFT" hoặc "OFFICIAL" đúng dạng Enum String
-                criteria: formattedCriteria
-            };
-            
-            const now = new Date();
-            const pad = n => n.toString().padStart(2, '0');
-            setLastUpdated(`${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
-
-
-            console.log("Payload gửi lên BE:", requestBody);
-
-            const response = await axiosClient.post("/scoring-template", requestBody);
-            console.log("Response từ BE:", response.data);
-
-        } catch (error) {
-            console.error("Lỗi khi tạo template:", error);
-            const errorMsg = error.response?.data || "Đã xảy ra lỗi hệ thống, vui lòng thử lại sau.";
-            alert(errorMsg);
-        }
-    };  
 
 
 

@@ -5,6 +5,7 @@ import com.minhtung.hackathon.dto.request.ScoringTemplateRequest;
 import com.minhtung.hackathon.dto.response.ScoringTemplateResponse;
 import com.minhtung.hackathon.entity.Criterion;
 import com.minhtung.hackathon.entity.ScoringTemplate;
+import com.minhtung.hackathon.enums.ScoringTemplateStatus;
 import com.minhtung.hackathon.repository.ScoringTemplateRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -73,7 +74,7 @@ public class ScoringTemplateService {
     }
 
     @Transactional
-    public ScoringTemplate createTemplate(ScoringTemplateRequest request) {
+    public ScoringTemplateResponse createTemplate(ScoringTemplateRequest request) {
         ScoringTemplate template = new ScoringTemplate();
         template.setName(request.getName());
         template.setDescription(request.getDescription());
@@ -83,7 +84,7 @@ public class ScoringTemplateService {
         // Bổ sung các trường mới theo yêu cầu
         template.setTieBreaking(request.isTieBreaker());
         template.setStandardDeviation(request.getDeviationThreshold());
-        template.setDraft(request.getStatus()); // Xác định lưu nháp hay chính thức
+        template.setStatus(ScoringTemplateStatus.valueOf(request.getStatus())); // Xác định lưu nháp hay chính thức
         template.setUsageCount(0); // Khởi tạo lượt dùng bằng 0
 
         // Xử lý danh sách Criteria con nếu có
@@ -97,33 +98,94 @@ public class ScoringTemplateService {
             }
         }
 
-        return templateRepository.save(template);
-    }
+        // 1. Lưu xuống Database để lấy entity đã có ID và thông tin đầy đủ
+        ScoringTemplate savedTemplate = templateRepository.save(template);
 
-    @Transactional
-    public ScoringTemplate updateTemplate(Long id, ScoringTemplateRequest request) {
-        ScoringTemplate template = getTemplateById(id);
+        // 2. Mapping từ Entity (savedTemplate) sang DTO (ScoringTemplateResponse)
+        ScoringTemplateResponse response = new ScoringTemplateResponse();
+        response.setId(savedTemplate.getId());
+        response.setName(savedTemplate.getName());
+        response.setDescription(savedTemplate.getDescription());
+        response.setLastModified(savedTemplate.getUpdateAt()); // Giả định lastModified lấy từ updateAt
+        response.setUsageCount(savedTemplate.getUsageCount());
 
-        template.setName(request.getName());
-        template.setDescription(request.getDescription());
+        // Check xem status có phải là DRAFT hay không (tùy thuộc vào cách bạn thiết kế Enum ScoringTemplateStatus)
+        response.setDraft(ScoringTemplateStatus.DRAFT.equals(savedTemplate.getStatus()));
 
+        // Mapping danh sách Criteria con sang CriterionResponse
+        if (savedTemplate.getCriteria() != null) {
+            List<ScoringTemplateResponse.CriterionResponse> criteriaResponses = savedTemplate.getCriteria().stream()
+                    .map(criterion -> {
+                        ScoringTemplateResponse.CriterionResponse critDto = new ScoringTemplateResponse.CriterionResponse();
+                        critDto.setName(criterion.getName());
+                        critDto.setWeight(criterion.getWeight());
+                        critDto.setDescription(criterion.getDescription());
+                        return critDto;
+                    })
+                    .toList(); // Hoặc .collect(Collectors.toList()) nếu dùng Java bản cũ hơn 16
 
-        if (request.getCriteria() != null) {
-            // Xóa danh sách cũ, Hibernate sẽ tự xóa trong DB nhờ orphanRemoval = true
-            template.getCriteria().clear();
-            // Map danh sách mới từ Request DTO
-            List<Criterion> newCriteria = mapCriteriaRequests(request.getCriteria(), template);
-            template.getCriteria().addAll(newCriteria);
+            response.setCriteria(criteriaResponses);
         }
 
-        return templateRepository.save(template);
+        return response;
     }
-
-
     @Transactional
-    public void deleteTemplate(Long id) {
-        ScoringTemplate template = getTemplateById(id);
-        templateRepository.delete(template);
+    public ScoringTemplateResponse updateTemplate(Long id, ScoringTemplateRequest request) {
+        // 1. Tìm template cũ trong DB, nếu không thấy thì báo lỗi
+        ScoringTemplate template = templateRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Scoring template không tồn tại với id: " + id));
+
+        // 2. Cập nhật các thông tin cơ bản
+        template.setName(request.getName());
+        template.setDescription(request.getDescription());
+        template.setUpdateAt(LocalDateTime.now()); // Cập nhật thời gian sửa đổi
+
+        template.setTieBreaking(request.isTieBreaker());
+        template.setStandardDeviation(request.getDeviationThreshold());
+        template.setStatus(ScoringTemplateStatus.valueOf(request.getStatus()));
+
+        // 3. Xử lý danh sách Criteria (Xóa cũ, thêm mới)
+        // Lưu ý: Tùy thuộc vào thiết kế Cascade trong Entity của bạn, bạn có thể cần clear list cũ
+        if (template.getCriteria() != null) {
+            template.getCriteria().clear();
+        }
+
+        if (request.getCriteria() != null && !request.getCriteria().isEmpty()) {
+            for (ScoringTemplateRequest.CriterionRequest critRequest : request.getCriteria()) {
+                Criterion criterion = new Criterion();
+                criterion.setName(critRequest.getName());
+                criterion.setDescription(critRequest.getDescription());
+                criterion.setWeight(critRequest.getWeight());
+                template.addCriterion(criterion); // Thêm criteria mới vào
+            }
+        }
+
+        // 4. Lưu lại vào DB
+        ScoringTemplate savedTemplate = templateRepository.save(template);
+
+        // 5. Mapping sang DTO Response (Giống hệt hàm tạo mới)
+        ScoringTemplateResponse response = new ScoringTemplateResponse();
+        response.setId(savedTemplate.getId());
+        response.setName(savedTemplate.getName());
+        response.setDescription(savedTemplate.getDescription());
+        response.setLastModified(savedTemplate.getUpdateAt());
+        response.setUsageCount(savedTemplate.getUsageCount());
+        response.setDraft(ScoringTemplateStatus.DRAFT.equals(savedTemplate.getStatus()));
+
+        if (savedTemplate.getCriteria() != null) {
+            List<ScoringTemplateResponse.CriterionResponse> criteriaResponses = savedTemplate.getCriteria().stream()
+                    .map(criterion -> {
+                        ScoringTemplateResponse.CriterionResponse critDto = new ScoringTemplateResponse.CriterionResponse();
+                        critDto.setName(criterion.getName());
+                        critDto.setWeight(criterion.getWeight());
+                        critDto.setDescription(criterion.getDescription());
+                        return critDto;
+                    })
+                    .toList();
+            response.setCriteria(criteriaResponses);
+        }
+
+        return response;
     }
 
 

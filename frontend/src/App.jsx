@@ -119,10 +119,10 @@ function TeamRoute() {
     if (role !== "USER") return <Navigate to="/admin/coordinator/events" replace />;
     if (teamRoleLoading) return <div>Loading...</div>;
     if (teamRole === null) return <div>Loading...</div>;
-     
-    if(teamRole === "LEADER") return <LeaderView />;
 
-   if(teamRole === "MEMBER") return <MemberView />;
+    if (teamRole === "LEADER") return <LeaderView />;
+
+    if (teamRole === "MEMBER") return <MemberView />;
 
     return <NoTeamView />;
 }
@@ -158,6 +158,8 @@ function AppRoutes() {
                             <Route path="/admin/coordinator/events/create" element={<CreateEventPage />} />
                             <Route path="/admin/coordinator/rubrics" element={<RubricLibraryPage />} />
                             <Route path="/admin/coordinator/rubrics/create" element={<CreateRubricPage />} />
+                            <Route path="/admin/coordinator/rubrics/:id/edit" element={<CreateRubricPage />} />
+
                         </>
                     )}
 

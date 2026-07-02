@@ -48,8 +48,8 @@ public class ScoringTemplateController {
     public ResponseEntity<?> create(@RequestHeader("Authorization") String auth, @RequestBody ScoringTemplateRequest request) {
         if (getUid(auth) == null) return unauthorized();
         try {
-            ScoringTemplate created = templateService.createTemplate(request);
-            return ResponseEntity.status(HttpStatus.CREATED).body(created);
+
+            return ResponseEntity.ok(templateService.createTemplate(request));
         } catch (Exception e) {
             // In log ra để dễ debug khi phát triển
             e.printStackTrace();
