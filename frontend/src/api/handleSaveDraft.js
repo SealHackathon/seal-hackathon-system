@@ -1,16 +1,25 @@
 export function handleSaveDraft({ currentStep, formData, axiosClient, handleFormChange }) {
   console.log(`Bắt đầu lưu nháp cho Step ${currentStep}`);
 
-  const sendData = new FormData();
+  // Khởi tạo object lưu promise nếu chưa có để dùng chung cho tất cả các step
+  if (!handleSaveDraft.activePromises) {
+    handleSaveDraft.activePromises = {};
+  }
 
-  if (formData.id) {
-    sendData.append('id', formData.id);
+  // Nếu step hiện tại đang có request chạy ngầm, bắt request sau "đi ké" kết quả của request trước
+  if (handleSaveDraft.activePromises[currentStep]) {
+    console.log(`[Step ${currentStep}] Request trùng lặp - Đang dùng chung kết quả với request trước`);
+    return handleSaveDraft.activePromises[currentStep];
   }
 
   let apiEndpoint = '/event';
+  let currentPromise = null;
 
   switch (currentStep) {
     case 1: {
+      const sendData = new FormData();
+      if (formData.id) sendData.append('id', formData.id);
+      
       sendData.append('name', formData.name || '');
       sendData.append('descriptionDetails', formData.detailDesc || '');
       sendData.append('topic', formData.theme || '');
@@ -28,19 +37,20 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       const method = formData.id ? 'put' : 'post';
       const url = formData.id ? `${apiEndpoint}/${formData.id}` : apiEndpoint;
 
-      return axiosClient[method](url, sendData)
+      currentPromise = axiosClient[method](url, sendData)
         .then(response => {
-          console.log(`Lưu bản nháp Step ${currentStep} thành công!`, response.data);
-          if (response.data && response.data.id) {
-            handleFormChange('id', response.data.id);
+          console.log(`Lưu bản nháp Step 1 thành công!`, response.data);
+          if (response.data && response.data.eventId) {
+            handleFormChange('id', response.data.eventId);
           }
           return true;
         })
         .catch(error => {
           const errorMsg = error.response?.data?.message || error.response?.data || error.message;
-          alert(`Không thể lưu bản nháp Step ${currentStep}: ` + errorMsg);
+          alert(`Không thể lưu bản nháp Step 1: ` + errorMsg);
           return false;
         });
+      break;
     }
 
     case 2: {
@@ -50,7 +60,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         notes: formData.notes || []
       };
 
-      return axiosClient.post('/event-notes', step2Payload)
+      currentPromise = axiosClient.post('/event-notes', step2Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 2 thành công!`, response.data);
           return true;
@@ -60,6 +70,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           alert(`Không thể lưu bản nháp Step 2: ` + errorMsg);
           return false;
         });
+      break;
     }
 
     case 3: {
@@ -85,7 +96,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         prizes: [...mappedMain, ...mappedExtended]
       };
 
-      return axiosClient.post('/prize', step3Payload)
+      currentPromise = axiosClient.post('/prize', step3Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 3 thành công!`, response.data);
           return true;
@@ -95,6 +106,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           alert(`Không thể lưu bản nháp Step 3: ` + errorMsg);
           return false;
         });
+      break;
     }
 
     case 4: {
@@ -136,10 +148,9 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         })),
       };
 
-      return axiosClient.post('/round', step4Payload)
+      currentPromise = axiosClient.post('/round', step4Payload)
         .then(response => {
           console.log('Lưu bản nháp Step 4 thành công!', response.data);
-
           const savedRounds = response.data;
           if (Array.isArray(savedRounds)) {
             const updatedRounds = (formData.rounds || []).map((original, index) => {
@@ -154,12 +165,8 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
                 submissionDeadline: r.roundSubmissionDeadline,
               };
             });
-            console.log('savedRounds từ backend:', JSON.stringify(savedRounds))
-
             handleFormChange('rounds', updatedRounds);
-            console.log(updatedRounds);
           }
-
           return true;
         })
         .catch(error => {
@@ -167,7 +174,9 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           alert('Không thể lưu bản nháp Step 4: ' + errorMsg);
           return false;
         });
+      break;
     }
+
     case 5: {
       const step5Payload = {
         eventId: formData.id,
@@ -179,25 +188,19 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         }))
       };
 
-      return axiosClient.post('/track', step5Payload)
+      currentPromise = axiosClient.post('/track', step5Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 5 thành công!`, response.data);
-
-          // lấy api thông tin track trả lên
           const savedTracks = response.data;
           if (Array.isArray(savedTracks)) {
-            // Map dữ liệu từ Backend trả về sang đúng cấu trúc form của Frontend
             const updatedCategories = savedTracks.map(t => ({
-              id: t.id, // Đè ID thật từ DB lên ID mock để không bị undefined nữa
+              id: t.id,
               name: t.name,
               desc: t.des,
               teamLimit: t.maxTeamPerTrack
             }));
-
-            // DÙNG CHÍNH HÀM CỦA BẠN: Cập nhật trực tiếp trường 'categories' vào formData
             handleFormChange('categories', updatedCategories);
           }
-          //-----------------------------------
           return true;
         })
         .catch(error => {
@@ -205,6 +208,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           alert(`Không thể lưu bản nháp Step 5: ` + errorMsg);
           return false;
         });
+      break;
     }
 
     case 6: {
@@ -245,7 +249,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         }))
       };
 
-      return axiosClient.post('/milestone', step6Payload)
+      currentPromise = axiosClient.post('/milestone', step6Payload)
         .then(response => {
           console.log(`Lưu bản nháp Step 6 thành công!`, response.data);
           return true;
@@ -254,11 +258,11 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           alert(`Không thể lưu mốc thời gian sự kiện (Step 6)`);
           return false;
         });
+      break;
     }
 
     case 7: {
       apiEndpoint = '/mentor-judge';
-
       if (!formData.id) {
         alert("Không tìm thấy thông tin sự kiện gốc!");
         return false;
@@ -266,20 +270,17 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
 
       const step7Payload = {
         eventId: parseInt(formData.id),
-
         mentors: (formData.mentors || []).map(m => ({
           userId: parseInt(m.id),
           trackId: m.categoryId ? parseInt(m.categoryId) : null,
         })),
-
         judges: (formData.judges || []).map(j => ({
           userId: parseInt(j.id),
           trackIds: (j.categoryIds || []).map(id => parseInt(id)),
-          // roundIds: (j.roundIds || []).map(id => parseInt(id)),
         })),
       };
 
-      return axiosClient.post(apiEndpoint, step7Payload)
+      currentPromise = axiosClient.post(apiEndpoint, step7Payload)
         .then(response => {
           console.log('Lưu bản nháp Step 7 thành công!', response.data);
           return true;
@@ -289,9 +290,19 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           alert('Không thể lưu bản nháp Step 7: ' + errorMsg);
           return false;
         });
+      break;
     }
 
     default:
-      break;
+      return false;
+  }
+
+  // Nếu có sinh ra một Promise mới cho step hiện tại, đưa vào hàng đợi quản lý chống trùng lặp
+  if (currentPromise) {
+    handleSaveDraft.activePromises[currentStep] = currentPromise.finally(() => {
+      // Khi request hoàn thành (bất kể thành công hay thất bại), clear khỏi object để lần sau gọi tiếp
+      handleSaveDraft.activePromises[currentStep] = null;
+    });
+    return handleSaveDraft.activePromises[currentStep];
   }
 }

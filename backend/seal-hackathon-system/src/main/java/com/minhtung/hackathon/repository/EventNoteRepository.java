@@ -10,4 +10,5 @@ public interface EventNoteRepository extends JpaRepository<EventNote, Long> {
     // Tìm tất cả lưu ý của một Event cụ thể
     List<EventNote> findByEventId(long eventId);
     void deleteByEventId(long eventId);
+
 }
