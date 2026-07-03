@@ -3,6 +3,7 @@ import EventLayout from '../layouts/EventLayout'
 import TeamInfoHeader from '../components/leaderView/TeamInfoHeader'
 import TeamMemberPanel from '../components/leaderView/TeamMemberPanel'
 import InviteTeamCard from '../components/noTeamView/InviteTeamCard'
+import ConfirmModal from '../components/shared/ConfirmModal'
 import styles from './MemberView.module.css'
 import axios from 'axios'
 import axiosClient from '../api/axiosClient'
@@ -102,6 +103,7 @@ function MemberView() {
   // Use mock data for testing UI
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
+  const [confirmModal, setConfirmModal] = useState(null)
 
   const token = localStorage.getItem("accessToken")
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' });
@@ -159,9 +161,17 @@ function MemberView() {
         console.log(response.data);
         if (currentUser?.memberStatus === 'RESERVE') {
           // Reserve members are removed instantly, so just clear state and reload
-          localStorage.removeItem('lastKnownTeamRole');
-          alert("Bạn đã rời nhóm thành công!");
-          updateTeamRole('NO_TEAM');
+          setConfirmModal({
+            title: 'Thành công',
+            message: 'Bạn đã rời nhóm thành công!',
+            confirmLabel: 'Xác nhận',
+            isNotification: true,
+            variant: 'success',
+            onConfirm: () => {
+              localStorage.removeItem('lastKnownTeamRole');
+              updateTeamRole('NO_TEAM');
+            }
+          })
           return;
         }
 
@@ -170,7 +180,14 @@ function MemberView() {
         }
         setLeaveRequest([responseData])
         localStorage.setItem('pendingLeaveRequest', 'true');
-        alert("Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.");
+        setConfirmModal({
+          title: 'Thành công',
+          message: 'Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.',
+          confirmLabel: 'Xác nhận',
+          isNotification: true,
+          variant: 'success',
+          onConfirm: () => setConfirmModal(null)
+        })
       })
       .catch((error) => {
         console.log(error);
@@ -197,8 +214,14 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         localStorage.removeItem('pendingLeaveRequest');
-        alert("Bạn đã hủy yêu cầu rời nhóm thành công!");
-        window.location.reload();
+        setConfirmModal({
+          title: 'Thành công',
+          message: 'Bạn đã hủy yêu cầu rời nhóm thành công!',
+          confirmLabel: 'Xác nhận',
+          isNotification: true,
+          variant: 'success',
+          onConfirm: () => window.location.reload()
+        })
       })
       .catch((error) => {
         console.log(error);
@@ -217,7 +240,14 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
-        window.location.reload();
+        setConfirmModal({
+          title: 'Thành công',
+          message: 'Đã chấp nhận lời mời thành công!',
+          confirmLabel: 'Xác nhận',
+          isNotification: true,
+          variant: 'success',
+          onConfirm: () => window.location.reload()
+        })
       })
       .catch((error) => {
         console.log(error);
@@ -240,7 +270,14 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
-        window.location.reload();
+        setConfirmModal({
+          title: 'Thành công',
+          message: 'Đã từ chối lời mời thành công!',
+          confirmLabel: 'Xác nhận',
+          isNotification: true,
+          variant: 'success',
+          onConfirm: () => window.location.reload()
+        })
       })
       .catch((error) => {
         console.log(error);
@@ -290,6 +327,17 @@ function MemberView() {
         </div>
 
       </div>
+
+      <ConfirmModal
+        isOpen={!!confirmModal}
+        title={confirmModal?.title}
+        message={confirmModal?.message}
+        confirmLabel={confirmModal?.confirmLabel}
+        onConfirm={confirmModal?.onConfirm}
+        onCancel={() => setConfirmModal(null)}
+        isNotification={confirmModal?.isNotification}
+        variant={confirmModal?.variant}
+      />
     </EventLayout>
   )
 }

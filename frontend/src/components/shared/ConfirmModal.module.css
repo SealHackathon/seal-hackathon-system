@@ -1,19 +1,70 @@
-.title {
-    font-size: 1.5rem;
-    font-weight: bold;
+.header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.iconWrapper {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.iconWrapper.warning {
+    background-color: var(--color-bg-orange);
+    /* soft orange */
     color: var(--color-primary-orange);
+}
+
+.iconWrapper.success {
+    background-color: var(--color-bg-green);
+    /* soft green */
+    color: var(--color-primary-green);
+}
+
+.iconWrapper.info {
+    background-color: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
+.title {
+    font-size: 1.8rem;
+    font-weight: bold;
     font-family: var(--title-font-main);
-    margin: 1em 0 0.5rem 0;
+    color: var(--color-primary-orange);
+    text-align: center;
+    margin: 0;
+}
+
+.info {
+    color: var(--color-primary-blue);
+}
+
+.success {
+    color: var(--color-primary-green);
 }
 
 .message {
-    color: var(--color-text-orange);
+    color: var(--color-text-secondary);
     line-height: 1.5;
-    margin: 0;
+    margin-top: 0.5em;
+    text-align: center;
 }
 
 .actions {
     display: flex;
-    justify-content: flex-end;
-    gap: 0.75rem;
+    justify-content: center;
+    gap: 1rem;
+    width: 100%;
+}
+
+.actionButton {
+    flex: 1;
+    display: flex;
+    justify-content: center;
 }

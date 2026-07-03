@@ -252,6 +252,7 @@ function NoTeamView() {
         message="Yêu cầu rời nhóm của bạn đã được duyệt. Bạn đã rời khỏi nhóm."
         confirmLabel="Đã hiểu"
         isNotification={true}
+        variant="info"
         onConfirm={() => setShowApprovedLeaveModal(false)}
         onCancel={() => setShowApprovedLeaveModal(false)}
       />

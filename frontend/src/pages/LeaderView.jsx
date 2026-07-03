@@ -151,7 +151,10 @@ function LeaderView() {
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const emptyCount = MAX_SLOTS - FAKE_MEMBERS.length
+
+  const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
   // api lấy team members thành viên đội 
   useEffect(() => {
@@ -161,7 +164,7 @@ function LeaderView() {
         setFAKE_MEMBERS(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
   // api lấy team info
   useEffect(() => {
@@ -172,7 +175,7 @@ function LeaderView() {
         setTeamStatus(response.data.teamStatus)
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
 
   // api teamLeader xem những join request gửi đến team này 
@@ -183,7 +186,7 @@ function LeaderView() {
         setFAKE_REQUESTS(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
   // api teamLeader xem những invitation da gui di 
   useEffect(() => {
@@ -193,7 +196,7 @@ function LeaderView() {
         setFAKE_INVITES(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
   // api teamLeader xem những leave request da gui di 
   useEffect(() => {
@@ -203,7 +206,7 @@ function LeaderView() {
         setFAKE_LEAVE_REQUESTS(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
 
 
@@ -219,7 +222,7 @@ function LeaderView() {
         // alert("Đã chấp nhận thành viên vào đội thành công!");
 
         // 2. Reload lại trang để cập nhật danh sách mới
-        window.location.reload();
+        triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
@@ -247,7 +250,7 @@ function LeaderView() {
             // alert("Đã từ chối yêu cầu gia nhập!");
 
             // 2. Reload lại trang để yêu cầu biến mất khỏi danh sách chờ
-            // window.location.reload();
+            // triggerRefresh();
           })
           .catch((error) => {
             console.log(error);
@@ -279,7 +282,7 @@ function LeaderView() {
             // alert("Đã hủy lời mời thành công!");
 
             // 2. Tải lại trang để cập nhật giao diện (mất lời mời vừa hủy)
-            window.location.reload();
+            triggerRefresh();
           })
           .catch((error) => {
             console.log(error);
@@ -306,15 +309,17 @@ function LeaderView() {
             //thêm reload trang
 
             setConfirmModal({
+              title: 'Thành công',
               message: 'Đã kick thành viên thành công!',
               confirmLabel: 'Xác nhận',
               isNotification: true,
-              onConfirm: () => { window.location.reload() }
+              variant: 'success',
+              onConfirm: () => { triggerRefresh() }
             })
 
             // alert("Đã kick thành viên thành công!");
             //reload trang
-            window.location.reload();
+            // triggerRefresh();
           })
           .catch((error) => {
             console.log(error);
@@ -345,9 +350,11 @@ function LeaderView() {
             console.log(response.data);
 
             setConfirmModal({
+              title: 'Thành công',
               message: 'Đã chuyển giao quyền Trưởng nhóm thành công!',
               confirmLabel: 'Xác nhận',
               isNotification: true,
+              variant: 'success',
               onConfirm: () => { window.location.reload() }
             })
 
@@ -383,9 +390,11 @@ function LeaderView() {
             console.log(response.data);
 
             setConfirmModal({
+              title: 'Thành công',
               message: 'Bạn đã rời nhóm thành công!',
               confirmLabel: 'Xác nhận',
               isNotification: true,
+              variant: 'success',
               onConfirm: () => {
                 localStorage.removeItem('lastKnownTeamRole');
                 updateTeamRole('NO_TEAM');
@@ -411,14 +420,16 @@ function LeaderView() {
       .then((response) => {
         console.log(response.data);
         setConfirmModal({
+          title: 'Thành công',
           message: 'Bạn đã duyệt yêu cầu rời nhóm thành công!',
           confirmLabel: 'Xác nhận',
           isNotification: true,
-          onConfirm: () => { window.location.reload() }
+          variant: 'info',
+          onConfirm: () => { setConfirmModal(null); triggerRefresh() }
         })
 
         // alert("Bạn đã duyet yeu cau roi nhóm thành công!");
-        window.location.reload();
+        // triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
@@ -432,16 +443,18 @@ function LeaderView() {
       .post('/teamrequest/out-team/cancle', id)
       .then((response) => {
         console.log(response.data);
-
+        
         setConfirmModal({
+          title: 'Thành công',
           message: 'Bạn đã từ chối yêu cầu rời nhóm thành công!',
           confirmLabel: 'Xác nhận',
           isNotification: true,
-          onConfirm: () => { window.location.reload() }
+          variant: 'info',
+          onConfirm: () => { setConfirmModal(null); triggerRefresh() }
         })
 
         // alert("Bạn đã tu choi yeu cau roi nhóm thành công!");
-        window.location.reload();
+        // triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
@@ -458,7 +471,7 @@ function LeaderView() {
         setTeamStatus('PENDING_APPROVAL')
 
         // alert("Đã chốt đội thành công!");
-        window.location.reload();
+        triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
@@ -478,7 +491,7 @@ function LeaderView() {
         console.log('TODO: Gọi API promote RESERVE → OFFICAL, memberId:', id)
         // ! đang check là cái id này là MEMBER id FK của bảng MEMBER
         axiosClient.put(`/team/move-to-official/${id}`).then(() => {
-          window.location.reload
+          triggerRefresh()
         }).catch((error) => {
           console.log(error)
         })
@@ -498,7 +511,7 @@ function LeaderView() {
         console.log('TODO: Gọi API demote OFFICAL → RESERVE, memberId:', id)
         // ! đang check là cái id này là MEMBER id FK của bảng MEMBER
         axiosClient.put(`/team/move-to-reserve/${id}`).then(() => {
-          window.location.reload
+          triggerRefresh()
         }).catch((error) => {
           console.log(error)
         })
@@ -542,11 +555,10 @@ function LeaderView() {
           teamName={teamInfo.teamName}
           description={teamInfo.description}
           teamCode={teamInfo.teamCode}
-          emptyCount={emptyCount}
           teamStatus={teamStatus}
+          emptyCount={emptyCount}
           isLeader
-          // onEdit={() => console.log('mở popup chỉnh sửa thông tin đội')}
-          onFindMember={() => console.log('mở popup tìm thành viên')}
+          onRefresh={triggerRefresh}
         />
 
         {/* {renderNoticeBox()} */}
@@ -600,6 +612,7 @@ function LeaderView() {
         onConfirm={confirmModal?.onConfirm}
         onCancel={() => setConfirmModal(null)}
         isNotification={confirmModal?.isNotification}
+        variant={confirmModal?.variant}
       />
 
     </EventLayout>
