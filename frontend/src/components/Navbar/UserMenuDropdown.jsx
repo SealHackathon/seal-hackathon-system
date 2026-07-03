@@ -3,10 +3,12 @@ import { GearSix, Question, SignOut } from '@phosphor-icons/react'
 import styles from './UserMenuDropdown.module.css'
 import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 import Button from '../shared/Button'
+import { useAuth } from '../../AuthContext'
 
 function UserMenuDropdown({ name, email, avatar }) {
     const [isOpen, setIsOpen] = useState(false)
     const ref = useRef(null)
+    const { logout } = useAuth()
 
     useEffect(() => {
         function handleClickOutside(e) {
@@ -62,11 +64,9 @@ function UserMenuDropdown({ name, email, avatar }) {
                                 variant='outline'
                                 color='orange'
                                 onClick={() => {
-                                    localStorage.removeItem('accessToken')
-                                    localStorage.removeItem('screen')
-                                    localStorage.removeItem('userInfo')
+                                    logout()
+                                    localStorage.removeItem('screen') // Nếu biến này chỉ dùng ở Navbar thì giữ lại
                                     window.location.href = '/login'
-
                                 }}
                             />
                         </li>

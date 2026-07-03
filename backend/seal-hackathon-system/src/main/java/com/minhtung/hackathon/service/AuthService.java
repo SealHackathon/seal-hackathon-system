@@ -143,12 +143,9 @@ public class AuthService {
         user.setExpiredAt(null);
         userRepository.save(user);
 
-        return "\"\"\"\n" +
-                "            xac nhan email thanh cong.\n" +
-                "            <a href=\"http://localhost:5173/verified-email\">\n" +
-                "                Bam Vao Day De Hoan Thien Thong tin\n" +
-                "            </a>\n" +
-                "            \"\"\"";
+        return """
+            <script>window.location.href = "http://localhost:5173/verified-email";</script>
+            """;
     }
 
     //Complete prfile
