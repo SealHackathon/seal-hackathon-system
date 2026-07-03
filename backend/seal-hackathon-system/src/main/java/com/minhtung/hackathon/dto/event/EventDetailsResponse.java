@@ -1,8 +1,6 @@
 package com.minhtung.hackathon.dto.event;
 
-import com.minhtung.hackathon.dto.response.MilestoneResponse;
-import com.minhtung.hackathon.dto.response.PrizeResponse;
-import com.minhtung.hackathon.dto.response.TrackResponse;
+import com.minhtung.hackathon.dto.response.*;
 import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
 import lombok.Data;
 
@@ -45,6 +43,7 @@ public class EventDetailsResponse {
     private List<EventNoteResponse> notes;
     // List milestone
     private List<MilestoneResponse> milestones;
-
+    private List<MentorInviteDto> mentors;
+    private List<JudgeInviteDto> judges;
 
 }

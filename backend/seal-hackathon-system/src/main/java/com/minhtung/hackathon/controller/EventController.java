@@ -81,8 +81,8 @@ public class EventController {
 
 
     // UPDATE EVENT
-//    @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDetailsResponse> updateEvent(
             @PathVariable Long id,
             @ModelAttribute EventRequest request) {

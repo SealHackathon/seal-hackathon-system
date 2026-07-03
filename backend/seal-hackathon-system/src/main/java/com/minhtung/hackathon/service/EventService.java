@@ -7,10 +7,7 @@ import com.minhtung.hackathon.dto.event.AllEventResponse;
 import com.minhtung.hackathon.dto.event.EventDetailsResponse;
 import com.minhtung.hackathon.dto.event.EventRequest;
 import com.minhtung.hackathon.dto.event.LiveEventResponse;
-import com.minhtung.hackathon.dto.response.EventNoteResponse;
-import com.minhtung.hackathon.dto.response.MilestoneResponse;
-import com.minhtung.hackathon.dto.response.PrizeResponse;
-import com.minhtung.hackathon.dto.response.TrackResponse;
+import com.minhtung.hackathon.dto.response.*;
 import com.minhtung.hackathon.dto.round.ComingRoundResponse;
 import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
 import com.minhtung.hackathon.dto.round.SubmissionConfigResponse;
@@ -43,6 +40,8 @@ public class EventService {
     private final MemberRepository memberRepository;
     private final RoundRepository roundRepository;
     private final Cloudinary cloudinary;
+    private final SystemRequestRepository systemRequestRepository;
+
 
     // service view Event
     // service lay tat ca event tất cả status lun
@@ -217,8 +216,6 @@ public class EventService {
     // update event
     @Transactional
     public EventDetailsResponse updateEvent(Long id, EventRequest request) {
-        System.out.println("===== UPDATE EVENT =====");
-
         // 1. Tìm Event cũ trong DB
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện với ID: " + id));
@@ -492,7 +489,6 @@ public class EventService {
                                 status = com.minhtung.hackathon.enums.MilestoneStatus.IN_PROGRESS.toString();
                             }
                         }
-
                         return new MilestoneResponse(
                                 m.getId(),
                                 m.getMilestoneName(),
@@ -507,6 +503,47 @@ public class EventService {
         } else {
             response.setMilestones(new ArrayList<>());
         }
+
+        // 7. MAP DANH SÁCH MENTOR INVITES (chỉ lấy PENDING hoặc ACCEPTED)
+        List<SystemRequest> mentorRequests = systemRequestRepository
+                .findByReferenceTypeAndReferenceIdAndTypeAndStatusInWithReceiver(
+                        SystemRequest.ReferenceType.EVENT,
+                        event.getId(),
+                        SystemRequest.RequestType.MENTOR_INVITE,
+                        List.of(SystemRequest.RequestStatus.PENDING, SystemRequest.RequestStatus.ACCEPTED)
+                );
+
+        List<MentorInviteDto> mentorDTOs = mentorRequests.stream()
+                .map(sr -> new MentorInviteDto(
+                        sr.getId(),
+                        toReceiverDto(sr.getReceiver()),
+                        sr.getTrackId() == 0 ? null : sr.getTrackId(),
+                        sr.getStatus().toString(),
+                        sr.getSentAt()
+                ))
+                .toList();
+        response.setMentors(mentorDTOs);
+
+        // 8. MAP DANH SÁCH JUDGE INVITES (chỉ lấy PENDING hoặc ACCEPTED)
+        List<SystemRequest> judgeRequests = systemRequestRepository
+                .findByReferenceTypeAndReferenceIdAndTypeAndStatusInWithReceiver(
+                        SystemRequest.ReferenceType.EVENT,
+                        event.getId(),
+                        SystemRequest.RequestType.JUDGE_INVITE,
+                        List.of(SystemRequest.RequestStatus.PENDING, SystemRequest.RequestStatus.ACCEPTED)
+                );
+
+        List<JudgeInviteDto> judgeDTOs = judgeRequests.stream()
+                .map(sr -> new JudgeInviteDto(
+                        sr.getId(),
+                        toReceiverDto(sr.getReceiver()),
+                        sr.getTrackId() == 0 ? null : sr.getTrackId(),
+                        sr.getRoundId() == 0 ? null : sr.getRoundId(),
+                        sr.getStatus().toString(),
+                        sr.getSentAt()
+                ))
+                .toList();
+        response.setJudges(judgeDTOs);
 
         return response;
     }
@@ -534,5 +571,17 @@ public class EventService {
         response.setCandidateQuantity(0);
 
         return response;
+    }
+
+
+    private ReceiverDto toReceiverDto(User user) {
+        if (user == null) return null;
+        return new ReceiverDto(
+                user.getId(),
+                user.getFullName(),
+                user.getTitle(),
+                user.getOrg(),
+                user.getAvt_img()
+        );
     }
 }
