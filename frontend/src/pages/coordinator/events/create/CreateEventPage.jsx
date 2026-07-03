@@ -15,7 +15,7 @@ import useSticky from '../../../../hooks/useSticky'
 import styles from './CreateEventPage.module.css'
 import Step5Categories from './steps/Step5Categories'
 import axiosClient from '../../../../api/axiosClient'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ConfirmModal from '../../../../components/shared/ConfirmModal'
 import NestedSmoothScroll from '../../../../components/shared/NestedSmoothScroll';
 
@@ -34,6 +34,8 @@ const TOTAL_STEPS = 7
 function CreateEventPage() {
   const navigate = useNavigate(); // 1. Khởi tạo hàm điều hướng
   const [sentinelRef, isSidebarSticky] = useSticky('-73px 0px 0px 0px')
+  const { id } = useParams();
+  const isEditing = Boolean(id);
   const [confirmModal, setConfirmModal] = useState(null)
   const [lastUpdated, setLastUpdated] = useState('');
   const [currentStep, setCurrentStep] = useState(1)
@@ -111,6 +113,7 @@ function CreateEventPage() {
 
 
   const [formData, setFormData] = useState({
+    id: id ?? null,
     deadlineSameAsClose: true,
     minMembers: 3,
     maxMembers: 4,
@@ -160,6 +163,48 @@ function CreateEventPage() {
   function handleFormChange(field, val) {
     setFormData(prev => ({ ...prev, [field]: val }))
   }
+
+  useEffect(() => {
+    if (!isEditing) return;
+
+    const fetchEvent = async () => {
+      try {
+        const response = await axiosClient.get(`/event/${id}`)
+        const data = response.data
+        if (!data) return
+
+        setFormData(prev => ({
+          ...prev,
+          id: data.eventId ?? id,
+          name: data.eventName ?? prev.name,
+          theme: data.eventTopic ?? prev.theme,
+          shortDesc: data.description ?? prev.shortDesc,
+          detailDesc: data.descriptionDetails ?? prev.detailDesc,
+          minMembers: data.minTeamMember ?? prev.minMembers,
+          maxMembers: data.maxTeamMember ?? prev.maxMembers,
+          openDate: data.openRegisterTime ? new Date(data.openRegisterTime) : prev.openDate,
+          closeDate: data.closeRegisterTime ? new Date(data.closeRegisterTime) : prev.closeDate,
+          teamDeadline: data.cofirmTeamTime ? new Date(data.cofirmTeamTime) : prev.teamDeadline,
+          generalRules: data.eventRules ?? prev.generalRules,
+          notes: data.notes ?? prev.notes,
+          benefits: data.participationBenefits ?? prev.benefits,
+          status: data.eventStatus?.toLowerCase() ?? prev.status,
+        }))
+        setStatus(data.eventStatus?.toLowerCase() ?? 'draft')
+
+        if (data.updatedAt) {
+          const updatedAt = new Date(data.updatedAt)
+          const pad = n => String(n).padStart(2, '0')
+          setLastUpdated(`${pad(updatedAt.getDate())}/${pad(updatedAt.getMonth() + 1)}/${updatedAt.getFullYear()} ${pad(updatedAt.getHours())}:${pad(updatedAt.getMinutes())}`)
+        }
+      } catch (error) {
+        console.error('Lỗi khi tải dữ liệu sự kiện:', error)
+        alert('Không tải được dữ liệu sự kiện. Vui lòng kiểm tra lại.')
+      }
+    }
+
+    fetchEvent()
+  }, [id, isEditing])
 
 
   // nếu chưa điền đủ các thông tin form ko cho nhảy bước
@@ -341,7 +386,7 @@ function CreateEventPage() {
             console.log(error)
           })
         }
-        navigate('/coordinator/events');
+        navigate('/admin/coordinator/events');
         setConfirmModal(null)
       }
     })
@@ -367,7 +412,7 @@ function CreateEventPage() {
     <div ref={pageRef} className={styles.page}>
 
       {/* ── Sticky Header ── */}
-      <CreateEventStickyHeader isEditing={true} lastUpdated={lastUpdated} />
+      <CreateEventStickyHeader isEditing={isEditing} lastUpdated={lastUpdated} />
 
       {/* ── Header ── */}
       <CreateEventHeader

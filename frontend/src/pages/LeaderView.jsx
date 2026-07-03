@@ -406,11 +406,10 @@ function LeaderView() {
   // TODO: Xử lí chỉnh sửa thông tin đội
 
   const handleOnApproveLeave = (id) => {
-    axios
+    axiosClient
       .put(`/teamrequest/Leave-request/${id}/respond`, {})
       .then((response) => {
         console.log(response.data);
-
         setConfirmModal({
           message: 'Bạn đã duyệt yêu cầu rời nhóm thành công!',
           confirmLabel: 'Xác nhận',

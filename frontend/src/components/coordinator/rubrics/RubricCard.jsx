@@ -3,7 +3,7 @@ import Tooltip from '../../shared/Tooltip';
 import StatusBadge from '../StatusBadge';
 import SegmentedWeightBar from './SegmentedWeightBar';
 import styles from './RubricCard.module.css';
-
+import { useNavigate } from 'react-router-dom'
 const getSegmentColor = (index, total) => {
     // calculate opacity from 1.0 down to 0.2 based on index
     const minOpacity = 0.2;
@@ -13,7 +13,9 @@ const getSegmentColor = (index, total) => {
     return `rgba(8, 76, 221, ${opacity})`;
 };
 
-export default function RubricCard({ rubric, onDelete, onEdit, onDuplicate }) {
+export default function RubricCard({ rubric, onDelete }) {
+    const navigate = useNavigate();
+
     const totalWeight = rubric.criteria.reduce((sum, c) => sum + c.weight, 0);
     const isUsed = rubric.usageCount > 0;
 
@@ -49,7 +51,7 @@ export default function RubricCard({ rubric, onDelete, onEdit, onDuplicate }) {
 
                 <div className={styles.actions}>
                     <Tooltip content="Chỉnh sửa" bgColor="blue" textColor="white" position="top">
-                        <button className={styles.actionBtn} onClick={() => onEdit && onEdit(rubric.id)}>
+                        <button className={styles.actionBtn} onClick={() => navigate(`/admin/coordinator/rubrics/${rubric.id}/edit`)}>
                             <PencilSimple size={20} weight='fill' />
                         </button>
                     </Tooltip>

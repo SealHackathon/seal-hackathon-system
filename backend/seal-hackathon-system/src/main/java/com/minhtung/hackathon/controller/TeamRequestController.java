@@ -273,7 +273,14 @@ public class TeamRequestController {
             @RequestHeader("Authorization") String auth) {
         Integer uid = getUid(auth);
         if (uid == null) return unauthorized();
-        return ResponseEntity.ok(teamService.respondToLeaveRequest(memberId,uid));
+
+        try {
+            return ResponseEntity.ok(teamService.respondToLeaveRequest(memberId,uid));
+
+        }catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+
     }
 
 

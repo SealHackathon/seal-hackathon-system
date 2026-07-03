@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from 'react';
-import { FileText, Plus } from '@phosphor-icons/react';
+import { Plus, FileText, ListDashes, Gear } from '@phosphor-icons/react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
@@ -17,30 +17,39 @@ import CreateRubricFooter from '../../../components/coordinator/rubrics/create/C
 import CriterionCard from '../../../components/coordinator/rubrics/create/CriterionCard';
 import useSticky from '../../../../src/hooks/useSticky';
 
+import axiosClient from '../../../api/axiosClient';
 import styles from './CreateRubricPage.module.css';
 
+
+// { id: 1, name: 'Tính khả thi & Thực tiễn', description: 'Đánh giá khả năng áp dụng sản phẩm vào thực tế, mô hình kinh doanh và khả năng sinh lời.', weight: 35 },
+//         { id: 2, name: 'Đổi mới sáng tạo', description: 'Mức độ mới lạ, độc đáo của giải pháp so với các sản phẩm hiện có trên thị trường.', weight: 25 },
+//         { id: 3, name: 'Công nghệ & Kỹ thuật', description: 'Độ phức tạp của công nghệ, tính hoàn thiện của source code.', weight: 25 },
+
+
+
+//  { userName: 'Admin User', action: 'Cập nhật trọng số "Tính khả thi" lên 35%', time: 'Hôm nay, 10:30' },
+//         { userName: 'Bùi Minh Tuấn', action: 'Đổi tên Rubric và thêm mô tả', time: '20/06/2026, 14:15' },
+//         { userName: 'Hệ thống', action: 'Tạo mới bản nháp Rubric', time: '18/06/2026, 09:00' },
+
+
+
 export default function CreateRubricPage() {
+
+
     const navigate = useNavigate();
-    const { id } = useParams();
-
-    // TODO: Gọi API lấy thông tin rubric để edit (nếu có id)
-    // useEffect(() => {
-    //     if (id) {
-    //         // axiosClient.get(`/api/rubrics/${id}`).then(...)
-    //         // Cập nhật lại formData và criteria
-    //     }
-    // }, [id]);
-
-    // Mock data giả lập chế độ Edit
-    const [isEditing] = useState(true);
+    const { id } = useParams(); // route: /admin/coordinator/rubrics/create hoặc /:id/edit
 
     // Modal state
     const [deleteModalOpen, setDeleteModalOpen] = useState(false);
     const [criterionToDelete, setCriterionToDelete] = useState(null);
 
-    const [inUseCount] = useState(3);
-    const [status] = useState('draft'); // 'unsaved' | 'draft' | 'published'
-    const [lastUpdated, setLastUpdated] = useState('25/06/2026 10:30');
+    // Mock data giả lập chế độ Edit
+    const isEditing = Boolean(id);
+    const [loading, setLoading] = useState(isEditing);
+
+    const [inUseCount, setInUseCount] = useState(0);
+    const [status, setStatus] = useState('draft'); // 'unsaved' | 'draft' | 'published'
+    const [lastUpdated, setLastUpdated] = useState(null);
 
     // Sticky hooks
     const [sentinelRef, isSticky] = useSticky('-73px 0px 0px 0px');
@@ -100,26 +109,56 @@ export default function CreateRubricPage() {
         return () => document.documentElement.classList.remove('hide-scrollbar');
     }, []);
     const [formData, setFormData] = useState({
-        name: 'SEAL Default Hackathon 2026',
-        description: 'Bộ tiêu chí mặc định dành cho các vòng thi chung của SEAL Hackathon, tập trung vào khả năng triển khai thực tế và tính sáng tạo.',
+        name: '',
+        description: '',
         deviationThreshold: 20,
-        tieBreaker: true,
+        tieBreaker: false
     });
 
-    const [criteria, setCriteria] = useState([
-        { id: 1, name: 'Tính khả thi & Thực tiễn', description: 'Đánh giá khả năng áp dụng sản phẩm vào thực tế, mô hình kinh doanh và khả năng sinh lời.', weight: 35 },
-        { id: 2, name: 'Đổi mới sáng tạo', description: 'Mức độ mới lạ, độc đáo của giải pháp so với các sản phẩm hiện có trên thị trường.', weight: 25 },
-        { id: 3, name: 'Công nghệ & Kỹ thuật', description: 'Độ phức tạp của công nghệ, tính hoàn thiện của source code.', weight: 25 },
-    ]);
+    const [nameTouched, setNameTouched] = useState(false);
+
+    const [criteria, setCriteria] = useState([]);
 
     const [activeCriterionId, setActiveCriterionId] = useState(null);
+    const [logs, setLogs] = useState([]);
 
     // Lịch sử thao tác mock
-    const MOCK_LOGS = [
-        { userName: 'Admin User', action: 'Cập nhật trọng số "Tính khả thi" lên 35%', time: 'Hôm nay, 10:30' },
-        { userName: 'Bùi Minh Tuấn', action: 'Đổi tên Rubric và thêm mô tả', time: '20/06/2026, 14:15' },
-        { userName: 'Hệ thống', action: 'Tạo mới bản nháp Rubric', time: '18/06/2026, 09:00' },
-    ];
+    const MOCK_LOGS = [];
+
+
+    // ── Fetch rubric cũ nếu đang edit ──
+    useEffect(() => {
+        if (!isEditing) return;
+
+        const fetchRubric = async () => {
+            try {
+                const res = await axiosClient.get(`/scoring-template/${id}`);
+                const data = res.data;
+
+                setFormData({
+                    name: data.name,
+                    description: data.description,
+                    deviationThreshold: data.deviationThreshold,
+                    tieBreaker: data.tieBreaker,
+                });
+                setCriteria(data.criteria.map((c, idx) => ({ ...c, id: c.id ?? idx + 1 })));
+                setInUseCount(data.inUseCount ?? 0);
+                setStatus(data.status?.toLowerCase() ?? 'draft'); // DRAFT/OFFICIAL -> draft/published
+                setLastUpdated(data.updatedAt);
+                setLogs(data.auditLogs ?? []);
+            } catch (error) {
+                console.error('Lỗi khi lấy rubric:', error);
+                alert('Không tải được dữ liệu rubric.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchRubric();
+    }, [id, isEditing]);
+
+
+
 
     // Tự động sắp xếp các tiêu chí theo trọng số (từ cao xuống thấp)
     const sortedCriteria = useMemo(() => {
@@ -174,20 +213,55 @@ export default function CreateRubricPage() {
         if (id === 'rubric') navigate('/admin/coordinator/rubrics');
     };
 
-    const handleSaveDraft = async () => {
-        // TODO: Gọi API lưu bản nháp (Draft)
-        // await axiosClient.post('/api/rubrics/draft', { id, formData, criteria });
-        console.log('Lưu nháp', { formData, criteria });
+
+    // ── Save: dùng chung 1 hàm, chỉ đổi method + status ──
+    const saveTemplate = async (targetStatus) => {
+        // Cập nhật UI ngay lập tức để demo (kể cả khi API lỗi)
         const now = new Date();
         const pad = n => n.toString().padStart(2, '0');
         setLastUpdated(`${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`);
+
+        try {
+            const formattedCriteria = criteria.map(({ name, description, weight }) => ({
+                name,
+                description,
+                weight: Number(weight),
+            }));
+
+            const requestBody = {
+                name: formData.name,
+                description: formData.description,
+                tieBreaker: formData.tieBreaker,
+                deviationThreshold: Number(formData.deviationThreshold),
+                status: targetStatus, // "DRAFT" | "OFFICIAL"
+                criteria: formattedCriteria,
+            };
+
+            const response = isEditing
+                ? await axiosClient.put(`/scoring-template/${id}`, requestBody)
+                : await axiosClient.post('/scoring-template', requestBody);
+
+            console.log('Response từ BE:', response.data);
+
+            // Nếu vừa tạo mới thành công -> điều hướng sang route edit với id thật
+            if (!isEditing && response.data?.id) {
+                navigate(`/admin/coordinator/rubrics/${response.data.id}/edit`, { replace: true });
+            }
+        } catch (error) {
+            console.error('Lỗi khi lưu template:', error);
+            const errorMsg = error.response?.data || 'Đã xảy ra lỗi hệ thống, vui lòng thử lại sau.';
+            alert(errorMsg);
+        }
     };
 
-    const handleSave = async () => {
-        // TODO: Gọi API lưu/xuất bản Rubric (nếu có id thì update, không thì create)
-        // await axiosClient.post('/api/rubrics', { id, formData, criteria });
-        console.log('Lưu Rubric', { formData, criteria });
-    };
+    const handleSaveTemplateDraft = () => saveTemplate('DRAFT');
+    const handleSaveTemplate = () => saveTemplate('OFFICIAL');
+
+    // if (loading) return <div className={styles.pageWrapper}>Đang tải...</div>;
+
+
+
+
 
     return (
         <div ref={pageWrapperRef} className={styles.pageWrapper} onClick={() => setActiveCriterionId(null)}>
@@ -208,7 +282,7 @@ export default function CreateRubricPage() {
                         {status === 'draft' && <Badge variant="dashedOrange" label="Lưu nháp" />}
                     </div>
                     <p className={styles.blueHeaderDesc}>
-                        Thiết lập các tiêu chí đánh giá, cấu hình trọng số và các quy tắc chấm điểm nâng cao cho rubric.
+                        {formData.description || 'Thiết lập các tiêu chí đánh giá, cấu hình trọng số và các quy tắc chấm điểm nâng cao cho rubric.'}
                     </p>
                 </div>
             </div>
@@ -238,8 +312,13 @@ export default function CreateRubricPage() {
                                                 label="Tên bộ tiêu chí"
                                                 required
                                                 value={formData.name}
-                                                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                                                onChange={(e) => {
+                                                    setFormData({ ...formData, name: e.target.value });
+                                                }}
+                                                onBlur={() => setNameTouched(true)}
                                                 placeholder="VD: Tiêu chí vòng sơ loại..."
+                                                status={(!isRubricNameValid && nameTouched) ? 'error' : ''}
+                                                message={(!isRubricNameValid && nameTouched) ? 'Tên bộ tiêu chí không được để trống' : ''}
                                             />
 
                                             <FormTextarea
@@ -265,12 +344,26 @@ export default function CreateRubricPage() {
                                                 <div className={styles.settingAction}>
                                                     <div className={styles.thresholdWrapper}>
                                                         <input
-                                                            type="number"
+                                                            type="text"
+                                                            inputMode="numeric"
                                                             value={formData.deviationThreshold}
-                                                            onChange={(e) => setFormData({ ...formData, deviationThreshold: e.target.value })}
+                                                            onChange={(e) => {
+                                                                // Loại bỏ hoàn toàn mọi ký tự không phải là số
+                                                                let val = e.target.value.replace(/[^0-9]/g, '');
+                                                                
+                                                                if (val === '') {
+                                                                    setFormData({ ...formData, deviationThreshold: '' });
+                                                                    return;
+                                                                }
+                                                                
+                                                                let num = parseInt(val, 10);
+                                                                if (num < 0) num = 0;
+                                                                if (num > 100) num = 100;
+                                                                
+                                                                setFormData({ ...formData, deviationThreshold: num });
+                                                            }}
                                                             className={styles.thresholdInput}
-                                                            min="0"
-                                                            max="100"
+                                                            placeholder="0"
                                                         />
                                                         <span className={styles.percentSign}>%</span>
                                                     </div>
@@ -376,8 +469,8 @@ export default function CreateRubricPage() {
                     criteria={sortedCriteria}
                     isValid={isValid}
                     onCancel={() => navigate('/admin/coordinator/rubrics')}
-                    onSaveDraft={handleSaveDraft}
-                    onSave={handleSave}
+                    onSaveDraft={handleSaveTemplateDraft}
+                    onSave={handleSaveTemplate}
                 />
 
             </div>

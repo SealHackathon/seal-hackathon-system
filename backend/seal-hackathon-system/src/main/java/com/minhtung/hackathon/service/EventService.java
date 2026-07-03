@@ -179,37 +179,15 @@ public class EventService {
     // tạo 1 event lưu nháp trong lúc cấu hình
     // trả về id của event
     @Transactional
-    public Event createEvent(EventRequest request) {
-        Event event;
-        boolean isUpdate = request.getId() != null;
+    public EventDetailsResponse createEvent(EventRequest request) {
+        Event event = new Event();
+        event.setCreateAt(LocalDateTime.now());
 
-        // 1. Kiểm tra xem có ID truyền xuống từ Frontend chưa để quyết định Update hay Insert
-        if (isUpdate) {
-            // Nếu có ID, tìm Event cũ trong DB để cập nhật
-            event = eventRepository.findById(request.getId())
-                    .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện với ID: " + request.getId()));
-        } else {
-            // Nếu không có ID, đây là lần đầu tiên bấm lưu nháp -> Tạo mới hoàn toàn
-            event = new Event();
-            // Dòng này giữ nguyên từ code gốc của bạn để ghi nhận thời gian tạo thực tế ban đầu
-            event.setCreateAt(LocalDateTime.now());
-        }
-
-        // 2. Xử lý Upload ảnh mới lên Cloudinary (nếu frontend có gửi file vật lý)
+        // Upload ảnh mới lên Cloudinary
         String bannerUrl = uploadToCloudinary(request.getBannerFile());
         String thumbnailUrl = uploadToCloudinary(request.getThumbnailFile());
 
-        // 3. LOGIC XÓA ẢNH CŨ (Chỉ chạy khi UPDATE và THỰC SỰ CÓ ẢNH MỚI được upload lên thành công)
-        if (isUpdate) {
-            if (bannerUrl != null && event.getBannerImg() != null) {
-                deleteImageFromCloudinary(event.getBannerImg()); // Xóa banner cũ trên Cloudinary
-            }
-            if (thumbnailUrl != null && event.getThumbnail_image() != null) {
-                deleteImageFromCloudinary(event.getThumbnail_image()); // Xóa thumbnail cũ trên Cloudinary
-            }
-        }
-
-        // 4. Map và cập nhật thông tin text thông thường
+        // Map thông tin text
         event.setName(request.getName());
         event.setDescription(request.getDescription());
         event.setDescriptionDetail(request.getDescriptionDetails());
@@ -218,7 +196,7 @@ public class EventService {
         event.setMaxTeamMember(request.getMaxTeamMember());
         event.setTopic(request.getTopic());
 
-        // 5. Cập nhật URL ảnh vào Entity
+        // Gán URL ảnh (Nếu ko upload file thì lấy chuỗi string URL truyền lên nếu có)
         event.setBannerImg(bannerUrl != null ? bannerUrl : request.getBannerImg());
         event.setThumbnail_image(thumbnailUrl != null ? thumbnailUrl : request.getThumbnail_image());
 
@@ -226,18 +204,69 @@ public class EventService {
         event.setEventLocation(request.getEventLocation());
         event.setParticipationBenefits(request.getParticipationBenefits());
 
-        // 6. Gán thời gian nhận từ Frontend
         event.setOpenRegisterTime(request.getOpenRegisterTime());
         event.setCloseRegisterTime(request.getCloseRegisterTime());
         event.setCofirmTeamTime(request.getCofirmTeamTime());
 
-        // LƯU Ý: Đoạn này ở code cũ của bạn đang đè lại thời gian tạo (CreateAt).
-        // Mình chuyển nó xuống đây nhưng ĐÃ BỌC LẠI bằng điều kiện để khi UPDATE không bị ghi đè mất thời gian tạo gốc ban đầu.
-        if (!isUpdate) {
-            event.setCreateAt(LocalDateTime.now());
+        Event savedEvent = eventRepository.save(event);
+        return mapToEventDetailsResponse(savedEvent);
+    }
+
+
+    // update event
+    @Transactional
+    public EventDetailsResponse updateEvent(Long id, EventRequest request) {
+        // 1. Tìm Event cũ trong DB
+        Event event = eventRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện với ID: " + id));
+
+        // 2. Upload ảnh mới (nếu Front-end gửi file lên)
+        String bannerUrl = uploadToCloudinary(request.getBannerFile());
+        String thumbnailUrl = uploadToCloudinary(request.getThumbnailFile());
+
+        // 3. Logic xóa ảnh cũ trên Cloudinary nếu có ảnh mới thành công
+        if (bannerUrl != null && event.getBannerImg() != null) {
+            deleteImageFromCloudinary(event.getBannerImg());
+        }
+        if (thumbnailUrl != null && event.getThumbnail_image() != null) {
+            deleteImageFromCloudinary(event.getThumbnail_image());
         }
 
-        return eventRepository.save(event);
+        // 4. Cập nhật các thông tin text thông thường
+        event.setName(request.getName());
+        event.setDescription(request.getDescription());
+        event.setDescriptionDetail(request.getDescriptionDetails());
+        event.setMinTeamMember(request.getMinTeamMember());
+        event.setMaxTeamMember(request.getMaxTeamMember());
+        event.setTopic(request.getTopic());
+
+        // Giữ nguyên trạng thái cũ hoặc cập nhật theo request nếu cần (ở đây mặc định giữ luồng cấu hình)
+        event.setStatus(EventStatus.DRAFT);
+
+        // 5. Cập nhật URL ảnh: Nếu có ảnh mới upload thì lấy ảnh mới, không thì giữ nguyên ảnh cũ trong DB
+        if (bannerUrl != null) {
+            event.setBannerImg(bannerUrl);
+        } else if (request.getBannerImg() != null) {
+            event.setBannerImg(request.getBannerImg());
+        }
+
+        if (thumbnailUrl != null) {
+            event.setThumbnail_image(thumbnailUrl);
+        } else if (request.getThumbnail_image() != null) {
+            event.setThumbnail_image(request.getThumbnail_image());
+        }
+
+        event.setRules(request.getRules());
+        event.setEventLocation(request.getEventLocation());
+        event.setParticipationBenefits(request.getParticipationBenefits());
+
+        // 6. Gán thời gian
+        event.setOpenRegisterTime(request.getOpenRegisterTime());
+        event.setCloseRegisterTime(request.getCloseRegisterTime());
+        event.setCofirmTeamTime(request.getCofirmTeamTime());
+
+        Event savedEvent = eventRepository.save(event);
+        return mapToEventDetailsResponse(savedEvent);
     }
 
     // ═════════════════════════════════════════════════════════════════════
@@ -454,6 +483,31 @@ public class EventService {
         } else {
             response.setMilestones(new ArrayList<>());
         }
+
+        return response;
+    }
+
+    private EventDetailsResponse mapToEventDetailsResponse(Event event) {
+        EventDetailsResponse response = new EventDetailsResponse();
+        response.setEventId(event.getId()); // Giả định trường ID trong Entity là id
+        response.setEventName(event.getName());
+        response.setEventTopic(event.getTopic());
+        response.setDescription(event.getDescription());
+        response.setEventLocation(event.getEventLocation());
+        response.setBannerImg(event.getBannerImg());
+        response.setThumbnailImage(event.getThumbnail_image());
+        response.setRules(event.getRules());
+        response.setParticipationBenefits(event.getParticipationBenefits());
+        response.setMinTeamMember(event.getMinTeamMember());
+        response.setMaxTeamMember(event.getMaxTeamMember());
+        response.setEventStatus(event.getStatus() != null ? event.getStatus().name() : null);
+        response.setCreateAt(event.getCreateAt());
+
+        // Các trường thống kê số lượng (Khởi tạo bằng 0 cho event mới/nháp)
+        response.setTrackQuantity(event.getTracks() != null ? event.getTracks().size() : 0);
+        response.setRoundQuantity(event.getRounds() != null ? event.getRounds().size() : 0);
+        response.setTeamQuantity(0);
+        response.setCandidateQuantity(0);
 
         return response;
     }

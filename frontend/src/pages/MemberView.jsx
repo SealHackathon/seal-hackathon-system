@@ -5,6 +5,7 @@ import TeamMemberPanel from '../components/leaderView/TeamMemberPanel'
 import InviteTeamCard from '../components/noTeamView/InviteTeamCard'
 import styles from './MemberView.module.css'
 import axios from 'axios'
+import axiosClient from '../api/axiosClient'
 import { useAuth } from '../AuthContext'
 
 // const MOCK_MEMBERS = [
@@ -111,16 +112,26 @@ function MemberView() {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
   }, []);
 
+
+  // api sinh vien xem những invitation gui toi minh
+  useEffect(() => {
+    axiosClient.get('/teamrequest/member-invitation')
+      .then((response) => {
+        setFAKE_INVITES(response.data);
+
+      })
+      .catch((error) => console.log(error));
+  }, []);
+
+
+
+
+
   // api lấy team info - comment out to use mock data for testing
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/team/team-info', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      })
+    axiosClient
+      .get('/team/team-info')
       .then((response) => {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus);
@@ -132,13 +143,8 @@ function MemberView() {
   // api lấy team members - comment out to use mock data
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/team/my-team', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      })
+    axiosClient
+      .get('/team/my-team')
       .then((response) => {
         setFAKE_MEMBERS(response.data);
       })
@@ -147,13 +153,8 @@ function MemberView() {
 
 
   const handleOnLeave = (message) => {
-    axios
-      .post('http://localhost:8080/api/teamrequest/out-team', { message: message }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
-      })
+    axiosClient
+      .post('/teamrequest/out-team', { message: message })
       .then((response) => {
         console.log(response.data);
         if (currentUser?.memberStatus === 'RESERVE') {
@@ -177,14 +178,22 @@ function MemberView() {
       });
   };
 
-  const handleOnCancelLeave = (id) => {
-    axios
-      .post('http://localhost:8080/api/teamrequest/out-team/cancle', id, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
+
+  // api member xem những leave request da gui di 
+  useEffect(() => {
+    axiosClient
+      .get('/teamrequest/leave_request')
+      .then((response) => {
+        setLeaveRequest(response.data);
       })
+      .catch((error) => console.log(error));
+  }, []);
+
+
+
+  const handleOnCancelLeave = (id) => {
+    axiosClient
+      .post('/teamrequest/out-team/cancle', id)
       .then((response) => {
         console.log(response.data);
         localStorage.removeItem('pendingLeaveRequest');
@@ -197,14 +206,46 @@ function MemberView() {
       });
   }
 
-  const handleAcceptInvite = (id) => {
-    alert("Đã chấp nhận lời mời. Bạn sẽ rời team hiện tại.");
-    setFAKE_INVITES(prev => prev.filter(inv => inv.id !== id));
+
+
+  const handleAcceptInvite = (requestId, isAccepted) => {
+    axiosClient
+      .put('/teamrequest/invitation-response', {
+        requestId: requestId,
+        accept: isAccepted
+      })
+      .then((response) => {
+        console.log(response.data);
+        setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Có lỗi xảy ra khi chấp nhận lời mời!");
+      });
   }
 
-  const handleRejectInvite = (id) => {
-    alert("Đã từ chối lời mời.");
-    setFAKE_INVITES(prev => prev.filter(inv => inv.id !== id));
+
+  // (id) => {
+  //   alert("Đã chấp nhận lời mời. Bạn sẽ rời team hiện tại.");
+  //   setFAKE_INVITES(prev => prev.filter(inv => inv.id !== id));
+  // }
+
+  const handleRejectInvite = (requestId, isAccepted) => {
+    axiosClient
+      .put('/teamrequest/invitation-response', {
+        requestId: requestId,
+        accept: isAccepted
+      })
+      .then((response) => {
+        console.log(response.data);
+        setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
+        window.location.reload();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Có lỗi xảy ra khi Từ Chối lời mời!");
+      });
   }
 
   const currentUser = FAKE_MEMBERS.find(m => m.isCurrentUser);
@@ -236,8 +277,8 @@ function MemberView() {
           <div className={styles.side}>
             <InviteTeamCard
               invites={currentUser?.memberStatus === 'OFFICAL' ? [] : FAKE_INVITES}
-              onAccept={handleAcceptInvite}
-              onReject={handleRejectInvite}
+              onAccept={(id) => handleAcceptInvite(id, true)}
+              onReject={(id) => handleRejectInvite(id, false)}
               isFromTeam={true}
               emptyText={
                 currentUser?.memberStatus === 'OFFICAL'

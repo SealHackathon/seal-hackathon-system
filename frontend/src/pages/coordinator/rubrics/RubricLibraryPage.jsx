@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { MagnifyingGlass, Plus, Trophy } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
 import RubricList from '../../../components/coordinator/rubrics/RubricList';
@@ -8,7 +8,7 @@ import Dropdown from '../../../components/shared/Dropdown';
 import CoordinatorLayout from '../../../layouts/CoordinatorLayout';
 import SectionHeader from '../../../components/shared/SectionHeader';
 import styles from './RubricLibraryPage.module.css';
-
+import axiosClient from '../../../api/axiosClient';
 const MOCK_RUBRICS = [
     {
         id: 1,
@@ -67,9 +67,19 @@ const MOCK_RUBRICS = [
 
 export default function RubricLibraryPage() {
     const navigate = useNavigate();
-    const [rubrics, setRubrics] = useState(MOCK_RUBRICS);
+    const [rubrics, setRubrics] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('date_desc');
+
+    useState(() => {
+        axiosClient.get('/scoring-template')
+            .then((response) => {
+                setRubrics(response.data);
+            })
+            .catch((error) => console.log(error));
+    }, []);
+  
+
 
     const processedRubrics = useMemo(() => {
         let result = [...rubrics];
@@ -99,12 +109,6 @@ export default function RubricLibraryPage() {
     // };
     // useEffect(() => { fetchRubrics(); }, []);
 
-    const handleDelete = async (id) => {
-        // TODO: Gọi API xóa rubric theo id
-        // await axiosClient.delete(`/api/rubrics/${id}`);
-        // fetchRubrics();
-    };
-
     const handleDuplicate = async (id) => {
         // TODO: Gọi API nhân bản rubric theo id
         // await axiosClient.post(`/api/rubrics/${id}/duplicate`);
@@ -114,6 +118,14 @@ export default function RubricLibraryPage() {
     const handleEdit = (id) => {
         // Chuyển hướng sang trang edit
         navigate(`/admin/coordinator/rubrics/create/${id}`);
+    }
+    const handleDelete = (id) => {
+          axiosClient.delete(`/scoring-template/${id}`)
+            .then(() => {
+                   setRubrics(rubrics.filter(r => r.id !== id));
+                // Sau khi xóa thành công, gọi lại API để lấy danh sách rubrics mới
+            })
+            .catch((error) => console.log(error));
     };
 
     const handleNavigation = (id) => {
