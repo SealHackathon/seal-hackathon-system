@@ -81,7 +81,9 @@ function CreateEventPage() {
     ],
     categories: [
       { id: 'cat-1', name: '', desc: '', teamLimit: '' }
-    ]
+    ],
+    mentors: [],
+    judges: []
   })
   const [status, setStatus] = useState('draft')
 
@@ -178,6 +180,66 @@ function CreateEventPage() {
     return { mainPrizes: main.length ? main : undefined, extendedPrizes: extended.length ? extended : undefined }
   }
 
+  const parseReceiver = (receiver = {}) => ({
+    id: receiver.id ?? receiver.userId ?? receiver.receiverId ?? null,
+    name: receiver.fullName ?? receiver.name ?? receiver.username ?? receiver.email ?? '',
+    title: receiver.title ?? receiver.position ?? receiver.role ?? '',
+    org: receiver.orgName ?? receiver.organization ?? receiver.company ?? '',
+    avatar: receiver.avatarUrl ?? receiver.avatar ?? receiver.profileImage ?? receiver.imageUrl ?? null,
+  })
+
+  const normalizeInviteStatus = (rawStatus, sentAt) => {
+    const normalized = String(rawStatus ?? 'pending').trim().toLowerCase()
+    if (sentAt && normalized === 'pending') return 'sent'
+    if (['pending', 'sent', 'accepted', 'rejected', 'declined'].includes(normalized)) {
+      return normalized
+    }
+    return 'pending'
+  }
+
+  const normalizeMentors = (rawMentors) => {
+    if (!Array.isArray(rawMentors)) return []
+    return rawMentors.map((item, index) => {
+      const receiver = parseReceiver(item.receiver ?? item.user ?? item.person ?? {})
+      return {
+        id: receiver.id ?? item.receiverId ?? item.userId ?? item.id ?? item.mentorId ?? `mentor-${index + 1}`,
+        name: receiver.name,
+        title: receiver.title,
+        org: receiver.org,
+        avatar: receiver.avatar,
+        categoryId: item.trackId ?? item.categoryId ?? item.category?.id ?? item.track?.id ?? null,
+        inviteStatus: normalizeInviteStatus(item.status ?? item.requestStatus ?? item.inviteStatus ?? 'pending', item.sentAt ?? item.sentAtTime ?? item.inviteSentAt ?? null),
+        inviteSentAt: item.sentAt ?? item.sentAtTime ?? item.inviteSentAt ?? null,
+      }
+    })
+  }
+
+  const normalizeJudges = (rawJudges) => {
+    if (!Array.isArray(rawJudges)) return []
+    return rawJudges.map((item, index) => {
+      const receiver = parseReceiver(item.receiver ?? item.user ?? item.person ?? {})
+      const categoryIds = Array.isArray(item.categoryIds ?? item.trackIds ?? item.categories ?? item.tracks)
+        ? (item.categoryIds ?? item.trackIds ?? item.categories ?? item.tracks).map(x => x?.id ?? x)
+        : []
+      const roundIds = Array.isArray(item.roundIds ?? item.rounds)
+        ? (item.roundIds ?? item.rounds).map(x => x?.id ?? x)
+        : []
+      const fallbackCategoryId = item.trackId ?? item.categoryId ?? item.category?.id ?? item.track?.id ?? null
+      const fallbackRoundId = item.roundId ?? item.round?.id ?? null
+
+      return {
+        id: receiver.id ?? item.receiverId ?? item.userId ?? item.id ?? item.judgeId ?? `judge-${index + 1}`,
+        name: receiver.name,
+        title: receiver.title,
+        org: receiver.org,
+        avatar: receiver.avatar,
+        categoryIds: categoryIds.length ? categoryIds : (fallbackCategoryId ? [fallbackCategoryId] : []),
+        roundIds: roundIds.length ? roundIds : (fallbackRoundId ? [fallbackRoundId] : []),
+        inviteStatus: normalizeInviteStatus(item.status ?? item.requestStatus ?? item.inviteStatus ?? 'pending', item.sentAt ?? item.sentAtTime ?? item.inviteSentAt ?? null),
+        inviteSentAt: item.sentAt ?? item.sentAtTime ?? item.inviteSentAt ?? null,
+      }
+    })
+  }
 
   const extractData = (response) => {
     if (!response) return null
@@ -287,6 +349,8 @@ function CreateEventPage() {
           status: data.eventStatus?.toLowerCase() ?? data.status?.toLowerCase() ?? prev.status,
           rounds: roundsData ?? prev.rounds,
           categories: trackData ?? prev.categories,
+          mentors: normalizeMentors(data.mentors ?? data.mentorInvites ?? data.mentorRequests ?? prev.mentors),
+          judges: normalizeJudges(data.judges ?? data.judgeInvites ?? data.judgeRequests ?? prev.judges),
           mainPrizes: prizeData?.mainPrizes ?? prev.mainPrizes,
           extendedPrizes: prizeData?.extendedPrizes ?? prev.extendedPrizes,
           rankCount: Number(data.rankCount ?? (prizeData?.mainPrizes?.length ?? prev.rankCount)) || prev.rankCount,
