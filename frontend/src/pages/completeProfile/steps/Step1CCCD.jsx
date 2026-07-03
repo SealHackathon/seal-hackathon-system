@@ -121,6 +121,10 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
                 hometown: res.data.hometown || '',
                 thuongtru: res.data.thuongtru || '',
             })
+            // Lưu link Cloudinary để không bị mất khi refresh trang (localStorage không lưu được File object)
+            if (res.data.frontcmnd_img) setFrontFile(res.data.frontcmnd_img)
+            if (res.data.CmndBack_img) setBackFile(res.data.CmndBack_img)
+            
             setExtractionState('success')
         } catch {
             const next = retriesLeft - 1
