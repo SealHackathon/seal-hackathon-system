@@ -89,33 +89,212 @@ function CreateEventPage() {
     setFormData(prev => ({ ...prev, [field]: val }))
   }
 
+  // chuẩn hóa lại dữ liệu ngày tháng từ backend về dạng Date object
+  const parseBackendDate = (value) => {
+    if (!value) return null
+    if (value instanceof Date) return value
+    if (typeof value === 'number') return new Date(value)
+
+    const str = String(value).trim()
+    const normalized = str
+      .replace(/\s+/g, 'T')
+      .replace(/\./g, ':')
+      .replace(/\s*GMT.*$/i, '')
+
+    const date = new Date(normalized)
+    return Number.isFinite(date.getTime()) ? date : null
+  }
+
+  // hàm chuẩn hóa dữ liệu vòng thi từ API về định dạng mà formData mong muốn
+  const normalizeRounds = (rawRounds) => {
+    if (!Array.isArray(rawRounds)) return undefined
+    return rawRounds.map((r, index) => ({
+      id: r.roundId ?? r.id ?? `round-${index + 1}`,
+      name: r.roundName ?? r.name ?? `Vòng ${index + 1}`,
+      startDate: parseBackendDate(r.roundStartTime ?? r.timeStart ?? r.startDate),
+      endDate: parseBackendDate(r.roundEndTime ?? r.timeEnd ?? r.endDate),
+      format: r.format ?? (r.meetingLink ? 'online' : 'offline'),
+      location: r.location ?? (r.position ? { name: r.position } : null),
+      submissionType: r.submissionType ?? (r.submissionConfig?.hasSubmission ? 'new' : 'previous'),
+      submissionOpen: parseBackendDate(r.submissionConfig?.openingTime ?? r.submissionOpen ?? r.submissionOpenTime),
+      submissionDeadline: parseBackendDate(r.submissionConfig?.submissionDeadline ?? r.roundSubmissionDeadline ?? r.submissionDeadline),
+      submissionGuide: r.submissionConfig?.submissionInstructions ?? r.submissionGuide ?? '',
+      agenda: Array.isArray(r.agenda)
+        ? r.agenda.map((item, idx) => ({
+          id: item.id ?? `${r.roundId ?? index}-${idx}`,
+          name: item.name ?? item.timelineName ?? '',
+          desc: item.desc ?? item.description ?? '',
+          startTime: item.startTime ?? item.timeStart ?? null,
+        }))
+        : [],
+      meetingLink: r.meetingLink ?? '',
+      topTeamPass: r.topTeamPass ?? 0,
+      rubricId: r.rubricId ?? null,
+    }))
+  }
+
+    // hàm chuẩn hóa dữ liệu vòng thi từ API về định dạng mà formData mong muốn
+
+  const normalizeTracks = (rawTracks) => {
+    if (!Array.isArray(rawTracks)) return undefined
+    return rawTracks.map((track, index) => ({
+      id: track.id ?? track.trackId ?? `cat-${index + 1}`,
+      name: track.name ?? track.trackName ?? '',
+      desc: track.des ?? track.description ?? '',
+      teamLimit: track.maxTeamPerTrack ?? track.teamLimit ?? ''
+    }))
+  }
+
+    // hàm chuẩn hóa dữ liệu vòng thi từ API về định dạng mà formData mong muốn
+
+  const normalizePrizes = (rawPrizes) => {
+    if (!Array.isArray(rawPrizes)) return undefined
+    const main = []
+    const extended = []
+    rawPrizes.forEach((item, index) => {
+      const typeKey = String(item.prizeType ?? item.type ?? '').trim().toLowerCase()
+      const rankValue = item.rank ?? item.ordinal ?? item.prizeRank ?? null
+      const isMainType = ['main', 'primary', 'rank', 'main_prize', 'mainprize'].includes(typeKey)
+      const shouldBeMain = isMainType || Boolean(rankValue) || (!typeKey && index < 3)
+      const assignedRank = shouldBeMain
+        ? (rankValue ?? main.length + 1)
+        : null
+
+      const prize = {
+        id: item.id ?? item.prizeId ?? index + 1,
+        rank: assignedRank,
+        defaultName: item.prizeName ?? item.name ?? item.title ?? `Giải ${index + 1}`,
+        name: item.prizeName ?? item.name ?? item.title ?? `Giải ${index + 1}`,
+        quantity: Number(item.quantity ?? item.prizeQuantity ?? item.amount ?? 1),
+        cash: item.prizeValue ?? item.money ?? item.cash ?? item.amount ?? 0,
+        desc: item.description ?? item.desc ?? item.detail ?? ''
+      }
+      if (shouldBeMain) {
+        main.push(prize)
+      } else {
+        extended.push(prize)
+      }
+    })
+    return { mainPrizes: main.length ? main : undefined, extendedPrizes: extended.length ? extended : undefined }
+  }
+
+
+  const extractData = (response) => {
+    if (!response) return null
+    const payload = response.data ?? response
+    return payload?.data ?? payload?.result ?? payload?.payload ?? payload
+  }
+
+  const tryLoad = async (requests) => {
+    for (const request of requests) {
+      try {
+        const response = await axiosClient.get(request.url, { params: request.params })
+        const data = extractData(response)
+        if (data !== null && data !== undefined) {
+          return data
+        }
+      } catch (error) {
+        // ignore and try next
+      }
+    }
+    return null
+  }
+
+  const loadEventNotes = async (eventId) => {
+    const data = await tryLoad([
+      { url: '/event-notes', params: { eventId } },
+      { url: `/event-notes/${eventId}` },
+      { url: '/event-notes', params: { id: eventId } },
+    ])
+    if (!data) return null
+    if (Array.isArray(data)) {
+      return { notes: data }
+    }
+    return {
+      eventRules: data.rules ?? data.rules ?? data.generalRules ?? null,
+      notes: data.notes ?? data.ruleNotes ?? (Array.isArray(data) ? data : null),
+    }
+  }
+
+  const loadEventRounds = async (eventId) => {
+    const data = await tryLoad([
+      { url: '/round', params: { eventId } },
+      { url: `/round/${eventId}` },
+      { url: '/round', params: { id: eventId } },
+    ])
+    return normalizeRounds(data?.rounds ?? data?.roundList ?? data)
+  }
+
+  const loadEventTracks = async (eventId) => {
+    const data = await tryLoad([
+      { url: '/track', params: { eventId } },
+      { url: `/track/${eventId}` },
+      { url: '/track', params: { id: eventId } },
+    ])
+    return normalizeTracks(data?.tracks ?? data?.trackList ?? data)
+  }
+
   useEffect(() => {
     if (!isEditing) return;
 
     const fetchEvent = async () => {
       try {
         const response = await axiosClient.get(`/event/${id}`)
-        const data = response.data
+        const raw = response.data
+        const data = raw?.data ?? raw?.result ?? raw?.payload ?? raw
         if (!data) return
+
+        const prizeData = normalizePrizes(data.prizes)
+        let roundsData = normalizeRounds(data.rounds)
+        let trackData = normalizeTracks(data.tracks)
+
+        const fallbackNotes = await loadEventNotes(data.eventId ?? id)
+        if (fallbackNotes) {
+          if (!data.rules && fallbackNotes.eventRules) data.rules = fallbackNotes.eventRules
+          if ((!Array.isArray(data.notes) || data.notes.length === 0) && Array.isArray(fallbackNotes.notes)) data.notes = fallbackNotes.notes
+        }
+
+        if (!roundsData) {
+          roundsData = await loadEventRounds(data.eventId ?? id)
+        }
+        if (!trackData) {
+          trackData = await loadEventTracks(data.eventId ?? id)
+        }
+
+        const fetchedOpenDate = parseBackendDate(data.openRegisterTime ?? data.openDate ?? data.registerOpenTime ?? data.startRegisterTime)
+        const fetchedCloseDate = parseBackendDate(data.closeRegisterTime ?? data.closeDate ?? data.registerCloseTime ?? data.endRegisterTime)
+        const fetchedTeamDeadline = parseBackendDate(data.cofirmTeamTime ?? data.teamDeadline ?? data.confirmTeamTime ?? data.teamDeadline)
+        const deadlineSameAsClose = fetchedTeamDeadline && fetchedCloseDate
+          ? fetchedTeamDeadline.getTime() === fetchedCloseDate.getTime()
+          : true
 
         setFormData(prev => ({
           ...prev,
           id: data.eventId ?? id,
-          name: data.eventName ?? prev.name,
-          theme: data.eventTopic ?? prev.theme,
-          shortDesc: data.description ?? prev.shortDesc,
-          detailDesc: data.descriptionDetails ?? prev.detailDesc,
-          minMembers: data.minTeamMember ?? prev.minMembers,
-          maxMembers: data.maxTeamMember ?? prev.maxMembers,
-          openDate: data.openRegisterTime ? new Date(data.openRegisterTime) : prev.openDate,
-          closeDate: data.closeRegisterTime ? new Date(data.closeRegisterTime) : prev.closeDate,
-          teamDeadline: data.cofirmTeamTime ? new Date(data.cofirmTeamTime) : prev.teamDeadline,
-          generalRules: data.eventRules ?? prev.generalRules,
-          notes: data.notes ?? prev.notes,
-          benefits: data.participationBenefits ?? prev.benefits,
-          status: data.eventStatus?.toLowerCase() ?? prev.status,
+          name: data.eventName ?? data.name ?? prev.name,
+          theme: data.eventTopic ?? data.topic ?? prev.theme,
+          shortDesc: data.description ?? data.shortDesc ?? prev.shortDesc,
+          detailDesc: data.descriptionDetails ?? data.detailDesc ?? prev.detailDesc,
+          minMembers: data.minTeamMember ?? data.minMembers ?? prev.minMembers,
+          maxMembers: data.maxTeamMember ?? data.maxMembers ?? prev.maxMembers,
+          openDate: fetchedOpenDate ?? prev.openDate,
+          closeDate: fetchedCloseDate ?? prev.closeDate,
+          teamDeadline: fetchedTeamDeadline ?? prev.teamDeadline,
+          deadlineSameAsClose,
+          generalRules: data.rules ?? data.eventRules ?? data.generalRules ?? prev.generalRules,
+          notes: data.notes ?? data.eventNotes ?? data.ruleNotes ?? prev.notes,
+          benefits: data.participationBenefits ?? data.benefits ?? prev.benefits,
+          status: data.eventStatus?.toLowerCase() ?? data.status?.toLowerCase() ?? prev.status,
+          rounds: roundsData ?? prev.rounds,
+          categories: trackData ?? prev.categories,
+          mainPrizes: prizeData?.mainPrizes ?? prev.mainPrizes,
+          extendedPrizes: prizeData?.extendedPrizes ?? prev.extendedPrizes,
+          rankCount: Number(data.rankCount ?? (prizeData?.mainPrizes?.length ?? prev.rankCount)) || prev.rankCount,
+          keywords: data.keywords ?? data.tags ?? prev.keywords,
+          avatarFile: data.thumbnailImage ?? data.thumbnail ?? data.thumbnailUrl ?? data.avatarFile ?? prev.avatarFile,
+          coverFile: data.bannerImg ?? data.banner ?? data.coverFile ?? data.coverUrl ?? prev.coverFile,
         }))
-        setStatus(data.eventStatus?.toLowerCase() ?? 'draft')
+        setStatus(data.eventStatus?.toLowerCase() ?? data.status?.toLowerCase() ?? 'draft')
 
         if (data.updatedAt) {
           const updatedAt = new Date(data.updatedAt)
@@ -264,10 +443,10 @@ function CreateEventPage() {
   // --------------------------------------handleNext---------------------------
   async function handleNext() {
     // Chỉ validate form client trước khi cho phép bấm nút gửi
-    if (!validateStep(currentStep)) {
-      alert("Vui lòng điền đầy đủ các thông tin bắt buộc trước khi tiếp tục!");
-      return;
-    }
+    // if (!validateStep(currentStep)) {
+    //   alert("Vui lòng điền đầy đủ các thông tin bắt buộc trước khi tiếp tục!");
+    //   return;
+    // }
 
     // Chờ gọi API lưu dữ liệu thành công rồi mới cho phép chuyển bước
     const isSaveSuccess = await onSaveDraft();

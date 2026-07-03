@@ -7,6 +7,7 @@ import com.minhtung.hackathon.dto.event.AllEventResponse;
 import com.minhtung.hackathon.dto.event.EventDetailsResponse;
 import com.minhtung.hackathon.dto.event.EventRequest;
 import com.minhtung.hackathon.dto.event.LiveEventResponse;
+import com.minhtung.hackathon.dto.response.EventNoteResponse;
 import com.minhtung.hackathon.dto.response.MilestoneResponse;
 import com.minhtung.hackathon.dto.response.PrizeResponse;
 import com.minhtung.hackathon.dto.response.TrackResponse;
@@ -345,10 +346,31 @@ public class EventService {
         response.setMinTeamMember(event.getMinTeamMember());
         response.setMaxTeamMember(event.getMaxTeamMember());
         response.setCreateAt(event.getCreateAt());
+        response.setOpenRegisterTime(event.getOpenRegisterTime());
+        response.setCloseRegisterTime(event.getCloseRegisterTime());
+        response.setCofirmTeamTime(event.getCofirmTeamTime());
         response.setEventStatus(event.getStatus().toString());
-
+        response.setDescriptionDetails(event.getDescriptionDetail());
         // Lấy thời gian hiện tại của Server làm mốc tính toán trạng thái động
         LocalDateTime now = LocalDateTime.now();
+
+
+        // ==========================================
+        // THÊM: MAP DANH SÁCH EVENT NOTES SANG DTO
+        // ==========================================
+        if (event.getNotes() != null) {
+            // Chỉ định rõ package com.minhtung.hackathon.dto.event.EventNoteResponse tại đây
+            List<com.minhtung.hackathon.dto.event.EventNoteResponse> noteDTOs = event.getNotes().stream()
+                    .map(n -> new com.minhtung.hackathon.dto.event.EventNoteResponse(
+                            n.getId(),
+                            n.getTitle(), n.getDescription()
+                    ))
+                    .toList();
+            response.setNotes(noteDTOs);
+        } else {
+            response.setNotes(new ArrayList<>());
+        }
+
 
         // 3. MAP DANH SÁCH TRACKS SANG DTO PHẲNG (Cắt đứt lặp vô hạn)
         if (event.getTracks() != null) {

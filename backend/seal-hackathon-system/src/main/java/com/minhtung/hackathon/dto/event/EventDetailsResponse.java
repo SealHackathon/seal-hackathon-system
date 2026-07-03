@@ -3,10 +3,7 @@ package com.minhtung.hackathon.dto.event;
 import com.minhtung.hackathon.dto.response.MilestoneResponse;
 import com.minhtung.hackathon.dto.response.PrizeResponse;
 import com.minhtung.hackathon.dto.response.TrackResponse;
-import com.minhtung.hackathon.dto.round.ComingRoundResponse;
 import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
-import com.minhtung.hackathon.entity.Round;
-import com.minhtung.hackathon.entity.Track;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -18,6 +15,7 @@ public class EventDetailsResponse {
     private String eventName;
     private String eventTopic;
     private String description;
+    private String descriptionDetails;
     private String eventLocation;
     private String bannerImg;
     private String thumbnailImage;
@@ -27,6 +25,9 @@ public class EventDetailsResponse {
     private int maxTeamMember;
     private String eventStatus;
     private LocalDateTime createAt;
+    private LocalDateTime openRegisterTime;
+    private LocalDateTime closeRegisterTime;
+    private LocalDateTime cofirmTeamTime;
 
     // Thống kê số lượng số
     private int trackQuantity;
@@ -41,6 +42,7 @@ public class EventDetailsResponse {
     private List<TrackResponse> tracks;
     private List<RoundDetailsResponse> rounds;
 
+    private List<EventNoteResponse> notes;
     // List milestone
     private List<MilestoneResponse> milestones;
 

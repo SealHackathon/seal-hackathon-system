@@ -19,7 +19,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
     case 1: {
       const sendData = new FormData();
       if (formData.id) sendData.append('id', formData.id);
-      
+
       sendData.append('name', formData.name || '');
       sendData.append('descriptionDetails', formData.detailDesc || '');
       sendData.append('topic', formData.theme || '');
@@ -123,6 +123,8 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           position: item.format === 'offline'
             ? (item.location?.name || item.location?.formatted_address || '')
             : (item.meetingLink || ''),
+          meetingLink: item.meetingLink || ''
+          ,
           rubricId: Number(item.rubricId) || 0,
           submissionConfig: item.submissionType === 'new'
             ? {
@@ -152,6 +154,12 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
         .then(response => {
           console.log('Lưu bản nháp Step 4 thành công!', response.data);
           const savedRounds = response.data;
+          const parseBackendDate = (dateStr) => {
+            if (!dateStr) return null;
+            // Đổi "2026-07-03 17:00:00" thành "2026-07-03T17:00:00" rồi mới tạo đối tượng Date
+            return new Date(String(dateStr).replace(' ', 'T'));
+          };
+
           if (Array.isArray(savedRounds)) {
             const updatedRounds = (formData.rounds || []).map((original, index) => {
               const r = savedRounds[index];
@@ -160,9 +168,9 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
                 ...original,
                 id: r.roundId,
                 name: r.roundName,
-                startDate: r.roundStartTime,
-                endDate: r.roundEndTime,
-                submissionDeadline: r.roundSubmissionDeadline,
+                startDate: parseBackendDate(r.roundStartTime),
+                endDate: parseBackendDate(r.roundEndTime),
+                submissionDeadline: parseBackendDate(r.roundSubmissionDeadline) ,
               };
             });
             handleFormChange('rounds', updatedRounds);

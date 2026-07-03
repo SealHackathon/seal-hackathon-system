@@ -13,6 +13,7 @@ public class RoundRequest {
     public static class RoundItem {
         private Long roundId; // Thêm trường này để nhận diện UPSET (Update/Insert)
         private String name;
+        private String meetingLink; // link tham gia nếu cuộc thi tổ chức offline
         private LocalDateTime timeStart;
         private LocalDateTime timeEnd;
         private boolean hasPresetiontation; // Giữ nguyên chính tả thực thể cũ của bạn
