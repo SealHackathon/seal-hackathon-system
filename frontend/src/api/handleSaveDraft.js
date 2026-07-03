@@ -31,8 +31,22 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       if (formData.closeDate) sendData.append('closeRegisterTime', new Date(formData.closeDate).toISOString());
       if (formData.teamDeadline) sendData.append('cofirmTeamTime', new Date(formData.teamDeadline).toISOString());
 
-      if (formData.avatarFile) sendData.append('bannerFile', formData.avatarFile);
-      if (formData.coverFile) sendData.append('thumbnailFile', formData.coverFile);
+      if (formData.avatarFile instanceof File) {
+        sendData.append("bannerFile", formData.avatarFile);
+      }
+
+      if (formData.coverFile instanceof File) {
+        sendData.append("thumbnailFile", formData.coverFile);
+      }
+
+      // Gửi URL ảnh hiện tại để backend giữ nguyên nếu không upload ảnh mới
+      if (formData.bannerImg) {
+        sendData.append("bannerImg", formData.bannerImg);
+      }
+
+      if (formData.thumbnail_image) {
+        sendData.append("thumbnail_image", formData.thumbnail_image);
+      }
 
       const method = formData.id ? 'put' : 'post';
       const url = formData.id ? `${apiEndpoint}/${formData.id}` : apiEndpoint;
@@ -46,6 +60,10 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           return true;
         })
         .catch(error => {
+          console.log(error.response);
+          console.log(error.response?.status);
+          console.log(error.response?.data);
+          console.log(error.response?.headers);
           const errorMsg = error.response?.data?.message || error.response?.data || error.message;
           alert(`Không thể lưu bản nháp Step 1: ` + errorMsg);
           return false;
@@ -170,7 +188,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
                 name: r.roundName,
                 startDate: parseBackendDate(r.roundStartTime),
                 endDate: parseBackendDate(r.roundEndTime),
-                submissionDeadline: parseBackendDate(r.roundSubmissionDeadline) ,
+                submissionDeadline: parseBackendDate(r.roundSubmissionDeadline),
               };
             });
             handleFormChange('rounds', updatedRounds);

@@ -217,6 +217,8 @@ public class EventService {
     // update event
     @Transactional
     public EventDetailsResponse updateEvent(Long id, EventRequest request) {
+        System.out.println("===== UPDATE EVENT =====");
+
         // 1. Tìm Event cũ trong DB
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện với ID: " + id));
