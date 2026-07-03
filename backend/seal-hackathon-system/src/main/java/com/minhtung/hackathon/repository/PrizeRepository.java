@@ -10,4 +10,6 @@ import java.util.List;
 public interface PrizeRepository extends JpaRepository<Prize, Long> {
     // Lấy danh sách giải thưởng của một sự kiện cụ thể
     List<Prize> findByEventId(long eventId);
+
+    void deleteByEventId(long eventId);
 }

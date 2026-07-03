@@ -82,6 +82,7 @@ public class EventController {
 
     // UPDATE EVENT
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDetailsResponse> updateEvent(
             @PathVariable Long id,
             @ModelAttribute EventRequest request) {
