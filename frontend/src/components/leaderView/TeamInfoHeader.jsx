@@ -6,12 +6,25 @@ import FindMemberModal from './FindMemberModal'
 import EditTeamInformationModal from './EditTeamInformationModal';
 import Tooltip from '../shared/Tooltip';
 
-function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, emptyCount, isLeader, onEdit }) {
+function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, emptyCount, isLeader, onEdit, onRefresh }) {
     const [showModal, setShowModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
+    const [isCopied, setIsCopied] = useState(false)
+
     function handleCopyCode() {
         navigator.clipboard.writeText(teamCode)
+        setIsCopied(true)
+        setTimeout(() => setIsCopied(false), 1500)
     }
+
+    const copyLabel = (
+        <span className={styles.copyLabelWrapper}>
+            <span className={`${styles.copyLabelInner} ${isCopied ? styles.copied : ''}`}>
+                <span className={styles.copyText}>{teamCode}</span>
+                <span className={styles.copyText}>Đã sao chép</span>
+            </span>
+        </span>
+    )
 
     // check xem team đủ thành viên chưa, đủ thì disable cái nút tìm thành viên bên LeaderView
 
@@ -36,7 +49,7 @@ function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, e
                             </button>
                         </Tooltip>
                     )}
-                    
+
 
                 </div>
                 <p>{description}</p>
@@ -49,8 +62,11 @@ function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, e
                         teamId={teamId}
                         teamName={teamName}
                         description={description}
-                        onClose={() => setShowEditModal(false)}
-                        // onEdit={onEdit}
+                        onClose={(isSuccess) => {
+                            setShowEditModal(false);
+                            if (isSuccess && onRefresh) onRefresh();
+                        }}
+                    // onEdit={onEdit}
                     />
                 )
             }
@@ -64,7 +80,7 @@ function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, e
                     <div>
                         <div className={styles.codeBox}>
                             <span>Mã đội:</span>
-                            <Button className={styles.btn} icon={Copy} label={teamCode} variant="outline" color='blue' onClick={handleCopyCode} />
+                            <Button className={styles.btn} icon={isCopied ? null : Copy} label={copyLabel} variant="outline" color={isCopied ? 'green' : 'blue'} onClick={handleCopyCode} />
                         </div>
                         <Button
                             className={styles.btn}
@@ -73,12 +89,15 @@ function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, e
                             variant="outline"
                             color='blue'
                             onClick={() => setShowModal(true)}
-                            disabled={emptyCount==0 || teamStatus === 'PENDING_APPROVAL'}
+                            disabled={emptyCount == 0 || teamStatus === 'PENDING_APPROVAL'}
                         />
 
                         {showModal && (
                             <FindMemberModal
-                                onClose={() => setShowModal(false)}
+                                onClose={() => {
+                                    setShowModal(false);
+                                    if(onRefresh) onRefresh();
+                                }}
                             />
                         )}
                     </div>

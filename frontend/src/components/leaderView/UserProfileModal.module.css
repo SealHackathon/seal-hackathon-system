@@ -1,23 +1,83 @@
 .container {
     display: flex;
     flex-direction: column;
-    padding: 32px;
     background-color: #ffffff;
     max-height: 85vh;
-    overflow-y: auto;
+    overflow: hidden;
     scrollbar-width: none;
+    position: relative;
 }
 
-@media (max-width: 768px) {
-    .container {
-        padding: 24px 16px;
-    }
+/* --- Banner Section --- */
+.banner {
+    background-color: var(--color-primary-blue);
+    /* Pattern sọc chéo giống Info Header */
+    border-radius: var(--radius);
+    padding: 1em 2em;
+    /* dư ra để phần content đè lên */
+    color: white;
+    margin: 1em 0 0;
+}
+
+.banner::before,
+.banner::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    bottom: -50%;
+
+    background: linear-gradient(30deg,
+            rgba(255, 255, 255, 0.18),
+            rgba(255, 255, 255, 0.02));
+    transform: skewX(25deg);
+    pointer-events: none;
+
+    z-index: 0;
+
+}
+
+.banner::before {
+    width: 8em;
+    right: 15em;
+}
+
+.banner::after {
+    width: 2em;
+    right: 12em;
+    opacity: 0.6;
+}
+
+.bannerContent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bannerTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+/* --- Content Wrapper --- */
+.contentWrapper {
+    padding: 1em 2em 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+    z-index: 2;
+    overflow: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-blue) var(--color-bg-blue);
+    overscroll-behavior: contain;
+    /* Ngăn scroll lan ra ngoài */
 }
 
 /* --- Top Section --- */
-.topSection {
-    margin-bottom: 40px;
-}
 
 .profileCard {
     display: flex;
@@ -30,13 +90,6 @@
     gap: 40px;
 }
 
-@media (max-width: 768px) {
-    .profileCard {
-        flex-direction: column;
-        gap: 32px;
-    }
-}
-
 /* Card Left */
 .cardLeft {
     display: flex;
@@ -47,19 +100,15 @@
     flex-shrink: 0;
 }
 
-@media (max-width: 768px) {
-    .cardLeft {
-        width: 100%;
-    }
-}
-
 .avatar {
     width: 120px;
     height: 120px;
     border-radius: 50%;
     object-fit: cover;
     margin-bottom: 24px;
-    border: 4px solid #ffffff;
+    border: 6px solid #ffffff;
+    /* Dùng outline và outline-offset để tạo viền ngoài cùng thay vì ::after */
+    outline: 2px solid var(--color-border-blue);
 }
 
 .name {
@@ -82,13 +131,6 @@
 .cardDivider {
     width: 1px;
     background-color: var(--color-border-blue);
-}
-
-@media (max-width: 768px) {
-    .cardDivider {
-        width: 100%;
-        height: 1px;
-    }
 }
 
 /* Card Right */
@@ -117,13 +159,12 @@
 }
 
 .infoText {
-    font-size: 1.05rem;
     color: var(--color-text-primary);
     line-height: 1.4;
 }
 
 .infoHighlight {
-    font-weight: 600;
+    font-weight: bold;
 }
 
 .cvLink {
@@ -141,7 +182,6 @@
 .bottomSection {
     display: flex;
     flex-direction: column;
-    margin-top: 40px;
 }
 
 .sectionHeader {
@@ -162,7 +202,8 @@
     margin: 0;
 }
 
-.orange .sectionTitle, .orange .sectionIcon {
+.orange .sectionTitle,
+.orange .sectionIcon {
     color: var(--color-primary-orange);
 }
 
@@ -174,7 +215,6 @@
 }
 
 .bioText {
-    font-size: 1.05rem;
     color: var(--color-text-primary);
     line-height: 1.6;
     margin: 0;
@@ -183,7 +223,7 @@
 .divider {
     height: 1px;
     background-color: #ebebeb;
-    margin: 32px 0;
+    margin: 1em 0;
 }
 
 /* Tags Grid (2fr 1fr) */
@@ -193,12 +233,6 @@
     gap: 48px;
 }
 
-@media (max-width: 768px) {
-    .tagsGrid {
-        grid-template-columns: 1fr;
-        gap: 32px;
-    }
-}
 
 .tagsContainer {
     display: flex;
@@ -226,4 +260,17 @@
     background-color: var(--color-bg-orange);
     border-color: var(--color-border-orange);
     color: var(--color-primary-orange);
+}
+
+.emptyText {
+    font-size: 1rem;
+    color: #9ca3af;
+    /* muted gray */
+    font-style: italic;
+    margin: 0;
+}
+
+.emptyTextInline {
+    color: #9ca3af;
+    font-style: italic;
 }

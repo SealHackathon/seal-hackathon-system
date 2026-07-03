@@ -21,13 +21,33 @@
 
     text-align: center;
 }
-.clickable {
+.profileWrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
     cursor: pointer;
-    transition: opacity 0.2s ease;
+    padding: 0.5em 1em;
+    margin: -0.5em 0 -0.5em -1em;
+    border-radius: var(--radius);
+    transition: background-color 0.2s ease;
 }
 
-.clickable:hover {
-    opacity: 0.8;
+.profileWrapper:hover {
+    background-color: var(--color-bg-blue);
+}
+
+.profileWrapper.noHover {
+    cursor: default;
+}
+
+.profileWrapper.noHover:hover {
+    background-color: transparent;
+}
+
+.innerWrapper {
+    display: flex;
+    align-items: center;
+    gap: 1em;
 }
 
 .avatar {

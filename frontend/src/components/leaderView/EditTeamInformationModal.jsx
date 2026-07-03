@@ -52,7 +52,7 @@ function EditTeamInformationModal({
           .then((response) => {
             console.log(response.data);
             alert("Bạn đã edit nhóm thành công!");
-            window.location.reload();
+            onClose(true);
           })
           .catch((error) => {
             console.log(error);

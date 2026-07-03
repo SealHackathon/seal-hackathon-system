@@ -47,9 +47,12 @@ function FindMemberModal({ onClose }) {
   }, []);
 
 
-  const filtered = FAKE_MEMBERS.filter(team =>
-    team.name.toLowerCase().includes(search.toLowerCase())
-  )
+  const filtered = FAKE_MEMBERS.filter(member => {
+    const searchLower = search.toLowerCase();
+    const nameMatch = member.name ? member.name.toLowerCase().includes(searchLower) : false;
+    const emailMatch = member.email ? member.email.toLowerCase().includes(searchLower) : false;
+    return nameMatch || emailMatch;
+  })
 
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE)
 
@@ -60,7 +63,7 @@ function FindMemberModal({ onClose }) {
 
   return (
     <ModalShell
-      onClose={() => { onClose(), window.location.reload() }}
+      onClose={onClose}
       size=""
       footer={null}
     >
