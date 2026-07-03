@@ -8,6 +8,7 @@ function CriterionCard({ criterion, isActive, onClick, onUpdate, onDelete }) {
   const cardRef = useRef(null);
   const [localWeight, setLocalWeight] = useState(criterion.weight?.toString() || '');
   const [error, setError] = useState('');
+  const [nameTouched, setNameTouched] = useState(false);
 
   useEffect(() => {
     setLocalWeight(criterion.weight?.toString() || '');
@@ -22,6 +23,8 @@ function CriterionCard({ criterion, isActive, onClick, onUpdate, onDelete }) {
       return () => clearTimeout(timer);
     }
   }, [isActive, criterion.weight]); // Nếu đang active mà đổi weight (bị sort) thì cũng tự động bám theo
+
+  const isCriterionNameValid = criterion.name?.trim() !== '';
 
   const handleWeightBlur = () => {
     const val = localWeight.trim();
@@ -87,6 +90,9 @@ function CriterionCard({ criterion, isActive, onClick, onUpdate, onDelete }) {
           placeholder="VD: Tính khả thi..."
           value={criterion.name}
           onChange={(e) => onUpdate('name', e.target.value)}
+          onBlur={() => setNameTouched(true)}
+          status={(!isCriterionNameValid && nameTouched) ? 'error' : ''}
+          message={(!isCriterionNameValid && nameTouched) ? 'Tên tiêu chí không được để trống' : ''}
         />
       </div>
 

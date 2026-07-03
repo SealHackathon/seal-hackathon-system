@@ -25,7 +25,7 @@ function CreateRubricHeader({ isEditing, lastUpdated }) {
           </button>
         </div>
 
-        {isEditing && lastUpdated && (
+        {lastUpdated && (
           <div className={styles.right}>
             <Clock size={16} />
             <span>Cập nhật lần cuối: {lastUpdated}</span>

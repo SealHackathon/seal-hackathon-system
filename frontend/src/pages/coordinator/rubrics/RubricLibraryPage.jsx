@@ -7,6 +7,7 @@ import FormInput from '../../../components/shared/FormInput';
 import Dropdown from '../../../components/shared/Dropdown';
 import CoordinatorLayout from '../../../layouts/CoordinatorLayout';
 import SectionHeader from '../../../components/shared/SectionHeader';
+import ConfirmModal from '../../../components/shared/ConfirmModal'
 import styles from './RubricLibraryPage.module.css';
 import axiosClient from '../../../api/axiosClient';
 const MOCK_RUBRICS = [
@@ -70,6 +71,7 @@ export default function RubricLibraryPage() {
     const [rubrics, setRubrics] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('date_desc');
+    const [confirmModal, setConfirmModal] = useState(null);
 
     useState(() => {
         axiosClient.get('/scoring-template')
@@ -78,7 +80,7 @@ export default function RubricLibraryPage() {
             })
             .catch((error) => console.log(error));
     }, []);
-  
+
 
 
     const processedRubrics = useMemo(() => {
@@ -120,12 +122,30 @@ export default function RubricLibraryPage() {
         navigate(`/admin/coordinator/rubrics/create/${id}`);
     }
     const handleDelete = (id) => {
-          axiosClient.delete(`/scoring-template/${id}`)
-            .then(() => {
-                   setRubrics(rubrics.filter(r => r.id !== id));
-                // Sau khi xóa thành công, gọi lại API để lấy danh sách rubrics mới
-            })
-            .catch((error) => console.log(error));
+        setConfirmModal({
+            title: 'Xóa bộ tiêu chí',
+            message: 'Bạn có chắc chắn muốn xóa bộ tiêu chí này không? Hành động này không thể hoàn tác.',
+            confirmLabel: 'Xóa',
+            onConfirm: () => {
+                axiosClient.delete(`/scoring-template/${id}`)
+                    .then(() => {
+                        setRubrics(rubrics.filter(r => r.id !== id));
+                        setConfirmModal({
+                            title: 'Thành công',
+                            message: 'Bạn đã xóa bộ tiêu chí thành công!',
+                            confirmLabel: 'Xác nhận',
+                            isNotification: true,
+                            variant: 'success',
+                            onConfirm: () => setConfirmModal(null)
+                        });
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                        alert("Có lỗi xảy ra khi xóa bộ tiêu chí!");
+                        setConfirmModal(null);
+                    });
+            }
+        });
     };
 
     const handleNavigation = (id) => {
@@ -187,6 +207,16 @@ export default function RubricLibraryPage() {
                             onDelete={handleDelete}
                             onDuplicate={handleDuplicate}
                             onEdit={handleEdit}
+                        />
+                        <ConfirmModal
+                            isOpen={!!confirmModal}
+                            title={confirmModal?.title}
+                            message={confirmModal?.message}
+                            confirmLabel={confirmModal?.confirmLabel}
+                            onConfirm={confirmModal?.onConfirm}
+                            onCancel={() => setConfirmModal(null)}
+                            isNotification={confirmModal?.isNotification}
+                            variant={confirmModal?.variant}
                         />
                     </div>
                 </div>
