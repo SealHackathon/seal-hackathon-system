@@ -1,0 +1,213 @@
+/* ═══════════════════════════════════════════════
+   Toast – Floating Notification
+   ═══════════════════════════════════════════════ */
+
+.toast {
+    position: relative;
+    width: 40em;
+    border-radius: var(--radius);
+    border: 1.5px solid transparent;
+    overflow: hidden;
+    will-change: transform, opacity;
+    /* Base is white; the colored timer fill sits behind content */
+    background-color: var(--color-bg-white);
+}
+
+/* ── Slide-in from right ── */
+.entering {
+    animation: slideInRight 0.38s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Slide-out to right ── */
+.exiting {
+    animation: slideOutRight 0.28s ease-in both;
+}
+
+@keyframes slideInRight {
+    from {
+        transform: translateX(110%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+
+    to {
+        transform: translateX(110%);
+        opacity: 0;
+    }
+}
+
+/* ── Content row ── */
+.content {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+}
+
+/* ── Icon wrapper (circle) ── */
+.iconWrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.8rem;
+    height: 2.8rem;
+    border-radius: var(--radius-circle);
+}
+
+/* ── Text ── */
+.textGroup {
+    flex: 1;
+    min-width: 0;
+}
+
+.title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    line-height: 1.3;
+    margin: 0;
+}
+
+.message {
+    font-size: 0.85rem;
+    margin: 0.15rem 0 0;
+    line-height: 1.4;
+}
+
+/* ── Close button ── */
+.closeBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: var(--inner-radius);
+    color: var(--color-text-secondary);
+    transition: color 0.15s, background-color 0.15s;
+}
+
+.closeBtn:hover {
+    color: var(--color-text-primary);
+    background-color: rgba(0, 0, 0, 0.06);
+}
+
+/* ═══════════════════════════════════════════════
+   Timer fill — colored panel slides FROM left TO right
+   revealing white background as time runs out.
+   The toast base is white; this fill sits at z-index 0.
+   ═══════════════════════════════════════════════ */
+.timerFill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    /* starts full-width */
+    animation: timerSlideRight linear forwards;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes timerSlideRight {
+
+    /* colored fill slides to the right, revealing white beneath */
+    from {
+        transform: translateX(0%);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* ═══════════════════════════════════════════════
+   Variant: Success
+   ═══════════════════════════════════════════════ */
+.toastSuccess {
+    border-color: var(--color-border-green);
+    background-color: var(--color-bg-green);
+}
+
+.timerSuccess {
+    background-color: var(--color-bg-green);
+    background-color: var(--color-bg-white);
+}
+
+.iconSuccess {
+    color: var(--color-primary-green);
+    background-color: var(--color-bg-green);
+}
+
+.toastSuccess .title {
+    color: var(--color-primary-green);
+}
+
+.toastSuccess .message {
+    color: var(--color-text-primary);
+}
+
+/* ═══════════════════════════════════════════════
+   Variant: Warning
+   ═══════════════════════════════════════════════ */
+.toastWarning {
+    border-color: var(--color-border-orange);
+    background-color: var(--color-bg-orange);
+}
+
+.timerWarning {
+    background-color: var(--color-bg-white);
+}
+
+.iconWarning {
+    color: var(--color-primary-orange);
+    background-color: var(--color-bg-orange);
+}
+
+.toastWarning .title {
+    color: var(--color-primary-orange);
+}
+
+.toastWarning .message {
+    color: var(--color-text-primary);
+}
+
+/* ═══════════════════════════════════════════════
+   Variant: Info
+   ═══════════════════════════════════════════════ */
+.toastInfo {
+    border-color: var(--color-border-blue);
+    background-color: var(--color-bg-blue);
+}
+
+.timerInfo {
+    background-color: var(--color-bg-white);
+}
+
+.iconInfo {
+    color: var(--color-primary-blue);
+    background-color: var(--color-bg-blue);
+}
+
+.toastInfo .title {
+    color: var(--color-primary-blue);
+}
+
+.toastInfo .message {
+    color: var(--color-text-primary);
+}
