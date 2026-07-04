@@ -342,30 +342,19 @@ export default function CreateRubricPage() {
                                                     <p>Hệ thống cảnh báo nếu điểm giữa các giám khảo chênh lệch quá giới hạn.</p>
                                                 </div>
                                                 <div className={styles.settingAction}>
-                                                    <div className={styles.thresholdWrapper}>
-                                                        <input
-                                                            type="text"
-                                                            inputMode="numeric"
+                                                    <div style={{ width: '120px' }}>
+                                                        <FormInput
+                                                            type="number"
+                                                            min={0}
+                                                            max={100}
                                                             value={formData.deviationThreshold}
                                                             onChange={(e) => {
-                                                                // Loại bỏ hoàn toàn mọi ký tự không phải là số
-                                                                let val = e.target.value.replace(/[^0-9]/g, '');
-                                                                
-                                                                if (val === '') {
-                                                                    setFormData({ ...formData, deviationThreshold: '' });
-                                                                    return;
-                                                                }
-                                                                
-                                                                let num = parseInt(val, 10);
-                                                                if (num < 0) num = 0;
-                                                                if (num > 100) num = 100;
-                                                                
-                                                                setFormData({ ...formData, deviationThreshold: num });
+                                                                const val = e.target.value;
+                                                                setFormData({ ...formData, deviationThreshold: val === '' ? '' : parseInt(val, 10) });
                                                             }}
-                                                            className={styles.thresholdInput}
                                                             placeholder="0"
+                                                            suffix="%"
                                                         />
-                                                        <span className={styles.percentSign}>%</span>
                                                     </div>
                                                 </div>
                                             </div>

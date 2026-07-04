@@ -298,37 +298,3 @@
 .settingAction {
   flex-shrink: 0;
 }
-
-.thresholdWrapper {
-  position: relative;
-  width: 100px;
-}
-
-.thresholdInput {
-  width: 100%;
-  padding: 0.75rem 2rem 0.75rem 1rem;
-  font-size: 1rem;
-  font-weight: 700;
-  text-align: center;
-  border: 1px solid var(--color-bg-grey);
-  border-radius: var(--inner-radius);
-  background-color: var(--color-bg-white);
-  outline: none;
-  font-family: var(--body-font-main);
-  transition: border-color 0.2s ease;
-}
-
-.thresholdInput:focus {
-  border-color: var(--color-primary-blue);
-}
-
-.percentSign {
-  position: absolute;
-  right: 1rem;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: var(--color-text-muted);
-  pointer-events: none;
-}
