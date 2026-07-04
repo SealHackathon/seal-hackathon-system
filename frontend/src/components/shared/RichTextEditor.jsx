@@ -15,7 +15,7 @@ import {
 
 import Dropdown from './Dropdown'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './RichTextEditor.module.css'
 
 /**
@@ -53,6 +53,17 @@ function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...',
             onChange?.(editor.getHTML())
         },
     })
+
+    // Sync nội dung nếu giá trị thay đổi (e.g., loaded from API)
+    useEffect(() => {
+        if (editor && value !== undefined) {
+            const currentContent = editor.getHTML()
+            // Chỉ cập nhật nếu nội dung khác và không phải là thẻ <p></p>
+            if (value !== currentContent && value !== `<p></p>`) {
+                editor.commands.setContent(value || '')
+            }
+        }
+    }, [value, editor])
 
     if (!editor) return null
 
