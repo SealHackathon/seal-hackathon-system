@@ -28,94 +28,10 @@ const RANK_OPTIONS = [
     { value: 4, label: '4 giải (có Khuyến khích)' },
 ]
 
-// ── Nội dung 1 prize card ──
-function PrizeCardContent({ prize, onChange, disabled = false }) {
-    function update(field, val) {
-        const value = val?.target ? val.target.value : val
-        onChange({ ...prize, [field]: value })
-    }
-
-    return (
-        <>
-            <FormInput
-                label="Tên giải"
-                required
-                placeholder={prize.defaultName}
-                value={String(prize.name ?? '')}
-                onChange={val => update('name', val)}
-                disabled={disabled}
-            />
-
-            <div className={styles.prizeRow}>
-                {/* Trái: số lượng + giá trị */}
-                <div className={styles.prizeLeft}>
-                    <div className={styles.fieldGroup}>
-                        <label className={styles.fieldLabel}>Số lượng</label>
-                        <div className={`${styles.inputBox} ${disabled ? styles.inputDisabled : ''}`}>
-                            <input
-                                type="number"
-                                min={1}
-                                className={styles.baseInput}
-                                placeholder="Số đội / cá nhân nhận giải"
-                                value={prize.quantity ?? ''}
-                                onChange={e => {
-                                    const val = e.target.value
-                                    if (val !== '' && Number(val) < 1) return
-                                    update('quantity', val === '' ? '' : Number(val))
-                                }}
-                                onKeyDown={e => {
-                                    if (['-', '+', 'e', 'E', '.', ','].includes(e.key)) {
-                                        e.preventDefault()
-                                    }
-                                }}
-                                disabled={disabled}
-                            />
-                        </div>
-                    </div>
-
-                    <div className={styles.fieldGroup}>
-                        <label className={styles.fieldLabel}>Giá trị hiện kim</label>
-                        <div className={`${styles.inputBox} ${disabled ? styles.inputDisabled : ''}`}>
-                            <input
-                                type="text"
-                                inputMode="numeric"
-                                className={styles.baseInput}
-                                placeholder="0"
-                                value={
-                                    prize.cash !== undefined && prize.cash !== ''
-                                        ? Number(prize.cash).toLocaleString('vi-VN')
-                                        : ''
-                                }
-                                onChange={e => {
-                                    const raw = e.target.value.replace(/[^0-9]/g, '')
-                                    update('cash', raw)
-                                }}
-                                disabled={disabled}
-                            />
-                            <span className={styles.inputSuffix}>VNĐ</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Phải: mô tả */}
-                <div className={styles.prizeRight}>
-                    <FormTextarea
-                        className={styles.textArea}
-                        label="Mô tả"
-                        rows={4}
-                        placeholder="Tiền mặt + Cúp + Giấy chứng nhận + Hoa"
-                        value={String(prize.desc ?? '')}
-                        onChange={e => update('desc', e.target.value)}
-                        disabled={disabled}
-                    />
-                </div>
-            </div>
-        </>
-    )
-}
+import PrizeCardContent from '../../../../../components/coordinator/events/create/PrizeCardContent'
 
 // ── Main component ──
-function Step3Prizes({ formData, onFormChange }) {
+function Step3Prizes({ formData, onFormChange, errors = {} }) {
     const rankCount = formData.rankCount ?? 3
     const extendedPrizes = formData.extendedPrizes ?? []
 
@@ -243,6 +159,8 @@ function Step3Prizes({ formData, onFormChange }) {
                                 <PrizeCardContent
                                     prize={prize}
                                     onChange={updated => updateMainPrize(prize.rank, updated)}
+                                    errors={errors}
+                                    prefix={`mainPrize-${prize.rank}`}
                                 />
                             </SortableCard>
                         )
@@ -285,6 +203,8 @@ function Step3Prizes({ formData, onFormChange }) {
                                     <PrizeCardContent
                                         prize={prize}
                                         onChange={updated => updateExtendedPrize(prize.id, updated)}
+                                        errors={errors}
+                                        prefix={`extPrize-${prize.id}`}
                                     />
                                 </SortableCard>
                             ))}

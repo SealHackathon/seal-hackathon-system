@@ -75,78 +75,6 @@
     gap: 0.75rem;
 }
 
-/* ── Prize card layout ── */
-.prizeRow {
-    display: grid;
-    grid-template-columns: 1fr 5fr;
-    gap: 1rem;
-    align-items: flex-start;
-}
-
-.prizeLeft {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
-
-.prizeRight {
-    min-width: 0;
-}
-
-.fieldGroup {
-    display: flex;
-    flex-direction: column;
-    gap: 0.3rem;
-}
-
-/* Input boxes (số lượng, giá trị) */
-.inputBox {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    border: 1.5px solid var(--color-border-blue);
-    border-radius: var(--inner-radius);
-    background: white;
-    padding: 0.4rem 0.75rem;
-    transition: border-color 0.15s;
-}
-
-.inputBox:focus-within {
-    border-color: var(--color-secondary-blue);
-}
-
-.inputDisabled {
-    background: var(--color-bg-blue);
-    opacity: 0.7;
-}
-
-.baseInput {
-    flex: 1;
-    min-width: 0;
-    border: none;
-    outline: none;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--color-primary-blue);
-    background: transparent;
-}
-
-.baseInput::placeholder {
-    font-weight: 400;
-    color: var(--color-secondary-blue);
-}
-
-.baseInput:disabled {
-    color: var(--color-text-muted);
-}
-
-.inputSuffix {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--color-secondary-blue);
-    flex-shrink: 0;
-}
-
 /* ── Drag hint ── */
 .dragHint {
     display: flex;
@@ -191,10 +119,4 @@
 .addBtn:hover {
     background: var(--color-bg-blue);
     border-color: var(--color-secondary-blue);
-}
-
-
-.textArea {
-    height: 4.5em;
-    resize: none;
 }
