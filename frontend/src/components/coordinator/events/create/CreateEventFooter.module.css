@@ -167,6 +167,10 @@
     color: var(--color-border-green);
 }
 
+.dot {
+    font-size: 1.5em;
+}
+
 .loadingDots .dot {
     animation: blink 1.4s infinite both;
 }

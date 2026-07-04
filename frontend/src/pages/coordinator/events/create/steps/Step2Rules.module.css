@@ -5,6 +5,12 @@
     gap: 2rem;
 }
 
+.contentWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+}
+
 /* ── 2 cột: Lưu ý + Preview ── */
 .layout {
     display: grid;
