@@ -126,6 +126,15 @@
     color: var(--color-primary-blue);
 }
 
+.suffix {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+    color: var(--color-primary-blue);
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
 .actionIcon {
     display: flex;
     align-items: center;
