@@ -461,38 +461,38 @@ function CreateEventPage() {
       let invalidCount = 0;
 
       // name
-      if (!formData.name?.trim()) { errors.name = 'Vui l\u00f2ng nh\u1eadp t\u00ean cu\u1ed9c thi'; invalidCount++; isValid = false; }
+      if (!formData.name?.trim()) { errors.name = 'Vui lòng nhập tên cuộc thi'; invalidCount++; isValid = false; }
 
       // openDate
-      if (!formData.openDate) { errors.openDate = 'Vui l\u00f2ng ch\u1ecdn ng\u00e0y m\u1edf'; invalidCount++; isValid = false; }
+      if (!formData.openDate) { errors.openDate = 'Vui lòng chọn ngày mở'; invalidCount++; isValid = false; }
 
-      // closeDate — c\u1ea3 tr\u1ed1ng l\u1eabn sai logic \u0111\u1ec1u tính l\u00e0 invalid
-      if (!formData.closeDate) { errors.closeDate = 'Vui l\u00f2ng ch\u1ecdn ng\u00e0y \u0111\u00f3ng'; invalidCount++; isValid = false; }
+      // closeDate — cả trống lẫn sai logic đều tính là invalid
+      if (!formData.closeDate) { errors.closeDate = 'Vui lòng chọn ngày đóng'; invalidCount++; isValid = false; }
       else if (formData.openDate && new Date(formData.closeDate).getTime() <= new Date(formData.openDate).getTime()) {
-        errors.closeDate = 'Ng\u00e0y \u0111\u00f3ng ph\u1ea3i sau ng\u00e0y m\u1edf'; invalidCount++; isValid = false;
+        errors.closeDate = 'Ngày đóng phải sau ngày mở'; invalidCount++; isValid = false;
       }
 
       const min = formData.minMembers
       const max = formData.maxMembers
 
-      // minMembers — tr\u1ed1ng ho\u1eb7c gi\u00e1 tr\u1ecb sai \u0111\u1ec1u tính invalid
-      if (min === '' || min === undefined || min === null) { errors.minMembers = 'B\u1eaft bu\u1ed9c'; invalidCount++; isValid = false; }
+      // minMembers — trống hoặc giá trị sai đều tính invalid
+      if (min === '' || min === undefined || min === null) { errors.minMembers = 'Bắt buộc'; invalidCount++; isValid = false; }
       else if (Number(min) < 1) { errors.minMembers = '>=1'; invalidCount++; isValid = false; }
 
-      // maxMembers — tr\u1ed1ng, gi\u00e1 tr\u1ecb sai, ho\u1eb7c max < min \u0111\u1ec1u tính invalid
-      if (max === '' || max === undefined || max === null) { errors.maxMembers = 'B\u1eaft bu\u1ed9c'; invalidCount++; isValid = false; }
+      // maxMembers — trống, giá trị sai, hoặc max < min đều tính invalid
+      if (max === '' || max === undefined || max === null) { errors.maxMembers = 'Bắt buộc'; invalidCount++; isValid = false; }
       else if (Number(max) < 1) { errors.maxMembers = '>=1'; invalidCount++; isValid = false; }
-      else if (Number(min) >= 1 && Number(min) > Number(max)) { errors.maxMembers = 'Max \u003e= Min'; invalidCount++; isValid = false; }
+      else if (Number(min) >= 1 && Number(min) > Number(max)) { errors.maxMembers = 'Max >= Min'; invalidCount++; isValid = false; }
 
       // avatarFile & coverFile
-      if (!formData.avatarFile) { errors.avatarFile = 'Vui l\u00f2ng ch\u1ecdn logo'; invalidCount++; isValid = false; }
-      if (!formData.coverFile) { errors.coverFile = 'Vui l\u00f2ng ch\u1ecdn banner'; invalidCount++; isValid = false; }
+      if (!formData.avatarFile) { errors.avatarFile = 'Vui lòng chọn logo'; invalidCount++; isValid = false; }
+      if (!formData.coverFile) { errors.coverFile = 'Vui lòng chọn banner'; invalidCount++; isValid = false; }
 
-      // teamDeadline — c\u1ea3 tr\u1ed1ng l\u1eabn tr\u01b0\u1edbc ng\u00e0y \u0111\u00f3ng \u0111\u1ec1u invalid
+      // teamDeadline — cả trống lẫn trước ngày đóng đều invalid
       if (formData.deadlineSameAsClose === false) {
-        if (!formData.teamDeadline) { errors.teamDeadline = 'B\u1eaft bu\u1ed9c ch\u1ecdn'; invalidCount++; isValid = false; }
+        if (!formData.teamDeadline) { errors.teamDeadline = 'Bắt buộc chọn'; invalidCount++; isValid = false; }
         else if (formData.closeDate && new Date(formData.teamDeadline).getTime() < new Date(formData.closeDate).getTime()) {
-          errors.teamDeadline = 'H\u1ea1n ch\u00f3t ch\u1ed1t \u0111\u1ed9i kh\u00f4ng \u0111\u01b0\u1ee3c tr\u01b0\u1edbc h\u1ea1n \u0111\u00f3ng \u0111\u0103ng k\u00fd'; invalidCount++; isValid = false;
+          errors.teamDeadline = 'Hạn chót chốt đội không được trước hạn đóng đăng ký'; invalidCount++; isValid = false;
         }
       }
 
@@ -520,16 +520,35 @@ function CreateEventPage() {
 
       let count = 0;
       const mainValid = mainPrizes.every((p, idx) => {
-        const isOk = p.name?.trim() && p.quantity !== '' && p.quantity !== undefined && p.quantity !== null && Number(p.quantity) >= 1;
-        if (isOk && idx < rankCount) count++;
-        return isOk;
+        let pValid = true;
+        if (idx < rankCount) {
+          if (!p.name?.trim()) {
+            errors[`mainPrize-${p.rank}-name`] = 'Vui lòng nhập tên giải thưởng';
+            pValid = false;
+          }
+          if (p.quantity === '' || p.quantity === undefined || p.quantity === null || Number(p.quantity) < 1) {
+            errors[`mainPrize-${p.rank}-quantity`] = 'Vui lòng nhập số lượng hợp lệ';
+            pValid = false;
+          }
+          if (pValid) count++;
+        }
+        return pValid;
       })
       if (!mainValid) isValid = false
 
       const extendedPrizes = formData.extendedPrizes ?? []
-      const extValid = extendedPrizes.every(p =>
-        p.name?.trim() && p.quantity !== '' && p.quantity !== undefined && p.quantity !== null && Number(p.quantity) >= 1
-      )
+      const extValid = extendedPrizes.every(p => {
+        let pValid = true;
+        if (!p.name?.trim()) {
+          errors[`extPrize-${p.id}-name`] = 'Vui lòng nhập tên giải thưởng';
+          pValid = false;
+        }
+        if (p.quantity === '' || p.quantity === undefined || p.quantity === null || Number(p.quantity) < 1) {
+          errors[`extPrize-${p.id}-quantity`] = 'Vui lòng nhập số lượng hợp lệ';
+          pValid = false;
+        }
+        return pValid;
+      })
       if (!extValid) isValid = false
 
       filledCount = count;
@@ -701,7 +720,7 @@ function CreateEventPage() {
     switch (currentStep) {
       case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
-      case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
+      case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 4: return <Step4Rounds formData={formData} onChange={setFormData} />
       case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
       case 6: return <Step6Timeline formData={formData} onFormChange={handleFormChange} />
