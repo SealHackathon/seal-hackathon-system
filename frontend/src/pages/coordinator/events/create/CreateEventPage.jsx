@@ -18,6 +18,7 @@ import axiosClient from '../../../../api/axiosClient'
 import { useNavigate, useParams } from 'react-router-dom';
 import ConfirmModal from '../../../../components/shared/ConfirmModal'
 import NestedSmoothScroll from '../../../../components/shared/NestedSmoothScroll';
+import ToastContainer from '../../../../components/shared/ToastContainer';
 
 const TOTAL_STEPS = 7
 
@@ -41,6 +42,8 @@ function CreateEventPage() {
   const [currentStep, setCurrentStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState([1])
   const [errorSteps, setErrorSteps] = useState([])
+  const [stepErrors, setStepErrors] = useState({})
+  const [toasts, setToasts] = useState([])
   const contentInnerRef = useRef(null)
   const pageRef = useRef(null)
   const [naturalHeight, setNaturalHeight] = useState(0)
@@ -67,6 +70,44 @@ function CreateEventPage() {
       const isWindowAtBottom = window.scrollY >= maxWindowScroll - 2
       const outsideContent = !el.contains(e.target)
 
+      // Tìm thẻ con đang được hover có khả năng cuộn HOẶC là popup/dropdown thực sự cuộn được
+      const getScrollableNode = (target, maxParent) => {
+        let node = target
+        while (node && node !== maxParent && node !== document.body) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const style = window.getComputedStyle(node)
+            const isScrollableY = (style.overflowY === 'auto' || style.overflowY === 'scroll') && node.scrollHeight > node.clientHeight
+            
+            // Nếu chính nó cuộn được
+            if (isScrollableY) return node
+            
+            // Nếu nó là khung nổi (absolute/fixed), ta kiểm tra xem bên trong nó có thành phần nào thực sự cuộn được không
+            if (style.position === 'absolute' || style.position === 'fixed') {
+               const scrollableChild = Array.from(node.querySelectorAll('*')).find(n => {
+                  const childStyle = window.getComputedStyle(n)
+                  return (childStyle.overflowY === 'auto' || childStyle.overflowY === 'scroll') && n.scrollHeight > n.clientHeight
+               })
+               if (scrollableChild) return scrollableChild // Trả về thẻ con cuộn được
+            }
+          }
+          node = node.parentNode
+        }
+        return null
+      }
+      
+      const childScrollNode = outsideContent ? null : getScrollableNode(e.target, el)
+      
+      if (childScrollNode) {
+        // Chặn không cho event đi xuống thư viện Lenis (thủ phạm làm cuộn sticky content)
+        e.stopPropagation()
+        // Luôn khoá cứng cuộn trang
+        e.preventDefault()
+        
+        // Cuộn chính cái thẻ scrollable vừa tìm được
+        childScrollNode.scrollTop += e.deltaY
+        return
+      }
+
       // Cursor ngoài content + page còn scroll được → để browser tự xử lý
       if (outsideContent && !isWindowAtBottom) return
 
@@ -77,6 +118,7 @@ function CreateEventPage() {
         // Scroll xuống
         if (!isWindowAtBottom) {
           // Page vẫn còn scroll được → scroll page trước (cho tới khi info header khuất hết)
+          e.stopPropagation() // Tránh Lenis cuộn cùng lúc với window
           e.preventDefault()
           window.scrollBy({ top: e.deltaY, behavior: 'auto' })
         } else if (!isAtBottom) {
@@ -93,14 +135,17 @@ function CreateEventPage() {
           el.scrollTop += e.deltaY
         } else {
           // Inner ở đỉnh → redirect ra window để scroll lên (thoát sticky)
+          e.stopPropagation() // Tránh Lenis cuộn cùng lúc với window
           e.preventDefault()
           window.scrollBy({ top: e.deltaY, behavior: 'auto' })
         }
       }
     }
 
-    page.addEventListener('wheel', handleWheel, { passive: false })
-    return () => page.removeEventListener('wheel', handleWheel)
+    // [QUAN TRỌNG NHẤT]: Bật capture: true để chặn sự kiện trước khi Lenis kịp nhận
+    // Vì Lenis lắng nghe ở bubbling phase (cuối), nên capture: true giúp code của mình bắt sự kiện trước
+    page.addEventListener('wheel', handleWheel, { passive: false, capture: true })
+    return () => page.removeEventListener('wheel', handleWheel, { capture: true })
   }, [])  // Chạy 1 lần, handler tự đọc state từ DOM
 
 
@@ -160,8 +205,17 @@ function CreateEventPage() {
   })
   const [status, setStatus] = useState('draft')
 
+  function addToast(toast) {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, ...toast }])
+  }
+  function removeToast(id) {
+    setToasts(prev => prev.filter(t => t.id !== id))
+  }
+
   function handleFormChange(field, val) {
     setFormData(prev => ({ ...prev, [field]: val }))
+    setStepErrors(prev => ({ ...prev, [field]: undefined })) // Clear error when user types
   }
 
   // chuẩn hóa lại dữ liệu ngày tháng từ backend về dạng Date object
@@ -208,7 +262,7 @@ function CreateEventPage() {
     }))
   }
 
-    // hàm chuẩn hóa dữ liệu vòng thi từ API về định dạng mà formData mong muốn
+  // hàm chuẩn hóa dữ liệu vòng thi từ API về định dạng mà formData mong muốn
 
   const normalizeTracks = (rawTracks) => {
     if (!Array.isArray(rawTracks)) return undefined
@@ -220,7 +274,7 @@ function CreateEventPage() {
     }))
   }
 
-    // hàm chuẩn hóa dữ liệu vòng thi từ API về định dạng mà formData mong muốn
+  // hàm chuẩn hóa dữ liệu vòng thi từ API về định dạng mà formData mong muốn
 
   const normalizePrizes = (rawPrizes) => {
     if (!Array.isArray(rawPrizes)) return undefined
@@ -388,96 +442,120 @@ function CreateEventPage() {
 
   // nếu chưa điền đủ các thông tin form ko cho nhảy bước
   function validateStep(step) {
-    if (step === 1) {
-      if (!formData.name?.trim()) return false
-      if (!formData.openDate || !formData.closeDate) return false
+    let isValid = true;
+    const errors = {};
+    let requiredCount = 0;
+    let filledCount = 0;
 
-      const open = new Date(formData.openDate).getTime()
-      const close = new Date(formData.closeDate).getTime()
-      if (close <= open) return false
+    if (step === 1) {
+      requiredCount = formData.deadlineSameAsClose === false ? 8 : 7;
+      let invalidCount = 0;
+
+      // name
+      if (!formData.name?.trim()) { errors.name = 'Vui l\u00f2ng nh\u1eadp t\u00ean cu\u1ed9c thi'; invalidCount++; isValid = false; }
+
+      // openDate
+      if (!formData.openDate) { errors.openDate = 'Vui l\u00f2ng ch\u1ecdn ng\u00e0y m\u1edf'; invalidCount++; isValid = false; }
+
+      // closeDate — c\u1ea3 tr\u1ed1ng l\u1eabn sai logic \u0111\u1ec1u tính l\u00e0 invalid
+      if (!formData.closeDate) { errors.closeDate = 'Vui l\u00f2ng ch\u1ecdn ng\u00e0y \u0111\u00f3ng'; invalidCount++; isValid = false; }
+      else if (formData.openDate && new Date(formData.closeDate).getTime() <= new Date(formData.openDate).getTime()) {
+        errors.closeDate = 'Ng\u00e0y \u0111\u00f3ng ph\u1ea3i sau ng\u00e0y m\u1edf'; invalidCount++; isValid = false;
+      }
 
       const min = formData.minMembers
       const max = formData.maxMembers
-      if (min === '' || min === undefined || min === null) return false
-      if (max === '' || max === undefined || max === null) return false
-      if (Number(min) < 1 || Number(max) < 1) return false
-      if (Number(min) >= Number(max)) return false
 
-      if (!formData.avatarFile || !formData.coverFile) return false
+      // minMembers — tr\u1ed1ng ho\u1eb7c gi\u00e1 tr\u1ecb sai \u0111\u1ec1u tính invalid
+      if (min === '' || min === undefined || min === null) { errors.minMembers = 'B\u1eaft bu\u1ed9c'; invalidCount++; isValid = false; }
+      else if (Number(min) < 1) { errors.minMembers = '>=1'; invalidCount++; isValid = false; }
 
+      // maxMembers — tr\u1ed1ng, gi\u00e1 tr\u1ecb sai, ho\u1eb7c max < min \u0111\u1ec1u tính invalid
+      if (max === '' || max === undefined || max === null) { errors.maxMembers = 'B\u1eaft bu\u1ed9c'; invalidCount++; isValid = false; }
+      else if (Number(max) < 1) { errors.maxMembers = '>=1'; invalidCount++; isValid = false; }
+      else if (Number(min) >= 1 && Number(min) > Number(max)) { errors.maxMembers = 'Max \u003e= Min'; invalidCount++; isValid = false; }
+
+      // avatarFile & coverFile
+      if (!formData.avatarFile) { errors.avatarFile = 'Vui l\u00f2ng ch\u1ecdn logo'; invalidCount++; isValid = false; }
+      if (!formData.coverFile) { errors.coverFile = 'Vui l\u00f2ng ch\u1ecdn banner'; invalidCount++; isValid = false; }
+
+      // teamDeadline — c\u1ea3 tr\u1ed1ng l\u1eabn tr\u01b0\u1edbc ng\u00e0y \u0111\u00f3ng \u0111\u1ec1u invalid
       if (formData.deadlineSameAsClose === false) {
-        if (!formData.teamDeadline) return false
-        if (new Date(formData.teamDeadline).getTime() < close) return false
+        if (!formData.teamDeadline) { errors.teamDeadline = 'B\u1eaft bu\u1ed9c ch\u1ecdn'; invalidCount++; isValid = false; }
+        else if (formData.closeDate && new Date(formData.teamDeadline).getTime() < new Date(formData.closeDate).getTime()) {
+          errors.teamDeadline = 'H\u1ea1n ch\u00f3t ch\u1ed1t \u0111\u1ed9i kh\u00f4ng \u0111\u01b0\u1ee3c tr\u01b0\u1edbc h\u1ea1n \u0111\u00f3ng \u0111\u0103ng k\u00fd'; invalidCount++; isValid = false;
+        }
       }
 
-      return true
+      filledCount = requiredCount - invalidCount;
+      return { isValid, errors, requiredCount, filledCount }
     }
     if (step === 2) {
       const rules = formData.generalRules ?? ''
       const isEmpty = !rules.trim() || rules === '<p></p>' || rules === '<p><br></p>'
-      if (isEmpty) return false
+      if (isEmpty) isValid = false
 
       const notes = formData.notes ?? []
-      return notes.every(n => n.title?.trim())
+      if (!notes.every(n => n.title?.trim())) isValid = false
+      return { isValid, errors, requiredCount: 1, filledCount: isValid ? 1 : 0 }
     }
     if (step === 3) {
       const mainPrizes = formData.mainPrizes ?? []
       const rankCount = formData.rankCount ?? 3
+      requiredCount = rankCount;
 
-      // Phải có đủ số giải theo dropdown
-      if (mainPrizes.length < rankCount) return false
+      if (mainPrizes.length < rankCount) isValid = false
 
-      // Mỗi giải chính phải điền đủ tên + số lượng
-      const mainValid = mainPrizes.every(p =>
-        p.name?.trim() &&
-        p.quantity !== '' && p.quantity !== undefined && p.quantity !== null && Number(p.quantity) >= 1
-      )
-      if (!mainValid) return false
+      let count = 0;
+      const mainValid = mainPrizes.every((p, idx) => {
+        const isOk = p.name?.trim() && p.quantity !== '' && p.quantity !== undefined && p.quantity !== null && Number(p.quantity) >= 1;
+        if (isOk && idx < rankCount) count++;
+        return isOk;
+      })
+      if (!mainValid) isValid = false
 
-      // Giải phụ nếu có phải điền tên + số lượng
       const extendedPrizes = formData.extendedPrizes ?? []
       const extValid = extendedPrizes.every(p =>
-        p.name?.trim() &&
-        p.quantity !== '' && p.quantity !== undefined && p.quantity !== null && Number(p.quantity) >= 1
+        p.name?.trim() && p.quantity !== '' && p.quantity !== undefined && p.quantity !== null && Number(p.quantity) >= 1
       )
-      if (!extValid) return false
+      if (!extValid) isValid = false
 
-      return true
+      filledCount = count;
+      return { isValid, errors, requiredCount, filledCount }
     }
     if (step === 4) {
       const rounds = formData.rounds ?? []
-      if (rounds.length === 0) return false
-      return rounds.every((r, idx) => {
-        if (!r.name?.trim()) return false
-        if (!r.startDate || !r.endDate) return false
+      requiredCount = rounds.length;
+      if (rounds.length === 0) return { isValid: false, errors, requiredCount: 1, filledCount: 0 }
+
+      let count = 0;
+      isValid = rounds.every((r, idx) => {
+        let roundValid = true;
+        if (!r.name?.trim()) roundValid = false
+        if (!r.startDate || !r.endDate) roundValid = false
 
         const start = new Date(r.startDate).getTime()
         const end = new Date(r.endDate).getTime()
-        if (end <= start) return false
-        // Kiểm tra thứ tự các vòng thi: Ngày bắt đầu vòng sau >= Ngày kết thúc vòng trước
+        if (end <= start) roundValid = false
         if (idx > 0) {
           const prevEnd = new Date(rounds[idx - 1].endDate).getTime()
-          if (start < prevEnd) return false
+          if (start < prevEnd) roundValid = false
         }
 
-        if (r.format === 'offline' && !r.location) return false
-        if (r.format === 'online' && !r.meetingLink?.trim()) return false
+        if (r.format === 'offline' && !r.location) roundValid = false
+        if (r.format === 'online' && !r.meetingLink?.trim()) roundValid = false
 
         if (r.submissionType === 'new') {
-          if (!r.submissionDeadline) return false
+          if (!r.submissionDeadline) roundValid = false
           const subDeadline = new Date(r.submissionDeadline).getTime()
-
-          // Hạn nộp bài phải nằm trong thời gian diễn ra vòng
-          if (subDeadline <= start || subDeadline >= end) return false
-
+          if (subDeadline <= start || subDeadline >= end) roundValid = false
           if (r.submissionOpen) {
             const subOpen = new Date(r.submissionOpen).getTime()
-            if (subDeadline <= subOpen) return false
-            if (subOpen < start) return false
+            if (subDeadline <= subOpen) roundValid = false
+            if (subOpen < start) roundValid = false
           }
         }
 
-        // Kiểm tra lịch trình (agenda) của vòng thi
         const agenda = r.agenda ?? []
         const agendaValid = agenda.every((item, i) => {
           if (i === 0) return true
@@ -485,27 +563,37 @@ function CreateEventPage() {
           if (prev.startTime && item.startTime && item.startTime <= prev.startTime) return false
           return true
         })
-        if (!agendaValid) return false
+        if (!agendaValid) roundValid = false
 
-        return true
+        if (roundValid) count++;
+        return roundValid;
       })
+      filledCount = count;
+      return { isValid, errors, requiredCount, filledCount }
     }
     if (step === 5) {
       const categories = formData.categories ?? []
-      if (categories.length === 0) return false
-      return categories.every(c => {
-        if (!c.name?.trim()) return false
+      requiredCount = categories.length;
+      if (categories.length === 0) return { isValid: false, errors, requiredCount: 1, filledCount: 0 }
+
+      let count = 0;
+      isValid = categories.every(c => {
+        let catValid = true;
+        if (!c.name?.trim()) catValid = false
         if (c.teamLimit !== '' && c.teamLimit !== undefined && c.teamLimit !== null) {
-          if (Number(c.teamLimit) < 1) return false
+          if (Number(c.teamLimit) < 1) catValid = false
         }
-        return true
+        if (catValid) count++;
+        return catValid;
       })
+      filledCount = count;
+      return { isValid, errors, requiredCount, filledCount }
     }
-    return true
+    return { isValid, errors, requiredCount: 0, filledCount: 0 }
   }
 
   function goToStep(step) {
-    const isValid = validateStep(currentStep)
+    const { isValid } = validateStep(currentStep)
     setVisitedSteps(prev => prev.includes(currentStep) ? prev : [...prev, currentStep])
     setErrorSteps(prev =>
       isValid
@@ -517,18 +605,16 @@ function CreateEventPage() {
   }
   // --------------------------------------handleNext---------------------------
   async function handleNext() {
-    // Chỉ validate form client trước khi cho phép bấm nút gửi
-    // if (!validateStep(currentStep)) {
-    //   alert("Vui lòng điền đầy đủ các thông tin bắt buộc trước khi tiếp tục!");
-    //   return;
-    // }
+    // Luôn cho phép chuyển trang, nhưng vẫn hiển thị lỗi để user biết
+    const { errors } = validateStep(currentStep)
+    setStepErrors(errors)
 
-    // Chờ gọi API lưu dữ liệu thành công rồi mới cho phép chuyển bước
-    const isSaveSuccess = await onSaveDraft();
-
-    if (isSaveSuccess && currentStep < TOTAL_STEPS) {
+    if (currentStep < TOTAL_STEPS) {
       goToStep(currentStep + 1);
     }
+
+    // Lưu ngầm background — không hiện thông báo khi nhấn Tiếp theo
+    handleSaveDraft({ currentStep, formData, axiosClient, handleFormChange });
   }
   // ------------------------------------------------------------------
   function handleBack() { if (currentStep > 1) goToStep(currentStep - 1) }
@@ -537,13 +623,41 @@ function CreateEventPage() {
 
   // Trong component:
   async function onSaveDraft() {
+    // Validate để bôi đỏ/cam các ô nếu thiếu, nhưng vẫn cho qua lưu nháp
+    const { errors, isValid, requiredCount, filledCount } = validateStep(currentStep)
+    setStepErrors(errors)
+
     const isSuccess = await handleSaveDraft({ currentStep, formData, axiosClient, handleFormChange });
+
+    const STEP_NAMES = ['Thông tin cơ bản', 'Thể lệ', 'Giải thưởng', 'Vòng thi', 'Bảng thi đấu', 'Lịch trình', 'Ban giám khảo']
+    const stepName = STEP_NAMES[currentStep - 1] ?? `Trang ${currentStep}`
+
     if (isSuccess) {
-      const now = new Date();
-      const pad = n => n.toString().padStart(2, '0');
-      const timeString = `${pad(now.getDate())}/${pad(now.getMonth() + 1)}/${now.getFullYear()} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-      setLastUpdated(timeString);
+      if (!isValid) {
+        const missing = requiredCount - filledCount
+        addToast({
+          variant: 'success',
+          title: `Đã lưu nháp “${stepName}” thành công`,
+          message: `Còn ${missing} thông tin bắt buộc chưa điền hoặc chưa hợp lệ. Nếu muốn công bố sự kiện, vui lòng điền đầy đủ và chính xác các thông tin này.`,
+          duration: 6000,
+        })
+      } else {
+        addToast({
+          variant: 'success',
+          title: `Đã lưu nháp “${stepName}” thành công`,
+          message: 'Tất cả thông tin của trang này đã được lưu lại.',
+          duration: 4000,
+        })
+      }
+    } else {
+      addToast({
+        variant: 'warning',
+        title: 'Lưu nháp thất bại',
+        message: 'Có lỗi xảy ra khi kết nối đến máy chủ. Vui lòng kiểm tra kết nối và thử lại.',
+        duration: 6000,
+      })
     }
+
     return isSuccess;
   }
   //------------------------------------------------------------------------------------------------
@@ -573,7 +687,7 @@ function CreateEventPage() {
 
   function renderStep() {
     switch (currentStep) {
-      case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} />
+      case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} />  // ← thêm
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
       case 4: return <Step4Rounds formData={formData} onChange={setFormData} />
@@ -583,7 +697,7 @@ function CreateEventPage() {
       default: return null
     }
   }
-  const isPublishDisabled = ![1, 2, 3, 4, 5].every(step => validateStep(step))
+  const isPublishDisabled = ![1, 2, 3, 4, 5].every(step => validateStep(step).isValid)
   return (
     // <CoordinatorLayout>
     // </CoordinatorLayout>
@@ -607,9 +721,9 @@ function CreateEventPage() {
         {/* Sentinel element to track when sidebar becomes sticky */}
         <div ref={sentinelRef} className={styles.sidebarSentinel} />
 
-        <NestedSmoothScroll 
-            className={`${styles.sidebar} ${isSidebarSticky ? styles.sidebarSticky : ''}`}
-            innerClassName={styles.sidebarInner}
+        <NestedSmoothScroll
+          className={`${styles.sidebar} ${isSidebarSticky ? styles.sidebarSticky : ''}`}
+          innerClassName={styles.sidebarInner}
         >
           <CreateEventSidebar
             currentStep={currentStep}
@@ -643,6 +757,8 @@ function CreateEventPage() {
         onSaveDraft={onSaveDraft}
         onBack={handleBack}
         onNext={handleNext}
+        requiredCount={validateStep(currentStep).requiredCount}
+        filledCount={validateStep(currentStep).filledCount}
       />
 
       <ConfirmModal
@@ -654,6 +770,8 @@ function CreateEventPage() {
         onCancel={() => setConfirmModal(null)}
         isNotification={confirmModal?.isNotification}
       />
+
+      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   )
 }
