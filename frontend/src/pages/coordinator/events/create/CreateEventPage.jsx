@@ -70,55 +70,16 @@ function CreateEventPage() {
       const isWindowAtBottom = window.scrollY >= maxWindowScroll - 2
       const outsideContent = !el.contains(e.target)
 
-      // Tìm thẻ con đang được hover có khả năng cuộn HOẶC là popup/dropdown thực sự cuộn được
-      const getScrollableNode = (target, maxParent) => {
-        let node = target
-        while (node && node !== maxParent && node !== document.body) {
-          if (node.nodeType === Node.ELEMENT_NODE) {
-            const style = window.getComputedStyle(node)
-            const isScrollableY = (style.overflowY === 'auto' || style.overflowY === 'scroll') && node.scrollHeight > node.clientHeight
-            
-            // Nếu chính nó cuộn được
-            if (isScrollableY) return node
-            
-            // Nếu nó là khung nổi (absolute/fixed), ta kiểm tra xem bên trong nó có thành phần nào thực sự cuộn được không
-            if (style.position === 'absolute' || style.position === 'fixed') {
-               const scrollableChild = Array.from(node.querySelectorAll('*')).find(n => {
-                  const childStyle = window.getComputedStyle(n)
-                  return (childStyle.overflowY === 'auto' || childStyle.overflowY === 'scroll') && n.scrollHeight > n.clientHeight
-               })
-               if (scrollableChild) return scrollableChild // Trả về thẻ con cuộn được
-            }
-          }
-          node = node.parentNode
-        }
-        return null
-      }
-      
-      const childScrollNode = outsideContent ? null : getScrollableNode(e.target, el)
-      
-      if (childScrollNode) {
-        // Chặn không cho event đi xuống thư viện Lenis (thủ phạm làm cuộn sticky content)
-        e.stopPropagation()
-        // Luôn khoá cứng cuộn trang
-        e.preventDefault()
-        
-        // Cuộn chính cái thẻ scrollable vừa tìm được
-        childScrollNode.scrollTop += e.deltaY
-        return
-      }
-
-      // Cursor ngoài content + page còn scroll được → để browser tự xử lý
-      if (outsideContent && !isWindowAtBottom) return
-
       const isAtTop = el.scrollTop <= 0
       const isAtBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 2
 
       if (e.deltaY > 0) {
         // Scroll xuống
+        // Nếu chuột ở ngoài và window chưa chạm đáy -> để Lenis/browser tự cuộn window
+        if (outsideContent && !isWindowAtBottom) return
+
         if (!isWindowAtBottom) {
           // Page vẫn còn scroll được → scroll page trước (cho tới khi info header khuất hết)
-          e.stopPropagation() // Tránh Lenis cuộn cùng lúc với window
           e.preventDefault()
           window.scrollBy({ top: e.deltaY, behavior: 'auto' })
         } else if (!isAtBottom) {
@@ -128,24 +89,65 @@ function CreateEventPage() {
         }
         // Cả hai đều ở đáy → không làm gì
       } else {
-        // Scroll lên
-        if (!isAtTop) {
-          // Inner đã scroll → scroll inner về trước
-          e.preventDefault()
-          el.scrollTop += e.deltaY
+        // Scroll lên (bất kể chuột trong hay ngoài, ta đều muốn áp dụng logic đồng bộ)
+        const isWindowAtTop = window.scrollY <= 0
+        
+        if (!isWindowAtTop) {
+          // Window chưa chạm top -> Không preventDefault để Lenis cuộn window lên mượt mà
+          // Đồng thời cuộn nhẹ inner content
+          if (!isAtTop) {
+            el.scrollTop += e.deltaY * 0.3
+          }
         } else {
-          // Inner ở đỉnh → redirect ra window để scroll lên (thoát sticky)
-          e.stopPropagation() // Tránh Lenis cuộn cùng lúc với window
-          e.preventDefault()
-          window.scrollBy({ top: e.deltaY, behavior: 'auto' })
+          // Window đã chạm top -> cuộn inner tốc độ bình thường
+          if (!isAtTop) {
+            e.preventDefault()
+            el.scrollTop += e.deltaY
+          }
         }
       }
     }
 
-    // [QUAN TRỌNG NHẤT]: Bật capture: true để chặn sự kiện trước khi Lenis kịp nhận
-    // Vì Lenis lắng nghe ở bubbling phase (cuối), nên capture: true giúp code của mình bắt sự kiện trước
-    page.addEventListener('wheel', handleWheel, { passive: false, capture: true })
-    return () => page.removeEventListener('wheel', handleWheel, { capture: true })
+    // Lắng nghe sự kiện để xử lý riêng việc cuộn Dropdown (phải bắt ở capture phase để chặn Lenis)
+    function handleDropdownScroll(e) {
+      if (!contentInnerRef.current) return
+      const el = contentInnerRef.current
+      if (!el.contains(e.target)) return
+
+      const getScrollableNode = (target, maxParent) => {
+        let node = target
+        while (node && node !== maxParent && node !== document.body) {
+          if (node.nodeType === Node.ELEMENT_NODE) {
+            const style = window.getComputedStyle(node)
+            const isScrollableY = (style.overflowY === 'auto' || style.overflowY === 'scroll') && node.scrollHeight > node.clientHeight
+            if (isScrollableY) return node
+            if (style.position === 'absolute' || style.position === 'fixed') {
+              const scrollableChild = Array.from(node.querySelectorAll('*')).find(n => {
+                const childStyle = window.getComputedStyle(n)
+                return (childStyle.overflowY === 'auto' || childStyle.overflowY === 'scroll') && n.scrollHeight > n.clientHeight
+              })
+              if (scrollableChild) return scrollableChild
+            }
+          }
+          node = node.parentNode
+        }
+        return null
+      }
+
+      const childScrollNode = getScrollableNode(e.target, el)
+      if (childScrollNode) {
+        e.stopPropagation()
+        e.preventDefault()
+        childScrollNode.scrollTop += e.deltaY
+      }
+    }
+
+    page.addEventListener('wheel', handleDropdownScroll, { passive: false, capture: true })
+    page.addEventListener('wheel', handleWheel, { passive: false })
+    return () => {
+      page.removeEventListener('wheel', handleDropdownScroll, { capture: true })
+      page.removeEventListener('wheel', handleWheel)
+    }
   }, [])  // Chạy 1 lần, handler tự đọc state từ DOM
 
 
@@ -169,6 +171,13 @@ function CreateEventPage() {
       { id: 3, rank: 3, defaultName: 'Giải ba', name: 'Giải ba', quantity: 1, cash: '', desc: '' },
     ],
     extendedPrizes: [],
+    notes: [
+      {
+        id: Date.now(),
+        title: 'Thông tin đội thi không thể thay đổi sau khi chốt',
+        desc: 'Để đảm bảo tính công bằng và minh bạch cho cuộc thi, sau khi thời hạn chốt đội kết thúc, mọi thông tin liên quan đến thành viên và thông tin chung của đội sẽ bị khóa hoàn toàn. Ban tổ chức sẽ không giải quyết bất kỳ yêu cầu thay đổi nào trừ các trường hợp bất khả kháng.'
+      }
+    ],
     rounds: [
       {
         id: 'round-1',
@@ -493,7 +502,10 @@ function CreateEventPage() {
     if (step === 2) {
       const rules = formData.generalRules ?? ''
       const isEmpty = !rules.trim() || rules === '<p></p>' || rules === '<p><br></p>'
-      if (isEmpty) isValid = false
+      if (isEmpty) {
+        errors.generalRules = 'Vui lòng nhập quy định chung của cuộc thi'
+        isValid = false
+      }
 
       const notes = formData.notes ?? []
       if (!notes.every(n => n.title?.trim())) isValid = false
@@ -646,7 +658,7 @@ function CreateEventPage() {
           variant: 'success',
           title: `Đã lưu nháp “${stepName}” thành công`,
           message: 'Tất cả thông tin của trang này đã được lưu lại.',
-          duration: 4000,
+          duration: 3000,
         })
       }
     } else {
@@ -688,7 +700,7 @@ function CreateEventPage() {
   function renderStep() {
     switch (currentStep) {
       case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
-      case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} />  // ← thêm
+      case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} />
       case 4: return <Step4Rounds formData={formData} onChange={setFormData} />
       case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
