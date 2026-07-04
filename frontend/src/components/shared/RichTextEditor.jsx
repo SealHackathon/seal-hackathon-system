@@ -23,8 +23,10 @@ import styles from './RichTextEditor.module.css'
  * @param {Function} onChange     — Callback(html: string) khi nội dung thay đổi
  * @param {string}   [placeholder]
  * @param {number}   [maxLength]
+ * @param {string}   [status]     — Trạng thái lỗi (vd: 'error')
+ * @param {string}   [message]    — Câu thông báo lỗi
  */
-function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...', maxLength }) {
+function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...', maxLength, status, message }) {
     const [showLinkInput, setShowLinkInput] = useState(false)
     const [linkUrl, setLinkUrl] = useState('')
 
@@ -96,7 +98,7 @@ function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...',
     }
 
     return (
-        <div className={styles.wrapper}>
+        <div className={`${styles.wrapper} ${status === 'error' ? styles.wrapperError : ''}`}>
 
             {/* ── Toolbar ── */}
             <div className={styles.toolbar}>
@@ -202,12 +204,18 @@ function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...',
 
             {/* ── Char count ── */}
             {maxLength && (
-                <p className={`${styles.charCount} ${charCount > maxLength ? styles.charCountOver : ''}`}>
-                    {charCount}/{maxLength} kí tự
-                </p>
+                <div className={styles.footer}>
+                    <span className={`${styles.charCount} ${charCount > maxLength ? styles.charCountOver : ''}`}>
+                        {charCount}/{maxLength} kí tự
+                    </span>
+                </div>
             )}
-
+            {(status === 'error' && message) && (
+                <span className={styles.errorMessage}>{message}</span>
+            )}
         </div>
+
+
     )
 }
 

@@ -79,7 +79,7 @@ function RulesPreviewCard({ notes }) {
     )
 }
 
-function Step2Rules({ formData, onFormChange }) {
+function Step2Rules({ formData, onFormChange, errors = {} }) {
     const notes = formData.notes ?? []
 
     const sensors = useSensors(
@@ -121,90 +121,94 @@ function Step2Rules({ formData, onFormChange }) {
 
             <h1 className={styles.title}>Quy định</h1>
 
-            {/* ── Quy định chung — full width ── */}
-            <section className={styles.section}>
-                <p className={styles.sectionTitle}>
-                    Quy định chung
-                    <span className={styles.required}> *</span>
-                </p>
-                <p className={styles.sectionHint}>
-                    Áp dụng cho toàn bộ cuộc thi — điều kiện tham gia, ứng xử, sở hữu trí tuệ, xử lý vi phạm...
-                </p>
-                <RichTextEditor
-                    value={formData.generalRules ?? ''}
-                    onChange={val => onFormChange('generalRules', val)}
-                    placeholder="Mô tả quy định chung của cuộc thi. Ví dụ: điều kiện tham gia, hành vi bị cấm..."
-                />
-            </section>
-
-            {/* ── 2 cột: Lưu ý (trái) + Preview (phải) ── */}
-            <div className={styles.layout}>
-
-                {/* CỘT TRÁI */}
-                <div className={styles.colLeft}>
-                    <p className={styles.sectionTitle}>Lưu ý trước đăng ký</p>
-                    <p className={styles.sectionHint}>
-                        Thí sinh phải đọc và xác nhận các lưu ý này trước khi hoàn tất đăng ký.
+            <div className={styles.contentWrapper}>
+                {/* ── Quy định chung — full width ── */}
+                <section className={styles.section}>
+                    <p className={styles.sectionTitle}>
+                        Quy định chung
+                        <span className={styles.required}> *</span>
                     </p>
-
-                    <DndContext
-                        sensors={sensors}
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                    >
-                        <SortableContext
-                            items={notes.map(n => n.id)}
-                            strategy={verticalListSortingStrategy}
-                        >
-                            <div className={styles.noteList}>
-                                {notes.map(note => (
-                                    <SortableCard
-                                        key={note.id}
-                                        id={note.id}
-                                        onDelete={() => deleteNote(note.id)}
-                                    >
-                                        <FormInput
-                                            label="Tiêu đề"
-                                            required
-                                            placeholder="Thông tin đăng ký không thể thay đổi sau khi nộp"
-                                            value={String(note.title ?? '')}
-                                            onChange={val => updateNote(note.id, 'title', val)}
-                                        />
-                                        <FormTextarea
-                                            className={styles.textArea}
-                                            label="Mô tả"
-                                            rows={3}
-                                            maxLength={300}
-                                            placeholder="Giải thích chi tiết về lưu ý này..."
-                                            value={String(note.desc ?? '')}
-                                            onChange={e => updateNote(note.id, 'desc', e.target.value)}
-                                        />
-                                    </SortableCard>
-                                ))}
-                            </div>
-                        </SortableContext>
-                    </DndContext>
-
-                    <button type="button" className={styles.addBtn} onClick={addNote}>
-                        <Plus size={16} weight="bold" />
-                        Thêm lưu ý
-                    </button>
-                </div>
-
-                {/* CỘT PHẢI — PREVIEW */}
-                <div className={styles.colRight}>
-                    <Banner
-                        color="blue"
-                        variant="solid"
-                        icon={Eye}
-                        iconSize={22}
-                        title="Xem trước"
-                        message="Đây là giao diện thí sinh sẽ thấy trước khi hoàn tất đăng ký."
+                    <p className={styles.sectionHint}>
+                        Áp dụng cho toàn bộ cuộc thi — điều kiện tham gia, ứng xử, sở hữu trí tuệ, xử lý vi phạm...
+                    </p>
+                    <RichTextEditor
+                        value={formData.generalRules ?? ''}
+                        onChange={val => onFormChange('generalRules', val)}
+                        placeholder="Mô tả quy định chung của cuộc thi. Ví dụ: điều kiện tham gia, hành vi bị cấm..."
+                        status={errors.generalRules ? 'error' : ''}
+                        message={errors.generalRules}
                     />
+                </section>
 
-                    <RulesPreviewCard notes={previewNotes} />
+                {/* ── 2 cột: Lưu ý (trái) + Preview (phải) ── */}
+                <div className={styles.layout}>
+
+                    {/* CỘT TRÁI */}
+                    <div className={styles.colLeft}>
+                        <p className={styles.sectionTitle}>Lưu ý trước đăng ký</p>
+                        <p className={styles.sectionHint}>
+                            Thí sinh phải đọc và xác nhận các lưu ý này trước khi hoàn tất đăng ký.
+                        </p>
+
+                        <DndContext
+                            sensors={sensors}
+                            collisionDetection={closestCenter}
+                            onDragEnd={handleDragEnd}
+                        >
+                            <SortableContext
+                                items={notes.map(n => n.id)}
+                                strategy={verticalListSortingStrategy}
+                            >
+                                <div className={styles.noteList}>
+                                    {notes.map(note => (
+                                        <SortableCard
+                                            key={note.id}
+                                            id={note.id}
+                                            onDelete={() => deleteNote(note.id)}
+                                        >
+                                            <FormInput
+                                                label="Tiêu đề"
+                                                required
+                                                placeholder="Thông tin đăng ký không thể thay đổi sau khi nộp"
+                                                value={String(note.title ?? '')}
+                                                onChange={val => updateNote(note.id, 'title', val)}
+                                            />
+                                            <FormTextarea
+                                                className={styles.textArea}
+                                                label="Mô tả"
+                                                rows={3}
+                                                maxLength={300}
+                                                placeholder="Giải thích chi tiết về lưu ý này..."
+                                                value={String(note.desc ?? '')}
+                                                onChange={e => updateNote(note.id, 'desc', e.target.value)}
+                                            />
+                                        </SortableCard>
+                                    ))}
+                                </div>
+                            </SortableContext>
+                        </DndContext>
+
+                        <button type="button" className={styles.addBtn} onClick={addNote}>
+                            <Plus size={16} weight="bold" />
+                            Thêm lưu ý
+                        </button>
+                    </div>
+
+                    {/* CỘT PHẢI — PREVIEW */}
+                    <div className={styles.colRight}>
+                        <Banner
+                            color="blue"
+                            variant="solid"
+                            icon={Eye}
+                            iconSize={22}
+                            title="Xem trước"
+                            message="Đây là giao diện thí sinh sẽ thấy trước khi hoàn tất đăng ký."
+                        />
+
+                        <RulesPreviewCard notes={previewNotes} />
+                    </div>
+
                 </div>
-
             </div>
         </div>
     )
