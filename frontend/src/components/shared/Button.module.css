@@ -100,18 +100,18 @@
 .outline.green {
   background-color: var(--color-bg-white);
   color: var(--color-primary-green);
-  border: 1.5px solid var(--color-primary-green);
-  box-shadow: 0 0.5em var(--color-primary-green);
+  border: 1.5px solid var(--color-border-green);
+  box-shadow: 0 0.5em var(--color-border-green);
 }
 
 .outline.green:hover:not(:disabled) {
   transform: translateY(0.15em);
-  box-shadow: 0 0.45em var(--color-primary-green);
+  box-shadow: 0 0.45em var(--color-border-green);
 }
 
 .outline.green:active:not(:disabled) {
   transform: translateY(0.5em);
-  box-shadow: 0 0 var(--color-primary-green);
+  box-shadow: 0 0 var(--color-border-green);
 }
 
 

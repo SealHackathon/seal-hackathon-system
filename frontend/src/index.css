@@ -6,6 +6,10 @@
   box-sizing: border-box;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   font-family: var(--body-font-main);
 }
@@ -48,7 +52,7 @@ h2 {
   /* ! Màu xanh lá */
   --color-bg-green: #F8FFEA;
   --color-primary-green: #0DB04B;
-  /* Border green dùng lại màu primary-green*/
+  --color-border-green: #a1e2ba;
   /* Secondary green (cho text) dùng màu đen */
   --color-dark-green: #0F8B3E;
 
