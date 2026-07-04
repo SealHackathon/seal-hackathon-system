@@ -33,6 +33,7 @@ function MultiSelectDropdown({
   disabled,
 }) {
   const [open, setOpen] = useState(false)
+  const [openUp, setOpenUp] = useState(false)
   const [search, setSearch] = useState('')
   const [customText, setCustomText] = useState('')
   const [customChecked, setCustomChecked] = useState(false)
@@ -42,7 +43,6 @@ function MultiSelectDropdown({
   const hasCustomInValue = value.some(v => typeof v === 'string' && v.startsWith('custom:'))
   const effectiveCount = value.length + (customChecked && !hasCustomInValue ? 1 : 0)
   const isAtMax = maxSelect != null && effectiveCount >= maxSelect
-
 
   // Đóng khi click ra ngoài
   useEffect(() => {
@@ -55,6 +55,20 @@ function MultiSelectDropdown({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // Tính toán hướng mở menu (lên/xuống)
+  useEffect(() => {
+    if (open && ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - rect.bottom
+      // Ước tính chiều cao tối đa của dropdown menu (ví dụ 300px)
+      if (spaceBelow < 300 && rect.top > 300) {
+        setOpenUp(true)
+      } else {
+        setOpenUp(false)
+      }
+    }
+  }, [open])
 
   useEffect(() => {
     if (!open && customChecked && !customText) {
@@ -194,7 +208,7 @@ function MultiSelectDropdown({
 
       {/* ── Dropdown menu ── */}
       {open && (
-        <div className={styles.menu}>
+        <div className={`${styles.menu} ${openUp ? styles.menuUp : ''}`}>
 
           {/* Search */}
           {searchable && (
