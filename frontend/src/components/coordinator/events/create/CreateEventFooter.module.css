@@ -4,7 +4,7 @@
     justify-content: space-between;
     gap: 1rem;
     padding: 1em;
-    padding-bottom: 1.5em;
+    padding-bottom: 1.25em;
     background-color: var(--color-bg-white);
     border: 1px solid var(--color-border-blue);
     border-radius: var(--radius);
@@ -20,17 +20,179 @@
     display: flex;
     align-items: center;
     gap: 0.75rem;
+    flex-shrink: 0;
 }
 
-/* ── Lưu nháp + timestamp ── */
+/* ── Nhóm nút bên trái ── */
+.leftGroup {
+    flex-shrink: 0;
+}
+
+/* ── Nhóm giữa (Progress) ── */
+.centerGroup {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 700px;
+    gap: 0.4rem;
+    margin-left: auto;
+}
+
+/* ── Progress Header: số điền + badge ── */
+.progressHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.1rem;
+}
+
+.fieldInfo {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+}
+
+.fieldLabel {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-primary);
+}
+
+.fieldValue {
+    font-size: 1.35rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.fieldSuffix {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-text-muted);
+}
+
+.valueComplete {
+    color: var(--color-primary-green);
+}
+
+.valueIncomplete {
+    color: var(--color-primary-blue);
+}
+
+/* ── Badges ── */
+.badgeValid,
+.badgeWarning {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+    border-radius: 999px;
+    white-space: nowrap;
+}
+
+.badgeValid {
+    color: var(--color-primary-green);
+    background-color: var(--color-bg-green);
+    border: 1px solid var(--color-primary-green);
+}
+
+.badgeWarning {
+    color: var(--color-primary-orange);
+    background-color: var(--color-bg-orange);
+    border: 1px solid var(--color-border-orange);
+}
+
+/* ── Progress Bar ── */
+.progressBarWrapper {
+    width: 100%;
+}
+
+.progressBarBg {
+    width: 100%;
+    height: 0.75em;
+    background-color: var(--color-bg-blue);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.progressBarFill {
+    height: 100%;
+    background-color: var(--color-secondary-blue);
+    border-radius: var(--radius);
+    transition: width 0.35s ease;
+}
+
+.fillComplete {
+    background-color: var(--color-primary-green);
+}
+
+/* ── Lưu nháp ── */
 .saveDraftWrapper {
     display: flex;
     align-items: flex-end;
     gap: 1rem;
 }
 
-.timestamp {
-    color: var(--color-secondary-blue);
+.saveLabelWrapper {
+    display: inline-block;
+    height: 1.5em;
+    overflow: hidden;
+    vertical-align: bottom;
+}
+
+.saveLabelInner {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.saveLabelInner.success {
+    transform: translateY(-50%);
+}
+
+.saveText {
+    height: 1.5em;
+    display: flex;
+    align-items: center;
     white-space: nowrap;
-    font-size: 0.8rem;
+}
+
+.fixedWidthSaveBtn {
+    width: 15em;
+    justify-content: center;
+}
+
+.btnSuccess svg {
+    color: var(--color-border-green);
+}
+
+.loadingDots .dot {
+    animation: blink 1.4s infinite both;
+}
+
+.loadingDots .dot:nth-child(1) {
+    animation-delay: 0s;
+}
+
+.loadingDots .dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.loadingDots .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes blink {
+    0% {
+        opacity: 0.2;
+    }
+
+    20% {
+        opacity: 1;
+    }
+
+    100% {
+        opacity: 0.2;
+    }
 }
