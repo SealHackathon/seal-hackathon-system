@@ -298,13 +298,15 @@ function CreateEventPage() {
         ? (rankValue ?? main.length + 1)
         : null
 
+      const rawQuantity = item.quantity ?? item.prizeQuantity ?? item.amount
+
       const prize = {
         id: item.id ?? item.prizeId ?? index + 1,
         rank: assignedRank,
-        defaultName: item.prizeName ?? item.name ?? item.title ?? `Giải ${index + 1}`,
-        name: item.prizeName ?? item.name ?? item.title ?? `Giải ${index + 1}`,
-        quantity: Number(item.quantity ?? item.prizeQuantity ?? item.amount ?? 1),
-        cash: item.prizeValue ?? item.money ?? item.cash ?? item.amount ?? 0,
+        defaultName: shouldBeMain ? `Giải ${index + 1}` : 'VD: Giải Sáng tạo, Giải Cống hiến...',
+        name: item.prizeName ?? item.name ?? item.title ?? '',
+        quantity: rawQuantity !== null && rawQuantity !== undefined && rawQuantity !== '' ? Number(rawQuantity) : '',
+        cash: item.prizeValue ?? item.money ?? item.cash ?? item.amount ?? '',
         desc: item.description ?? item.desc ?? item.detail ?? ''
       }
       if (shouldBeMain) {
@@ -514,7 +516,9 @@ function CreateEventPage() {
     if (step === 3) {
       const mainPrizes = formData.mainPrizes ?? []
       const rankCount = formData.rankCount ?? 3
-      requiredCount = rankCount;
+      const extendedPrizes = formData.extendedPrizes ?? []
+      
+      requiredCount = (rankCount * 2) + (extendedPrizes.length * 2);
 
       if (mainPrizes.length < rankCount) isValid = false
 
@@ -525,27 +529,35 @@ function CreateEventPage() {
           if (!p.name?.trim()) {
             errors[`mainPrize-${p.rank}-name`] = 'Vui lòng nhập tên giải thưởng';
             pValid = false;
+          } else {
+            count++;
           }
+          
           if (p.quantity === '' || p.quantity === undefined || p.quantity === null || Number(p.quantity) < 1) {
             errors[`mainPrize-${p.rank}-quantity`] = 'Vui lòng nhập số lượng hợp lệ';
             pValid = false;
+          } else {
+            count++;
           }
-          if (pValid) count++;
         }
         return pValid;
       })
       if (!mainValid) isValid = false
 
-      const extendedPrizes = formData.extendedPrizes ?? []
       const extValid = extendedPrizes.every(p => {
         let pValid = true;
         if (!p.name?.trim()) {
           errors[`extPrize-${p.id}-name`] = 'Vui lòng nhập tên giải thưởng';
           pValid = false;
+        } else {
+          count++;
         }
+        
         if (p.quantity === '' || p.quantity === undefined || p.quantity === null || Number(p.quantity) < 1) {
           errors[`extPrize-${p.id}-quantity`] = 'Vui lòng nhập số lượng hợp lệ';
           pValid = false;
+        } else {
+          count++;
         }
         return pValid;
       })

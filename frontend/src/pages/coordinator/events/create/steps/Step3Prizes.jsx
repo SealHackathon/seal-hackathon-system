@@ -89,7 +89,7 @@ function Step3Prizes({ formData, onFormChange, errors = {} }) {
     function addExtendedPrize() {
         onFormChange('extendedPrizes', [
             ...extendedPrizes,
-            { id: Date.now(), defaultName: 'Tên giải', name: '', quantity: '', cash: '', desc: '' },
+            { id: Date.now(), defaultName: 'VD: Giải Sáng tạo, Giải Cống hiến...', name: '', quantity: '', cash: '', desc: '' },
         ])
     }
 

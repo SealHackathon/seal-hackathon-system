@@ -93,18 +93,18 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
 
     case 3: {
       const mappedMain = (formData.mainPrizes || []).map(item => ({
-        prizeName: item.name?.trim() || item.defaultName || 'Giải thưởng',
+        prizeName: item.name?.trim() || '',
         description: item.desc?.trim() || '',
-        money: Number(item.cash) || 0,
-        quantity: Number(item.quantity) || 1,
+        money: item.cash !== '' && item.cash !== undefined && item.cash !== null ? Number(item.cash) : null,
+        quantity: item.quantity !== '' && item.quantity !== undefined && item.quantity !== null ? Number(item.quantity) : null,
         prizeType: 'MAIN'
       }));
 
       const mappedExtended = (formData.extendedPrizes || []).map(item => ({
-        prizeName: item.name?.trim() || 'Giải phụ',
+        prizeName: item.name?.trim() || '',
         description: item.desc?.trim() || '',
-        money: Number(item.cash) || 0,
-        quantity: Number(item.quantity) || 1,
+        money: item.cash !== '' && item.cash !== undefined && item.cash !== null ? Number(item.cash) : null,
+        quantity: item.quantity !== '' && item.quantity !== undefined && item.quantity !== null ? Number(item.quantity) : null,
         prizeType: 'EXTENDED'
       }));
 
