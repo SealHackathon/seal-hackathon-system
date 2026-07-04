@@ -25,6 +25,7 @@ function FormInput({
   status,              // 'default' | 'error' | 'success'
   message,             // error hoặc success message
   disabled,
+  suffix,
   name,
   id,
   ...rest
@@ -63,11 +64,44 @@ function FormInput({
           <input
             className={styles.input}
             id={inputId}
-            type={type}
+            type={type === 'number' ? 'text' : type}
+            inputMode={type === 'number' ? 'numeric' : undefined}
             name={name}
             value={value}
-            onChange={onChange}
-            onBlur={onBlur}
+            onChange={(e) => {
+              if (type === 'number') { // ! === VALIDATION cho số (number) ===
+                let val = e.target.value.replace(/[^0-9]/g, '')
+                if (val !== '') {
+                  let num = parseInt(val, 10)
+                  if (rest.max !== undefined && num > Number(rest.max)) {
+                    num = Number(rest.max)
+                  }
+                  e.target.value = num.toString()
+                } else {
+                  e.target.value = ''
+                }
+              }
+              onChange?.(e)
+            }}
+            onBlur={(e) => {
+              if (type === 'number' && e.target.value !== '') {
+                let num = parseInt(e.target.value, 10)
+                if (rest.min !== undefined && num < Number(rest.min)) {
+                  num = Number(rest.min)
+                  e.target.value = num.toString()
+                  onChange?.(e)
+                }
+              }
+              onBlur?.(e)
+            }}
+            onKeyDown={(e) => {
+              if (type === 'number') {
+                if (['-', '+', 'e', 'E', '.', ','].includes(e.key)) {
+                  e.preventDefault()
+                }
+              }
+              rest.onKeyDown?.(e)
+            }}
             placeholder={placeholder}
             maxLength={maxLength}
             disabled={disabled}
@@ -83,6 +117,10 @@ function FormInput({
             >
               <IconRight size={iconSize} weight={iconWeight} color={iconColor} />
             </button>
+          )}
+
+          {suffix && (
+            <span className={styles.suffix}>{suffix}</span>
           )}
         </div>
 
