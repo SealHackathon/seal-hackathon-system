@@ -31,11 +31,12 @@ function DateTimePicker({
     disabled,
     error,
     showTime    = true,     // mặc định có time
+    timeOnly    = false,    // chỉ hiển thị chọn giờ
     yearsPast   = 5,        // số năm ngược trong dropdown năm
     yearsFuture = 14,       // số năm tiếp trong dropdown năm
 }) {
-    const resolvedPlaceholder = placeholder ?? (showTime ? 'Chọn ngày và giờ' : 'Chọn ngày')
-    const resolvedDateFormat   = showTime ? 'EEEE, dd/MM/yyyy, HH:mm' : 'dd/MM/yyyy'
+    const resolvedPlaceholder = placeholder ?? (timeOnly ? 'Chọn giờ' : (showTime ? 'Chọn ngày và giờ' : 'Chọn ngày'))
+    const resolvedDateFormat   = timeOnly ? 'HH:mm' : (showTime ? 'EEEE, dd/MM/yyyy, HH:mm' : 'dd/MM/yyyy')
     const totalYears           = yearsPast + yearsFuture
 
     return (
@@ -57,11 +58,12 @@ function DateTimePicker({
                     onChange={onChange}
                     // Đóng ngay sau khi chọn ngày nếu không có time;
                     // giữ mở nếu có time để user tiếp tục chọn giờ
-                    shouldCloseOnSelect={!showTime}
-                    showTimeSelect={showTime}
+                    shouldCloseOnSelect={!showTime || timeOnly}
+                    showTimeSelect={showTime || timeOnly}
+                    showTimeSelectOnly={timeOnly}
                     timeCaption="Giờ"
                     timeFormat="HH:mm"
-                    timeIntervals={30}
+                    timeIntervals={15}
                     dateFormat={resolvedDateFormat}
                     placeholderText={resolvedPlaceholder}
                     minDate={minDate}

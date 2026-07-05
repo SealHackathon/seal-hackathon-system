@@ -44,7 +44,7 @@ function CreateEventFooter({
   )
 
   const progressPercent = requiredCount > 0 ? Math.round((filledCount / requiredCount) * 100) : 100;
-  const isComplete = filledCount >= requiredCount && requiredCount > 0;
+  const isComplete = requiredCount === 0 || filledCount >= requiredCount;
 
   return (
     <div className={styles.footer}>

@@ -28,6 +28,7 @@ function FormInput({
   suffix,
   name,
   id,
+  showCount,
   ...rest
 }) {
 

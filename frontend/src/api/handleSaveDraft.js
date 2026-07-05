@@ -162,7 +162,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           timelines: (item.agenda || []).map(t => ({
             name: t.name?.trim() || '',
             description: t.desc?.trim() || '',
-            timeStart: t.startTime || null,
+            timeStart: t.startTime ? new Date(t.startTime).toISOString() : null,
             timeEnd: null,
           })),
         })),
