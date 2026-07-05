@@ -8,7 +8,7 @@
   padding: 1rem 1em;
 
   /* Căn thẳng hàng với các block bên dưới */
-  background-color: #ffffff;
+  background-color: transparent;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   
   transform-origin: top;
