@@ -212,6 +212,21 @@ function CreateEventPage() {
       { id: 'cat-1', name: '', desc: '', teamLimit: '' }
     ]
   })
+  const [blurredFormData, setBlurredFormData] = useState(formData)
+
+  // Khóa nhận diện thay đổi cấu trúc (số lượng phần tử mảng, id)
+  const structureKey = [
+    formData.id,
+    formData.rounds?.length,
+    ...(formData.rounds?.map(r => r.agenda?.length) || []),
+    formData.mainPrizes?.length,
+    formData.extendedPrizes?.length,
+    formData.categories?.length
+  ].join('-')
+
+  useEffect(() => {
+    setBlurredFormData(formData)
+  }, [currentStep, structureKey])
   const [status, setStatus] = useState('draft')
 
   function addToast(toast) {
@@ -262,7 +277,7 @@ function CreateEventPage() {
           id: item.id ?? `${r.roundId ?? index}-${idx}`,
           name: item.name ?? item.timelineName ?? '',
           desc: item.desc ?? item.description ?? '',
-          startTime: item.startTime ?? item.timeStart ?? null,
+          startTime: parseBackendDate(item.startTime ?? item.timeStart ?? null),
         }))
         : [],
       meetingLink: r.meetingLink ?? '',
@@ -452,30 +467,30 @@ function CreateEventPage() {
 
 
   // nếu chưa điền đủ các thông tin form ko cho nhảy bước
-  function validateStep(step) {
+  function validateStep(step, data = formData) {
     let isValid = true;
     const errors = {};
     let requiredCount = 0;
     let filledCount = 0;
 
     if (step === 1) {
-      requiredCount = formData.deadlineSameAsClose === false ? 8 : 7;
+      requiredCount = data.deadlineSameAsClose === false ? 8 : 7;
       let invalidCount = 0;
 
       // name
-      if (!formData.name?.trim()) { errors.name = 'Vui lòng nhập tên cuộc thi'; invalidCount++; isValid = false; }
+      if (!data.name?.trim()) { errors.name = 'Vui lòng nhập tên cuộc thi'; invalidCount++; isValid = false; }
 
       // openDate
-      if (!formData.openDate) { errors.openDate = 'Vui lòng chọn ngày mở'; invalidCount++; isValid = false; }
+      if (!data.openDate) { errors.openDate = 'Vui lòng chọn ngày mở'; invalidCount++; isValid = false; }
 
       // closeDate — cả trống lẫn sai logic đều tính là invalid
-      if (!formData.closeDate) { errors.closeDate = 'Vui lòng chọn ngày đóng'; invalidCount++; isValid = false; }
-      else if (formData.openDate && new Date(formData.closeDate).getTime() <= new Date(formData.openDate).getTime()) {
+      if (!data.closeDate) { errors.closeDate = 'Vui lòng chọn ngày đóng'; invalidCount++; isValid = false; }
+      else if (data.openDate && new Date(data.closeDate).getTime() <= new Date(data.openDate).getTime()) {
         errors.closeDate = 'Ngày đóng phải sau ngày mở'; invalidCount++; isValid = false;
       }
 
-      const min = formData.minMembers
-      const max = formData.maxMembers
+      const min = data.minMembers
+      const max = data.maxMembers
 
       // minMembers — trống hoặc giá trị sai đều tính invalid
       if (min === '' || min === undefined || min === null) { errors.minMembers = 'Bắt buộc'; invalidCount++; isValid = false; }
@@ -487,13 +502,13 @@ function CreateEventPage() {
       else if (Number(min) >= 1 && Number(min) > Number(max)) { errors.maxMembers = 'Max >= Min'; invalidCount++; isValid = false; }
 
       // avatarFile & coverFile
-      if (!formData.avatarFile) { errors.avatarFile = 'Vui lòng chọn logo'; invalidCount++; isValid = false; }
-      if (!formData.coverFile) { errors.coverFile = 'Vui lòng chọn banner'; invalidCount++; isValid = false; }
+      if (!data.avatarFile) { errors.avatarFile = 'Vui lòng chọn logo'; invalidCount++; isValid = false; }
+      if (!data.coverFile) { errors.coverFile = 'Vui lòng chọn banner'; invalidCount++; isValid = false; }
 
       // teamDeadline — cả trống lẫn trước ngày đóng đều invalid
-      if (formData.deadlineSameAsClose === false) {
-        if (!formData.teamDeadline) { errors.teamDeadline = 'Bắt buộc chọn'; invalidCount++; isValid = false; }
-        else if (formData.closeDate && new Date(formData.teamDeadline).getTime() < new Date(formData.closeDate).getTime()) {
+      if (data.deadlineSameAsClose === false) {
+        if (!data.teamDeadline) { errors.teamDeadline = 'Bắt buộc chọn'; invalidCount++; isValid = false; }
+        else if (data.closeDate && new Date(data.teamDeadline).getTime() < new Date(data.closeDate).getTime()) {
           errors.teamDeadline = 'Hạn chót chốt đội không được trước hạn đóng đăng ký'; invalidCount++; isValid = false;
         }
       }
@@ -502,21 +517,21 @@ function CreateEventPage() {
       return { isValid, errors, requiredCount, filledCount }
     }
     if (step === 2) {
-      const rules = formData.generalRules ?? ''
+      const rules = data.generalRules ?? ''
       const isEmpty = !rules.trim() || rules === '<p></p>' || rules === '<p><br></p>'
       if (isEmpty) {
         errors.generalRules = 'Vui lòng nhập quy định chung của cuộc thi'
         isValid = false
       }
 
-      const notes = formData.notes ?? []
+      const notes = data.notes ?? []
       if (!notes.every(n => n.title?.trim())) isValid = false
       return { isValid, errors, requiredCount: 1, filledCount: isValid ? 1 : 0 }
     }
     if (step === 3) {
-      const mainPrizes = formData.mainPrizes ?? []
-      const rankCount = formData.rankCount ?? 3
-      const extendedPrizes = formData.extendedPrizes ?? []
+      const mainPrizes = data.mainPrizes ?? []
+      const rankCount = data.rankCount ?? 3
+      const extendedPrizes = data.extendedPrizes ?? []
       
       requiredCount = (rankCount * 2) + (extendedPrizes.length * 2);
 
@@ -567,55 +582,139 @@ function CreateEventPage() {
       return { isValid, errors, requiredCount, filledCount }
     }
     if (step === 4) {
-      const rounds = formData.rounds ?? []
-      requiredCount = rounds.length;
+      const rounds = data.rounds ?? []
       if (rounds.length === 0) return { isValid: false, errors, requiredCount: 1, filledCount: 0 }
 
-      let count = 0;
-      isValid = rounds.every((r, idx) => {
-        let roundValid = true;
-        if (!r.name?.trim()) roundValid = false
-        if (!r.startDate || !r.endDate) roundValid = false
+      let totalRequired = 0;
+      let totalFilled = 0;
+      isValid = true;
 
-        const start = new Date(r.startDate).getTime()
-        const end = new Date(r.endDate).getTime()
-        if (end <= start) roundValid = false
-        if (idx > 0) {
-          const prevEnd = new Date(rounds[idx - 1].endDate).getTime()
-          if (start < prevEnd) roundValid = false
+      rounds.forEach((r, idx) => {
+        // Name
+        totalRequired++;
+        if (!r.name?.trim()) {
+          errors[`round-${idx}-name`] = 'Vui lòng nhập tên vòng thi';
+          isValid = false;
+        } else {
+          totalFilled++;
         }
 
-        if (r.format === 'offline' && !r.location) roundValid = false
-        if (r.format === 'online' && !r.meetingLink?.trim()) roundValid = false
-
-        if (r.submissionType === 'new') {
-          if (!r.submissionDeadline) roundValid = false
-          const subDeadline = new Date(r.submissionDeadline).getTime()
-          if (subDeadline <= start || subDeadline >= end) roundValid = false
-          if (r.submissionOpen) {
-            const subOpen = new Date(r.submissionOpen).getTime()
-            if (subDeadline <= subOpen) roundValid = false
-            if (subOpen < start) roundValid = false
+        // startDate
+        totalRequired++;
+        let isStartValid = false;
+        if (!r.startDate) {
+          errors[`round-${idx}-startDate`] = 'Vui lòng chọn thời gian bắt đầu';
+        } else {
+          const start = new Date(r.startDate).getTime()
+          if (idx > 0 && rounds[idx - 1].endDate) {
+            const prevEnd = new Date(rounds[idx - 1].endDate).getTime()
+            if (start < prevEnd) {
+              errors[`round-${idx}-startDate`] = 'Phải sau vòng trước';
+            } else {
+              isStartValid = true;
+            }
+          } else {
+            isStartValid = true;
           }
         }
+        if (isStartValid) totalFilled++;
+        else isValid = false;
 
+        // endDate
+        totalRequired++;
+        let isEndValid = false;
+        if (!r.endDate) {
+          errors[`round-${idx}-endDate`] = 'Vui lòng chọn thời gian kết thúc';
+        } else if (r.startDate) {
+          const start = new Date(r.startDate).getTime()
+          const end = new Date(r.endDate).getTime()
+          if (end <= start) {
+            errors[`round-${idx}-endDate`] = 'Phải sau ngày bắt đầu';
+          } else {
+            isEndValid = true;
+          }
+        }
+        if (isEndValid) totalFilled++;
+        else isValid = false;
+
+        // format
+        totalRequired++;
+        if (r.format === 'offline') {
+          if (!r.location) {
+            errors[`round-${idx}-location`] = 'Vui lòng chọn địa điểm';
+            isValid = false;
+          } else {
+            totalFilled++;
+          }
+        } else if (r.format === 'online') {
+          if (!r.meetingLink?.trim()) {
+            errors[`round-${idx}-meetingLink`] = 'Vui lòng nhập link';
+            isValid = false;
+          } else {
+            totalFilled++;
+          }
+        } else {
+          isValid = false;
+        }
+
+        // submission
+        if (r.submissionType === 'new') {
+          totalRequired++;
+          let isSubValid = false;
+          if (!r.submissionDeadline) {
+            errors[`round-${idx}-submissionDeadline`] = 'Vui lòng chọn hạn nộp bài';
+          } else if (r.startDate && r.endDate) {
+            const subDeadline = new Date(r.submissionDeadline).getTime()
+            const start = new Date(r.startDate).getTime()
+            const end = new Date(r.endDate).getTime()
+            if (subDeadline <= start || subDeadline >= end) {
+              errors[`round-${idx}-submissionDeadline`] = 'Phải trong thời gian vòng thi';
+            } else if (r.submissionOpen) {
+              const subOpen = new Date(r.submissionOpen).getTime()
+              if (subDeadline <= subOpen) {
+                errors[`round-${idx}-submissionDeadline`] = 'Phải sau khi mở nộp bài';
+              } else if (subOpen < start) {
+                errors[`round-${idx}-submissionOpen`] = 'Phải từ lúc bắt đầu vòng thi';
+              } else {
+                isSubValid = true;
+              }
+            } else {
+              isSubValid = true;
+            }
+          }
+          if (isSubValid) totalFilled++;
+          else isValid = false;
+        }
+
+        // agenda
         const agenda = r.agenda ?? []
-        const agendaValid = agenda.every((item, i) => {
-          if (i === 0) return true
-          const prev = agenda[i - 1]
-          if (prev.startTime && item.startTime && item.startTime <= prev.startTime) return false
-          return true
+        let agendaValid = true;
+        agenda.forEach((item, i) => {
+          totalRequired += 2;
+          if (!item.name || item.name.trim() === '') {
+            agendaValid = false;
+          } else {
+            totalFilled++;
+          }
+          if (!item.startTime) {
+            agendaValid = false;
+          } else {
+            totalFilled++;
+          }
+          if (i > 0) {
+            const prev = agenda[i - 1]
+            if (prev.startTime && item.startTime && item.startTime <= prev.startTime) {
+              agendaValid = false;
+            }
+          }
         })
-        if (!agendaValid) roundValid = false
-
-        if (roundValid) count++;
-        return roundValid;
+        if (!agendaValid) isValid = false
       })
-      filledCount = count;
-      return { isValid, errors, requiredCount, filledCount }
+
+      return { isValid, errors, requiredCount: totalRequired, filledCount: totalFilled }
     }
     if (step === 5) {
-      const categories = formData.categories ?? []
+      const categories = data.categories ?? []
       requiredCount = categories.length;
       if (categories.length === 0) return { isValid: false, errors, requiredCount: 1, filledCount: 0 }
 
@@ -733,19 +832,19 @@ function CreateEventPage() {
       case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
-      case 4: return <Step4Rounds formData={formData} onChange={setFormData} />
+      case 4: return <Step4Rounds formData={formData} onChange={setFormData} errors={stepErrors} />
       case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
       case 6: return <Step6Timeline formData={formData} onFormChange={handleFormChange} />
       case 7: return <Step7MentorJudge formData={formData} onFormChange={handleFormChange} />
       default: return null
     }
   }
-  const isPublishDisabled = ![1, 2, 3, 4, 5].every(step => validateStep(step).isValid)
+  const isPublishDisabled = ![1, 2, 3, 4, 5].every(step => validateStep(step, blurredFormData).isValid)
   return (
     // <CoordinatorLayout>
     // </CoordinatorLayout>
 
-    <div ref={pageRef} className={styles.page}>
+    <div ref={pageRef} className={styles.page} onBlurCapture={() => setBlurredFormData(formData)}>
 
       {/* ── Sticky Header ── */}
       <CreateEventStickyHeader isEditing={isEditing} lastUpdated={lastUpdated} />
@@ -800,8 +899,8 @@ function CreateEventPage() {
         onSaveDraft={onSaveDraft}
         onBack={handleBack}
         onNext={handleNext}
-        requiredCount={validateStep(currentStep).requiredCount}
-        filledCount={validateStep(currentStep).filledCount}
+        requiredCount={validateStep(currentStep, blurredFormData).requiredCount}
+        filledCount={validateStep(currentStep, blurredFormData).filledCount}
       />
 
       <ConfirmModal

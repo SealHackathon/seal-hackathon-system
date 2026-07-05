@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import SectionHeader from '../../../../../components/shared/SectionHeader'
 import FieldGroup from '../../../../../components/shared/FieldGroup'
 import FormInput from '../../../../../components/shared/FormInput'
@@ -45,7 +45,7 @@ const SUBMISSION_OPTIONS = [
 ]
 
 // ── Form cho 1 vòng thi
-function RoundForm({ round, onChange, isLast, prevRound }) {
+function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex }) {
     const [recents, setRecents] = useState(() => getRecentLocations())
 
     function update(field, val) {
@@ -60,8 +60,22 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
         }
     }
 
+    // ── Không cho phép nộp bài vòng trước nếu là vòng đầu tiên
+    useEffect(() => {
+        if (!prevRound && round.submissionType === 'previous') {
+            update('submissionType', 'new')
+        }
+    }, [prevRound, round.submissionType])
+
+    const submissionOptions = SUBMISSION_OPTIONS.map(opt => {
+        if (opt.value === 'previous' && !prevRound) {
+            return { ...opt, disabled: true, description: 'Chỉ áp dụng từ vòng thứ 2 trở đi' }
+        }
+        return opt
+    })
+
     // ── Validate ngày bắt đầu so với vòng trước
-    const startDateError = (() => {
+    const startDateError = errors?.[`round-${roundIndex}-startDate`] || (() => {
         if (!round.startDate) return null
         if (prevRound && prevRound.endDate) {
             const start = new Date(round.startDate)
@@ -74,7 +88,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
     })()
 
     // ── Validate thời gian vòng thi
-    const endDateError = (() => {
+    const endDateError = errors?.[`round-${roundIndex}-endDate`] || (() => {
         if (!round.startDate || !round.endDate) return null
         const start = new Date(round.startDate)
         const end = new Date(round.endDate)
@@ -83,7 +97,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
     })()
 
     // ── Validate thời gian mở nộp bài
-    const submissionOpenError = (() => {
+    const submissionOpenError = errors?.[`round-${roundIndex}-submissionOpen`] || (() => {
         if (!round.submissionOpen) return null
         const subOpen = new Date(round.submissionOpen)
         if (round.startDate) {
@@ -96,21 +110,15 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
     })()
 
     // ── Validate thời gian nộp bài
-    const submissionDeadlineError = (() => {
+    const submissionDeadlineError = errors?.[`round-${roundIndex}-submissionDeadline`] || (() => {
         if (!round.submissionDeadline) return null
         const subDeadline = new Date(round.submissionDeadline)
 
-        if (round.startDate) {
+        if (round.startDate && round.endDate) {
             const start = new Date(round.startDate)
-            if (subDeadline <= start) {
-                return 'Hạn nộp bài phải sau thời gian bắt đầu vòng thi'
-            }
-        }
-
-        if (round.endDate) {
             const end = new Date(round.endDate)
-            if (subDeadline >= end) {
-                return 'Hạn nộp bài phải trước thời gian kết thúc vòng thi'
+            if (subDeadline <= start || subDeadline >= end) {
+                return 'Hạn nộp bài phải nằm trong thời gian vòng thi'
             }
         }
 
@@ -139,6 +147,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                         value={round.name}
                         onChange={e => update('name', e?.target ? e.target.value : e)}
                         placeholder="SEAL Hackathon Summer 2026"
+                        error={errors?.[`round-${roundIndex}-name`]}
                     />
 
                     <FieldGroup icon={CalendarBlank} layout='row' title="Thời gian" required>
@@ -163,7 +172,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                             <Banner
                                 color="green" variant="solid" icon={Trophy}
                                 title="Vòng trao giải"
-                                message="Đây là vòng cuối cùng, kết quả sẽ được công bố tại đây."
+                                message="Đây là vòng cuối cùng, sẽ được dùng để trao giải cho các đội thi."
                             />
                         ) : (
                             <Banner
@@ -195,6 +204,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                             value={round.location}
                             onChange={handleLocationChange}
                             recentPlaces={recents}
+                            error={errors?.[`round-${roundIndex}-location`]}
                         />
                     )}
 
@@ -206,6 +216,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                             placeholder="https://meet.google.com/..."
                             value={round.meetingLink ?? ''}
                             onChange={e => update('meetingLink', e?.target ? e.target.value : e)}
+                            error={errors?.[`round-${roundIndex}-meetingLink`]}
                         />
                     )}
 
@@ -219,7 +230,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
 
                     <FieldGroup icon={Folder} title="Cách thức nộp bài" required>
                         <RadioCardGroup
-                            options={SUBMISSION_OPTIONS}
+                            options={submissionOptions}
                             value={round.submissionType}
                             onChange={val => update('submissionType', val)}
                         />
@@ -288,7 +299,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
 }
 
 // ── Container chính
-function Step4Rounds({ formData, onChange }) {
+function Step4Rounds({ formData, onChange, errors }) {
     // Khởi tạo 1 lần — tránh render loop
     const [rounds, setRounds] = useState(() =>
         formData.rounds?.length
@@ -299,6 +310,12 @@ function Step4Rounds({ formData, onChange }) {
             ]
     )
     const [activeId, setActiveId] = useState(() => rounds[0]?.id)
+
+    useEffect(() => {
+        if (!formData.rounds?.length) {
+            onChange?.({ ...formData, rounds })
+        }
+    }, [])
 
     function syncAndSet(newRounds) {
         setRounds(newRounds)
@@ -352,6 +369,8 @@ function Step4Rounds({ formData, onChange }) {
                     onChange={handleRoundChange}
                     isLast={isLast}
                     prevRound={prevRound}
+                    roundIndex={activeIndex}
+                    errors={errors}
                 />
             )}
         </div>

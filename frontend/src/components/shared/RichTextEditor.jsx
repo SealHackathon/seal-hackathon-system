@@ -1,8 +1,6 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-import Underline from '@tiptap/extension-underline'
-import Link from '@tiptap/extension-link'
 import { Table } from '@tiptap/extension-table'
 import { TableRow } from '@tiptap/extension-table-row'
 import { TableCell } from '@tiptap/extension-table-cell'
@@ -15,7 +13,7 @@ import {
 
 import Dropdown from './Dropdown'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import styles from './RichTextEditor.module.css'
 
 /**
@@ -39,17 +37,19 @@ function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...',
     ]
 
 
+    const extensions = useMemo(() => [
+        StarterKit.configure({
+            link: { openOnClick: false }
+        }),
+        Placeholder.configure({ placeholder }),
+        Table.configure({ resizable: false }),
+        TableRow,
+        TableHeader,
+        TableCell,
+    ], [placeholder])
+
     const editor = useEditor({
-        extensions: [
-            StarterKit,
-            Placeholder.configure({ placeholder }),
-            Underline,
-            Link.configure({ openOnClick: false }),
-            Table.configure({ resizable: false }),
-            TableRow,
-            TableHeader,
-            TableCell,
-        ],
+        extensions,
         content: value || '',
         onUpdate({ editor }) {
             onChange?.(editor.getHTML())
