@@ -57,7 +57,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/prize/**").permitAll()
                         .requestMatchers("/api/track/**").permitAll()
                         .requestMatchers("/api/milestone/**").permitAll()
-                        .requestMatchers("/api/mentor-judge/**").permitAll().requestMatchers("/api/auth/update-email").hasRole("USER")
+                        .requestMatchers("/api/mentor-judge/**").permitAll().requestMatchers("/api/auth/update-email").permitAll()
                         // Role
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/lecturer/**").hasAnyRole("ADMIN", "LECTURER")

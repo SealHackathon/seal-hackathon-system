@@ -28,7 +28,7 @@ public class JudgeScore {
     @Column(nullable = false)
     private LocalDateTime submitAt;
 
-    @Column(nullable = false)
+    @Column
     private LocalDateTime updatedAt;
 
     @Column (columnDefinition = "TEXT")
