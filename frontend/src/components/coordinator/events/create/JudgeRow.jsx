@@ -9,18 +9,16 @@ import styles from './JudgeRow.module.css'
  * Props:
  *   judge      : { id, name, title, org, avatar, categoryIds[], roundIds[], inviteStatus, inviteSentAt }
  *   categories : [{ value, label }]
- *   rounds     : [{ value, label }]
- *   onChange   : (updated) => void
- *   onDelete   : () => void
  *   onWithdrawInvite : () => void
  */
-function JudgeRow({ judge, categories = [], rounds = [], onChange, onDelete, onSendInvite, onWithdrawInvite }) {
+function JudgeRow({ judge, categories = [], onChange, onDelete, onSendInvite, onWithdrawInvite }) {
     const isPending = judge.inviteStatus === 'pending'
     const canSend = isPending
     const canWithdraw = judge.inviteStatus === 'sent' || judge.inviteStatus === 'accepted'
+    const isDeclined = judge.inviteStatus === 'declined'
 
     return (
-        <div className={styles.row}>
+        <div className={`${styles.row} ${isDeclined ? styles.rowDeclined : ''}`}>
 
             {/* Avatar + info */}
             <div className={styles.person}>
@@ -31,7 +29,10 @@ function JudgeRow({ judge, categories = [], rounds = [], onChange, onDelete, onS
                     }
                 </div>
                 <div className={styles.info}>
-                    <span className={styles.name}>{judge.name}</span>
+                    <div className={styles.nameRow}>
+                        <span className={styles.name}>{judge.name}</span>
+                        <InviteStatusBadge status={judge.inviteStatus} sentAt={judge.inviteSentAt} />
+                    </div>
                     <span className={styles.sub}>
                         {[judge.title, judge.org].filter(Boolean).join(' \u00b7 ')}
                     </span>
@@ -48,22 +49,12 @@ function JudgeRow({ judge, categories = [], rounds = [], onChange, onDelete, onS
                 />
             </div>
 
-            <div className={styles.cell}>
-                <MultiSelectDropdown
-                    placeholder="Chọn vòng thi"
-                    value={judge.roundIds ?? []}
-                    onChange={vals => onChange({ ...judge, roundIds: vals })}
-                    options={rounds}
-                />
-            </div>
-
             {/* Trạng thái + hành động + Xóa */}
             <div className={styles.actionsGroup}>
-                <InviteStatusBadge status={judge.inviteStatus} sentAt={judge.inviteSentAt} />
                 {canSend && (
                     <Button
                         label="Gửi lời mời"
-                        variant="primary"
+                        variant="outline"
                         color="blue"
                         labelSize={14}
                         icon={PaperPlaneTilt}
