@@ -54,4 +54,9 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             @Param("teamStatus") TeamStatus teamStatus,
             @Param("memberStatus") MemberStatus memberStatus
     );
+    Optional<Member> findByMemberIdAndRoleAndStatus(
+            long memberId,
+            MemberRole role,
+            MemberStatus status
+    );
 }

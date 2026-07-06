@@ -24,6 +24,7 @@ public class JudgeAssignment {
     @JoinColumn(name = "event_id", nullable = false)
     private Event event;
 
+
     public JudgeAssignment(Track track, User user) {
         this.track = track;
         this.user = user;
