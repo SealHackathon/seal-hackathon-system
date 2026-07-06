@@ -239,7 +239,8 @@ function MultiSelectDropdown({
                   )}
                   {filtered.map(item => {
                     const isChecked = value.includes(item.value)
-                    const isDisabled = !isChecked && isAtMax
+                    const isAtMaxLimit = !isChecked && isAtMax
+                    const isDisabled = isAtMaxLimit || item.disabled
                     return (
                       <div
                         key={item.value}

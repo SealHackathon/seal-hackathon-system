@@ -16,6 +16,48 @@ function JudgeRow({ judge, categories = [], onChange, onDelete, onSendInvite, on
     const canSend = isPending
     const canWithdraw = judge.inviteStatus === 'sent' || judge.inviteStatus === 'accepted'
     const isDeclined = judge.inviteStatus === 'declined'
+    const hasAllOption = categories.some(c => c.value === null)
+    const selectedCategoryIds = hasAllOption
+        ? (judge.categoryIds ?? [])
+        : (judge.categoryIds ?? []).filter(value => value !== null)
+
+    const handleCategoryChange = (newVals) => {
+        const availableValues = categories.filter(c => c.value !== null && !c.disabled).map(c => c.value);
+        const currentVals = judge.categoryIds ?? [];
+        const allowAllOption = categories.some(c => c.value === null)
+
+        if (!allowAllOption) {
+            onChange({ ...judge, categoryIds: newVals.filter(value => value !== null) })
+            return
+        }
+        
+        const hasAllNow = newVals.includes(null);
+        const hadAllBefore = currentVals.includes(null);
+
+        let result = newVals;
+
+        if (hasAllNow && !hadAllBefore) {
+            // User just clicked "Tất cả" -> chọn tất cả (available)
+            result = [null, ...availableValues];
+        } else if (!hasAllNow && hadAllBefore) {
+            // User just unclicked "Tất cả" -> xoá toàn bộ
+            result = [];
+        } else if (hasAllNow && hadAllBefore) {
+            // User unclicked an individual item while "Tất cả" was checked -> remove "Tất cả"
+            const hasAllAvailable = availableValues.every(val => newVals.includes(val));
+            if (!hasAllAvailable) {
+                result = newVals.filter(v => v !== null);
+            }
+        } else if (!hasAllNow && !hadAllBefore) {
+            // User manually checked all items -> add "Tất cả"
+            const hasAllAvailable = availableValues.length > 0 && availableValues.every(val => newVals.includes(val));
+            if (hasAllAvailable) {
+                result = [null, ...newVals];
+            }
+        }
+
+        onChange({ ...judge, categoryIds: result });
+    };
 
     return (
         <div className={`${styles.row} ${isDeclined ? styles.rowDeclined : ''}`}>
@@ -42,8 +84,8 @@ function JudgeRow({ judge, categories = [], onChange, onDelete, onSendInvite, on
             <div className={styles.cell}>
                 <MultiSelectDropdown
                     placeholder="Chọn hạng mục"
-                    value={judge.categoryIds ?? []}
-                    onChange={vals => onChange({ ...judge, categoryIds: vals })}
+                    value={selectedCategoryIds}
+                    onChange={handleCategoryChange}
                     options={categories}
                     searchable
                 />
