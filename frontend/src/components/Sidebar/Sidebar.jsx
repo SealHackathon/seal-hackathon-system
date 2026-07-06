@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { Flag, UsersThree, UploadSimple, ArrowLeft } from '@phosphor-icons/react'
 import NavPill from './NavPill'
 import styles from './Sidebar.module.css'
@@ -12,28 +12,44 @@ const NAV_ITEMS = [
 function Sidebar({ onGoBack }) {
   const navigate = useNavigate();
   const [activePage, setActivePage] = useState('team') // !  Set tạm
+
+  const [isSticky, setIsSticky] = useState(false)
+  const sentinelRef = useRef(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsSticky(!entry.isIntersecting),
+      { rootMargin: '-96px 0px 0px 0px', threshold: 0 }
+    )
+    if (sentinelRef.current) observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <aside className={`${styles.sidebar} ${'scrollbar'}`}>
+    <>
+      <div ref={sentinelRef} className={styles.sidebarSentinel} />
+      <aside className={`${styles.sidebar} ${'scrollbar'} ${isSticky ? styles.sidebarSticky : ''}`}>
 
-      <button className={styles.backBtn} onClick={onGoBack}>
-        <ArrowLeft size={24} />
-        <span>Trang chủ</span>
-      </button>
+        <button className={styles.backBtn} onClick={onGoBack}>
+          <ArrowLeft size={24} />
+          <span>Trang chủ</span>
+        </button>
 
-      <hr className={styles.divider} />
+        <hr className={styles.divider} />
 
-      <nav className={styles.nav}>
-        {NAV_ITEMS.map(item => (
-          <NavPill
-            key={item.id}
-            icon={item.icon}
-            label={item.label}
-            isActive={activePage === item.id}
-            onClick={() => setActivePage(item.id)}
-          />
-        ))}
-      </nav>
-    </aside>
+        <nav className={styles.nav}>
+          {NAV_ITEMS.map(item => (
+            <NavPill
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              isActive={activePage === item.id}
+              onClick={() => setActivePage(item.id)}
+            />
+          ))}
+        </nav>
+      </aside>
+    </>
   )
 }
 

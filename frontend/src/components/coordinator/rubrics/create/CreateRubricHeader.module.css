@@ -12,7 +12,6 @@
   transform-origin: top;
   border: 0px solid var(--color-border-blue);
   height: 4em;
-  margin-bottom: 1em;
   will-change: border, margin, background-color;
 }
 

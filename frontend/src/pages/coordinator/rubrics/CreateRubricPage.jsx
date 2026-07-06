@@ -327,6 +327,7 @@ export default function CreateRubricPage() {
                                                 onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                                 placeholder="Mô tả ngắn gọn về hoàn cảnh sử dụng của bộ tiêu chí này..."
                                                 rows={3}
+                                                className={styles.textArea}
                                             />
                                         </div>
                                     </section>

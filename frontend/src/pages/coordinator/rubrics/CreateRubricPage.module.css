@@ -6,7 +6,7 @@
 .page {
   display: flex;
   flex-direction: column;
-  min-height: 120vh;
+  min-height: 110vh;
 }
 
 .body {
@@ -32,7 +32,7 @@
   display: grid;
   gap: 1.5rem;
   align-items: stretch;
-  grid-template-columns: 2.5fr 1fr;
+  grid-template-columns: 2.5fr 1.5fr;
 }
 
 .topRow>.section {
@@ -52,10 +52,11 @@
   border-radius: var(--radius);
   border: 1.5px solid var(--color-border-blue);
   box-sizing: border-box;
-  height: calc(100vh - 4em - 10em - 4.5em - 2rem);
+  height: calc(100vh - 3em - 10em - 4.5em);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-color: var(--color-border-blue) transparent;
+  scrollbar-width: thin;
   transition: height 0.2s ease-out;
 }
 
@@ -68,8 +69,8 @@
 
 .contentSticky {
   position: sticky;
-  top: calc(3em + 1.5rem);
-  height: calc(100vh - 3em - 1.5rem - 4.5em - 3rem);
+  top: calc(3em + 0.5rem);
+  height: calc(100vh - 3em - 1.5rem - 4.5em - 1rem);
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-color: var(--color-border-blue) transparent;
@@ -98,7 +99,7 @@
   align-items: center;
   gap: 1.5rem;
   color: var(--color-bg-white);
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.5rem;
 }
 
 .blueHeader::before,
@@ -128,7 +129,9 @@
 }
 
 .blueHeaderContent {
-  display: flex;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
   gap: 2rem;
 }
 
@@ -136,7 +139,6 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  width: 50%;
 }
 
 .blueHeaderTitle {
@@ -175,6 +177,11 @@
   border: 1px solid var(--color-border-blue);
   padding: 2em;
   height: 100%;
+}
+
+.textArea textarea {
+  min-height: 5em;
+  max-height: 9em;
 }
 
 .listContainer {

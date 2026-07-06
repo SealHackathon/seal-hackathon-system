@@ -70,7 +70,7 @@ function SortableCard({ id, children, onDelete, draggable = true, showDelete = t
                     className={styles.deleteBtn}
                     onClick={onDelete}
                 >
-                    <Trash size={20} />
+                    <Trash size={20} weight='fill'/>
                 </button>
             )}
         </div>

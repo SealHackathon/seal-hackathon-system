@@ -13,6 +13,7 @@
 .body {
     display: flex;
     flex: 1;
+    position: relative;
 }
 
 .content {

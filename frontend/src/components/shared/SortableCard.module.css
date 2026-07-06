@@ -67,7 +67,7 @@
 
 .deleteBtn:hover {
     color: var(--color-primary-orange);
-    background: var(--color-bg-orange);
+    background: var(--color-bg-white);
 }
 
 /* Avatar slot */

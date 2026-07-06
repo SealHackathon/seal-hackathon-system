@@ -25,7 +25,7 @@
 }
 
 .hint {
-    font-size: 0.9rem;
+    font-size: 0.85rem;
     color: var(--color-text-secondary);
     margin-left: 1em;
 }
