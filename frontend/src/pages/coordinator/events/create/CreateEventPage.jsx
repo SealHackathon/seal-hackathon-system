@@ -287,13 +287,27 @@ function CreateEventPage() {
     if (value instanceof Date) return value
     if (typeof value === 'number') return new Date(value)
 
-    const str = String(value).trim()
-    const normalized = str
-      .replace(/\s+/g, 'T')
-      .replace(/\./g, ':')
-      .replace(/\s*GMT.*$/i, '')
+    // Normalize string and handle microseconds (e.g. 2026-07-07T23:34:55.178047)
+    let str = String(value).trim()
+    if (!str) return null
 
-    const date = new Date(normalized)
+    // Remove surrounding quotes if any
+    str = str.replace(/^"|"$/g, '')
+
+    // Replace whitespace between date and time with 'T'
+    str = str.replace(/\s+/g, 'T')
+
+    // If fractional seconds have more than 3 digits (microseconds), truncate to milliseconds
+    // e.g. .178047 -> .178
+    str = str.replace(/(\.\d{3})\d+/, '$1')
+
+    // Try direct parse first
+    let date = new Date(str)
+    if (Number.isFinite(date.getTime())) return date
+
+    // Fallback: remove any fractional seconds entirely and try again
+    const fallback = str.replace(/\.\d+/, '')
+    date = new Date(fallback)
     return Number.isFinite(date.getTime()) ? date : null
   }
 
@@ -946,6 +960,12 @@ function CreateEventPage() {
     }
 
     // Lưu ngầm background — không hiện thông báo khi nhấn Tiếp theo
+    // Nếu đang ở bước cuối cùng: điều hướng về danh sách sự kiện ngay lập tức (không lưu nháp)
+    if (currentStep >= TOTAL_STEPS) {
+      navigate('/admin/coordinator/events');
+      return;
+    }
+
     handleSaveDraft({ currentStep, formData, axiosClient, handleFormChange });
   }
   // ------------------------------------------------------------------
