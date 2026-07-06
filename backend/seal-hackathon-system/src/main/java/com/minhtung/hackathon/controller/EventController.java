@@ -81,7 +81,7 @@ public class EventController {
 
 
     // UPDATE EVENT
-    @PutMapping("/{id}")
+    @PutMapping(value = "/{id}" ,consumes = {"multipart/form-data"})
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<EventDetailsResponse> updateEvent(
             @PathVariable Long id,

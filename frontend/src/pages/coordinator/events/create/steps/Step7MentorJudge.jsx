@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Info, PaperPlaneTilt, Plus } from '@phosphor-icons/react'
 import SectionHeader from '../../../../../components/shared/SectionHeader'
 import Banner from '../../../../../components/shared/Banner'
@@ -31,7 +31,15 @@ function createJudge(person) {
 function Step7MentorJudge({ formData, onFormChange }) {
     // ── Local state — giống pattern Step6Timeline
     const [mentors, setMentors] = useState(() => formData?.mentors ?? [])
-    const [judges, setJudges] = useState(() => formData?.judges ?? [])
+    const [judges,  setJudges]  = useState(() => formData?.judges  ?? [])
+
+    useEffect(() => {
+        setMentors(formData?.mentors ?? [])
+    }, [formData?.mentors])
+
+    useEffect(() => {
+        setJudges(formData?.judges ?? [])
+    }, [formData?.judges])
 
     const categories = (formData?.categories ?? [])
         .filter(c => c.name?.trim())
