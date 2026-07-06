@@ -108,15 +108,22 @@ function CreateEventPage() {
       }
     }
 
-    // Lắng nghe sự kiện để xử lý riêng việc cuộn Dropdown (phải bắt ở capture phase để chặn Lenis)
+    // Lắng nghe sự kiện để xử lý riêng việc cuộn Dropdown và các popup (phải bắt ở capture phase để chặn Lenis)
     function handleDropdownScroll(e) {
       if (!contentInnerRef.current) return
-      const el = contentInnerRef.current
-      if (!el.contains(e.target)) return
+      
+      const portal = document.getElementById('root-portal')
+      
+      const isPortalScroll = portal && portal.contains(e.target)
+      const isContentScroll = contentInnerRef.current.contains(e.target)
+      
+      if (!isPortalScroll && !isContentScroll) return
 
-      const getScrollableNode = (target, maxParent) => {
+      const maxParent = isPortalScroll ? portal : contentInnerRef.current
+
+      const getScrollableNode = (target, limitParent) => {
         let node = target
-        while (node && node !== maxParent && node !== document.body) {
+        while (node && node !== limitParent && node !== document.body && node !== document) {
           if (node.nodeType === Node.ELEMENT_NODE) {
             const style = window.getComputedStyle(node)
             const isScrollableY = (style.overflowY === 'auto' || style.overflowY === 'scroll') && node.scrollHeight > node.clientHeight
@@ -134,18 +141,24 @@ function CreateEventPage() {
         return null
       }
 
-      const childScrollNode = getScrollableNode(e.target, el)
+      const childScrollNode = getScrollableNode(e.target, maxParent)
       if (childScrollNode) {
         e.stopPropagation()
         e.preventDefault()
         childScrollNode.scrollTop += e.deltaY
+      } else if (isPortalScroll) {
+        // Nếu cuộn bên trong portal (popup lịch) nhưng không có chỗ nào cuộn được, chặn luôn 
+        // để không bị cuộn trang bên dưới.
+        e.stopPropagation()
+        e.preventDefault()
       }
     }
 
-    page.addEventListener('wheel', handleDropdownScroll, { passive: false, capture: true })
+    // Attach handleDropdownScroll to window so it can intercept portal events
+    window.addEventListener('wheel', handleDropdownScroll, { passive: false, capture: true })
     page.addEventListener('wheel', handleWheel, { passive: false })
     return () => {
-      page.removeEventListener('wheel', handleDropdownScroll, { capture: true })
+      window.removeEventListener('wheel', handleDropdownScroll, { capture: true })
       page.removeEventListener('wheel', handleWheel)
     }
   }, [])  // Chạy 1 lần, handler tự đọc state từ DOM
@@ -171,11 +184,17 @@ function CreateEventPage() {
       { id: 3, rank: 3, defaultName: 'Giải ba', name: 'Giải ba', quantity: 1, cash: '', desc: '' },
     ],
     extendedPrizes: [],
+    generalRules: '',
     notes: [
       {
-        id: Date.now(),
-        title: 'Thông tin đội thi không thể thay đổi sau khi chốt',
-        desc: 'Để đảm bảo tính công bằng và minh bạch cho cuộc thi, sau khi thời hạn chốt đội kết thúc, mọi thông tin liên quan đến thành viên và thông tin chung của đội sẽ bị khóa hoàn toàn. Ban tổ chức sẽ không giải quyết bất kỳ yêu cầu thay đổi nào trừ các trường hợp bất khả kháng.'
+        id: `note-${Date.now()}-1`,
+        title: 'Quy định về tư cách tham gia',
+        desc: 'Người tham gia phải là sinh viên hoặc người đi làm dưới 5 năm kinh nghiệm. Mỗi đội gồm từ 3 đến 5 thành viên.'
+      },
+      {
+        id: `note-${Date.now()}-2`,
+        title: 'Quy định về sản phẩm dự thi',
+        desc: 'Sản phẩm chưa từng đoạt giải ở bất kỳ cuộc thi nào khác. Mã nguồn phải được công khai trên GitHub hoặc nền tảng tương tự.'
       }
     ],
     rounds: [
@@ -209,7 +228,7 @@ function CreateEventPage() {
       }
     ],
     categories: [
-      { id: 'cat-1', name: '', desc: '', teamLimit: '' }
+      { id: 1, name: '', desc: '', teamLimit: '' }
     ]
   })
   const [blurredFormData, setBlurredFormData] = useState(formData)
@@ -221,7 +240,9 @@ function CreateEventPage() {
     ...(formData.rounds?.map(r => r.agenda?.length) || []),
     formData.mainPrizes?.length,
     formData.extendedPrizes?.length,
-    formData.categories?.length
+    formData.categories?.length,
+    formData.notes?.length,
+    formData.manualMilestones?.length
   ].join('-')
 
   useEffect(() => {
@@ -238,8 +259,24 @@ function CreateEventPage() {
   }
 
   function handleFormChange(field, val) {
-    setFormData(prev => ({ ...prev, [field]: val }))
-    setStepErrors(prev => ({ ...prev, [field]: undefined })) // Clear error when user types
+    setFormData(prev => {
+      const next = { ...prev, [field]: val }
+      
+      // Tự động đồng bộ teamDeadline nếu deadlineSameAsClose đang bật
+      if (field === 'closeDate' && next.deadlineSameAsClose !== false) {
+        next.teamDeadline = val
+      }
+      if (field === 'deadlineSameAsClose') {
+        if (val !== false) {
+          next.teamDeadline = next.closeDate ?? null
+        } else {
+          next.teamDeadline = null
+        }
+      }
+      
+      return next
+    })
+    setStepErrors(prev => ({ ...prev, [field]: undefined })) // xoá error khi user nhập
   }
 
   // chuẩn hóa lại dữ liệu ngày tháng từ backend về dạng Date object
@@ -290,8 +327,11 @@ function CreateEventPage() {
 
   const normalizeTracks = (rawTracks) => {
     if (!Array.isArray(rawTracks)) return undefined
+    if (rawTracks.length === 0) {
+      return [{ id: 1, name: '', desc: '', teamLimit: '' }]
+    }
     return rawTracks.map((track, index) => ({
-      id: track.id ?? track.trackId ?? `cat-${index + 1}`,
+      id: track.id ?? track.trackId ?? (index + 1),
       name: track.name ?? track.trackName ?? '',
       desc: track.des ?? track.description ?? '',
       teamLimit: track.maxTeamPerTrack ?? track.teamLimit ?? ''
@@ -389,6 +429,37 @@ function CreateEventPage() {
     return normalizeTracks(data?.tracks ?? data?.trackList ?? data)
   }
 
+  const normalizeMilestones = (rawMilestones, roundsData) => {
+    if (!Array.isArray(rawMilestones)) return undefined
+    const roundNames = (roundsData || []).map(r => r.name)
+    const autoTitles = ['Mở cổng đăng ký', 'Đóng đăng ký', ...roundNames]
+    
+    // lọc những milestone được thêm tự động
+    const manuals = rawMilestones.filter(m => {
+      const title = m.name ?? m.title ?? m.milestoneName ?? ''
+      return !autoTitles.includes(title)
+    })
+    
+    return manuals.map((m, idx) => ({
+      id: `manual-${Date.now()}-${idx}`,
+      title: m.name ?? m.title ?? m.milestoneName ?? '',
+      date: parseBackendDate(m.timeStart ?? m.dateStart ?? m.startDate ?? m.date),
+      endDate: parseBackendDate(m.timeEnd ?? m.dateEnd ?? m.endDate),
+      description: m.des ?? m.description ?? m.milestoneDes ?? ''
+    }))
+  }
+
+  const loadEventMilestones = async (eventId, roundsData) => {
+    const data = await tryLoad([
+      { url: '/milestone', params: { eventId } },
+      { url: `/milestone/${eventId}` },
+      { url: '/milestone', params: { id: eventId } },
+    ])
+    // The backend sometimes wraps it or returns a raw array
+    const raw = data?.milestones ?? data?.milestoneList ?? data
+    return normalizeMilestones(raw, roundsData)
+  }
+
   useEffect(() => {
     if (!isEditing) return;
 
@@ -414,6 +485,12 @@ function CreateEventPage() {
         }
         if (!trackData) {
           trackData = await loadEventTracks(data.eventId ?? id)
+        }
+        
+        // Fetch milestones thủ công
+        let manualMilestonesData = normalizeMilestones(data.milestones, roundsData)
+        if (!manualMilestonesData) {
+           manualMilestonesData = await loadEventMilestones(data.eventId ?? id, roundsData)
         }
 
         const fetchedOpenDate = parseBackendDate(data.openRegisterTime ?? data.openDate ?? data.registerOpenTime ?? data.startRegisterTime)
@@ -442,6 +519,7 @@ function CreateEventPage() {
           status: data.eventStatus?.toLowerCase() ?? data.status?.toLowerCase() ?? prev.status,
           rounds: roundsData ?? prev.rounds,
           categories: trackData ?? prev.categories,
+          manualMilestones: manualMilestonesData ?? prev.manualMilestones,
           mainPrizes: prizeData?.mainPrizes ?? prev.mainPrizes,
           extendedPrizes: prizeData?.extendedPrizes ?? prev.extendedPrizes,
           rankCount: Number(data.rankCount ?? (prizeData?.mainPrizes?.length ?? prev.rankCount)) || prev.rankCount,
@@ -606,7 +684,13 @@ function CreateEventPage() {
           errors[`round-${idx}-startDate`] = 'Vui lòng chọn thời gian bắt đầu';
         } else {
           const start = new Date(r.startDate).getTime()
-          if (idx > 0 && rounds[idx - 1].endDate) {
+          const lockTime = data.deadlineSameAsClose === false 
+                           ? (data.teamDeadline ? new Date(data.teamDeadline).getTime() : null) 
+                           : (data.closeDate ? new Date(data.closeDate).getTime() : null);
+
+          if (lockTime && start <= lockTime) {
+            errors[`round-${idx}-startDate`] = 'Phải sau hạn chốt đội';
+          } else if (idx > 0 && rounds[idx - 1].endDate) {
             const prevEnd = new Date(rounds[idx - 1].endDate).getTime()
             if (start < prevEnd) {
               errors[`round-${idx}-startDate`] = 'Phải sau vòng trước';
@@ -667,7 +751,7 @@ function CreateEventPage() {
             const subDeadline = new Date(r.submissionDeadline).getTime()
             const start = new Date(r.startDate).getTime()
             const end = new Date(r.endDate).getTime()
-            if (subDeadline <= start || subDeadline >= end) {
+            if (subDeadline <= start || subDeadline > end) {
               errors[`round-${idx}-submissionDeadline`] = 'Phải trong thời gian vòng thi';
             } else if (r.submissionOpen) {
               const subOpen = new Date(r.submissionOpen).getTime()
@@ -681,6 +765,8 @@ function CreateEventPage() {
             } else {
               isSubValid = true;
             }
+          } else {
+            isSubValid = true;
           }
           if (isSubValid) totalFilled++;
           else isValid = false;
@@ -721,12 +807,50 @@ function CreateEventPage() {
       let count = 0;
       isValid = categories.every(c => {
         let catValid = true;
-        if (!c.name?.trim()) catValid = false
+        if (!c.name?.trim()) {
+           errors[`category-${c.id}-name`] = 'Vui lòng nhập tên hạng mục'
+           catValid = false
+        }
         if (c.teamLimit !== '' && c.teamLimit !== undefined && c.teamLimit !== null) {
-          if (Number(c.teamLimit) < 1) catValid = false
+          if (Number(c.teamLimit) < 1) {
+             errors[`category-${c.id}-teamLimit`] = 'Tối thiểu 1'
+             catValid = false
+          }
         }
         if (catValid) count++;
         return catValid;
+      })
+      filledCount = count;
+      return { isValid, errors, requiredCount, filledCount }
+    }
+    if (step === 6) {
+      const manuals = data.manualMilestones ?? []
+      requiredCount = manuals.length * 2;
+      if (manuals.length === 0) return { isValid: true, errors, requiredCount: 0, filledCount: 0 }
+
+      let count = 0;
+      isValid = manuals.every(ms => {
+        let msValid = true;
+        if (!ms.title?.trim()) {
+           errors[`manual-${ms.id}-title`] = 'Vui lòng nhập tên mốc'
+           msValid = false
+        } else {
+           count++
+        }
+
+        if (!ms.date) {
+           errors[`manual-${ms.id}-date`] = 'Vui lòng chọn thời gian bắt đầu'
+           msValid = false
+        } else {
+           count++
+        }
+
+        if (ms.date && ms.endDate && new Date(ms.endDate).getTime() <= new Date(ms.date).getTime()) {
+           errors[`manual-${ms.id}-endDate`] = 'Phải sau thời gian bắt đầu'
+           msValid = false
+        }
+        
+        return msValid;
       })
       filledCount = count;
       return { isValid, errors, requiredCount, filledCount }
@@ -833,8 +957,8 @@ function CreateEventPage() {
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 4: return <Step4Rounds formData={formData} onChange={setFormData} errors={stepErrors} />
-      case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} />
-      case 6: return <Step6Timeline formData={formData} onFormChange={handleFormChange} />
+      case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
+      case 6: return <Step6Timeline formData={formData} onChange={setFormData} errors={stepErrors} />
       case 7: return <Step7MentorJudge formData={formData} onFormChange={handleFormChange} />
       default: return null
     }

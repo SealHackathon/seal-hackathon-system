@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import ReactDatePicker, { registerLocale } from 'react-datepicker'
 import { vi } from 'date-fns/locale/vi'
 import { CalendarBlank, CaretLeft, CaretRight } from '@phosphor-icons/react'
@@ -34,10 +35,52 @@ function DateTimePicker({
     timeOnly    = false,    // chỉ hiển thị chọn giờ
     yearsPast   = 5,        // số năm ngược trong dropdown năm
     yearsFuture = 14,       // số năm tiếp trong dropdown năm
+    highlightRanges = [],   // mảng { start, end, colorType: 'registration' | 'round', label }
 }) {
     const resolvedPlaceholder = placeholder ?? (timeOnly ? 'Chọn giờ' : (showTime ? 'Chọn ngày và giờ' : 'Chọn ngày'))
     const resolvedDateFormat   = timeOnly ? 'HH:mm' : (showTime ? 'EEEE, dd/MM/yyyy, HH:mm' : 'dd/MM/yyyy')
     const totalYears           = yearsPast + yearsFuture
+
+    // ── Xử lý Highlight Dates ──
+    const { highlightDates, legendItems } = useMemo(() => {
+        if (!highlightRanges || highlightRanges.length === 0) return { highlightDates: [], legendItems: [] }
+
+        const registrationDates = []
+        const roundDates = []
+        const legendMap = new Map()
+
+        highlightRanges.forEach(range => {
+            if (!range.start || !range.end) return
+            const start = new Date(range.start)
+            const end = new Date(range.end)
+            start.setHours(0, 0, 0, 0)
+            end.setHours(23, 59, 59, 999)
+
+            for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                if (range.colorType === 'registration') registrationDates.push(new Date(d))
+                else if (range.colorType === 'round') roundDates.push(new Date(d))
+            }
+
+            if (!legendMap.has(range.colorType)) {
+                legendMap.set(range.colorType, {
+                    colorType: range.colorType,
+                    label: range.label,
+                    colorValue: range.colorType === 'registration' ? 'var(--color-primary-green)' : 'var(--color-primary-orange)'
+                })
+            }
+        })
+
+        const highlights = []
+        if (registrationDates.length > 0) highlights.push({ [styles.highlightRegistration]: registrationDates })
+        if (roundDates.length > 0) highlights.push({ [styles.highlightRound]: roundDates })
+
+        const finalLegend = [
+            { colorType: 'today', label: 'Hôm nay', colorValue: 'var(--color-primary-blue)' },
+            ...Array.from(legendMap.values())
+        ]
+
+        return { highlightDates: highlights, legendItems: finalLegend }
+    }, [highlightRanges])
 
     return (
         <div className={styles.wrapper}>
@@ -56,6 +99,7 @@ function DateTimePicker({
                     locale="vi"
                     selected={value}
                     onChange={onChange}
+                    portalId="root-portal"
                     // Đóng ngay sau khi chọn ngày nếu không có time;
                     // giữ mở nếu có time để user tiếp tục chọn giờ
                     shouldCloseOnSelect={!showTime || timeOnly}
@@ -81,6 +125,7 @@ function DateTimePicker({
                     popperClassName={styles.popper}
                     showPopperArrow={false}
                     autoComplete="off"
+                    highlightDates={highlightDates}
                     renderCustomHeader={({
                         date,
                         changeMonth,
@@ -148,7 +193,18 @@ function DateTimePicker({
 
                         </div>
                     )}
-                />
+                >
+                    {legendItems.length > 0 && (
+                        <div className={styles.legendContainer}>
+                            {legendItems.map(item => (
+                                <div key={item.colorType} className={styles.legendItem}>
+                                    <div className={styles.legendColor} style={{ backgroundColor: item.colorValue }} />
+                                    <span>{item.label}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </ReactDatePicker>
             </div>
 
             {error && <p className={styles.errorMsg}>{error}</p>}

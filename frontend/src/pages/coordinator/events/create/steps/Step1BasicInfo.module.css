@@ -32,8 +32,9 @@
 
 
 
-.textArea {
-    min-height: 3em;
+.textArea textarea {
+    min-height: 5em;
+    max-height: 9em;
     resize: none;
 }
 

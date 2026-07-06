@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import SectionHeader from '../../../../../components/shared/SectionHeader'
 import FieldGroup from '../../../../../components/shared/FieldGroup'
 import FormInput from '../../../../../components/shared/FormInput'
@@ -45,7 +45,7 @@ const SUBMISSION_OPTIONS = [
 ]
 
 // ── Form cho 1 vòng thi
-function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex }) {
+function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, teamDeadline, highlightRanges }) {
     const [recents, setRecents] = useState(() => getRecentLocations())
 
     function update(field, val) {
@@ -74,11 +74,19 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex }) {
         return opt
     })
 
-    // ── Validate ngày bắt đầu so với vòng trước
+    // ── Validate ngày bắt đầu so với vòng trước và so với thời gian chốt đội
     const startDateError = errors?.[`round-${roundIndex}-startDate`] || (() => {
         if (!round.startDate) return null
+        const start = new Date(round.startDate)
+
+        if (teamDeadline) {
+            const teamDeadlineDate = new Date(teamDeadline)
+            if (start <= teamDeadlineDate) {
+                return `Ngày bắt đầu phải sau thời gian chốt đội (${teamDeadlineDate.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })})`
+            }
+        }
+
         if (prevRound && prevRound.endDate) {
-            const start = new Date(round.startDate)
             const prevEnd = new Date(prevRound.endDate)
             if (start < prevEnd) {
                 return `Ngày bắt đầu phải sau hoặc bằng ngày kết thúc của vòng trước (${prevEnd.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })})`
@@ -157,6 +165,7 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex }) {
                             value={round.startDate}
                             onChange={val => update('startDate', val)}
                             error={startDateError}
+                            highlightRanges={highlightRanges}
                         />
                         <DateTimePicker
                             label="Ngày kết thúc"
@@ -164,6 +173,7 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex }) {
                             value={round.endDate}
                             onChange={val => update('endDate', val)}
                             error={endDateError}
+                            highlightRanges={highlightRanges}
                         />
                     </FieldGroup>
 
@@ -254,6 +264,7 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex }) {
                                     onChange={val => update('submissionOpen', val)}
                                     error={submissionOpenError}
                                     status={submissionOpenError ? 'error' : 'default'}
+                                    highlightRanges={highlightRanges}
                                 />
                                 <DateTimePicker
                                     label="Hạn nộp bài"
@@ -261,6 +272,7 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex }) {
                                     value={round.submissionDeadline}
                                     onChange={val => update('submissionDeadline', val)}
                                     error={submissionDeadlineError}
+                                    highlightRanges={highlightRanges}
                                 />
                             </FieldGroup>
 
@@ -317,6 +329,31 @@ function Step4Rounds({ formData, onChange, errors }) {
         }
     }, [])
 
+    const highlightRanges = useMemo(() => {
+        const ranges = []
+        if (formData.openDate && formData.closeDate) {
+            ranges.push({
+                start: formData.openDate,
+                end: formData.closeDate,
+                colorType: 'registration',
+                label: 'Thời gian đăng ký'
+            })
+        }
+        if (formData.rounds && formData.rounds.length > 0) {
+            formData.rounds.forEach(round => {
+                if (round.startDate && round.endDate) {
+                    ranges.push({
+                        start: round.startDate,
+                        end: round.endDate,
+                        colorType: 'round',
+                        label: 'Vòng thi'
+                    })
+                }
+            })
+        }
+        return ranges
+    }, [formData.openDate, formData.closeDate, formData.rounds])
+
     function syncAndSet(newRounds) {
         setRounds(newRounds)
         onChange?.({ ...formData, rounds: newRounds })
@@ -371,6 +408,8 @@ function Step4Rounds({ formData, onChange, errors }) {
                     prevRound={prevRound}
                     roundIndex={activeIndex}
                     errors={errors}
+                    teamDeadline={formData.teamDeadline}
+                    highlightRanges={highlightRanges}
                 />
             )}
         </div>

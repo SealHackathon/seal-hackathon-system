@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import FieldGroup from '../../../../../components/shared/FieldGroup'
 import FormInput from '../../../../../components/shared/FormInput'
 import FormTextarea from '../../../../../components/shared/FormTextarea'
@@ -26,6 +26,31 @@ const KEYWORD_OPTIONS = [
 
 function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
     const deadlineSameAsClose = formData.deadlineSameAsClose ?? true
+
+    const highlightRanges = useMemo(() => {
+        const ranges = []
+        if (formData.openDate && formData.closeDate) {
+            ranges.push({
+                start: formData.openDate,
+                end: formData.closeDate,
+                colorType: 'registration',
+                label: 'Thời gian đăng ký'
+            })
+        }
+        if (formData.rounds && formData.rounds.length > 0) {
+            formData.rounds.forEach(round => {
+                if (round.startDate && round.endDate) {
+                    ranges.push({
+                        start: round.startDate,
+                        end: round.endDate,
+                        colorType: 'round',
+                        label: 'Vòng thi'
+                    })
+                }
+            })
+        }
+        return ranges
+    }, [formData.openDate, formData.closeDate, formData.rounds])
 
     // Tính lỗi cho closeDate
     const closeDateError = (() => {
@@ -115,9 +140,9 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
 
                         <FormInput
                             label="Tên sự kiện"
+                            labelVariant="small"
                             required
                             placeholder="VD: SEAL Hackathon Summer 2026"
-                            hint="Tên hiển thị công khai trên toàn hệ thống, không thay đổi được sau khi công bố."
                             maxLength={50}
                             showCount
                             value={formData.name ?? ''}
@@ -128,6 +153,7 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
 
                         <FormInput
                             label="Chủ đề"
+                            labelVariant="small"
                             placeholder="VD: AI Agents for Software Innovation"
                             hint="Chủ đề chính của cuộc thi, giúp thí sinh định hướng giải pháp."
                             maxLength={50}
@@ -138,6 +164,7 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
 
                         <FormTextarea
                             className={styles.textArea}
+                            labelVariant="small"
                             label="Mô tả ngắn"
                             placeholder="Giới thiệu ngắn gọn về sự kiện trong 1–2 câu..."
                             hint="Hiển thị dưới tên sự kiện ở trang danh sách và kết quả tìm kiếm."
@@ -183,6 +210,7 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
                             onChange={val => onFormChange?.('openDate', val)}
                             placeholder="Thứ tư, 12/08/2026, 09:00"
                             error={errors.openDate}
+                            highlightRanges={highlightRanges}
                         />
 
                         <DateTimePicker
@@ -199,6 +227,7 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
                             // minTime={getCloseDateMinTime()}
                             // maxTime={new Date(new Date().setHours(23, 59, 0, 0))}
                             error={closeDateError}
+                            highlightRanges={highlightRanges}
                         />
 
                     </FieldGroup>
@@ -273,6 +302,7 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
                                 // }
                                 
                                 error={teamDeadlineError}
+                                highlightRanges={highlightRanges}
                             />
                         )}
 

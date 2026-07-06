@@ -80,9 +80,22 @@
     border-bottom: 1px solid var(--color-border-blue) !important;
 }
 
+:global(.react-datepicker__header:not(.react-datepicker__header--has-time-select,
+        .react-datepicker__header--middle, .react-datepicker__header--bottom)) {
+    height: 4em !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+
 :global(.react-datepicker-time__header) {
     color: var(--color-primary-blue) !important;
     font-weight: bold !important;
+}
+
+:global(.react-datepicker__month-container) {
+    border-bottom: 1px solid var(--color-border-blue) !important;
 }
 
 :global(.react-datepicker__input-container) {
@@ -109,13 +122,18 @@
 }
 
 /* Ngày được chọn */
-:global(.react-datepicker__day--selected),
-:global(.react-datepicker__day--keyboard-selected) {
+:global(.react-datepicker__day--selected) {
     background-color: var(--color-bg-blue) !important;
     color: var(--color-primary-blue) !important;
     border: 1.5px solid var(--color-border-blue);
     transform: scale(1.1) !important;
     font-weight: bold !important;
+}
+
+/* Cho phép keyboard selected chỉ hiển thị outline nhẹ thay vì background đậm */
+:global(.react-datepicker__day--keyboard-selected:not(.react-datepicker__day--selected)) {
+    background-color: transparent !important;
+    color: inherit;
 }
 
 /* Ngày hôm nay */
@@ -129,10 +147,11 @@
 /* Time picker */
 :global(.react-datepicker__time-container) {
     border-left: 1px solid var(--color-border-blue) !important;
+    border-bottom: 1px solid var(--color-border-blue) !important;
 }
 
 :global(.react-datepicker__time-box) {
-     scrollbar-color: var(--color-secondary-blue) transparent !important;
+    scrollbar-color: var(--color-secondary-blue) transparent !important;
 }
 
 :global(.react-datepicker__time-list-item) {
@@ -142,7 +161,7 @@
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
-    margin:0.5em !important;
+    margin: 0.5em !important;
 }
 
 :global(.react-datepicker__time-list-item--selected) {
@@ -262,4 +281,70 @@
     color: var(--color-primary-orange);
     margin: 0.25rem 0 0;
     padding-left: 0.25rem;
+}
+
+/* ── Highlights ── */
+:global(.react-datepicker__day).highlightRegistration {
+    background-color: var(--color-bg-green) !important;
+    color: var(--color-primary-green) !important;
+    font-weight: bold !important;
+    width: calc(2.125em + 0.208em * 2) !important;
+    line-height: calc(2.125em + 0.208em * 2) !important;
+    margin: 0 !important;
+}
+
+:global(.react-datepicker__day).highlightRound {
+    background-color: var(--color-bg-orange) !important;
+    color: var(--color-primary-orange) !important;
+    font-weight: bold !important;
+    width: calc(2.125em + 0.208em * 2) !important;
+    line-height: calc(2.125em + 0.208em * 2) !important;
+    margin: 0 !important;
+}
+
+/* Màu cho ngày được chọn */
+:global(.react-datepicker__day--selected).highlightRegistration {
+    background-color: var(--color-bg-green) !important;
+    border: 2px solid var(--color-border-green) !important;
+    color: var(--color-primary-green) !important;
+}
+
+
+:global(.react-datepicker__day--selected).highlightRound {
+    background-color: var(--color-bg-orange) !important;
+    border: 2px solid var(--color-border-orange) !important;
+    color: var(--color-primary-orange) !important;
+}
+
+/* Ngày hôm nay */
+:global(.react-datepicker__day--today.react-datepicker__day--today) {
+    font-weight: bold !important;
+    color: var(--color-bg-white) !important;
+    background-color: var(--color-primary-blue) !important;
+}
+
+/* ── Legend ── */
+.legendContainer {
+    display: flex;
+    gap: 0.75rem;
+    padding: 0.75rem;
+    background-color: white;
+    font-size: 0.8rem;
+    color: var(--color-text-secondary);
+    border-bottom-left-radius: var(--inner-radius);
+    border-bottom-right-radius: var(--inner-radius);
+    width: max-content;
+}
+
+.legendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+.legendColor {
+    width: 14px;
+    height: 14px;
+    border-radius: 4px;
+    flex-shrink: 0;
 }

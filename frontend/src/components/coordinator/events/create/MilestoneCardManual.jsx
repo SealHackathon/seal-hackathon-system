@@ -3,7 +3,7 @@ import DateTimeRangePicker from '../../../../components/shared/DateTimeRangePick
 import FormInput from '../../../../components/shared/FormInput'
 import styles from './MilestoneCardManual.module.css'
 
-function MilestoneCardManual({ ms, onChange, onDelete }) {
+function MilestoneCardManual({ ms, onChange, onDelete, errors }) {
     const hasDate = !!ms.date
 
     const timeError = (() => {
@@ -12,7 +12,7 @@ function MilestoneCardManual({ ms, onChange, onDelete }) {
             return 'Thời gian kết thúc phải sau thời gian bắt đầu'
         }
         return null
-    })()
+    })() || errors?.[`manual-${ms.id}-endDate`]
 
     return (
         <div className={[styles.card, !hasDate && styles.cardNoDate].filter(Boolean).join(' ')}>
@@ -30,6 +30,7 @@ function MilestoneCardManual({ ms, onChange, onDelete }) {
                         placeholder="Workshop Online..."
                         value={ms.title}
                         onChange={e => onChange({ ...ms, title: e.target.value })}
+                        error={errors?.[`manual-${ms.id}-title`]}
                     />
                     
                 </div>
@@ -47,7 +48,7 @@ function MilestoneCardManual({ ms, onChange, onDelete }) {
                     onStartChange={date => onChange({ ...ms, date })}
                     onEndChange={endDate => onChange({ ...ms, endDate })}
                     endOptional
-                    error={timeError}
+                    error={timeError || errors?.[`manual-${ms.id}-date`]}
                 />
                 <FormInput
                     label="Đường dẫn"
