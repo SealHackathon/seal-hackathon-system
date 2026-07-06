@@ -11,7 +11,7 @@ import DateTimePicker from '../../../../../components/shared/DateTimePicker'
 import RichTextEditor from '../../../../../components/shared/RichTextEditor'
 import {
     CalendarBlank, MapPin, Broadcast, Trophy,
-    Folder, ArrowCounterClockwise, ListChecks, ClipboardText
+    Folder, ArrowCounterClockwise, ListChecks, ClipboardText, Textbox
 } from '@phosphor-icons/react'
 import { getRecentLocations, saveRecentLocation } from '../../../../../utils/useRecentLocation'
 import styles from './Step4Rounds.module.css'
@@ -100,13 +100,18 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
         if (!round.startDate || !round.endDate) return null
         const start = new Date(round.startDate)
         const end = new Date(round.endDate)
-        if (end <= start) return 'Ngày kết thúc phải sau ngày bắt đầu'
+        if (end <= start) return 'Thời gian kết thúc phải sau thời gian bắt đầu'
         return null
     })()
 
     // ── Validate thời gian mở nộp bài
     const submissionOpenError = errors?.[`round-${roundIndex}-submissionOpen`] || (() => {
         if (!round.submissionOpen) return null
+        
+        if (!round.startDate) {
+            return 'Vui lòng chọn thời gian bắt đầu vòng thi trước'
+        }
+
         const subOpen = new Date(round.submissionOpen)
         if (round.startDate) {
             const start = new Date(round.startDate)
@@ -121,6 +126,10 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
     const submissionDeadlineError = errors?.[`round-${roundIndex}-submissionDeadline`] || (() => {
         if (!round.submissionDeadline) return null
         const subDeadline = new Date(round.submissionDeadline)
+
+        if (!round.startDate || !round.endDate) {
+            return 'Vui lòng chọn thời gian bắt đầu và kết thúc vòng thi trước'
+        }
 
         if (round.startDate && round.endDate) {
             const start = new Date(round.startDate)
@@ -147,17 +156,14 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
             <section>
                 <SectionHeader level="h1" title="Thông tin chung" />
                 <div className={styles.sectionBody}>
-
-                    <FormInput
-                        label="Tên vòng"
-                        required
-                        hint="Tên vòng cũng hiển thị trên tab bên trên, chỉnh ở đây sẽ tự cập nhật."
-                        value={round.name}
-                        onChange={e => update('name', e?.target ? e.target.value : e)}
-                        placeholder="SEAL Hackathon Summer 2026"
-                        error={errors?.[`round-${roundIndex}-name`]}
-                    />
-
+                    <FieldGroup icon={Textbox} layout='row' title="Tên vòng" required>
+                        <FormInput
+                            value={round.name}
+                            onChange={e => update('name', e?.target ? e.target.value : e)}
+                            placeholder="SEAL Hackathon Summer 2026"
+                            error={errors?.[`round-${roundIndex}-name`]}
+                        />
+                    </FieldGroup>
                     <FieldGroup icon={CalendarBlank} layout='row' title="Thời gian" required>
                         <DateTimePicker
                             label="Ngày bắt đầu"

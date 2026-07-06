@@ -140,7 +140,7 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
 
                         <FormInput
                             label="Tên sự kiện"
-                            labelVariant="small"
+                            labelColorVariant="primary"
                             required
                             placeholder="VD: SEAL Hackathon Summer 2026"
                             maxLength={50}
@@ -153,7 +153,7 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
 
                         <FormInput
                             label="Chủ đề"
-                            labelVariant="small"
+                            labelColorVariant="primary"
                             placeholder="VD: AI Agents for Software Innovation"
                             hint="Chủ đề chính của cuộc thi, giúp thí sinh định hướng giải pháp."
                             maxLength={50}
@@ -164,7 +164,7 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
 
                         <FormTextarea
                             className={styles.textArea}
-                            labelVariant="small"
+                            labelColorVariant="primary"
                             label="Mô tả ngắn"
                             placeholder="Giới thiệu ngắn gọn về sự kiện trong 1–2 câu..."
                             hint="Hiển thị dưới tên sự kiện ở trang danh sách và kết quả tìm kiếm."

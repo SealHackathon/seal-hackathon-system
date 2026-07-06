@@ -6,12 +6,13 @@ import {
     SortableContext, sortableKeyboardCoordinates,
     verticalListSortingStrategy, arrayMove,
 } from '@dnd-kit/sortable'
-import { Plus, Eye, WarningCircle, ArrowSquareOut, X } from '@phosphor-icons/react'
+import { Plus, Eye, WarningCircle, ArrowSquareOut, X, ShieldCheck, Clipboard } from '@phosphor-icons/react'
 import SortableCard from '../../../../../components/shared/SortableCard'
 import FormTextarea from '../../../../../components/shared/FormTextarea'
 import FormInput from '../../../../../components/shared/FormInput'
 import RichTextEditor from '../../../../../components/shared/RichTextEditor'
 import Banner from '../../../../../components/shared/Banner'
+import FieldGroup from '../../../../../components/shared/FieldGroup'
 import styles from './Step2Rules.module.css'
 
 function RulesPreviewCard({ notes }) {
@@ -124,20 +125,15 @@ function Step2Rules({ formData, onFormChange, errors = {} }) {
             <div className={styles.contentWrapper}>
                 {/* ── Quy định chung — full width ── */}
                 <section className={styles.section}>
-                    <p className={styles.sectionTitle}>
-                        Quy định chung
-                        <span className={styles.required}> *</span>
-                    </p>
-                    <p className={styles.sectionHint}>
-                        Áp dụng cho toàn bộ cuộc thi — điều kiện tham gia, ứng xử, sở hữu trí tuệ, xử lý vi phạm...
-                    </p>
-                    <RichTextEditor
-                        value={formData.generalRules ?? ''}
-                        onChange={val => onFormChange('generalRules', val)}
-                        placeholder="Mô tả quy định chung của cuộc thi. Ví dụ: điều kiện tham gia, hành vi bị cấm..."
-                        status={errors.generalRules ? 'error' : ''}
-                        message={errors.generalRules}
-                    />
+                    <FieldGroup icon={ShieldCheck} title="Quy định chung" required>
+                        <RichTextEditor
+                            value={formData.generalRules ?? ''}
+                            onChange={val => onFormChange('generalRules', val)}
+                            placeholder="Mô tả quy định chung của cuộc thi. Ví dụ: điều kiện tham gia, hành vi bị cấm..."
+                            status={errors.generalRules ? 'error' : ''}
+                            message={errors.generalRules}
+                        />
+                    </FieldGroup>
                 </section>
 
                 {/* ── 2 cột: Lưu ý (trái) + Preview (phải) ── */}
@@ -145,53 +141,56 @@ function Step2Rules({ formData, onFormChange, errors = {} }) {
 
                     {/* CỘT TRÁI */}
                     <div className={styles.colLeft}>
-                        <p className={styles.sectionTitle}>Lưu ý trước đăng ký</p>
-                        <p className={styles.sectionHint}>
-                            Thí sinh phải đọc và xác nhận các lưu ý này trước khi hoàn tất đăng ký.
-                        </p>
+                        <FieldGroup icon={Clipboard} title="Lưu ý trước đăng ký">
+                            <p className={styles.sectionHint}>
+                                Thí sinh phải đọc và xác nhận các lưu ý này trước khi hoàn tất đăng ký.
+                            </p>
 
-                        <DndContext
-                            sensors={sensors}
-                            collisionDetection={closestCenter}
-                            onDragEnd={handleDragEnd}
-                        >
-                            <SortableContext
-                                items={notes.map(n => n.id)}
-                                strategy={verticalListSortingStrategy}
+                            <DndContext
+                                sensors={sensors}
+                                collisionDetection={closestCenter}
+                                onDragEnd={handleDragEnd}
                             >
-                                <div className={styles.noteList}>
-                                    {notes.map(note => (
-                                        <SortableCard
-                                            key={note.id}
-                                            id={note.id}
-                                            onDelete={() => deleteNote(note.id)}
-                                        >
-                                            <FormInput
-                                                label="Tiêu đề"
-                                                required
-                                                placeholder="Thông tin đăng ký không thể thay đổi sau khi nộp"
-                                                value={String(note.title ?? '')}
-                                                onChange={val => updateNote(note.id, 'title', val)}
-                                            />
-                                            <FormTextarea
-                                                className={styles.textArea}
-                                                label="Mô tả"
-                                                rows={3}
-                                                maxLength={300}
-                                                placeholder="Giải thích chi tiết về lưu ý này..."
-                                                value={String(note.desc ?? '')}
-                                                onChange={e => updateNote(note.id, 'desc', e.target.value)}
-                                            />
-                                        </SortableCard>
-                                    ))}
-                                </div>
-                            </SortableContext>
-                        </DndContext>
+                                <SortableContext
+                                    items={notes.map(n => n.id)}
+                                    strategy={verticalListSortingStrategy}
+                                >
+                                    <div className={styles.noteList}>
+                                        {notes.map(note => (
+                                            <SortableCard
+                                                key={note.id}
+                                                id={note.id}
+                                                onDelete={() => deleteNote(note.id)}
+                                            >
+                                                <FormInput
+                                                    label="Tiêu đề"
+                                                    labelColorVariant="primary"
+                                                    required
+                                                    placeholder="Thông tin đăng ký không thể thay đổi sau khi nộp"
+                                                    value={String(note.title ?? '')}
+                                                    onChange={val => updateNote(note.id, 'title', val)}
+                                                />
+                                                <FormTextarea
+                                                    className={styles.textArea}
+                                                    label="Mô tả"
+                                                    labelColorVariant="primary"
+                                                    rows={3}
+                                                    maxLength={300}
+                                                    placeholder="Giải thích chi tiết về lưu ý này..."
+                                                    value={String(note.desc ?? '')}
+                                                    onChange={e => updateNote(note.id, 'desc', e.target.value)}
+                                                />
+                                            </SortableCard>
+                                        ))}
+                                    </div>
+                                </SortableContext>
+                            </DndContext>
 
-                        <button type="button" className={styles.addBtn} onClick={addNote}>
-                            <Plus size={16} weight="bold" />
-                            Thêm lưu ý
-                        </button>
+                            <button type="button" className={styles.addBtn} onClick={addNote}>
+                                <Plus size={16} weight="bold" />
+                                Thêm lưu ý
+                            </button>
+                        </FieldGroup>
                     </div>
 
                     {/* CỘT PHẢI — PREVIEW */}
