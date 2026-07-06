@@ -807,6 +807,20 @@ function CreateEventPage() {
           isValid = false;
         }
 
+        // topTeamPass
+        if (idx < rounds.length - 1) {
+          totalRequired++;
+          if (r.topTeamPass === '' || r.topTeamPass === undefined || r.topTeamPass === null) {
+            errors[`round-${idx}-topTeamPass`] = 'Vui lòng nhập số đội qua vòng';
+            isValid = false;
+          } else if (Number(r.topTeamPass) <= 0) {
+            errors[`round-${idx}-topTeamPass`] = 'Phải lớn hơn 0';
+            isValid = false;
+          } else {
+            totalFilled++;
+          }
+        }
+
         // submission
         if (r.submissionType === 'new') {
           totalRequired++;

@@ -40,11 +40,11 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       if (formData.teamDeadline) sendData.append('cofirmTeamTime', toLocalISOString(formData.teamDeadline));
 
       if (formData.avatarFile instanceof File) {
-        sendData.append("bannerFile", formData.avatarFile);
+        sendData.append("thumbnailFile", formData.avatarFile);
       }
 
       if (formData.coverFile instanceof File) {
-        sendData.append("thumbnailFile", formData.coverFile);
+        sendData.append("bannerFile", formData.coverFile);
       }
 
       // Gửi URL ảnh hiện tại để backend giữ nguyên nếu không upload ảnh mới
