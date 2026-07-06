@@ -2,10 +2,7 @@ package com.minhtung.hackathon.config;
 
 import com.minhtung.hackathon.dto.request.CreateTeamDto;
 import com.minhtung.hackathon.entity.*;
-import com.minhtung.hackathon.enums.EventStatus;
-import com.minhtung.hackathon.enums.PrizeType;
-import com.minhtung.hackathon.enums.Role;
-import com.minhtung.hackathon.enums.UserStatus;
+import com.minhtung.hackathon.enums.*;
 import com.minhtung.hackathon.repository.*;
 import com.minhtung.hackathon.service.TeamService;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +21,14 @@ public class DataInitializer implements CommandLineRunner {
     private final StudentprofileRepository studentprofileRepository;
     private final EventRepository eventRepository;
     private final SystemRequestRepository systemRequestRepository;
+    private final ScoringTemplateRepository templateRepository;
 
     // Bộ nhớ tạm lưu trữ: Email của Mentor -> Tập hợp các TrackId được giao làm Mentor
     private final Map<String, Set<Long>> mentorTrackMapping = new HashMap<>();
 
     // Class cấu trúc nhỏ dùng để map cặp Track và Round cho Judge
-    private record JudgeAssignment(Long trackId, Long roundId) {}
+    private record JudgeAssignment(Long trackId, Long roundId) {
+    }
 
     @Override
     public void run(String... args) {
@@ -270,6 +269,10 @@ public class DataInitializer implements CommandLineRunner {
 
         if (eventRepository.count() == 0) {
             initSampleEvent();
+        }
+
+        if (templateRepository.count() == 0) {
+            initSampleScoringTemplates();
         }
     }
 
@@ -560,5 +563,74 @@ public class DataInitializer implements CommandLineRunner {
 
             systemRequestRepository.save(req);
         }
+
     }
+
+    // ==================== 3. KHỞI TẠO BIỂU MẪU CHẤM ĐIỂM (SCORING TEMPLATES) ====================
+    private void initSampleScoringTemplates() {
+        LocalDateTime timeNow = LocalDateTime.now();
+
+        // --- Mẫu 1: Bản chính thức (ACTIVE / PUBLISHED) ---
+        ScoringTemplate officialTemplate = new ScoringTemplate();
+        officialTemplate.setName("Khung Đánh Giá Hackathon Chung Cuộc");
+        officialTemplate.setDescription("Bảng tiêu chí chuẩn dùng để đánh giá toàn diện sản phẩm công nghệ vòng chung kết.");
+        officialTemplate.setCreateAt(timeNow);
+        officialTemplate.setUpdateAt(timeNow);
+        officialTemplate.setTieBreaking(true); // Ưu tiên giải quyết khi đồng điểm
+        officialTemplate.setStandardDeviation(1.5); // Ngưỡng độ lệch chuẩn tối đa cho phép giữa các giám khảo
+
+        // Lưu ý: Thay thế ScoringTemplateStatus.ACTIVE/PUBLISHED đúng theo tên Enum gốc của bạn nhé
+        officialTemplate.setStatus(ScoringTemplateStatus.OFFICIAL);
+        officialTemplate.setUsageCount(3); // Giả lập đã được dùng 3 lần
+
+        // Gán các tiêu chí con (Criterion) sử dụng phương thức helper addCriterion sẵn có
+        Criterion crit1 = new Criterion();
+        crit1.setName("Tính Sáng Tạo & Đột Phá");
+        crit1.setDescription("Ý tưởng có mới lạ, độc đáo và giải quyết triệt để nỗi đau của thị trường không?");
+        crit1.setWeight(30);
+        officialTemplate.addCriterion(crit1);
+
+        Criterion crit2 = new Criterion();
+        crit2.setName("Kiến Trúc & Hoàn Thiện Kỹ Thuật");
+        crit2.setDescription("Mức độ hoàn thiện của mã nguồn, độ ổn định của bản demo sản phẩm thực tế.");
+        crit2.setWeight(40);
+        officialTemplate.addCriterion(crit2);
+
+        Criterion crit3 = new Criterion();
+        crit3.setName("Kỹ Năng Thuyết Trình (Pitching)");
+        crit3.setDescription("Khả năng trình bày mạch lạc, trả lời câu hỏi phản biện từ Hội đồng Giám khảo.");
+        crit3.setWeight(30);
+        officialTemplate.addCriterion(crit3);
+
+        templateRepository.save(officialTemplate);
+
+
+        // --- Mẫu 2: Bản Lưu Nháp (DRAFT) ---
+        ScoringTemplate draftTemplate = new ScoringTemplate();
+        draftTemplate.setName("Tiêu chí Sơ loại Ý tưởng (Nháp)");
+        draftTemplate.setDescription("Khung đánh giá nhanh file Pitch Deck sơ bộ của các đội thi gửi về hệ thống.");
+        draftTemplate.setCreateAt(timeNow);
+        draftTemplate.setUpdateAt(timeNow);
+        draftTemplate.setTieBreaking(false);
+        draftTemplate.setStandardDeviation(2.0);
+        draftTemplate.setStatus(ScoringTemplateStatus.DRAFT);
+        draftTemplate.setUsageCount(0);
+
+        Criterion draftCrit1 = new Criterion();
+        draftCrit1.setName("Mức độ phù hợp chủ đề");
+        draftCrit1.setDescription("Giải pháp đưa ra có bám sát bài toán cộng đồng mà Hackathon đề ra không?");
+        draftCrit1.setWeight(50);
+        draftTemplate.addCriterion(draftCrit1);
+
+        Criterion draftCrit2 = new Criterion();
+        draftCrit2.setName("Tính khả thi thực tế");
+        draftCrit2.setDescription("Mô hình kinh doanh hoặc mô hình triển khai có khả năng áp dụng thật hay không?");
+        draftCrit2.setWeight(50);
+        draftTemplate.addCriterion(draftCrit2);
+
+        templateRepository.save(draftTemplate);
+
+        System.out.println("✅ Khởi tạo thành công 2 bộ Scoring Template mẫu!");
+    }
+
 }
