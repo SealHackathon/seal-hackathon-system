@@ -773,6 +773,8 @@ function CreateEventPage() {
         let isEndValid = false;
         if (!r.endDate) {
           errors[`round-${idx}-endDate`] = 'Vui lòng chọn thời gian kết thúc';
+        } else if (!r.startDate) {
+          errors[`round-${idx}-endDate`] = 'Vui lòng chọn thời gian bắt đầu trước';
         } else if (r.startDate) {
           const start = new Date(r.startDate).getTime()
           const end = new Date(r.endDate).getTime()
@@ -815,7 +817,7 @@ function CreateEventPage() {
             const subDeadline = new Date(r.submissionDeadline).getTime()
             const start = new Date(r.startDate).getTime()
             const end = new Date(r.endDate).getTime()
-            if (subDeadline <= start || subDeadline > end) {
+            if (subDeadline <= start || subDeadline >= end) {
               errors[`round-${idx}-submissionDeadline`] = 'Phải trong thời gian vòng thi';
             } else if (r.submissionOpen) {
               const subOpen = new Date(r.submissionOpen).getTime()
@@ -830,7 +832,7 @@ function CreateEventPage() {
               isSubValid = true;
             }
           } else {
-            isSubValid = true;
+            errors[`round-${idx}-submissionDeadline`] = 'Vui lòng chọn thời gian bắt đầu và kết thúc vòng thi trước';
           }
           if (isSubValid) totalFilled++;
           else isValid = false;
