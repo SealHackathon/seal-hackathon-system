@@ -87,7 +87,7 @@
     display: flex;
     flex-direction: column;
     gap: 0;
-    max-height: 340px;
+    max-height: 21.25rem;
     overflow-y: auto;
     border: 1.5px solid var(--color-border-blue);
     border-radius: 10px;
@@ -147,8 +147,8 @@
 
 /* Avatar */
 .avatar {
-    width: 36px;
-    height: 36px;
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: 50%;
     overflow: hidden;
     flex-shrink: 0;
@@ -210,8 +210,8 @@
 }
 
 .checkmark {
-    width: 22px;
-    height: 22px;
+    width: 1.375rem;
+    height: 1.375rem;
     border-radius: 50%;
     background: var(--color-primary-blue);
     color: white;
@@ -221,8 +221,8 @@
 }
 
 .addPlus {
-    width: 22px;
-    height: 22px;
+    width: 1.375rem;
+    height: 1.375rem;
     border-radius: 50%;
     border: 1.5px dashed var(--color-border-blue);
     color: var(--color-secondary-blue);

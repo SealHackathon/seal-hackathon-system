@@ -5,9 +5,12 @@
 
     gap: 1rem;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--color-border-blue);
+    /* border-bottom: 1px solid var(--color-border-blue); */
     background: white;
     transition: background 0.12s;
+    margin: 0.5em;
+    border-radius: var(--inner-radius);
+
 }
 
 .row:last-child {

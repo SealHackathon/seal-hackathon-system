@@ -35,7 +35,7 @@ function AddPersonModal({
     }
 
     function toggle(person) {
-        if (alreadyAdded.includes(person.id)) return
+        if (alreadyAdded.some(item => (typeof item === 'object' ? item.id === person.id : item === person.id))) return
         setSelected(prev =>
             prev.find(p => p.id === person.id)
                 ? prev.filter(p => p.id !== person.id)
@@ -114,7 +114,9 @@ function AddPersonModal({
                     )}
 
                     {!loading && persons.map(person => {
-                        const isAdded    = alreadyAdded.includes(person.id)
+                        const addedInfo  = alreadyAdded.find(item => (typeof item === 'object' ? item.id === person.id : item === person.id))
+                        const isAdded    = !!addedInfo
+                        const addedReason = typeof addedInfo === 'object' ? addedInfo.reason : 'Đã thêm'
                         const isSelected = selected.find(p => p.id === person.id)
 
                         return (
@@ -148,7 +150,7 @@ function AddPersonModal({
                                 {/* State */}
                                 <div className={styles.personState}>
                                     {isAdded ? (
-                                        <span className={styles.addedLabel}>Đã thêm</span>
+                                        <span className={styles.addedLabel} title={addedReason}>{addedReason}</span>
                                     ) : isSelected ? (
                                         <span className={styles.checkmark}>
                                             <Check size={14} weight="bold" />
