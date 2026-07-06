@@ -24,7 +24,7 @@ function CategoryNumber({ index }) {
 }
 
 // ── Nội dung 1 category card ──
-function CategoryCardContent({ category, onChange }) {
+function CategoryCardContent({ category, onChange, errors }) {
     function update(field, val) {
         const value = val?.target ? val.target.value : val
         onChange({ ...category, [field]: value })
@@ -35,17 +35,18 @@ function CategoryCardContent({ category, onChange }) {
             {/* Hàng 1: icon + tên hạng mục */}
             <div className={styles.nameRow}>
                 <div className={styles.categoryIcon}>
-                    <SquaresFour size={20} weight="fill" color="var(--color-secondary-blue)" />
+                    <SquaresFour size={32} weight="fill" color="var(--color-secondary-blue)" />
                 </div>
                 <div className={styles.nameField}>
                     <span className={styles.nameLabel}>
-                        TÊN HẠNG MỤC
+                        Tên hạng mục
                         <span className={styles.required}> *</span>
                     </span>
                     <FormInput
                         placeholder="Nhập tên hạng mục..."
                         value={String(category.name ?? '')}
                         onChange={val => update('name', val)}
+                        error={errors?.[`category-${category.id}-name`]}
                     />
                 </div>
             </div>
@@ -81,6 +82,7 @@ function CategoryCardContent({ category, onChange }) {
                                 e.preventDefault()
                             }
                         }}
+                        error={errors?.[`category-${category.id}-teamLimit`]}
                     />
                 </div>
             </div>
@@ -89,9 +91,9 @@ function CategoryCardContent({ category, onChange }) {
 }
 
 // ── Main component ──
-function Step5Categories({ formData, onFormChange }) {
+function Step5Categories({ formData, onFormChange, errors }) {
     const categories = formData.categories ?? [
-        { id: Date.now(), name: '', desc: '', teamLimit: '' }
+        { id: 'cat-1', name: '', desc: '', teamLimit: '' }
     ]
 
 
@@ -108,9 +110,15 @@ function Step5Categories({ formData, onFormChange }) {
     }
 
     function addCategory() {
+        const maxId = categories.reduce((max, cat) => {
+            const idNum = Number(cat.id);
+            return !isNaN(idNum) && idNum > max ? idNum : max;
+        }, 0);
+        const nextId = maxId + 1;
+        
         onFormChange('categories', [
             ...categories,
-            { id: Date.now(), name: '', desc: '', teamLimit: '' },
+            { id: nextId, name: '', desc: '', teamLimit: '' },
         ])
     }
 
@@ -154,6 +162,7 @@ function Step5Categories({ formData, onFormChange }) {
                                 <CategoryCardContent
                                     category={cat}
                                     onChange={updated => updateCategory(cat.id, updated)}
+                                    errors={errors}
                                 />
                             </SortableCard>
                         ))}

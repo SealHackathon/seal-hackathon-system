@@ -20,39 +20,19 @@ function usePlacesAutocomplete(input) {
 
         const fetchSuggestions = async () => {
             try {
-                if (window.google.maps.places.AutocompleteSuggestion) {
-                    const { suggestions } = await window.google.maps.places.AutocompleteSuggestion.fetchAutocompleteSuggestions({
-                        input,
-                        language: 'vi'
-                    })
-                    if (active) {
-                        setSuggestions(suggestions?.map(s => {
-                            const p = s.placePrediction;
-                            return {
-                                place_id: p.placeId,
-                                structured_formatting: {
-                                    main_text: p.mainText?.text || p.text?.text || '',
-                                    secondary_text: p.secondaryText?.text || ''
-                                }
-                            }
-                        }) || [])
-                    }
-                } else {
-                    // Fallback legacy
-                    const service = new window.google.maps.places.AutocompleteService()
-                    service.getPlacePredictions(
-                        { input, language: 'vi' },
-                        (results, status) => {
-                            if (active) {
-                                if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                                    setSuggestions(results ?? [])
-                                } else {
-                                    setSuggestions([])
-                                }
+                const service = new window.google.maps.places.AutocompleteService()
+                service.getPlacePredictions(
+                    { input, language: 'vi' },
+                    (results, status) => {
+                        if (active) {
+                            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                                setSuggestions(results ?? [])
+                            } else {
+                                setSuggestions([])
                             }
                         }
-                    )
-                }
+                    }
+                )
             } catch (error) {
                 console.error("Lỗi fetch suggestion:", error)
                 if (active) setSuggestions([])

@@ -12,6 +12,14 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
     return handleSaveDraft.activePromises[currentStep];
   }
 
+  // Hàm helper chuyển Date thành chuỗi local ISO (không có chữ Z và bù trừ múi giờ)
+  const toLocalISOString = (date) => {
+    if (!date) return null;
+    const d = new Date(date);
+    const pad = (n) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+  };
+
   let apiEndpoint = '/event';
   let currentPromise = null;
 
@@ -27,9 +35,9 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       sendData.append('minTeamMember', formData.minMembers || 1);
       sendData.append('maxTeamMember', formData.maxMembers || 5);
 
-      if (formData.openDate) sendData.append('openRegisterTime', new Date(formData.openDate).toISOString());
-      if (formData.closeDate) sendData.append('closeRegisterTime', new Date(formData.closeDate).toISOString());
-      if (formData.teamDeadline) sendData.append('cofirmTeamTime', new Date(formData.teamDeadline).toISOString());
+      if (formData.openDate) sendData.append('openRegisterTime', toLocalISOString(formData.openDate));
+      if (formData.closeDate) sendData.append('closeRegisterTime', toLocalISOString(formData.closeDate));
+      if (formData.teamDeadline) sendData.append('cofirmTeamTime', toLocalISOString(formData.teamDeadline));
 
       if (formData.avatarFile instanceof File) {
         sendData.append("bannerFile", formData.avatarFile);

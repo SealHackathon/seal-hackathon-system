@@ -59,7 +59,7 @@ function getAutoMilestones(formData) {
     return ms
 }
 
-function Step6Timeline({ formData, onChange }) {
+function Step6Timeline({ formData, onChange, errors }) {
     // Khởi tạo từ formData, deserialize ISO strings → Date
     const [manuals, setManuals] = useState(() =>
         (formData?.manualMilestones ?? []).map(deserialize)
@@ -151,6 +151,7 @@ function Step6Timeline({ formData, onChange }) {
                                     ms={m}
                                     onChange={upd => syncManuals(manuals.map(x => x.id === upd.id ? upd : x))}
                                     onDelete={() => syncManuals(manuals.filter(x => x.id !== m.id))}
+                                    errors={errors}
                                 />
                             }
                         </motion.div>
@@ -179,6 +180,7 @@ function Step6Timeline({ formData, onChange }) {
                                         ms={m}
                                         onChange={upd => syncManuals(manuals.map(x => x.id === upd.id ? upd : x))}
                                         onDelete={() => syncManuals(manuals.filter(x => x.id !== m.id))}
+                                        errors={errors}
                                     />
                                 </motion.div>
                             ))}
