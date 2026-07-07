@@ -225,10 +225,7 @@ function EventListPage({ onManageEvent }) {
     })
   }
 
-  const handleNavigation = (id) => {
-    if (id === 'events') navigate('/admin/coordinator/events');
-    if (id === 'rubric') navigate('/admin/coordinator/rubrics');
-  };
+
 
 
   // ── SỬA CHỖ NÀY: Đổi MOCK_EVENTS thành biến events trong useMemo lọc ──
@@ -254,7 +251,7 @@ function EventListPage({ onManageEvent }) {
   }, [events]) // Đổi sang dependency là [events]
 
   return (
-    <CoordinatorLayout onNavigate={handleNavigation}>
+    <CoordinatorLayout>
 
 
       <div className={styles.page}>
