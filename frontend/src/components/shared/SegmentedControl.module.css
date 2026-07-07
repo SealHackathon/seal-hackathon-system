@@ -1,0 +1,37 @@
+.segmentedControl {
+    display: inline-flex;
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    padding: 0.1875em;
+    background: var(--color-bg-blue);
+    margin-bottom: 0.75em;
+}
+
+.button {
+    border: none;
+    background: none;
+    font-size: 0.9rem;
+    font-weight: 800;
+    padding: 0.375em 0.875em;
+    border-radius: var(--pill-radius, 62.4375em);
+    color: var(--color-secondary-blue);
+    display: flex;
+    align-items: center;
+    gap: 0.375em;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.button:hover {
+    color: var(--color-primary-blue);
+}
+
+.button.active {
+    background: #fff;
+    color: var(--color-primary-blue);
+    box-shadow: 0 1px 0.125em rgba(0,0,0,0.05); /* Just a subtle elevation */
+}
+
+.button svg {
+    font-size: 1rem;
+}
