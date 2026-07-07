@@ -9,6 +9,7 @@ function Button({
     icon: Icon,
     iconPosition = 'left',  // 'left', 'right'
     iconWeight = 'bold', // 'fill', 'regular', 'bold'
+    iconColor,
     iconSize = 24,
     onClick,
     disabled = false,
@@ -27,7 +28,7 @@ function Button({
 
             {Icon && iconPosition === 'left' && (
                 <span className={styles.icon}>
-                    <Icon size={iconSize} weight={iconWeight}/>
+                    <Icon size={iconSize} weight={iconWeight} color={iconColor}/>
                 </span>
             )}
 
@@ -35,7 +36,7 @@ function Button({
  
             {Icon && iconPosition === 'right' && (
                 <span className={styles.icon}>
-                    <Icon size={iconSize} weight={iconWeight} />
+                    <Icon size={iconSize} weight={iconWeight} color={iconColor}/>
                 </span>
             )}
         </button>

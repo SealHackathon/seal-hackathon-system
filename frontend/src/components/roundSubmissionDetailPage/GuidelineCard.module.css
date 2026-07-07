@@ -1,0 +1,37 @@
+.card {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 2em;
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5625em;
+  margin-bottom: 1em;
+}
+.cardHead svg {
+  color: var(--color-border-blue);
+}
+.cardTitle {
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--color-secondary-blue);
+}
+.guideList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+.guideItem {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5625em;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+  padding: 0.25em 0;
+}
+.guideItem svg {
+  flex-shrink: 0;
+  color: var(--color-primary-blue);
+}
