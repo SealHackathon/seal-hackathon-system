@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -22,6 +23,8 @@ public class DataInitializer implements CommandLineRunner {
     private final EventRepository eventRepository;
     private final SystemRequestRepository systemRequestRepository;
     private final ScoringTemplateRepository templateRepository;
+    private final MemberRepository memberRepository;
+    // private final MemberRepository memberRepository; // Inject nếu Team.java không có cascade cho members
 
     // Bộ nhớ tạm lưu trữ: Email của Mentor -> Tập hợp các TrackId được giao làm Mentor
     private final Map<String, Set<Long>> mentorTrackMapping = new HashMap<>();
@@ -158,7 +161,27 @@ public class DataInitializer implements CommandLineRunner {
             user3.setFullName("Phạm Khắc Đăng Khoa");
             userRepository.save(user3);
 
-            // HARD CODE PROFILE USER 1 - 3
+            User user4 = new User();
+            user4.setEmail("user4@gmail.com");
+            user4.setPassword("123456");
+            user4.setRole(Role.USER);
+            user4.setSchoolName("Trường đại học Công Nghiệp");
+            user4.setActive(true);
+            user4.setStatus(UserStatus.ACCEPTED);
+            user4.setFullName("Nguyễn Thành Thái");
+            userRepository.save(user4);
+
+            User user5 = new User();
+            user5.setFullName("Hồ Ngọc Bảo Trân");
+            user5.setEmail("user5@gmail.com");
+            user5.setPassword("123456");
+            user5.setRole(Role.USER);
+            user5.setStatus(UserStatus.ACCEPTED);
+            user5.setSchoolName("Trường đại học Bách Khoa HCM");
+            user5.setActive(true);
+            userRepository.save(user5);
+
+            // HARD CODE PROFILE USER 1 - 5
             Student_profile profile1 = new Student_profile();
             profile1.setUser(user1);
             profile1.setBio("Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình có kinh nghiệm làm việc với các công nghệ Frontend như React và Vue, luôn thích tối ưu hóa UI/UX để mang lại trải nghiệm tốt nhất.");
@@ -183,79 +206,21 @@ public class DataInitializer implements CommandLineRunner {
             profile3.setTopics(List.of("Web Development", "Creative Coding"));
             studentprofileRepository.save(profile3);
 
-            // ---------------- team 1 đã đủ maxSlot -----------------------
-            User user6 = new User();
-            user6.setFullName("Nguyễn Văn Leader Team Một");
-            user6.setEmail("user11@gmail.com");
-            user6.setPassword("123456");
-            user6.setStatus(UserStatus.ACCEPTED);
-            user6.setRole(Role.USER);
-            user6.setSchoolName("Trường đại học Bách Khoa HCM");
-            user6.setActive(true);
-            userRepository.save(user6);
+            Student_profile profile4 = new Student_profile();
+            profile4.setUser(user4);
+            profile4.setBio("Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình có kinh nghiệm làm việc với React và Spring Boot, từng tham gia dự án nhóm và đảm nhận vai trò Frontend và hỗ trợ Backend.");
+            profile4.setPositions(List.of("Frontend Developer"));
+            profile4.setTechTags(Map.of("frontend", List.of("React", "Next.js", "Tailwind CSS"), "backend", List.of("Spring Boot")));
+            profile4.setTopics(List.of("Web Development"));
+            studentprofileRepository.save(profile4);
 
-            User user7 = new User();
-            user7.setFullName("Nguyễn Văn Member2 Team Một");
-            user7.setEmail("user12@gmail.com");
-            user7.setPassword("123456");
-            user7.setStatus(UserStatus.ACCEPTED);
-            user7.setRole(Role.USER);
-            user7.setSchoolName("Trường đại học Bách Khoa HCM");
-            user7.setActive(true);
-            userRepository.save(user7);
-
-            User user8 = new User();
-            user8.setFullName("Nguyễn Văn Member3 Team Một");
-            user8.setEmail("user13@gmail.com");
-            user8.setPassword("123456");
-            user8.setRole(Role.USER);
-            user8.setStatus(UserStatus.ACCEPTED);
-            user8.setSchoolName("Trường đại học Bách Khoa HCM");
-            user8.setActive(true);
-            userRepository.save(user8);
-
-            User user9 = new User();
-            user9.setFullName("Nguyễn Văn Member4 Team Một");
-            user9.setEmail("user14@gmail.com");
-            user9.setPassword("123456");
-            user9.setStatus(UserStatus.ACCEPTED);
-            user9.setRole(Role.USER);
-            user9.setSchoolName("Trường đại học Bách Khoa HCM");
-            user9.setActive(true);
-            userRepository.save(user9);
-
-            teamService.createTeam(new CreateTeamDto(
-                    "SEAL HACKER", "Chào bạn bọn mình là sinh viên năm 3 chuyên nghành ATTT.", Collections.emptyList()
-            ), user6.getId());
-            teamService.joinTeamByCode(teamRepository.findByLeaderId(user6.getId()).get().getInviteCode(), user7.getId());
-            teamService.joinTeamByCode(teamRepository.findByLeaderId(user6.getId()).get().getInviteCode(), user8.getId());
-            teamService.joinTeamByCode(teamRepository.findByLeaderId(user6.getId()).get().getInviteCode(), user9.getId());
-
-            // ------ team 2 đang có 2 thành viên -------
-            User user10 = new User();
-            user10.setFullName("Nguyễn Văn Leader Team Hi");
-            user10.setEmail("usert21@gmail.com");
-            user10.setPassword("123456");
-            user10.setRole(Role.USER);
-            user10.setStatus(UserStatus.ACCEPTED);
-            user10.setSchoolName("Trường đại học FPT");
-            user10.setActive(true);
-            userRepository.save(user10);
-
-            User user11 = new User();
-            user11.setFullName("Nguyễn Văn Member Team Hi");
-            user11.setEmail("usert22@gmail.com");
-            user11.setPassword("123456");
-            user11.setRole(Role.USER);
-            user11.setStatus(UserStatus.ACCEPTED);
-            user11.setSchoolName("Trường đại học FPT");
-            user11.setActive(true);
-            userRepository.save(user11);
-
-            teamService.createTeam(new CreateTeamDto(
-                    "FPT CÓC CAM", "Nhóm mình tìm kiếm 1 bạn nữ frontend (không frontend cũng được), để quản lý tụi mình ạ.", Collections.emptyList()
-            ), user10.getId());
-            teamService.joinTeamByCode(teamRepository.findByLeaderId(user10.getId()).get().getInviteCode(), user11.getId());
+            Student_profile profile5 = new Student_profile();
+            profile5.setUser(user5);
+            profile5.setBio("Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình yêu thích sự kết hợp giữa thiết kế và công nghệ, đảm nhận tốt cả hai vai trò Frontend Developer và UI/UX Designer.");
+            profile5.setPositions(List.of("Frontend Developer", "UI/UX Designer"));
+            profile5.setTechTags(Map.of("frontend", List.of("React", "Tailwind CSS"), "design", List.of("Figma", "Adobe XD")));
+            profile5.setTopics(List.of("UI/UX Design", "Web Development"));
+            studentprofileRepository.save(profile5);
 
             User user12 = new User();
             user12.setFullName("ADMIN");
@@ -268,7 +233,14 @@ public class DataInitializer implements CommandLineRunner {
         }
 
         if (eventRepository.count() == 0) {
-            initSampleEvent();
+            // Lấy lại các User từ DB để phục vụ luồng gom team trong hàm initSampleEvent
+            User u1 = userRepository.findByEmail("user1@gmail.com").orElse(null);
+            User u2 = userRepository.findByEmail("user2@gmail.com").orElse(null);
+            User u3 = userRepository.findByEmail("user3@gmail.com").orElse(null);
+            User u4 = userRepository.findByEmail("user4@gmail.com").orElse(null);
+            User u5 = userRepository.findByEmail("user5@gmail.com").orElse(null);
+
+            initSampleEvent(u1, u2, u3, u4, u5);
         }
 
         if (templateRepository.count() == 0) {
@@ -276,7 +248,7 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private void initSampleEvent() {
+    private void initSampleEvent(User user1, User user2, User user3, User user4, User user5) {
         LocalDateTime now = LocalDateTime.now();
 
         // ========== STEP 1: Thông tin cơ bản Event ==========
@@ -447,6 +419,51 @@ public class DataInitializer implements CommandLineRunner {
 
         // ========== STEP 7: Mời Mentor / Giám khảo ==========
         initMentorJudgeInvites(savedEvent);
+
+        // ========== STEP 8: Khởi tạo 1 Team mẫu gồm 5 User có sẵn ==========
+        if (user1 != null && user2 != null && user3 != null && user4 != null && user5 != null) {
+            Track selectedTrack = savedEvent.getTracks().get(0); // Gán vào bảng đấu AI/Machine Learning
+
+            Team customTeam = new Team();
+            customTeam.setName("SEAL INNOVATORS");
+            customTeam.setDescription("Đội thi tập trung phát triển giải pháp toàn diện kết hợp giữa UI/UX tối ưu và hệ thống backend mạnh mẽ.");
+            customTeam.setStatus(TeamStatus.APPROVED);
+            customTeam.setCreateAt(LocalDate.now());
+            customTeam.setInviteCode("SEAL-INV-" + UUID.randomUUID().toString().substring(0, 5).toUpperCase());
+            customTeam.setLeader(user1); // Chọn Bùi Thiên Khánh làm Leader
+            customTeam.setTrack(selectedTrack);
+
+            // Lưu Team trước để sinh ra Team ID gán cho Member
+            customTeam = teamRepository.save(customTeam);
+
+            // Gộp 5 người thành viên chính thức
+            List<Member> teamMembers = new ArrayList<>();
+            Member m1 = new Member(MemberRole.LEADER, MemberStatus.OFFICAL, customTeam, user1, JoinMethod.CREATETEAM);
+            Member m2 = new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, customTeam, user2, JoinMethod.JOINBYCODE);
+            Member m3 = new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, customTeam, user3, JoinMethod.JOINBYCODE);
+            Member m4 = new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, customTeam, user4, JoinMethod.JOINBYCODE);
+            Member m5 = new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, customTeam, user5, JoinMethod.JOINBYCODE);
+
+            teamMembers.add(m1);
+            teamMembers.add(m2);
+            teamMembers.add(m3);
+            teamMembers.add(m4);
+            teamMembers.add(m5);
+
+            customTeam.setMembers(teamMembers);
+
+            // Nếu Entity Team chưa cấu hình CascadeType.ALL, hãy bỏ comment các dòng lưu Member trực tiếp dưới đây:
+            memberRepository.save(m1);
+
+            memberRepository.save(m2);
+            memberRepository.save(m3);
+            memberRepository.save(m4);
+            memberRepository.save(m5);
+
+
+            teamRepository.save(customTeam);
+            System.out.println("✅ Khởi tạo thành công 1 Đội thi mẫu: SEAL INNOVATORS (5 thành viên)!");
+        }
     }
 
     private void initMentorJudgeInvites(Event event) {
@@ -461,7 +478,6 @@ public class DataInitializer implements CommandLineRunner {
         User sender = userRepository.findByEmail("admin@gmail.com").orElse(null);
 
         // ==================== 1. PHÂN CÔNG MENTOR (THEO TRACK) ====================
-        // Đảm bảo cả 3 track đều có Mentor đứng ra hỗ trợ
         inviteMentor(sender, event, "le.minh.tri@uit.edu.vn", trackAI.getId());
         inviteMentor(sender, event, "pham.thi.lan@vinai.io", trackAI.getId());
 
@@ -471,11 +487,7 @@ public class DataInitializer implements CommandLineRunner {
         inviteMentor(sender, event, "tran.thi.b@fpt.edu.vn", trackMobile.getId());
 
         // ==================== 2. PHÂN CÔNG JUDGE (CẶP TRACK + ROUND) ====================
-        // Mục tiêu: Phủ kín tất cả các Round (1, 2, 3) cho tất cả các Track (AI, Blockchain, Mobile)
-        // Lưu ý: Không phân công Judge trùng vào Track mà người đó đang Mentor.
-
         // --- BẢNG AI/MACHINE LEARNING (Round 1, 2, 3) ---
-        // PGS. Hoàng Văn Minh & TS. Trần Quốc Bảo không làm mentor AI -> Chấm AI thoải mái
         inviteJudge(sender, event, "hoang.van.minh@hcmut.edu.vn", List.of(
                 new JudgeAssignment(trackAI.getId(), round1.getId()),
                 new JudgeAssignment(trackAI.getId(), round2.getId())
@@ -485,7 +497,6 @@ public class DataInitializer implements CommandLineRunner {
         ));
 
         // --- BẢNG BLOCKCHAIN (Round 1, 2, 3) ---
-        // ThS. Nguyễn Thị Hồng & TS. Đặng Lê D không mentor Blockchain -> Cho chấm Blockchain
         inviteJudge(sender, event, "nguyen.thi.hong@zalo.me", List.of(
                 new JudgeAssignment(trackBlockchain.getId(), round1.getId()),
                 new JudgeAssignment(trackBlockchain.getId(), round2.getId())
@@ -495,7 +506,6 @@ public class DataInitializer implements CommandLineRunner {
         ));
 
         // --- BẢNG MOBILE APP (Round 1, 2, 3) ---
-        // TS. Trần Quốc Bảo & PGS. Hoàng Văn Minh không mentor Mobile -> Cho chấm Mobile
         inviteJudge(sender, event, "tran.quoc.bao@momo.vn", List.of(
                 new JudgeAssignment(trackMobile.getId(), round1.getId()),
                 new JudgeAssignment(trackMobile.getId(), round2.getId())
@@ -504,10 +514,7 @@ public class DataInitializer implements CommandLineRunner {
                 new JudgeAssignment(trackMobile.getId(), round3.getId())
         ));
 
-
         // === TEST CASE CHẶN THỬ NGHIỆM TỰ ĐỘNG ===
-        // Thử mời TS. Nguyễn Văn A chấm bảng Blockchain Vòng 1.
-        // Vì thầy A đã Mentor cho bảng Blockchain ở trên nên hệ thống sẽ tự động in log CẢNH BÁO và CHẶN LẠI!
         inviteJudge(sender, event, "nguyen.van.a@fpt.edu.vn", List.of(
                 new JudgeAssignment(trackBlockchain.getId(), round1.getId())
         ));
@@ -529,7 +536,6 @@ public class DataInitializer implements CommandLineRunner {
         req.setSentAt(LocalDateTime.now());
         systemRequestRepository.save(req);
 
-        // Ghi nhận vào Map: Mentor này đang quản lý Track này
         mentorTrackMapping.computeIfAbsent(mentorEmail, k -> new HashSet<>()).add(trackId);
     }
 
@@ -538,23 +544,19 @@ public class DataInitializer implements CommandLineRunner {
         if (judge == null) return;
 
         for (JudgeAssignment assignment : assignments) {
-            // KIỂM TRA ĐIỀU KIỆN CHẶN: Nếu người này đã làm Mentor cho chính Track này rồi
             if (mentorTrackMapping.containsKey(judgeEmail) &&
                     mentorTrackMapping.get(judgeEmail).contains(assignment.trackId())) {
                 System.out.println("⚠️ [VALIDATION FAILED] " + judgeEmail + " đã là Mentor cho Track ID "
                         + assignment.trackId() + ". Không được phép mời làm Judge cho Track này!");
-                continue; // Bỏ qua cặp assign lỗi này và nhảy sang vòng lặp kế tiếp
+                continue;
             }
 
             SystemRequest req = new SystemRequest();
             req.setSender(sender);
             req.setReceiver(judge);
             req.setReferenceId(event.getId());
-
-            // Lưu đồng thời cả Track ID và Round ID vào lời mời
             req.setTrackId(assignment.trackId());
             req.setRoundId(assignment.roundId());
-
             req.setReferenceType(SystemRequest.ReferenceType.EVENT);
             req.setType(SystemRequest.RequestType.JUDGE_INVITE);
             req.setStatus(SystemRequest.RequestStatus.PENDING);
@@ -563,27 +565,23 @@ public class DataInitializer implements CommandLineRunner {
 
             systemRequestRepository.save(req);
         }
-
     }
 
     // ==================== 3. KHỞI TẠO BIỂU MẪU CHẤM ĐIỂM (SCORING TEMPLATES) ====================
     private void initSampleScoringTemplates() {
         LocalDateTime timeNow = LocalDateTime.now();
 
-        // --- Mẫu 1: Bản chính thức (ACTIVE / PUBLISHED) ---
+        // --- Mẫu 1: Bản chính thức (OFFICIAL) ---
         ScoringTemplate officialTemplate = new ScoringTemplate();
         officialTemplate.setName("Khung Đánh Giá Hackathon Chung Cuộc");
         officialTemplate.setDescription("Bảng tiêu chí chuẩn dùng để đánh giá toàn diện sản phẩm công nghệ vòng chung kết.");
         officialTemplate.setCreateAt(timeNow);
         officialTemplate.setUpdateAt(timeNow);
-        officialTemplate.setTieBreaking(true); // Ưu tiên giải quyết khi đồng điểm
-        officialTemplate.setStandardDeviation(1.5); // Ngưỡng độ lệch chuẩn tối đa cho phép giữa các giám khảo
-
-        // Lưu ý: Thay thế ScoringTemplateStatus.ACTIVE/PUBLISHED đúng theo tên Enum gốc của bạn nhé
+        officialTemplate.setTieBreaking(true);
+        officialTemplate.setStandardDeviation(1.5);
         officialTemplate.setStatus(ScoringTemplateStatus.OFFICIAL);
-        officialTemplate.setUsageCount(3); // Giả lập đã được dùng 3 lần
+        officialTemplate.setUsageCount(3);
 
-        // Gán các tiêu chí con (Criterion) sử dụng phương thức helper addCriterion sẵn có
         Criterion crit1 = new Criterion();
         crit1.setName("Tính Sáng Tạo & Đột Phá");
         crit1.setDescription("Ý tưởng có mới lạ, độc đáo và giải quyết triệt để nỗi đau của thị trường không?");
@@ -603,7 +601,6 @@ public class DataInitializer implements CommandLineRunner {
         officialTemplate.addCriterion(crit3);
 
         templateRepository.save(officialTemplate);
-
 
         // --- Mẫu 2: Bản Lưu Nháp (DRAFT) ---
         ScoringTemplate draftTemplate = new ScoringTemplate();
@@ -632,5 +629,4 @@ public class DataInitializer implements CommandLineRunner {
 
         System.out.println("✅ Khởi tạo thành công 2 bộ Scoring Template mẫu!");
     }
-
 }
