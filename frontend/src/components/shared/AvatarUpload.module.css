@@ -1,0 +1,287 @@
+/* ============================
+   Wrapper ngoài
+   ============================ */
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.fieldLabel {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+}
+
+/* ============================
+   Row: avatar + info
+   ============================ */
+.row {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border: 1.5px dashed var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    background: var(--color-bg-blue);
+    padding: 1.25rem 1.5rem;
+}
+
+/* ============================
+   Avatar circle preview
+   ============================ */
+.avatarWrapper {
+    border: 2px dashed var(--color-border-blue);
+    border-radius: var(--radius-circle);
+    padding: 0.5em;
+}
+
+.avatarCircle {
+    width: 6rem;
+    height: 6rem;
+    border-radius: 50%;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    background-color: var(--color-bg-white);
+
+}
+
+.avatarEmpty {
+    background-color: var(--color-bg-white);
+}
+
+.avatarImg {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatarIcon {
+    color: var(--color-text-secondary);
+    opacity: 0.5;
+    width: 3.5rem;
+    height: 3.5rem;
+}
+
+/* ============================
+   Info: buttons + hint
+   ============================ */
+.info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.buttons {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+}
+
+.hint {
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+/* ============================
+   Modal content wrapper
+   ============================ */
+.modalContent {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 0.5rem 0;
+}
+
+.modalTitle {
+    font-family: var(--title-font-main);
+    font-size: 1.35rem;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--color-primary-blue);
+    margin: 0;
+    text-align: center;
+}
+
+.modalSub {
+    font-size: 0.82rem;
+    color: var(--color-text-secondary);
+    text-align: center;
+    margin: -0.5rem 0 0;
+    max-width: 28rem;
+}
+
+/* ============================
+   Dropzone (SelectStep)
+   ============================ */
+.dropzone {
+    width: 100%;
+    max-width: 22rem;
+    border: 1.5px dashed var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    background: var(--color-bg-blue);
+    padding: 2.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    cursor: pointer;
+    transition: border-color 0.15s ease, background 0.15s ease;
+    text-align: center;
+}
+
+.dropzone:hover {
+    border-color: var(--color-secondary-blue);
+    background: color-mix(in srgb, var(--color-bg-blue) 70%, white);
+}
+
+.dropzoneDragging {
+    border-color: var(--color-secondary-blue);
+    background: color-mix(in srgb, var(--color-bg-blue) 50%, white);
+}
+
+.dropzoneError {
+    border-color: var(--color-primary-orange);
+}
+
+.dropIcon {
+    color: var(--color-secondary-blue);
+    margin-bottom: 0.25rem;
+}
+
+.dropMain {
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+    margin: 0;
+}
+
+.dropLink {
+    color: var(--color-secondary-blue);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+.dropSub {
+    font-size: 0.78rem;
+    color: var(--color-text-secondary);
+    margin: 0;
+}
+
+.dropError {
+    font-size: 0.8rem;
+    color: var(--color-primary-orange);
+    margin-top: 0.25rem;
+    font-weight: 500;
+}
+
+.hiddenInput {
+    display: none;
+}
+
+/* ============================
+   Cropper container (CropStep)
+   ============================ */
+.cropArea {
+    position: relative;
+    width: 100%;
+    max-width: 22rem;
+    aspect-ratio: 1;
+    border-radius: var(--inner-radius);
+    overflow: hidden;
+    border: 2px solid var(--color-secondary-blue);
+    background: #333;
+}
+
+/* react-easy-crop overrides */
+.reactEasyCrop {
+    border-radius: var(--inner-radius);
+}
+
+.reactEasyCropArea {
+    border: 2.5px solid var(--color-secondary-blue) !important;
+    box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55) !important;
+}
+
+/* ============================
+   Zoom controls
+   ============================ */
+.zoomRow {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    width: 100%;
+    max-width: 22rem;
+}
+
+.zoomBtn {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    border: 1.5px solid var(--color-border-blue);
+    background: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-primary-blue);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.zoomBtn:hover {
+    background: var(--color-bg-blue);
+    border-color: var(--color-secondary-blue);
+}
+
+.zoomSlider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: var(--color-border-blue);
+    outline: none;
+    cursor: pointer;
+}
+
+.zoomSlider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-secondary-blue);
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    transition: transform 0.1s ease;
+}
+
+.zoomSlider::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+.zoomSlider::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--color-secondary-blue);
+    border: none;
+    cursor: pointer;
+}
+
+/* ============================
+   Crop footer buttons
+   ============================ */
+.cropFooter {
+    display: flex;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 22rem;
+    justify-content: flex-end;
+}

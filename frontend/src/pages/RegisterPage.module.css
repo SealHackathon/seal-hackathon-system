@@ -1,7 +1,9 @@
 .title {
-  justify-content: center; /* Để align cái title mà có cả icon*/ 
-  text-align: center; /* Để align cái title không có icon*/ 
-  
+  justify-content: center;
+  /* Để align cái title mà có cả icon*/
+  text-align: center;
+  /* Để align cái title không có icon*/
+
   color: var(--color-primary-blue);
   margin: 0 0 0.5em;
 }
@@ -114,9 +116,28 @@
 
 .orMessage {
   margin-left: 1em;
-  
+
   font-size: 0.9em;
   font-weight: bold;
 
   color: var(--color-secondary-blue);
+}
+
+/* Modal */
+.modalFooter {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  width: 100%;
+}
+
+.modalContent {
+  padding: 12px 0;
+}
+
+.modalTitle {
+  margin-bottom: 16px;
+  font-size: 20px;
+  font-weight: bold;
+  color: var(--color-primary-blue);
 }

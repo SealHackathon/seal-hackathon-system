@@ -27,7 +27,8 @@ public class EmailService {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-      helper.setFrom("mtung638@gamil.com");
+      helper.setFrom("thainguyenthanh504@gmail.com");
+
       helper.setTo(email);
       helper.setSubject("Xác  nhận đăng kí tài khoản");
 
@@ -54,7 +55,7 @@ public class EmailService {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-      helper.setFrom("thainguyenthanh504@gmail.com");
+      helper.setFrom("scarletdiamond912@gmail.com");
       helper.setTo(email);
       helper.setSubject("Bạn được mời tham gia đội " + teamName);
       helper.setText(
@@ -83,7 +84,8 @@ public class EmailService {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-      helper.setFrom("mtung638@gmail.com");
+      helper.setFrom("thainguyenthanh504@gmail.com");
+
       helper.setTo(email);
       helper.setSubject("Xác  nhận đăng kí tài khoản");
 

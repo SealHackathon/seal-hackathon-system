@@ -3,10 +3,12 @@ package com.minhtung.hackathon.service;
 
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
 import com.minhtung.hackathon.dto.response.AdminParticipantReviewResponse;
 import com.minhtung.hackathon.dto.response.FaceMatchResponse;
+import com.minhtung.hackathon.dto.response.StudentProfileResponse;
 import com.minhtung.hackathon.dto.response.UserIdentityProfileResponse;
 import com.minhtung.hackathon.entity.Student_profile;
 import com.minhtung.hackathon.entity.User;
@@ -18,6 +20,7 @@ import com.minhtung.hackathon.repository.UserIdentityProfileRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,8 +59,9 @@ public class KycService {
             throw new RuntimeException("Ảnh hồ sơ tối đa 2MB");
         }
         Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
-                .orElse(new Student_profile() {
-                });
+
+                .orElse(new Student_profile());
+
 
         studentProfile.setUser(user);
         String imageUrl = cloudinaryStorageService.uploadStudentCard(file, user.getId());
@@ -292,7 +296,19 @@ public class KycService {
         Student_profile profile = studentprofileRepository.findByUserId(user.getId()).orElse(new Student_profile());
        profile.setUser(user);
 
+        // --- 1. Xử lý logic Upload Avatar lên Cloudinary ---
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            try {
+                // Gọi đến service Cloudinary của bạn để upload file và lấy URL về
+                // Ví dụ: String avatarUrl = cloudinaryService.uploadFile(avatarFile);
+                String avatarUrl = uploadToCloudinary(avatarFile);
+                profile.setAvatar(avatarUrl); // Lưu URL vào trường avatar của Entity
+            } catch (Exception e) {
+                throw new RuntimeException("Lỗi khi upload ảnh lên Cloudinary: " + e.getMessage());
+            }
+        }
 
+        // --- 2. Các logic Validate dữ liệu ---
         if (req.getBio() != null && req.getBio().length() > 300) {
             throw new RuntimeException("Tiểu sử tối đa 300 ký tự");
         }
@@ -300,18 +316,43 @@ public class KycService {
         if(req.getPositons().size() > 3){
             throw  new RuntimeException("chi duoc chon 3 vi tri ");
         }
-        if (req.getTags() != null && req.getTags().size() > 10) {
-            throw new RuntimeException("Chỉ được chọn tối đa 10 công nghệ");
+
+        // Validate tổng số lượng công nghệ trong Map techTags
+        if (req.getTechTags() != null) {
+            // Gom tất cả các phần tử trong các mảng con lại để đếm tổng số tag thực tế
+            long totalTags = req.getTechTags().values().stream()
+                    .mapToLong(List::size)
+                    .sum();
+            if (totalTags > 10) {
+                throw new RuntimeException("Chỉ được chọn tối đa 10 công nghệ");
+            }
         }
 
         if (req.getTopics() != null && req.getTopics().size() > 10) {
             throw new RuntimeException("Chỉ được chọn tối đa 10 chủ đề");
         }
+
+        // --- 3. Map dữ liệu vào Entity ---
         profile.setBio(req.getBio());
-        profile.setPositions(joinList(req.getPositons()));
-        profile.setTags(joinList(req.getTags()));
-        profile.setTopics(joinList(req.getTopics()));
-        return studentprofileRepository.save(profile);
+        profile.setPositions(req.getPositons());
+        profile.setTechTags(req.getTechTags());
+        profile.setTopics(req.getTopics());
+        user.setStatus(UserStatus.PENDING_APPROVAL);
+        studentprofileRepository.save(profile);
+        // Nếu trong request có gửi kèm cvLink thì map luôn nhé (Entity của bạn chưa thấy khai báo cvLink nhưng DTO có)
+        // profile.setCvLink(req.getCvLink());
+        StudentProfileResponse res = new StudentProfileResponse();
+        res.setId(profile.getId());
+        res.setImg_studentcard(profile.getImg_studentcard());
+        res.setBio(profile.getBio());
+        res.setPositions(profile.getPositions());
+        res.setTechTags(profile.getTechTags());
+        res.setTopics(profile.getTopics());
+        res.setAvatar(profile.getAvatar())
+        ;
+        res.setStatus(UserStatus.PENDING_APPROVAL.toString());
+
+        return res;
     }
 
 

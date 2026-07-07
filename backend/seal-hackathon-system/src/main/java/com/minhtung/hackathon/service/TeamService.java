@@ -32,7 +32,7 @@ public class TeamService {
     private final EmailService emailService;
     private  final RoundRepository roundRepository ;
     private final SubmissionRepository submissionRepository;
-
+    private final StudentprofileRepository studentprofileRepository;
     //tao 1 team moi
 
 
@@ -52,7 +52,7 @@ public class TeamService {
         if (newTeam.getDescription().length() > 200) {
             throw new IllegalArgumentException("mo ta không thể lớn hơn 200 kí tự ");
         }
-        if(leader.getStatus() !=UserStatus.ACCEPTED){
+        if (leader.getStatus() != UserStatus.ACCEPTED) {
             throw new IllegalArgumentException("chua duoc admin duyet ");
         }
 
@@ -171,8 +171,6 @@ public class TeamService {
         return "tham gia đội " + team.getName() + " thành công";
 
     }
-
-
 
 
     //ham nay de gui join request
@@ -521,9 +519,6 @@ public class TeamService {
     }
 
 
-
-
-
     // day la ham dung de leader duyet viec leave_request trong team
     // memberId trong đây là primary key của bảng member á nha.
     @Transactional
@@ -549,8 +544,6 @@ public class TeamService {
 
         return "Duyet yeu cau roi doi ko thanh cong";
     }
-
-
 
 
     //Admin duyet / tu choi team submisson
@@ -630,6 +623,15 @@ public class TeamService {
         for (Member member1 : memberList) {
             if (member1.getStatus() != MemberStatus.OUT) {
                 TeamMembersResponse membersResponse = new TeamMembersResponse();
+                User user = member1.getMember();
+                Student_profile profile= studentprofileRepository.findByUserId(user.getId()).orElse(null);
+                membersResponse.setBio(profile.getBio());
+                membersResponse.setPositions(profile.getPositions());
+                membersResponse.setTechTags(profile.getTechTags());
+                membersResponse.setTopics(profile.getTopics());
+                membersResponse.setCvLink("đang hard code chưa fix chỗ cv này");
+                membersResponse.setJoinMethod(member1.getJoinMethod().toString());
+                membersResponse.setMemberStatus(member1.getStatus().toString());
                 membersResponse.setId(member1.getId());
                 membersResponse.setName(member1.getMember().getFullName());
                 membersResponse.setEmail(member1.getMember().getEmail());
@@ -695,7 +697,6 @@ public class TeamService {
     public String getTeamRole(long userId) {
         Member member = memberRepository.findByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE))
                 .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND")); // Ném ra ngoại lệ rõ ràng
-
 
         return member.getRole().toString(); // Trả về "LEADER" hoặc "MEMBER"
     }
@@ -1010,8 +1011,6 @@ public class TeamService {
         TeamRequest teamRequest = new TeamRequest(RequestStatus.PENDING, team.getLeader(), admin, team, RequestType.TEAM_SUBMISSION, team.getName() + " gui yeu cau xin duyet doi");
         return "gui yeu cau duyet doi thanh cong";
     }
-
-
 
 
     // lấy tất cả team trong sự kiện
