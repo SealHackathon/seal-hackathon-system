@@ -5,6 +5,7 @@ import com.minhtung.hackathon.dto.request.UpdateSubmissionRequest;
 import com.minhtung.hackathon.dto.response.SubmissionDetailResponseid;
 import com.minhtung.hackathon.dto.response.SubmissionListResponse;
 import com.minhtung.hackathon.dto.response.SubmissionResponse;
+import com.minhtung.hackathon.dto.response.ViewSubmissionTrackResponse;
 import com.minhtung.hackathon.service.SubmissionService;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
@@ -77,6 +78,17 @@ public class SubmissionController {
     ) {
         return ResponseEntity.ok(
                 submissionService.getSubmissionById(id)
+        );
+    }
+
+    @GetMapping("/track/{trackId}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
+    public ResponseEntity<List<ViewSubmissionTrackResponse>>
+    getSubmissionsByTrack(
+            @PathVariable Long trackId
+    ) {
+        return ResponseEntity.ok(
+                submissionService.viewSubmissionTrackResponses(trackId)
         );
     }
 }

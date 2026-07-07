@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class SubmissionListResponse {
+
     private Long id ;
     private Long teamId ;
     private String teamName ;
