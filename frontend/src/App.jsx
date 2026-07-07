@@ -109,6 +109,7 @@ import EmailVerifiedPage from './pages/EmailVerifiedPage';
 import RubricLibraryPage from './pages/coordinator/rubrics/RubricLibraryPage';
 import CreateRubricPage from './pages/coordinator/rubrics/CreateRubricPage';
 import SubmissionPage from './pages/SubmissionPage';
+import RoundSubmissionDetailPage from './pages/RoundSubmissionDetailPage';
 
 
 function TeamRoute() {
@@ -193,6 +194,14 @@ function AppRoutes() {
                                             <Navigate to="/user/dashboard" replace />
                                         ) : (
                                             <SubmissionPage />
+                                        )
+                                    } />
+
+                                    <Route path="/team/submissions/detail" element={
+                                        userStatus === "PENDING_APPROVAL" ? (
+                                            <Navigate to="/user/dashboard" replace />
+                                        ) : (
+                                            <RoundSubmissionDetailPage />
                                         )
                                     } />
 
