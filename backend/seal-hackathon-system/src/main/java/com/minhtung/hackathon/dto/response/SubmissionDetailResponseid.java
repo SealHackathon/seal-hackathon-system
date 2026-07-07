@@ -14,6 +14,7 @@ public class SubmissionDetailResponseid {
     private String teamName ;
     private Long roundId ;
     private String roundName;
+    private Long scoringTemplateId;
 
     private String githubUrl;
     private String demoUrl;

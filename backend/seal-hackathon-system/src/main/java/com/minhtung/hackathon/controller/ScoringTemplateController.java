@@ -31,15 +31,30 @@ public class ScoringTemplateController {
         return ResponseEntity.ok(templateService.getAllTemplates());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    @GetMapping("/{id}")
+//    public ResponseEntity<?> getById(@RequestHeader("Authorization") String auth, @PathVariable Long id) {
+//        if (getUid(auth) == null) return unauthorized();
+//        try {
+//            return ResponseEntity.ok(templateService.getTemplateById(id));
+//        } catch (Exception e) {
+//            return ResponseEntity.status(404).body(e.getMessage());
+//        }
+//    }
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     @GetMapping("/{id}")
-    public ResponseEntity<?> getById(@RequestHeader("Authorization") String auth, @PathVariable Long id) {
-        if (getUid(auth) == null) return unauthorized();
-        try {
-            return ResponseEntity.ok(templateService.getTemplateById(id));
-        } catch (Exception e) {
-            return ResponseEntity.status(404).body(e.getMessage());
+    public ResponseEntity<?> getById(
+            @RequestHeader("Authorization") String auth,
+            @PathVariable Long id
+    ) {
+        if (getUid(auth) == null) {
+            return unauthorized();
         }
+
+        return ResponseEntity.ok(
+                templateService.getTemplateById(id)
+        );
     }
 
     @PreAuthorize("hasRole('ADMIN')")

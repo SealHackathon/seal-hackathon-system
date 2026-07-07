@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.controller;
 
+import com.minhtung.hackathon.dto.response.ViewTeamListRespone;
 import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
 import com.minhtung.hackathon.dto.round.RoundRequest;
 import com.minhtung.hackathon.entity.Round;
@@ -7,6 +8,7 @@ import com.minhtung.hackathon.repository.RoundRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
 import com.minhtung.hackathon.service.RoundService;
+import com.minhtung.hackathon.service.TeamService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +30,7 @@ public class RoundController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final RoundService roundService;
-
+    private final TeamService teamService ;
 
     // api admin view Coming Round
 //    @PreAuthorize("hasRole('ADMIN')")
@@ -143,5 +145,16 @@ public class RoundController {
 
     private ResponseEntity<String> unauthorized() {
         return ResponseEntity.status(401).body("Token không hợp lệ");
+    }
+ // nay de lay danh sach teambyround ;
+    @GetMapping("/{roundId}/teams")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
+    public ResponseEntity<List<ViewTeamListRespone>>
+    getTeamsByRound(
+            @PathVariable Long roundId
+    ) {
+        return ResponseEntity.ok(
+                teamService.viewTeamByRound(roundId)
+        );
     }
 }

@@ -30,6 +30,7 @@ public class TeamService {
     private final TeamRequestRepository teamRequestRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private  final RoundRepository roundRepository ;
     private final SubmissionRepository submissionRepository;
 
     //tao 1 team moi
@@ -1071,5 +1072,72 @@ public class TeamService {
         }
 
         return responseList;
+    }
+
+    @Transactional
+    public List<ViewTeamListRespone> viewTeamByRound(Long roundId){
+        Round round = roundRepository.findById(roundId).orElseThrow(() -> new RuntimeException("khong tim thay round"));
+        Long eventId = round.getEvent().getId() ;
+        List<Team> teams= teamRepository.findByEventIdAndStatus(
+                eventId,TeamStatus.APPROVED
+        );
+
+        return teams.stream()
+                .map(team -> {
+                    Submission submission =
+                            submissionRepository
+                                    .findFirstByTeamIdAndRoundIdAndLatestTrue(
+                                            team.getId(),
+                                            roundId
+                                    )
+                                    .orElse(null);
+
+                    return mapToTeamResponse(
+                            team,
+                            submission
+                    );
+                })
+                .toList();
+    }
+    private ViewTeamListRespone mapToTeamResponse(
+            Team team,
+            Submission submission
+    ) {
+        return ViewTeamListRespone.builder()
+                .teamId(team.getId())
+                .teamName(team.getName())
+                .teamStatus(team.getStatus().name())
+                .leaderId(
+                        team.getLeader() != null
+                                ? team.getLeader().getId()
+                                : null
+                )
+                .leaderName(
+                        team.getLeader() != null
+                                ? team.getLeader().getFullName()
+                                : null
+                )
+                .trackId(
+                        team.getTrack() != null
+                                ? team.getTrack().getId()
+                                : null
+                )
+                .trackName(
+                        team.getTrack() != null
+                                ? team.getTrack().getName()
+                                : null
+                )
+                .memberCount(
+                        team.getMembers() != null
+                                ? team.getMembers().size()
+                                : 0
+                )
+                .hassSubmissionn(submission != null)
+                .submissionId(
+                        submission != null
+                                ? submission.getId()
+                                : null
+                )
+                .build();
     }
 }
