@@ -1,9 +1,12 @@
 import Navbar from '../components/Navbar/Navbar'
 import styles from './UserLayout.module.css'
+import { useAuth } from '../AuthContext'
 
-const userInfo=localStorage.getItem('userInfo')? JSON.parse(localStorage.getItem('userInfo')): null
+// const userInfo=localStorage.getItem('userInfo')? JSON.parse(localStorage.getItem('userInfo')): null
 
 function UserLayout({ children, showCard = true }) {
+    const { userInfo } = useAuth()
+
     return (
         <div className={styles.page}>
             <Navbar 

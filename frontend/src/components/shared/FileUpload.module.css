@@ -7,7 +7,7 @@
 
 .uploadBox {
     border-radius: var(--radius);
-    border: 2px dashed var(--color-border-blue);
+    border: 1px solid var(--color-border-blue);
     padding: 1.5em;
     display: flex;
     flex-direction: column;
@@ -91,6 +91,7 @@
     opacity: 1;
 }
 
+
 /* Ảnh mờ khi hover */
 .previewImg {
     width: 100%;
@@ -106,6 +107,11 @@
 
 .hintIcon {
     color: var(--color-secondary-blue);
+    transition: all 0.15s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.dropzone:hover .hintIcon {
+    transform: scale(1.2) translateY(-0.3em);
 }
 
 .hintMain {

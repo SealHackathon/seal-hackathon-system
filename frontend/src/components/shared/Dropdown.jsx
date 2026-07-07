@@ -19,6 +19,7 @@ function Dropdown({
   maxHeight = '240px',
 }) {
   const [open, setOpen] = useState(false)
+  const [openUp, setOpenUp] = useState(false)
   const [search, setSearch] = useState('')
   const ref = useRef(null)
 
@@ -35,6 +36,20 @@ function Dropdown({
     document.addEventListener('mousedown', handleClickOutside)
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
+
+  // Tính toán hướng mở menu (lên/xuống)
+  useEffect(() => {
+    if (open && ref.current) {
+      const rect = ref.current.getBoundingClientRect()
+      const spaceBelow = window.innerHeight - rect.bottom
+      // 300px là ước tính chiều cao tối đa của dropdown menu
+      if (spaceBelow < 300 && rect.top > 300) {
+        setOpenUp(true)
+      } else {
+        setOpenUp(false)
+      }
+    }
+  }, [open])
 
   // Normalize options — hỗ trợ cả flat array và array có section
   const normalizedOptions = options.length > 0 && options[0].items
@@ -89,7 +104,7 @@ function Dropdown({
   )
 
   const dropdown = open && (
-    <div className={styles.menu} style={{ maxHeight }}>
+    <div className={`${styles.menu} ${openUp ? styles.menuUp : ''}`} style={{ maxHeight }}>
       {searchable && (
         <div className={styles.searchBox}>
           <MagnifyingGlass size={20} className={styles.searchIcon} />

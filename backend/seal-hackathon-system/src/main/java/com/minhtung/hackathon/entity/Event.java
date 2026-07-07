@@ -3,6 +3,8 @@ package com.minhtung.hackathon.entity;
 import com.minhtung.hackathon.enums.EventStatus;
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -10,7 +12,8 @@ import java.util.List;
 
 @Entity
 @Table(name = "event")
-@Data
+@Getter
+@Setter
 public class Event {
 
     @Id
@@ -27,8 +30,12 @@ public class Event {
     @Column(length = 255, columnDefinition = "text")
     private String description;
 
+    //sau nay doi ve enum
+    @Column(length = 255, columnDefinition = "text")
+    private String descriptionDetail;
+
     @Enumerated(EnumType.STRING)
-    @Column(length = 20)
+    @Column(length = 20, name = "status")
     private EventStatus status;
 
     @Column
@@ -43,11 +50,19 @@ public class Event {
     @Column(length = 255)
     private String thumbnail_image;
 
+    private LocalDateTime openRegisterTime;
+    private LocalDateTime closeRegisterTime;
+    private LocalDateTime cofirmTeamTime;
+
+
     @Column
     private int maxTeamMember;
 
     @Column(length = 255, columnDefinition = "text")
     private String rules;
+
+    @Column
+    private String eventLocation;
 
     @Column(columnDefinition = "text")
     private String participationBenefits;
@@ -74,10 +89,14 @@ public class Event {
             orphanRemoval = true)
     private List<Track> tracks = new ArrayList<>();
 
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventNote> notes; // những lưu ý của event
+
+
     public Event() {
     }
 
-    public Event(String name, LocalDateTime createAt, String description, EventStatus status, int minTeamMember, String topic, String bannerImg, String thumbnail_image, int maxTeamMember, String rules, String participationBenefits) {
+    public Event(String name, LocalDateTime createAt, String description, EventStatus status, int minTeamMember, String topic, String bannerImg, String thumbnail_image, int maxTeamMember, String rules, String participationBenefits, String eventLocation) {
         this.name = name;
         this.createAt = createAt;
         this.description = description;
@@ -89,5 +108,6 @@ public class Event {
         this.maxTeamMember = maxTeamMember;
         this.rules = rules;
         this.participationBenefits = participationBenefits;
+        this.eventLocation = eventLocation;
     }
 }

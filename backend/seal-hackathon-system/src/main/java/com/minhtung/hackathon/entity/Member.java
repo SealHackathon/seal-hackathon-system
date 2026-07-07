@@ -14,7 +14,7 @@ public class Member {
 
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    private Long id;
+    private long id;
     @Enumerated(EnumType.STRING)
     @Column(name = "Role ", nullable = false)
     private MemberRole role;

@@ -4,7 +4,7 @@
 
 .wrapper {
     display: grid;
-    grid-template-columns: 50fr 1fr 15fr;
+    grid-template-columns: 50fr 1fr 20fr;
     gap: 5em;
 
     position: relative;
@@ -20,7 +20,7 @@
 .wrapper::before,
 .wrapper::after {
     content: "";
-    position: absolute;    
+    position: absolute;
 
     height: 100%;
 
@@ -60,12 +60,47 @@
     font-weight: bold;
 }
 
+.codeBox span {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+/* Scroll Animation for Copy Button */
+.copyLabelWrapper {
+    display: inline-block;
+    width: 100%;
+    /* Cố định width để button không bị phình to */
+    height: 1.2em;
+    overflow: hidden;
+    vertical-align: middle;
+}
+
+.copyLabelInner {
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    /* bounce effect */
+}
+
+.copyLabelInner.copied {
+    transform: translateY(-50%);
+}
+
+.copyText {
+    height: 1.2em;
+    line-height: 1.2em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+}
+
 .edit {
     border: none;
     background-color: var(--color-bg-white);
     color: var(--color-secondary-blue);
-    width: 2em;
-    height: 2em;
+    width: 2.5em;
+    height: 2.5em;
     border-radius: 6px;
     cursor: pointer;
 

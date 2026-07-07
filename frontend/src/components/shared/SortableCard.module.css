@@ -13,10 +13,15 @@
     border: 1.5px solid var(--color-secondary-blue);
 }
 
+.card:focus-within {
+    background: var(--color-bg-blue);
+}
+
 /* Khi đang kéo */
 .dragging {
     opacity: 0.5;
     z-index: 999;
+    background: var(--color-bg-blue);
 }
 
 /* Drag handle */
@@ -62,7 +67,7 @@
 
 .deleteBtn:hover {
     color: var(--color-primary-orange);
-    background: var(--color-bg-orange);
+    background: var(--color-bg-white);
 }
 
 /* Avatar slot */

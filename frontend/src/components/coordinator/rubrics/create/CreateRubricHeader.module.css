@@ -1,0 +1,85 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  margin: -1.5rem -1.5rem 0 -1.5rem;
+  /* Bù lại padding 1.5rem của .pageWrapper */
+  padding: 1rem 1.5rem;
+
+  background-color: transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top;
+  border: 0px solid var(--color-border-blue);
+  height: 4em;
+  will-change: border, margin, background-color;
+}
+
+.header.isStuck {
+  margin: 0;
+  height: 3em;
+  padding: 0 1.5rem 1em;
+  background-color: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(8px);
+  border-radius: 0 0 var(--radius) var(--radius);
+  border: 1px solid var(--color-border-blue);
+  border-top: 0px solid var(--color-border-blue);
+  backface-visibility: hidden;
+}
+
+
+.container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.left {
+  display: flex;
+  align-items: center;
+}
+
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  margin-left: -0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  color: var(--color-border-blue);
+  transition: all 0.2s ease;
+}
+
+.backLink .title {
+  color: var(--color-secondary-blue);
+}
+
+.backLink:hover {
+  background-color: var(--color-bg-blue);
+  color: var(--color-primary-blue);
+}
+
+.backLink:hover .title {
+  color: var(--color-primary-blue);
+}
+
+.title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  margin: 0;
+  font-family: var(--body-font-main);
+  font-style: normal;
+  transition: color 0.2s ease;
+}
+
+.right {
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}

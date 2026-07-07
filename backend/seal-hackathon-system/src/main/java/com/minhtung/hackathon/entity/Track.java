@@ -1,13 +1,17 @@
 package com.minhtung.hackathon.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @Entity
 @Table(name = "track")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class Track {
 
     @Id
@@ -33,6 +37,13 @@ public class Track {
     @JoinColumn(name = "event_id")
     private Event event;
 
+
+    public int getTeamQuantity() {
+        if (teams == null) {
+            return 0;
+        }
+        return teams.size();
+    }
 
     public Track(String name, String des, int maxTeamPerTrack, int minTeamPerTrack) {
         this.name = name;

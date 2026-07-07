@@ -5,30 +5,44 @@ import styles from './LocationSearch.module.css'
 
 const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY
 
-// ── Hook autocomplete — chỉ chạy sau khi API loaded ──
+// ── Hook autocomplete — dùng AutocompleteSuggestion mới ──
 function usePlacesAutocomplete(input) {
     const [suggestions, setSuggestions] = useState([])
-    const serviceRef = useRef(null)
     const apiIsLoaded = useApiIsLoaded()   // ← đợi API sẵn sàng
 
     useEffect(() => {
-        if (!apiIsLoaded) return
-        serviceRef.current = new window.google.maps.places.AutocompleteService()
-    }, [apiIsLoaded])
+        if (!apiIsLoaded || !input.trim()) {
+            setSuggestions([])
+            return
+        }
 
-    useEffect(() => {
-        if (!input.trim() || !serviceRef.current) { setSuggestions([]); return }
-        serviceRef.current.getPlacePredictions(
-            { input, language: 'vi' },
-            (results, status) => {
-                if (status === window.google.maps.places.PlacesServiceStatus.OK) {
-                    setSuggestions(results ?? [])
-                } else {
-                    setSuggestions([])
-                }
+        let active = true
+
+        const fetchSuggestions = async () => {
+            try {
+                const service = new window.google.maps.places.AutocompleteService()
+                service.getPlacePredictions(
+                    { input, language: 'vi' },
+                    (results, status) => {
+                        if (active) {
+                            if (status === window.google.maps.places.PlacesServiceStatus.OK) {
+                                setSuggestions(results ?? [])
+                            } else {
+                                setSuggestions([])
+                            }
+                        }
+                    }
+                )
+            } catch (error) {
+                console.error("Lỗi fetch suggestion:", error)
+                if (active) setSuggestions([])
             }
-        )
-    }, [input])
+        }
+
+        fetchSuggestions()
+
+        return () => { active = false }
+    }, [input, apiIsLoaded])
 
     return suggestions
 }
@@ -130,7 +144,7 @@ function LocationSearchInner({ value, onChange, recentPlaces, placeholder }) {
         return null
     }
 
-    const mapCenter = value
+    const mapCenter = value && value.lat && value.lng
         ? { lat: value.lat, lng: value.lng }
         : { lat: 10.8231, lng: 106.6297 }
 
@@ -141,10 +155,23 @@ function LocationSearchInner({ value, onChange, recentPlaces, placeholder }) {
                     <MagnifyingGlass size={18} className={styles.searchIcon} weight="bold" />
                     <input
                         className={styles.input}
-                        placeholder={value ? value.name : placeholder}
-                        value={inputValue}
-                        onChange={e => { setInputValue(e.target.value); setOpen(true) }}
+                        placeholder={placeholder}
+                        value={inputValue !== '' ? inputValue : (value?.name || value?.address || '')}
+                        onChange={e => { 
+                            setInputValue(e.target.value); 
+                            setOpen(true);
+                            if (value && e.target.value === '') {
+                                onChange?.(null);
+                                setDistance(null);
+                            }
+                        }}
                         onFocus={() => inputValue && setOpen(true)}
+                        onBlur={() => {
+                            // Tự động lưu giá trị text tự do nếu người dùng gõ mà không chọn dropdown
+                            if (inputValue && (!value || (inputValue !== value.name && inputValue !== value.address))) {
+                                onChange?.({ name: inputValue })
+                            }
+                        }}
                     />
                     {value && (
                         <button type="button" className={styles.clearBtn} onClick={handleClear}>
@@ -196,7 +223,7 @@ function LocationSearchInner({ value, onChange, recentPlaces, placeholder }) {
                     />
 
                     <Map
-                        mapId="location-mini-map"
+                        mapId="DEMO_MAP_ID"
                         defaultCenter={mapCenter}
                         defaultZoom={15}
                         disableDefaultUI

@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.service;
 
+import com.minhtung.hackathon.dto.response.LecturerResponse;
 import com.minhtung.hackathon.dto.response.SearchMemberResponse;
 import com.minhtung.hackathon.entity.Team;
 import com.minhtung.hackathon.entity.TeamRequest;
@@ -27,7 +28,6 @@ public class UserService {
     //ham get nhung user chua co team
     //những ai đã có request tới team hoặc đã đc team invitation thì ko get
     public List<SearchMemberResponse> getMemberNoTeam(long leaderId) {
-        List<User> freeUsers = userRepository.findUsersWithoutTeam(Role.USER, MemberStatus.OFFICAL);
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
 //        int memberCount = memberRepository.countByTeamIdAndStatus(team.getId(), true);
         if (team.getStatus() != TeamStatus.OPEN) {
@@ -36,6 +36,14 @@ public class UserService {
         if (team == null) {
             return Collections.emptyList();
         }
+
+        List<User> freeUsers = userRepository.findUsersWithoutTeam(
+                Role.USER,
+                team.getId(),
+                MemberStatus.OFFICAL,
+                MemberStatus.OUT
+        );
+
         if (freeUsers.isEmpty()) {
             return Collections.emptyList();
         }
@@ -56,6 +64,27 @@ public class UserService {
             members.add(response);
         }
         return members;
+    }
+
+    public List<LecturerResponse> getLecturers(String query) {
+        List<User> users = (query == null || query.isBlank())
+                ? userRepository.findByRole(Role.LECTURER)
+                : userRepository.findByRoleAndFullNameContainingIgnoreCase(Role.LECTURER, query);
+
+        return users.stream()
+                .map(u -> new LecturerResponse(u.getId(), u.getFullName(), u.getTitle(), u.getOrg()))
+                .toList();
+    }
+
+
+    // get user status
+
+    public String getUserStatus(long userId) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        return user.getStatus().toString();
     }
 
 }

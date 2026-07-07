@@ -1,13 +1,16 @@
 .row {
     display: grid;
-    grid-template-columns: 2fr 1.5fr 2.5fr;
+    grid-template-columns: 1fr auto;
     align-items: center;
 
     gap: 1rem;
     padding: 0.75rem 1rem;
-    border-bottom: 1px solid var(--color-border-blue);
+    /* border-bottom: 1px solid var(--color-border-blue); */
     background: white;
     transition: background 0.12s;
+    margin: 0.5em;
+    border-radius: var(--inner-radius);
+
 }
 
 .row:last-child {
@@ -16,6 +19,14 @@
 
 .row:hover {
     background: var(--color-bg-blue);
+}
+
+.rowDeclined {
+    border-bottom-color: var(--color-primary-orange);
+}
+
+.rowDeclined:hover {
+    background: var(--color-bg-orange);
 }
 
 /* Person */
@@ -27,8 +38,8 @@
 }
 
 .avatar {
-    width: 36px;
-    height: 36px;
+    width: 2.25rem;
+    height: 2.25rem;
     border-radius: 50%;
     flex-shrink: 0;
     background: var(--color-bg-blue);
@@ -53,8 +64,14 @@
 .info {
     display: flex;
     flex-direction: column;
-    gap: 0.1rem;
+    gap: 0.25rem;
     min-width: 0;
+}
+
+.nameRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .name {
@@ -74,10 +91,6 @@
     text-overflow: ellipsis;
 }
 
-/* Category */
-.category {
-    min-width: 0;
-}
 
 /* Actions Group */
 .actionsGroup {
@@ -93,8 +106,8 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 26px;
-    height: 26px;
+    width: 1.625rem;
+    height: 1.625rem;
     border: none;
     background: none;
     color: var(--color-text-muted);

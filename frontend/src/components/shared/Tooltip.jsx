@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { createPortal } from 'react-dom' // * cái này để render cái component ra thẳng ngoài DOM luôn, không bị ảnh hưởng bởi overflow: hidden của thằng cha
 import styles from './Tooltip.module.css'
 
@@ -8,15 +8,29 @@ function Tooltip({
     contentSize = 14,
     bgColor = 'blue', // "blue", "green", "orange", "white"
     textColor = 'white', // "blue", "green", "orange", "white"
-    position = 'top' // "top", "bottom", "right", "left"
+    position = 'top', // "top", "bottom", "right", "left"
+    wrapperClassName = '',
+    wrapperStyle = {},
+    forceVisible = undefined // optional prop để parent điều khiển
 }) {
     const [visible, setVisible] = useState(false)
     const [coords, setCoords] = useState({ top: 0, left: 0 })
+    const wrapperRef = React.useRef(null)
 
-    function handleMouseEnter(e) {
-        const rect = e.currentTarget.getBoundingClientRect()
+    // Handle forceVisible changes
+    React.useEffect(() => {
+        if (forceVisible !== undefined) {
+            if (forceVisible && wrapperRef.current) {
+                const rect = wrapperRef.current.getBoundingClientRect()
+                updateCoords(rect)
+                setVisible(true)
+            } else {
+                setVisible(false)
+            }
+        }
+    }, [forceVisible, position])
 
-        // * tính toán vị trí tooltip cho đúng với đối tượng mà nó wrap bên ngoài
+    function updateCoords(rect) {
         let top, left
         if (position === 'bottom') {
             top = rect.bottom + 8
@@ -31,10 +45,19 @@ function Tooltip({
             top = rect.top + rect.height / 2
             left = rect.right + 8
         }
-
         setCoords({ top, left })
-        setVisible(true)
+    }
 
+    function handleMouseEnter(e) {
+        if (forceVisible !== undefined) return; // if controlled by parent, don't handle locally
+        const rect = e.currentTarget.getBoundingClientRect()
+        updateCoords(rect)
+        setVisible(true)
+    }
+
+    function handleMouseLeave() {
+        if (forceVisible !== undefined) return;
+        setVisible(false)
     }
 
 
@@ -42,9 +65,11 @@ function Tooltip({
 
     return (
         <div
-            className={styles.wrapper}
+            ref={wrapperRef}
+            className={`${styles.wrapper} ${wrapperClassName}`}
+            style={wrapperStyle}
             onMouseEnter={handleMouseEnter} // * tính toán vị trí trước khi render tooltip
-            onMouseLeave={() => setVisible(false)}
+            onMouseLeave={handleMouseLeave}
         >
             {children}
 

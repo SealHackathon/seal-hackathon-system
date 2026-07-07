@@ -3,7 +3,7 @@
     flex-direction: column;
     border: 1.5px solid var(--color-border-blue);
     border-radius: var(--inner-radius);
-    overflow: hidden;
+    /* Bỏ overflow: hidden để dropdown DateTimePicker không bị cắt */
     background: white;
 }
 
@@ -16,23 +16,25 @@
     border-bottom: 1.5px solid var(--color-border-blue);
     align-items: center;
     height: 3em;
+    /* Bo góc trên trái/phải cho header để bù lại việc bỏ overflow: hidden ở wrapper */
+    border-radius: var(--inner-radius) var(--inner-radius) 0 0;
 }
 
 .headerCell {
-    font-size: 0.75rem;
     font-weight: 700;
     color: var(--color-secondary-blue);
     font-family: var(--body-font-main);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
 }
 
-.body { display: flex; flex-direction: column; }
+.body {
+    display: flex;
+    flex-direction: column;
+}
 
 .row {
     display: grid;
     grid-template-columns: 0.5fr 0.5fr 2.5fr 7fr 7fr 1fr;
-    align-items: center;
+    align-items: start;
     gap: 0.5em 1.5rem;
     padding: 0.5rem 0.75rem;
     border-bottom: 1px solid var(--color-border-blue);
@@ -41,8 +43,13 @@
     transition: background 0.1s;
 }
 
-.row:last-child { border-bottom: none; }
-.row:hover { background: #fafbff; }
+.row:last-child {
+    border-bottom: none;
+}
+
+.row:hover {
+    background: #fafbff;
+}
 
 .rowError {
     background: #fff8f5;
@@ -54,33 +61,33 @@
     align-items: center;
     justify-content: center;
     color: var(--color-text-muted);
+    margin-top: 0.6rem;
     cursor: grab;
     touch-action: none;
     padding: 0.2rem;
     border-radius: 4px;
     transition: color 0.15s, background 0.15s;
 }
-.dragHandle:hover { color: var(--color-secondary-blue); background: var(--color-bg-blue); }
-.dragHandle:active { cursor: grabbing; }
 
-.timeInput {
-    width: 100%;
-    padding: 0.35rem 0.5rem;
-    border: 1.5px solid var(--color-border-blue);
-    border-radius: 8px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--color-primary-blue);
-    background: white;
-    outline: none;
-    transition: border-color 0.15s;
-    cursor: pointer;
+.dragHandle:hover {
+    color: var(--color-secondary-blue);
+    background: var(--color-bg-blue);
 }
-.timeInput:focus { border-color: var(--color-secondary-blue); }
 
+.dragHandle:active {
+    cursor: grabbing;
+}
 
-input[type="time"]::-webkit-calendar-picker-indicator{
-  filter: invert(66%) sepia(21%) saturate(1282%) hue-rotate(186deg) brightness(97%) contrast(93%);
+.timeCell {
+    width: 100%;
+}
+
+.inputWrapper {
+    width: 100%;
+}
+
+.timeCell :global(.react-datepicker-wrapper) {
+    width: 100%;
 }
 
 .textInput {
@@ -94,10 +101,25 @@ input[type="time"]::-webkit-calendar-picker-indicator{
     outline: none;
     transition: border-color 0.15s, background 0.15s;
 }
-.textInput:hover { border-color: var(--color-border-blue); background: white; }
-.textInput:focus { border-color: var(--color-secondary-blue); background: white; }
-.textInput::placeholder { color: var(--color-secondary-blue); opacity: 0.6; }
-.nameInput { font-weight: 600; }
+
+.textInput:hover {
+    border-color: var(--color-border-blue);
+    background: white;
+}
+
+.textInput:focus {
+    border-color: var(--color-secondary-blue);
+    background: white;
+}
+
+.textInput::placeholder {
+    color: var(--color-secondary-blue);
+    opacity: 0.6;
+}
+
+.nameInput {
+    font-weight: 600;
+}
 
 .deleteBtn {
     display: flex;
@@ -105,6 +127,7 @@ input[type="time"]::-webkit-calendar-picker-indicator{
     justify-content: center;
     width: 26px;
     height: 26px;
+    margin-top: 0.6rem;
     border: none;
     background: none;
     color: var(--color-text-muted);
@@ -115,7 +138,11 @@ input[type="time"]::-webkit-calendar-picker-indicator{
     outline: none;
     transition: background 0.15s, color 0.15s;
 }
-.deleteBtn:hover { background: var(--color-bg-orange); color: var(--color-primary-orange); }
+
+.deleteBtn:hover {
+    background: var(--color-bg-orange);
+    color: var(--color-primary-orange);
+}
 
 .errorMsg {
     grid-column: 1 / -1;
@@ -142,8 +169,14 @@ input[type="time"]::-webkit-calendar-picker-indicator{
     appearance: none;
     outline: none;
     transition: background 0.15s, color 0.15s;
+    /* Bo góc dưới trái/phải cho nút thêm để bù lại việc bỏ overflow: hidden ở wrapper */
+    border-radius: 0 0 var(--inner-radius) var(--inner-radius);
 }
-.addBtn:hover { background: var(--color-bg-blue); color: var(--color-primary-blue); }
+
+.addBtn:hover {
+    background: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
 
 .indexBadge {
     font-size: 0.75rem;
@@ -151,4 +184,5 @@ input[type="time"]::-webkit-calendar-picker-indicator{
     color: var(--color-secondary-blue);
     text-align: center;
     user-select: none;
+    margin-top: 0.8rem;
 }

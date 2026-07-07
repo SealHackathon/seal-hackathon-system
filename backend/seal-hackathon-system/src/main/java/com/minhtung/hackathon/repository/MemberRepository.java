@@ -4,7 +4,10 @@ import com.minhtung.hackathon.entity.Member;
 import com.minhtung.hackathon.entity.Team;
 import com.minhtung.hackathon.enums.MemberRole;
 import com.minhtung.hackathon.enums.MemberStatus;
+import com.minhtung.hackathon.enums.TeamStatus;
+import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -41,4 +44,19 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     //
     Optional<Member> findByIdAndStatus(long id, MemberStatus status);
+
+    @Query("SELECT COUNT(m) FROM Member m " +
+            "WHERE m.team.track.event.id = :eventId " +
+            "AND m.team.status = :teamStatus " +
+            "AND m.status = :memberStatus")
+    int countOfficialParticipants(
+            @Param("eventId") Long eventId,
+            @Param("teamStatus") TeamStatus teamStatus,
+            @Param("memberStatus") MemberStatus memberStatus
+    );
+    Optional<Member> findByMemberIdAndRoleAndStatus(
+            long memberId,
+            MemberRole role,
+            MemberStatus status
+    );
 }

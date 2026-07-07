@@ -16,7 +16,7 @@ public class TeamRequest {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
     @Enumerated(EnumType.STRING)
     @Column(name = "Status", length = 20, nullable = false)
     private RequestStatus status = RequestStatus.PENDING;

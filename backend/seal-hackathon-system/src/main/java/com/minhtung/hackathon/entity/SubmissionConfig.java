@@ -23,24 +23,30 @@ public class SubmissionConfig {
     @JoinColumn(name = "round_id")
     private Round round;
 
-    @Column(name = "title", nullable = false, length = 255)
+    @Column(name = "title", nullable = false, columnDefinition = "TEXT")
     private String title;
 
     // Sử dụng kiểu COLUMN_DEFINITION TEXT để lưu hướng dẫn dài
     @Column(name = "submission_instructions", columnDefinition = "TEXT")
     private String submissionInstructions;
 
-    @Column(name = "opening_time", nullable = false)
+    @Column(name = "opening_time")
     private LocalDateTime openingTime;
 
-    @Column(name = "submission_deadline", nullable = false)
+    private boolean hasSubmission;
+
+
+    @Column(name = "submission_deadline")
     private LocalDateTime submissionDeadline;
 
-    public SubmissionConfig(Round round, String title, LocalDateTime openingTime, LocalDateTime submissionDeadline, String submissionInstructions) {
+    public SubmissionConfig(Round round, String title, LocalDateTime openingTime, LocalDateTime submissionDeadline, String submissionInstructions, boolean hasSubmission) {
         this.round = round;
         this.title = title;
         this.openingTime = openingTime;
         this.submissionDeadline = submissionDeadline;
         this.submissionInstructions = submissionInstructions;
+        this.hasSubmission = hasSubmission;
     }
+
+
 }

@@ -5,8 +5,6 @@
 }
 
 .title {
-    font-size: 1.5rem;
-    font-weight: 700;
     color: var(--color-primary-blue);
     margin: 0;
 }
@@ -41,11 +39,11 @@
 }
 
 .categoryIcon {
-    width: 36px;
-    height: 36px;
+    width: 3.5em;
+    height: 3.5em;
     border-radius: var(--inner-radius);
-    background: var(--color-bg-blue);
     border: 1px solid var(--color-border-blue);
+    background: var(--color-bg-blue);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -61,11 +59,8 @@
 }
 
 .nameLabel {
-    font-size: 0.75rem;
     font-weight: 700;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    color: var(--color-text-secondary);
+    color: var(--color-primary-blue);
 }
 
 .required {
@@ -96,7 +91,6 @@
 .textArea {
     min-height: 2em;
     resize: none;
-    max-width: 40em;
 }
 
 .baseInput {

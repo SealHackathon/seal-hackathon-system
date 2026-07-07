@@ -27,10 +27,14 @@
     "@vis.gl/react-google-maps": "^1.8.3",
     "axios": "^1.16.1",
     "date-fns": "^4.4.0",
+    "framer-motion": "^12.42.2",
+    "lenis": "^1.3.25",
     "react": "^19.2.6",
     "react-datepicker": "^9.1.0",
     "react-dom": "^19.2.6",
-    "react-router-dom": "^7.16.0"
+    "react-easy-crop": "^6.0.2",
+    "react-router-dom": "^7.16.0",
+    "react-webcam": "^7.2.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

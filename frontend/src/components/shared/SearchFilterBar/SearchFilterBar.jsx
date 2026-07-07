@@ -1,6 +1,7 @@
 import { MagnifyingGlass } from '@phosphor-icons/react'
 import FilterTabs from './FilterTabs'
 import SortBar from './SortBar'
+import FormInput from '../FormInput'
 import styles from './SearchFilterBar.module.css'
 
 /**
@@ -29,16 +30,12 @@ function SearchFilterBar({
     <div className={styles.wrapper}>
       {/* Search input */}
       <div className={styles.searchWrapper}>
-        <input
-          className={styles.searchInput}
-          type="text"
+        <FormInput
+          iconLeft={MagnifyingGlass}
           placeholder={searchPlaceholder}
           value={searchValue}
           onChange={e => onSearchChange?.(e.target.value)}
         />
-        <span className={styles.searchIcon}>
-          <MagnifyingGlass size={16} />
-        </span>
       </div>
 
       {/* Filter tabs */}

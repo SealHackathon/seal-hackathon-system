@@ -1,0 +1,81 @@
+.stepper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: sticky;
+    top: 3rem;
+}
+
+/* ── One step row ─────────────────────── */
+.step {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    transition: all 0.25s cubic-bezier(1, 0, 0, 1);
+}
+
+.step:hover {
+    margin-left: 0.7em;
+}
+
+/* ── Indicator column (fixed 20px) ───── */
+.indicator {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    flex-shrink: 0;
+}
+
+/* Dash: short horizontal bar */
+.dash {
+    display: block;
+    height: 3px;
+    border-radius: 2px;
+    width: 16px;
+}
+
+/* ── Label ───────────────────────────── */
+.label {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* ============================
+   State: active
+   ============================ */
+.active .dash {
+    width: 20px;                          /* wider than pending */
+    background: var(--color-primary-blue);
+}
+
+.active .label {
+    color: var(--color-primary-blue);
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
+/* ============================
+   State: done
+   ============================ */
+.done .indicator {
+    color: var(--color-primary-green);
+}
+
+.done .label {
+    color: var(--color-text-primary);
+    font-weight: bold;
+}
+
+/* ============================
+   State: pending
+   ============================ */
+.pending .dash {
+    background: var(--color-text-muted);
+}
+
+.pending .label {
+    color: var(--color-text-secondary);
+    font-weight: 400;
+}

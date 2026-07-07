@@ -13,7 +13,7 @@ function NavPill({ icon: Icon, label, isActive, onClick }) {
             onMouseEnter={() => setIsHover(true)}
             onMouseLeave={() => setIsHover(false)}
         >
-            <span><Icon size={32} weight={weight} /></span>
+            <span><Icon size={28} weight={weight} /></span>
             <span className={styles.label}>{label}</span>
         </button>
     )

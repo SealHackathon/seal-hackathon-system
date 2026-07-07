@@ -14,7 +14,6 @@ function withTime(base, timeDate) {
     return d
 }
 
-// Đổi date portion của d thành date của newDate (giữ nguyên giờ)
 function withDate(d, newDate) {
     if (!newDate) return null
     if (!d) {
@@ -23,8 +22,9 @@ function withDate(d, newDate) {
         r.setHours(0, 0, 0, 0)
         return r
     }
+    const origin = new Date(d)
     const r = new Date(newDate)
-    r.setHours(d.getHours(), d.getMinutes(), 0, 0)
+    r.setHours(origin.getHours(), origin.getMinutes(), 0, 0)
     return r
 }
 
@@ -52,13 +52,15 @@ function DateTimeRangePicker({
     onEndChange,
     endOptional = true,
 }) {
-    // Shared date (lấy từ startValue hoặc endValue)
-    const sharedDate = startValue ?? endValue ?? null
+    // Ensure dates are parsed as Date objects (in case they are passed as ISO strings)
+    const parsedStart = startValue ? new Date(startValue) : null
+    const parsedEnd = endValue ? new Date(endValue) : null
+    const sharedDate = parsedStart ?? parsedEnd ?? null
 
     function handleDateChange(newDate) {
         // Cập nhật date cho cả start và end, giữ nguyên giờ
-        onStartChange?.(withDate(startValue, newDate))
-        if (endValue) onEndChange?.(withDate(endValue, newDate))
+        onStartChange?.(withDate(parsedStart, newDate))
+        if (parsedEnd) onEndChange?.(withDate(parsedEnd, newDate))
     }
 
     function handleStartTimeChange(timeDate) {
@@ -99,16 +101,16 @@ function DateTimeRangePicker({
                     onClick={increaseMonth} disabled={nextMonthButtonDisabled}>
                     <CaretRight size={16} weight="bold" />
                 </button>
+                <button type="button" className={styles.todayBtn}
+                    onClick={() => {
+                        const now = new Date()
+                        changeMonth(now.getMonth())
+                        changeYear(now.getFullYear())
+                        handleDateChange(now)
+                    }}>
+                    Hôm nay
+                </button>
             </div>
-            <button type="button" className={styles.todayBtn}
-                onClick={() => {
-                    const now = new Date()
-                    changeMonth(now.getMonth())
-                    changeYear(now.getFullYear())
-                    handleDateChange(now)
-                }}>
-                Hôm nay
-            </button>
         </div>
     )
 
@@ -130,6 +132,7 @@ function DateTimeRangePicker({
                         locale="vi"
                         selected={sharedDate}
                         onChange={handleDateChange}
+                        portalId="root-portal"
                         shouldCloseOnSelect={false}
                         showTimeSelect={false}
                         dateFormat="EEE, dd/MM/yyyy"
@@ -152,7 +155,7 @@ function DateTimeRangePicker({
                     <div className={styles.timePart}>
                         <ReactDatePicker
                             locale="vi"
-                            selected={startValue}
+                            selected={parsedStart}
                             onChange={handleStartTimeChange}
                             shouldCloseOnSelect={false}
                             showTimeSelect
@@ -179,7 +182,7 @@ function DateTimeRangePicker({
                     <div className={styles.timePart}>
                         <ReactDatePicker
                             locale="vi"
-                            selected={endValue}
+                            selected={parsedEnd}
                             onChange={handleEndTimeChange}
                             shouldCloseOnSelect={false}
                             showTimeSelect

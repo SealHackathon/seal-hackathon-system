@@ -1,8 +1,6 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
-import Underline from '@tiptap/extension-underline'
-import Link from '@tiptap/extension-link'
 import { Table } from '@tiptap/extension-table'
 import { TableRow } from '@tiptap/extension-table-row'
 import { TableCell } from '@tiptap/extension-table-cell'
@@ -15,7 +13,7 @@ import {
 
 import Dropdown from './Dropdown'
 
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import styles from './RichTextEditor.module.css'
 
 /**
@@ -23,8 +21,10 @@ import styles from './RichTextEditor.module.css'
  * @param {Function} onChange     — Callback(html: string) khi nội dung thay đổi
  * @param {string}   [placeholder]
  * @param {number}   [maxLength]
+ * @param {string}   [status]     — Trạng thái lỗi (vd: 'error')
+ * @param {string}   [message]    — Câu thông báo lỗi
  */
-function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...', maxLength }) {
+function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...', maxLength, status, message }) {
     const [showLinkInput, setShowLinkInput] = useState(false)
     const [linkUrl, setLinkUrl] = useState('')
 
@@ -37,22 +37,35 @@ function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...',
     ]
 
 
+    const extensions = useMemo(() => [
+        StarterKit.configure({
+            link: { openOnClick: false }
+        }),
+        Placeholder.configure({ placeholder }),
+        Table.configure({ resizable: false }),
+        TableRow,
+        TableHeader,
+        TableCell,
+    ], [placeholder])
+
     const editor = useEditor({
-        extensions: [
-            StarterKit,
-            Placeholder.configure({ placeholder }),
-            Underline,
-            Link.configure({ openOnClick: false }),
-            Table.configure({ resizable: false }),
-            TableRow,
-            TableHeader,
-            TableCell,
-        ],
+        extensions,
         content: value || '',
         onUpdate({ editor }) {
             onChange?.(editor.getHTML())
         },
     })
+
+    // Sync nội dung nếu giá trị thay đổi (e.g., loaded from API)
+    useEffect(() => {
+        if (editor && value !== undefined) {
+            const currentContent = editor.getHTML()
+            // Chỉ cập nhật nếu nội dung khác và không phải là thẻ <p></p>
+            if (value !== currentContent && value !== `<p></p>`) {
+                editor.commands.setContent(value || '')
+            }
+        }
+    }, [value, editor])
 
     if (!editor) return null
 
@@ -85,7 +98,7 @@ function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...',
     }
 
     return (
-        <div className={styles.wrapper}>
+        <div className={`${styles.wrapper} ${status === 'error' ? styles.wrapperError : ''}`}>
 
             {/* ── Toolbar ── */}
             <div className={styles.toolbar}>
@@ -191,12 +204,18 @@ function RichTextEditor({ value, onChange, placeholder = 'Nhập nội dung...',
 
             {/* ── Char count ── */}
             {maxLength && (
-                <p className={`${styles.charCount} ${charCount > maxLength ? styles.charCountOver : ''}`}>
-                    {charCount}/{maxLength} kí tự
-                </p>
+                <div className={styles.footer}>
+                    <span className={`${styles.charCount} ${charCount > maxLength ? styles.charCountOver : ''}`}>
+                        {charCount}/{maxLength} kí tự
+                    </span>
+                </div>
             )}
-
+            {(status === 'error' && message) && (
+                <span className={styles.errorMessage}>{message}</span>
+            )}
         </div>
+
+
     )
 }
 

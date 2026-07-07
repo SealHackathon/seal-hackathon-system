@@ -8,6 +8,7 @@ import RequestTeamCard from '../components/noTeamView/RequestTeamCard'
 import styles from './LeaderView.module.css'
 import { useEffect } from 'react'
 import axios from 'axios'
+import axiosClient from '../api/axiosClient'
 import CreateTeamStep from '../components/joinFlow/CreateTeamStep'
 import JoinByCodeStep from '../components/joinFlow/JoinByCodeStep'
 import ConfirmModal from '../components/shared/ConfirmModal'
@@ -23,17 +24,32 @@ function NoTeamView() {
   const [FAKE_TEAMS, setFAKE_TEAMS] = useState([]);
   const [confirmModal, setConfirmModal] = useState(null)
 
+  // Modal thông báo bị kick
+  const [showKickedModal, setShowKickedModal] = useState(false);
+  const [showApprovedLeaveModal, setShowApprovedLeaveModal] = useState(false);
+
+  useEffect(() => {
+    const wasInTeam = localStorage.getItem('lastKnownTeamRole') === 'IN_TEAM';
+    const hadPendingLeave = localStorage.getItem('pendingLeaveRequest') === 'true';
+
+    if (wasInTeam) {
+      if (hadPendingLeave) {
+        setShowApprovedLeaveModal(true);
+      } else {
+        setShowKickedModal(true);
+      }
+      localStorage.removeItem('lastKnownTeamRole');
+      localStorage.removeItem('pendingLeaveRequest');
+    }
+  }, []);
+
+  const handleCloseKickedModal = () => {
+    setShowKickedModal(false);
+  };
+
   // api sinh vien xem những invitation gui toi minh
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/teamrequest/member-invitation'
-        , {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        }
-      )
+    axiosClient.get('/teamrequest/member-invitation')
       .then((response) => {
         setFAKE_INVITES(response.data);
 
@@ -43,14 +59,8 @@ function NoTeamView() {
 
 
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/team/needing-members'
-        , {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        }
+    axiosClient
+      .get('/team/needing-members'
       )
       .then((response) => {
         const teams = response.data.map(team => ({
@@ -77,14 +87,8 @@ function NoTeamView() {
   //
   // api sinh vien xem những request da gui di
   useEffect(() => {
-    axios
-      .get('http://localhost:8080/api/teamrequest/member-request'
-        , {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        }
+    axiosClient
+      .get('/teamrequest/member-request'
       )
       .then((response) => {
         setFAKE_REQUESTS(response.data);
@@ -95,15 +99,10 @@ function NoTeamView() {
 
   // api sinh vien accept invitation
   const userHandleInvitation = (requestId, isAccepted) => {
-    axios
-      .put('http://localhost:8080/api/teamrequest/invitation-response', {
+    axiosClient
+      .put('/teamrequest/invitation-response', {
         requestId: requestId,
         accept: isAccepted
-      }, {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`
-        }
       })
       .then((response) => {
         console.log(response.data);
@@ -127,14 +126,8 @@ function NoTeamView() {
       message: 'Bạn có chắc chắn muốn hủy lời mời này không?',
       confirmLabel: 'Xác nhận',
       onConfirm: () => {
-        axios
-          .delete('http://localhost:8080/api/teamrequest/request', {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}`
-            },
-            data: requestId
-          })
+        axiosClient
+          .delete('/teamrequest/request',{})
           .then((response) => {
             console.log(response.data);
 
@@ -158,7 +151,7 @@ function NoTeamView() {
   const [emailStatus, setEmailStatus] = useState('default')
   const [emailMessage, setEmailMessage] = useState('')
 
-console.log(FAKE_INVITES)
+  console.log(FAKE_INVITES)
 
   return (
     <EventLayout>
@@ -239,9 +232,29 @@ console.log(FAKE_INVITES)
         title={confirmModal?.title}
         message={confirmModal?.message}
         confirmLabel={confirmModal?.confirmLabel}
-        confirmColor={confirmModal?.confirmColor}
         onConfirm={confirmModal?.onConfirm}
         onCancel={() => setConfirmModal(null)}
+      />
+
+      <ConfirmModal
+        isOpen={showKickedModal}
+        title="Thông báo"
+        message="Bạn đã bị xoá (kick) khỏi nhóm."
+        confirmLabel="Đã hiểu"
+        isNotification={true}
+        onConfirm={handleCloseKickedModal}
+        onCancel={handleCloseKickedModal}
+      />
+
+      <ConfirmModal
+        isOpen={showApprovedLeaveModal}
+        title="Thông báo"
+        message="Yêu cầu rời nhóm của bạn đã được duyệt. Bạn đã rời khỏi nhóm."
+        confirmLabel="Đã hiểu"
+        isNotification={true}
+        variant="info"
+        onConfirm={() => setShowApprovedLeaveModal(false)}
+        onCancel={() => setShowApprovedLeaveModal(false)}
       />
 
     </EventLayout >

@@ -1,7 +1,13 @@
 .wrapper {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 2rem; /* khoảng cách cho title h1 */
+}
+
+.contentWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5rem; /* Khoảng cách lớn giữa các section lớn */
 }
 
 .title {
@@ -11,32 +17,51 @@
 /* ── 2 cột trên ── */
 .twoCol {
     display: grid;
-    grid-template-columns: 3fr 2fr;
-    gap: 1.5rem;
+    /* 3 cột: cột trái - divider - cột phải */
+    grid-template-columns: 4fr auto 2fr;
+    gap: 2.5rem; /* Khoảng cách giữa nội dung và divider dọc */
     align-items: start;
 }
 
 .colLeft {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 1.5rem; /* spacing giữa các group nhỏ bên trong */
     min-width: 0;
-    /* Tránh tràn cột trong Grid */
 }
 
-.textArea {
-    min-height: 3em;
+
+
+.textArea textarea {
+    min-height: 5em;
+    max-height: 9em;
     resize: none;
 }
 
 .colRight {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
+    gap: 1.5rem; /* spacing giữa các group nhỏ bên trong */
     position: sticky;
     top: 1rem;
     min-width: 0;
     /* Tránh tràn cột trong Grid */
+    z-index: 2;
+}
+
+/* ── DOM Dividers ── */
+.verticalDivider {
+    width: 0;
+    height: 100%;
+    border-left: 1.5px dashed var(--color-border-blue);
+    opacity: 0.6;
+}
+
+.horizontalDivider {
+    width: 100%;
+    height: 0;
+    border-top: 1.5px dashed var(--color-border-blue);
+    opacity: 0.6;
 }
 
 /* ── Rich text header ── */
@@ -73,31 +98,26 @@
 }
 
 /* ── Member row ── */
-.memberRow {
-}
+.memberRow {}
 
 
 /* ── Image section ── */
-.imageTopRow {
+.imageUploadRow {
     display: grid;
-    grid-template-columns: 1fr 3fr;
+    grid-template-columns: 1.1fr 2.63fr;
     gap: 1.5rem;
-    align-items: center;
-    margin-bottom: 1rem;
-}
-
-.avatarUpload {
-    flex-shrink: 0;
-    width: 380px;
+    align-items: start;
 }
 
 .imageGuide {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    padding-top: 0.25rem;
-    justify-content: center;
-    width: 80%;
+    display: grid;
+    grid-template-columns: 1.1fr 2.63fr;
+    gap: 2em;
+    margin-bottom: 1.5em;
+    padding: 1.5em;
+    background: var(--color-bg-blue);
+    border-radius: var(--radius);
+    border: 1px dashed var(--color-secondary-blue);
 }
 
 .imageGuideItem {
@@ -114,8 +134,8 @@
 }
 
 .imageGuideText {
-    font-size: 1rem;
-    color: var(--color-text-primary);
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
     line-height: 1.6;
     margin: 0;
 }

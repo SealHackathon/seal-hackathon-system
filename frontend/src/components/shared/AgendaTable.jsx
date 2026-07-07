@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import {
     DndContext, closestCenter,
     KeyboardSensor, PointerSensor, useSensor, useSensors,
@@ -8,11 +9,15 @@ import {
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
 import { Plus, X, DotsSixVertical } from "@phosphor-icons/react"
+import DateTimePicker from "./DateTimePicker"
+import FormInput from "./FormInput"
 import styles from "./AgendaTable.module.css"
 
-function AgendaRow({ item, onChange, onDelete, isOnly, rowError, index }) {
+function AgendaRow({ item, onChange, onDelete, isOnly, rowErrors, index }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
         useSortable({ id: item.id })
+    const [timeTouched, setTimeTouched] = useState(false)
+    const [nameTouched, setNameTouched] = useState(false)
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -25,9 +30,16 @@ function AgendaRow({ item, onChange, onDelete, isOnly, rowError, index }) {
         onChange({ ...item, [field]: val })
     }
 
+    let displayError = null;
+    if (rowErrors) {
+        if (rowErrors.time && timeTouched) displayError = rowErrors.time;
+        else if (rowErrors.name && nameTouched) displayError = rowErrors.name;
+        else if (rowErrors.order) displayError = rowErrors.order;
+    }
+
     return (
         <div ref={setNodeRef} style={style}
-            className={[styles.row, rowError && styles.rowError].filter(Boolean).join(" ")}
+            className={[styles.row, displayError && styles.rowError].filter(Boolean).join(" ")}
         >
             <span className={styles.dragHandle} {...listeners}> {/* {...attributes} */}
                 <DotsSixVertical size={16} weight="bold" />
@@ -35,38 +47,49 @@ function AgendaRow({ item, onChange, onDelete, isOnly, rowError, index }) {
 
             <span className={styles.indexBadge}>{index}</span>
 
-            <input
-                type="time" className={styles.timeInput}
-                value={item.startTime ?? ""}
-                onChange={e => update("startTime", e.target.value)}
-            />
+            <div className={styles.timeCell} onBlur={(e) => {
+                // Chỉ set touched khi focus thực sự rời khỏi component DateTimePicker
+                if (!e.currentTarget.contains(e.relatedTarget)) {
+                    setTimeTouched(true)
+                }
+            }}>
+                <DateTimePicker
+                    timeOnly
+                    value={item.startTime}
+                    onChange={date => {
+                        update("startTime", date)
+                        setTimeTouched(true)
+                    }}
+                    placeholder="Giờ"
+                    error={(timeTouched && rowErrors?.time) ? rowErrors.time : (rowErrors?.order ? rowErrors.order : null)}
+                />
+            </div>
 
-            <input
-                type="text"
-                className={`${styles.textInput} ${styles.nameInput}`}
-                placeholder="Tên hoạt động"
-                value={item.name ?? ""}
-                onChange={e => update("name", e.target.value)}
-            />
+            <div className={styles.inputWrapper}>
+                <FormInput
+                    placeholder="Tên hoạt động"
+                    value={item.name ?? ""}
+                    onChange={e => update("name", e.target.value)}
+                    onBlur={() => setNameTouched(true)}
+                    status={(nameTouched && rowErrors?.name) ? "error" : undefined}
+                    message={nameTouched && rowErrors?.name ? rowErrors.name : null}
+                />
+            </div>
 
-            <input
-                type="text" className={styles.textInput}
-                placeholder="Mô tả ngắn (tùy chọn)"
-                value={item.desc ?? ""}
-                onChange={e => update("desc", e.target.value)}
-            />
+            <div className={styles.inputWrapper}>
+                <FormInput
+                    placeholder="Mô tả ngắn (tùy chọn)"
+                    value={item.desc ?? ""}
+                    onChange={e => update("desc", e.target.value)}
+                />
+            </div>
 
             <button
                 type="button" className={styles.deleteBtn}
                 onClick={onDelete}
-                style={{ visibility: isOnly ? "hidden" : "visible" }}
             >
                 <X size={14} weight="bold" />
             </button>
-
-            {rowError && (
-                <div className={styles.errorMsg}>{rowError}</div>
-            )}
         </div>
     )
 }
@@ -74,9 +97,21 @@ function AgendaRow({ item, onChange, onDelete, isOnly, rowError, index }) {
 function validateAgenda(items) {
     const errors = {}
     items.forEach((item, i) => {
+        const errs = {}
+        if (!item.startTime) {
+            errs.time = "Vui lòng chọn giờ bắt đầu"
+        } 
+        if (!item.name || item.name.trim() === "") {
+            errs.name = "Vui lòng nhập tên hoạt động"
+        }
+        
         const prev = items[i - 1]
         if (prev?.startTime && item.startTime && item.startTime <= prev.startTime) {
-            errors[item.id] = `Giờ bắt đầu phải sau "${prev.name || "Hoạt động " + i}"`
+            errs.order = `Giờ bắt đầu phải sau "${prev.name || "Hoạt động " + i}"`
+        }
+
+        if (Object.keys(errs).length > 0) {
+            errors[item.id] = errs
         }
     })
     return errors
@@ -97,11 +132,11 @@ function AgendaTable({ items = [], onChange }) {
         onChange(arrayMove(items, oldIndex, newIndex))
     }
 
-    function addMinutes(timeStr, mins) {
-        if (!timeStr) return ''
-        const [h, m] = timeStr.split(':').map(Number)
-        const total = h * 60 + m + mins
-        return `${String(Math.floor(total / 60) % 24).padStart(2, '0')}:${String(total % 60).padStart(2, '0')}`
+    function addMinutes(dateVal, mins) {
+        if (!dateVal) return null
+        const d = new Date(dateVal)
+        if (isNaN(d.getTime())) return null
+        return new Date(d.getTime() + mins * 60000)
     }
 
     function addItem() {
@@ -122,8 +157,8 @@ function AgendaTable({ items = [], onChange }) {
             <div className={styles.header}>
                 <span />
                 <span />
-                <span className={styles.headerCell}>Bắt đầu</span>
-                <span className={styles.headerCell}>Tên hoạt động</span>
+                <span className={styles.headerCell}>Bắt đầu <span style={{ color: 'var(--color-primary-orange)' }}>*</span></span>
+                <span className={styles.headerCell}>Tên hoạt động <span style={{ color: 'var(--color-primary-orange)' }}>*</span></span>
                 <span className={styles.headerCell}>Mô tả</span>
                 <span />
             </div>
@@ -136,7 +171,7 @@ function AgendaTable({ items = [], onChange }) {
                                 key={item.id}
                                 item={item}
                                 index={index + 1}
-                                rowError={errors[item.id]}
+                                rowErrors={errors[item.id]}
                                 onChange={updated => onChange(items.map(i => i.id === item.id ? updated : i))}
                                 onDelete={() => onChange(items.filter(i => i.id !== item.id))}
                                 isOnly={items.length === 1}

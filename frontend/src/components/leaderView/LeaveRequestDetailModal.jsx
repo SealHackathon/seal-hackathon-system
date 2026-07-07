@@ -43,11 +43,14 @@ function LeaveRequestDetailModal({
                         label={request.compose ? "Xác nhận" : "Đồng ý"}
                         variant="primary"
                         color='blue'
-                        onClick={
-                            request.compose 
-                            ? () => { onLeave(message); onClose() }
-                            : onAccept
-                        }
+                        onClick={() => {
+                            if (request.compose) {
+                                onLeave(message);
+                            } else {
+                                onAccept(request.id);
+                            }
+                            onClose();
+                        }}
                             disabled={!isFormValid && request.compose}
                     />
                 </div>

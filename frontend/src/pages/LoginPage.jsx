@@ -1,15 +1,21 @@
+
+
 import { useState } from 'react';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { EnvelopeSimple, Eye, EyeSlash } from '@phosphor-icons/react'
 import AuthLayout from '../layouts/AuthLayout'
 import FormInput from '../components/shared/FormInput'
 import Button from '../components/shared/Button'
 import styles from './RegisterPage.module.css'
+import axiosClient from '../api/axiosClient'
+import { useAuth } from '../AuthContext'
 
 function LoginPage() {
     const [form, setForm] = useState({ email: '', password: '' })
     const [showPassword, setShowPassword] = useState(false)
     const [errors, setErrors] = useState({})
+    const { login } = useAuth()
+    const navigate = useNavigate()
 
     function setField(key, value) {
         setForm(prev => ({ ...prev, [key]: value }))
@@ -24,41 +30,25 @@ function LoginPage() {
         return e
     }
 
-    function handleSubmit(e) {
+    async function handleSubmit(e) {
+        e.preventDefault()
+        const e2 = validate()
+        if (Object.keys(e2).length > 0) { setErrors(e2); return }
 
-        axios
-            .post('http://localhost:8080/api/auth/login', {
+        try {
+            const res = await axiosClient.post('/auth/login', {
                 email: form.email,
                 password: form.password,
             })
-            .then((response) => {
-                const data = response.data;
-
-                if (data.token) {
-                    
-                    //TODO: lưu thêm hasTeam teamRole expiredTime
-                    
-
-
-
-                    localStorage.setItem('accessToken', data.token);
-                    const userInfo = {
-                        email: response.data.email,
-                        fullname: response.data.fullname
-                    };
-                    localStorage.setItem('userInfo', JSON.stringify(userInfo));
-                    console.log('Access Token đã lưu:', data.token);
-                    window.location.href = '/';
-                }
-                e.preventDefault()
-                const e2 = validate()
-                if (Object.keys(e2).length > 0) { setErrors(e2); return }
-                console.log('Đăng nhập:', form)
-            })
-
+            const data = res.data
+            if (data.token) {
+                login(data)
+                navigate(data.role === "ADMIN" ? "/admin/coordinator/events" : "/user/dashboard")
+            }
+        } catch (err) {
+            setErrors({ submit: err.response?.data?.message || 'Đăng nhập thất bại' })
+        }
     }
-
-    const isFormValid = form.email && form.password
 
     return (
         <AuthLayout>
@@ -68,7 +58,6 @@ function LoginPage() {
 
                 <form className={styles.form} onSubmit={handleSubmit}>
 
-                    {/* Email */}
                     <FormInput
                         label="Email"
                         required
@@ -81,7 +70,6 @@ function LoginPage() {
                         message={errors.email}
                     />
 
-                    {/* Mật khẩu */}
                     <FormInput
                         label="Mật khẩu"
                         required
@@ -95,18 +83,13 @@ function LoginPage() {
                         message={errors.password}
                     />
 
-                    {/* Submit row */}
                     <div className={styles.submitRow}>
                         <Button
                             label="Đăng nhập"
                             variant="primary"
                             type="submit"
-                        // disabled={!isFormValid || loading}
                         />
-                        <button
-                            type="button"
-                            className={styles.forgotLink}
-                        >
+                        <button type="button" className={styles.forgotLink}>
                             Quên mật khẩu?
                         </button>
                     </div>
@@ -121,11 +104,11 @@ function LoginPage() {
 
                     <p className={styles.loginPrompt}>
                         Chưa có tài khoản?{' '}
-                        <button
-                            type="button"
-                            className={styles.loginLink}
+                        <button type="button" className={styles.loginLink}
+                            onClick={() => navigate("/register")}
                         >
                             Tạo tài khoản ngay
+
                         </button>
                     </p>
 

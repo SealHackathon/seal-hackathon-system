@@ -21,6 +21,34 @@
 
     text-align: center;
 }
+.profileWrapper {
+    display: flex;
+    align-items: center;
+    flex: 1;
+    cursor: pointer;
+    padding: 0.5em 1em;
+    margin: -0.5em 0 -0.5em -1em;
+    border-radius: var(--radius);
+    transition: background-color 0.2s ease;
+}
+
+.profileWrapper:hover {
+    background-color: var(--color-bg-blue);
+}
+
+.profileWrapper.noHover {
+    cursor: default;
+}
+
+.profileWrapper.noHover:hover {
+    background-color: transparent;
+}
+
+.innerWrapper {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
 
 .avatar {
     flex-shrink: 0;
@@ -31,7 +59,6 @@
     height: 3.5em;
     
     border-radius: var(--radius-circle);
-    border: 1.5px solid var(--color-border-blue);
     
     background-color: var(--color-bg-blue);
 }
@@ -42,6 +69,7 @@
     position: relative;
 
     border-radius: var(--radius-circle);
+    border: 1px solid var(--color-border-blue);
     
     width: 3.5em;
     height: 3.5em;
@@ -85,6 +113,10 @@
     font-size: 0.9rem;
     color: var(--color-secondary-blue);
     font-weight: 600;
+}
+
+.badgeDim {
+    opacity: 0.45;
 }
 
 .email {

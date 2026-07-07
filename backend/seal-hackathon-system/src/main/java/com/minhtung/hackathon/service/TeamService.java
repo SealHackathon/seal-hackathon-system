@@ -7,15 +7,11 @@ import com.minhtung.hackathon.dto.request.InvitationRequest;
 import com.minhtung.hackathon.dto.response.CreateTeamResponse;
 import com.minhtung.hackathon.dto.request.JoinTeamRequest;
 import com.minhtung.hackathon.dto.response.*;
-import com.minhtung.hackathon.entity.Member;
-import com.minhtung.hackathon.entity.Team;
-import com.minhtung.hackathon.entity.TeamRequest;
-import com.minhtung.hackathon.entity.User;
+import com.minhtung.hackathon.dto.round.RoundTeamResponse;
+import com.minhtung.hackathon.dto.round.SubmissionContent;
+import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.*;
-import com.minhtung.hackathon.repository.MemberRepository;
-import com.minhtung.hackathon.repository.TeamRepository;
-import com.minhtung.hackathon.repository.TeamRequestRepository;
-import com.minhtung.hackathon.repository.UserRepository;
+import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -34,8 +30,8 @@ public class TeamService {
     private final TeamRequestRepository teamRequestRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
-
-
+    private final SubmissionRepository submissionRepository;
+    private final StudentprofileRepository studentprofileRepository;
     //tao 1 team moi
 
 
@@ -49,8 +45,14 @@ public class TeamService {
         if (newTeam.getName() == null || newTeam.getName().trim().isEmpty()) {
             throw new IllegalArgumentException("Tên đội không được để trống");
         }
+        if (!leader.isActive()) {
+            throw new IllegalArgumentException("Tài khoản chưa xác nhận Gmail");
+        }
         if (newTeam.getDescription().length() > 200) {
             throw new IllegalArgumentException("mo ta không thể lớn hơn 200 kí tự ");
+        }
+        if (leader.getStatus() != UserStatus.ACCEPTED) {
+            throw new IllegalArgumentException("chua duoc admin duyet ");
         }
 
         //đã là thí sinh của team khác thì ko đc
@@ -69,9 +71,17 @@ public class TeamService {
 
                 throw new IllegalArgumentException("email bạn mời không tồn tại");
             }
+            if (!member.isActive()) {
+                throw new IllegalArgumentException("Thành viên " + email + " chưa xác nhận Gmail");
+            }
+
+            if (member.getStatus() != UserStatus.ACCEPTED) {
+                throw new IllegalArgumentException("Thành viên " + email + " chưa được admin duyệt");
+            }
             if (member.getEmail().equals(leader.getEmail())) {
                 throw new IllegalArgumentException("Không thể nhập email của chính mình");
             }
+
         }
         String inviteCode = generateUniqueInviteCode();
         Team team = new Team(newTeam.getName(), TeamStatus.OPEN, LocalDate.now(), leader, inviteCode, newTeam.getDescription());
@@ -96,7 +106,8 @@ public class TeamService {
                 if (invitedUsers == null) {
                     throw new IllegalArgumentException("user email bạn mời không tồn tại");
                 }
-                Member member = memberRepository.findByMemberIdAndStatusIn(invitedUsers.getId(), List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE)).orElse(null);
+                // user ở trạng thái Reserve vẫn co thể đc mời.
+                Member member = memberRepository.findByMemberIdAndStatusIn(invitedUsers.getId(), List.of(MemberStatus.OFFICAL)).orElse(null);
                 if (member != null) {
                     throw new IllegalArgumentException("user email bạn mời đã ở trong đội khác rồi");
                 }
@@ -142,9 +153,15 @@ public class TeamService {
             throw new IllegalArgumentException("Đội " + team.getName() + " đã không con nhan thanh vien nua roi!");
         }
         User user = userRepository.findById(userId).orElseThrow();
+        if (!user.isActive()) {
+            throw new IllegalArgumentException("Tài khoản chưa xác nhận Gmail");
+        }
 
+        if (user.getStatus() != UserStatus.ACCEPTED) {
+            throw new IllegalArgumentException("Tài khoản chưa được admin duyệt nên chưa thể tham gia đội");
+        }
 
-        memberRepository.save(new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, team, user, JoinMethod.JOINBYCODE));
+        memberRepository.save(new Member(MemberRole.MEMBER, MemberStatus.RESERVE, team, user, JoinMethod.JOINBYCODE));
         //sau khi tham gia doi thanh cong chuyen het nhung request ve rejected
         List<TeamRequest> teamRequests = teamRequestRepository.findBySenderIdOrReceiverId(userId, userId);
         for (TeamRequest teamRequest : teamRequests) {
@@ -154,23 +171,6 @@ public class TeamService {
         return "tham gia đội " + team.getName() + " thành công";
 
     }
-
-    //ham nay de kiem xem doi nao dang tuyen thanh vien(chi doi dang o trang thai open moi duoc xuát hien
-//    public List<CreateTeamResponse> searchTeam(String keyword) {
-//        if (keyword == null || keyword.isEmpty()) {
-//            return new ArrayList<>();
-//        }
-//        List<Team> teams = teamRepository.findByNameContainingIgnoreCaseAndStatus(keyword.trim(), TeamStatus.OPEN);
-//        List<CreateTeamResponse> result = new ArrayList<>();
-//        for (Team team : teams) {
-//            int count = memberRepository.countByTeamIdAndStatus(team.getId(), true);
-//            CreateTeamResponse dto = toDto(team, count);
-//            dto.setInviteCode(null);//de an ma moi khi earch cong khai
-//
-//            result.add(dto);
-//        }
-//        return result;
-//    }
 
 
     //ham nay de gui join request
@@ -183,6 +183,13 @@ public class TeamService {
         User sender = userRepository.findById(userId).orElse(null);
         if (sender == null) {
             throw new IllegalArgumentException("không tim thấy nguoi gui ");
+        }
+        if (!sender.isActive()) {
+            throw new IllegalArgumentException("Tài khoản chưa xác nhận Gmail");
+        }
+
+        if (sender.getStatus() != UserStatus.ACCEPTED) {
+            throw new IllegalArgumentException("Tài khoản chưa được admin duyệt nên chưa thể gửi yêu cầu tham gia đội");
         }
         if (team == null) {
             throw new IllegalArgumentException("không tim thấy đội ");
@@ -282,7 +289,7 @@ public class TeamService {
             //trả danh sách member chính thức để hiển thị kèm thông tin team
             List<Member> members = teamRequest.getTeam().getMembers();
             for (Member member : members) {
-                if (member.getStatus() == MemberStatus.OFFICAL) {
+                if (member.getStatus() != MemberStatus.OFFICAL) {
                     continue;
                 }
                 TeamMemberResponse teamMemberResponse = new TeamMemberResponse();
@@ -419,12 +426,28 @@ public class TeamService {
                 teamRequestRepository.save(req);
                 return "doi cua bạn da dong va khong con nhan thanh vien nua";
             }
-            if (memberRepository.existsByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE))) {
+
+            // đang là dự bị vẫn có thể vào team khác
+            if (memberRepository.existsByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL))) {
                 return "ban thuoc team khac roi can out de vao nhom khac";
+            }
+
+            Member member = memberRepository.findByMemberIdAndStatus(userId, MemberStatus.RESERVE).orElse(null);
+            if (member != null) {
+                member.setStatus(MemberStatus.OUT);
+                memberRepository.save(member);
             }
 
 
             User user = userRepository.findById(userId).orElseThrow();
+
+            if (!user.isActive()) {
+                throw new IllegalArgumentException("Tài khoản chưa xác nhận Gmail");
+            }
+
+            if (user.getStatus() != UserStatus.ACCEPTED) {
+                throw new IllegalArgumentException("Tài khoản chưa được admin duyệt nên chưa thể nhận lời mời");
+            }
 
             memberRepository.save(new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, team, user, JoinMethod.JOINBYINVITATION));
             req.setStatus(RequestStatus.APPROVED);
@@ -459,6 +482,13 @@ public class TeamService {
         if (user == null) {
             throw new IllegalArgumentException("User not found");
         }
+        if (!user.isActive()) {
+            throw new IllegalArgumentException("Tài khoản chưa xác nhận Gmail");
+        }
+
+        if (user.getStatus() != UserStatus.ACCEPTED) {
+            throw new IllegalArgumentException("Tài khoản chưa được admin duyệt nên chưa thể nhận lời mời");
+        }
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
         if (team == null) {
             throw new IllegalArgumentException("Team not found");
@@ -467,7 +497,12 @@ public class TeamService {
             throw new IllegalArgumentException("Team da dong va ko nhan thanh vien nua");
         }
 
+        User leaderUser = userRepository.findById(leaderId)
+                .orElseThrow(() -> new IllegalArgumentException("Leader không tồn tại"));
 
+        if (leaderUser.getStatus() != UserStatus.ACCEPTED) {
+            throw new IllegalArgumentException("Leader chưa được admin duyệt");
+        }
         if (acp) {
             memberRepository.save(new Member(
                     MemberRole.MEMBER, MemberStatus.OFFICAL, teamRequest.getTeam(), user, JoinMethod.JOINBYREQUEST));
@@ -481,45 +516,16 @@ public class TeamService {
                     tr.setStatus(RequestStatus.REJECTED);
                 }
             }
-            teamRequestRepository.saveAll(teamRequests); // ✅
+            teamRequestRepository.saveAll(teamRequests);
 
             return "Ban da chap nhan cho " + user.getFullName() + " vao team";
         }
 
         teamRequest.setStatus(RequestStatus.REJECTED);
-        teamRequestRepository.save(teamRequest); // ✅
+        teamRequestRepository.save(teamRequest);
         return "Ban da Tu choi cho " + user.getFullName() + " vao team";
     }
 
-
-    //thanh vien  gui leave_request xin roi doi
-    //leader can duyet
-    //leader khong the tu y roi doi (giai tán nhóm)
-//    @Transactional
-//    public String requestLeave(Long teamID, long userId) {
-//        Member member = memberRepository.findByTeamIdAndMemberId(teamID, userId).orElse(null);
-//        if (member == null || !member.isStatus()) {
-//            return "ban khong thuoc doi nay ";
-//        }
-//        if (member.getRole() == MemberRole.LEADER) {
-//            return "ban la leader nen khong the roi doi duoc ";
-//        }
-//        Team team = teamRepository.findById(teamID).orElse(null);
-//        if (team == null) {
-//            return "khong tim thay doi nay";
-//        }
-//        if (team.getStatus() == TeamStatus.APPROVED) {
-//            return "đội của bạn đã được duyệt rôi , không thể rời đội";
-//        }
-//        if (teamRequestRepository.existsBySenderIdAndTeamIdAndTypeAndStatus(userId, teamID, RequestType.LEAVE_REQUEST, RequestStatus.PENDING)) {
-//
-//            return "bạn đã gửi yêu  cầu xin ròi nhóm , cần được admin duyệt ";
-//        }
-//        teamRequestRepository.save(new TeamRequest(RequestStatus.PENDING,leader, "Thanh Vien " + userRepository.findById(userId).get().getFullName() + "Xin Roi khoi doi"));
-//
-//        return "đã gửi yêu cầu rời đội , chờ leader duyệt ";
-//
-//    }
 
     // day la ham dung de leader duyet viec leave_request trong team
     // memberId trong đây là primary key của bảng member á nha.
@@ -527,7 +533,14 @@ public class TeamService {
     public String respondToLeaveRequest(long memberId, long leaderId) {
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
         Member memberSender = memberRepository.findByIdAndStatus(memberId, MemberStatus.OFFICAL).orElse(null);
+        if(memberSender==null){
+            throw new IllegalArgumentException("MEMBER not found");
+
+        }
         User user = memberSender.getMember();
+        if(user ==null){
+            throw new IllegalArgumentException("User not found");
+        }
         if (team == null) {
             throw new IllegalArgumentException("Team not found");
         }
@@ -535,53 +548,11 @@ public class TeamService {
         if (teamRequest == null) {
             throw new IllegalArgumentException("Leave Request not found");
         }
-        List<Member> members = memberRepository.findByTeamIdAndStatus(team.getId(), MemberStatus.OFFICAL);
-        for (Member member : members) {
-            if (member.getMember().equals(user)) {
-                member.setStatus(MemberStatus.OUT);
-                memberRepository.save(member);
-                return "duyet yeu cau roi doi thanh cong";
-            }
-        }
-
+        memberSender.setStatus(MemberStatus.OUT);
+        memberRepository.save(memberSender);
         return "Duyet yeu cau roi doi ko thanh cong";
     }
 
-
-    // leader chot doi  gui sumbmission cho ban admin
-    //team status open thanh pending -approval
-//    @Transactional
-//    public String submitTeamForApporal(int teamId, long leaderId) {
-//        Team team = teamRepository.findById(leaderId).orElse(null);
-//        if (team == null) {
-//            return "khong tim thay doi";
-//        }
-//        if (team.getLeader().getId() != leaderId) {
-//            return "Chỉ Leader mới có quyền chốt đội";
-//        }
-//        if (team.getStatus() != TeamStatus.OPEN) {
-//            return "doi phai o trang thai open thi moi choi duoc ";
-//        }
-//
-//        int count = memberRepository.countByTeamIdAndStatus(teamId, true);
-//        if (count == 4) {
-//            return "đội phải đủ 4 người mới được submit";
-//        }
-//
-//        boolean alreadySumbit = teamRequestRepository.existsBySenderIdAndTeamIdAndTypeAndStatus(leaderId, teamId, RequestType.TEAM_SUBMISSION, RequestStatus.PENDING);
-//
-//        if (alreadySumbit) {
-//            return "doi dang cho admin duyet ";
-//        }
-//        ;
-//        team.setStatus(TeamStatus.APPROVED);
-//        teamRepository.save(team);
-//
-//
-//        teamRequestRepository.save(new TeamRequest(RequestStatus.APPROVED, 0, teamId, RequestType.TEAM_SUBMISSION, "Team " + team.getName() + "Yeu Cau duoc xac thuc"));
-//
-//        return "da nop roi " + team.getName() + "dang cho admin duyet nha";
-//    }
 
     //Admin duyet / tu choi team submisson
     //co 2 truong hop 1 appoved(khoa doi ) da dc duyey
@@ -660,6 +631,15 @@ public class TeamService {
         for (Member member1 : memberList) {
             if (member1.getStatus() != MemberStatus.OUT) {
                 TeamMembersResponse membersResponse = new TeamMembersResponse();
+                User user = member1.getMember();
+                Student_profile profile= studentprofileRepository.findByUserId(user.getId()).orElse(null);
+                membersResponse.setBio(profile.getBio());
+                membersResponse.setPositions(profile.getPositions());
+                membersResponse.setTechTags(profile.getTechTags());
+                membersResponse.setTopics(profile.getTopics());
+                membersResponse.setCvLink("đang hard code chưa fix chỗ cv này");
+                membersResponse.setJoinMethod(member1.getJoinMethod().toString());
+                membersResponse.setMemberStatus(member1.getStatus().toString());
                 membersResponse.setId(member1.getId());
                 membersResponse.setName(member1.getMember().getFullName());
                 membersResponse.setEmail(member1.getMember().getEmail());
@@ -726,14 +706,13 @@ public class TeamService {
         Member member = memberRepository.findByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE))
                 .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND")); // Ném ra ngoại lệ rõ ràng
 
-
         return member.getRole().toString(); // Trả về "LEADER" hoặc "MEMBER"
     }
 
     //out team neu so luong active trong team hien tai chi la 1 xoa lun team
     @Transactional
     public OutTeamResponse outTeam(long userId) {
-        Member member = memberRepository.findByMemberIdAndStatus(userId, MemberStatus.OFFICAL)
+        Member member = memberRepository.findByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE))
                 .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND")); // Ném ra ngoại lệ rõ ràng
         // gui 1 leave request den team
         Team team = member.getTeam();
@@ -742,6 +721,7 @@ public class TeamService {
         if (team == null || leader == null || sender == null) {
             throw new IllegalArgumentException("team or leader or member is null");
         }
+
         TeamRequest teamRequest = new TeamRequest(RequestStatus.PENDING, sender, leader, team,
                 RequestType.LEAVE_REQUEST, "Thành viên " + sender.getFullName() + " xin rời đội.");
         teamRequestRepository.save(teamRequest);
@@ -750,6 +730,10 @@ public class TeamService {
         outTeamResponse.setMemberId(member.getId());
         outTeamResponse.setName(sender.getFullName());
         outTeamResponse.setMessage("Thành viên " + sender.getFullName() + " xin rời đội.");
+        if(member.getStatus().equals(MemberStatus.RESERVE)) {
+            member.setStatus(MemberStatus.OUT);
+            memberRepository.save(member);
+        }
 
         //dem so luong thanh vien trong team hien tai
         int teamCurrentMembers = memberRepository.countByTeamIdAndStatus(team.getId(), MemberStatus.OFFICAL);
@@ -758,6 +742,7 @@ public class TeamService {
             memberRepository.deleteAllByTeamId(team.getId());
             teamRepository.delete(team);
         }
+
         return outTeamResponse;
     }
 
@@ -795,8 +780,7 @@ public class TeamService {
         return "Ko tìm thấy yêu cầu rời đội";
     }
 
-
-    //out-team  neu so luong active trong team hien tai chi la 1 xoa lun team
+    //leader get leaveRequest
     @Transactional
     public List<OutTeamResponse> getLeaveRequestList(long leaderId) {
         Member member = memberRepository.findByMemberIdAndStatus(leaderId, MemberStatus.OFFICAL)
@@ -806,7 +790,7 @@ public class TeamService {
         List<TeamRequest> teamRequests = new ArrayList<>(team.getTeamRequest());
         List<OutTeamResponse> outTeamResponses = new ArrayList<>(teamRequests.size());
         for (TeamRequest teamRequest : teamRequests) {
-            if (teamRequest.getReceiver().equals(member.getMember()) &&
+            if ((teamRequest.getReceiver().equals(member.getMember())||teamRequest.getSender().equals(member.getMember()) ) &&
                     teamRequest.getType() == RequestType.LEAVE_REQUEST &&
                     teamRequest.getStatus() == RequestStatus.PENDING
             ) {
@@ -911,8 +895,13 @@ public class TeamService {
         if (leader == null) {
             return "sender ko ton tai";
         }
+        if (!leader.isActive() || leader.getStatus() != UserStatus.ACCEPTED) {
+            return "Leader chưa đủ điều kiện gửi lời mời";
+        }
         User recevier = userRepository.findById(invitationRequest.getId()).orElse(null);
-
+        if (!recevier.isActive() || recevier.getStatus() != UserStatus.ACCEPTED) {
+            return "Người nhận chưa được admin duyệt";
+        }
         Team team = teamRepository.findByLeaderId(senderId).orElse(null);
         if (team == null) {
             return "ko tim thay team";
@@ -1010,6 +999,17 @@ public class TeamService {
 
     @Transactional
     public String lockTeam(long leaderId) {
+        User leader = userRepository.findById(leaderId)
+                .orElseThrow(() -> new IllegalArgumentException("Leader không tồn tại"));
+
+        if (!leader.isActive()) {
+            throw new IllegalArgumentException("Tài khoản chưa xác nhận Gmail");
+        }
+
+        if (leader.getStatus() != UserStatus.ACCEPTED) {
+            throw new IllegalArgumentException("Tài khoản chưa được admin duyệt");
+        }
+
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
         if (team == null) {
             throw new IllegalArgumentException("team khong ton tai");
@@ -1024,4 +1024,93 @@ public class TeamService {
         TeamRequest teamRequest = new TeamRequest(RequestStatus.PENDING, team.getLeader(), admin, team, RequestType.TEAM_SUBMISSION, team.getName() + " gui yeu cau xin duyet doi");
         return "gui yeu cau duyet doi thanh cong";
     }
+
+
+    // lấy tất cả team trong sự kiện
+    public List<RoundTeamResponse> getTeamsInRoundOfEvent(long eventId, long roundId, long currentUserId) {
+        // 1. Lấy tất cả các đội thi thuộc về sự kiện (Tìm thông qua cấu trúc quan hệ Track -> Event)
+        List<Team> teams = teamRepository.findTeamsByEventId(eventId);
+        List<RoundTeamResponse> responseList = new ArrayList<>();
+
+        for (Team team : teams) {
+            RoundTeamResponse roundTeamDto = new RoundTeamResponse();
+            roundTeamDto.setTeamId(team.getId());
+            roundTeamDto.setTeamName(team.getName());
+            roundTeamDto.setTeamStatus(team.getStatus().toString());
+            roundTeamDto.setTrackName(team.getTrack() != null ? team.getTrack().getName() : "Chưa phân nhánh");
+            roundTeamDto.setMemberCount(team.getMembers() != null ? team.getMembers().size() : 0);
+
+            // 2. Tìm bài nộp (Submission) của Đội thi này ứng với Vòng đấu (Round) đang xét
+            // (Bạn thay thế Submission bằng tên Entity quản lý bài nộp thực tế trong dự án của bạn nhé)
+            Optional<Submission> submissionOpt = submissionRepository.findByTeamIdAndRoundId(team.getId(), roundId);
+            if (submissionOpt.isPresent()) {
+                Submission sub = submissionOpt.get();
+                roundTeamDto.setHasSubmission(true);
+                SubmissionContent submissonContent = roundTeamDto.getSubmissionContent();
+                submissonContent.setDocumentLink(sub.getDocumentUrl());
+                submissonContent.setGithubLink(sub.getGithubUrl());
+                submissonContent.setDemoLink(sub.getDemoUrl());
+                roundTeamDto.setSubmissionContent(submissonContent);
+
+            } else {
+                roundTeamDto.setHasSubmission(false);
+            }
+
+            // 3. Map danh sách thành viên sang định dạng TeamMembersResponse DTO của bạn
+            List<TeamMembersResponse> memberDTOs = new ArrayList<>();
+            if (team.getMembers() != null) {
+                memberDTOs = team.getMembers().stream().map(m -> {
+                    TeamMembersResponse memberDto = new TeamMembersResponse();
+                    memberDto.setId(m.getMember().getId());
+                    memberDto.setName(m.getMember().getFullName());
+                    memberDto.setEmail(m.getMember().getEmail());
+                    memberDto.setSchool(m.getMember().getSchoolName());
+
+                    // Kiểm tra xem thành viên này có trùng với ID Leader của Team hay không
+                    memberDto.setLeader(team.getLeader() != null && team.getLeader().getId() == m.getMember().getId());
+
+                    // Kiểm tra xem thành viên này có phải là User đang thực hiện gọi API hay không
+                    memberDto.setCurrentUser(m.getMember().getId() == currentUserId);
+
+                    // Check trạng thái dựa trên Enum MemberStatus (OFFICAL) của bạn
+                    memberDto.setOffical(m.getStatus() == com.minhtung.hackathon.enums.MemberStatus.OFFICAL);
+
+                    return memberDto;
+                }).toList();
+            }
+            roundTeamDto.setMembers(memberDTOs);
+
+            responseList.add(roundTeamDto);
+        }
+
+        return responseList;
+    }
+
+
+    // move to offical
+    public String moveMemberToOffical(long memberId) {
+
+        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.RESERVE).orElse(null);
+        if (member == null) {
+            throw new IllegalArgumentException("member khong ton tai");
+        }
+        member.setStatus(MemberStatus.OFFICAL);
+        memberRepository.save(member);
+        return "move to offical sucessfully !";
+
+    }
+
+    // move to reserve
+    public String moveMemberToReserve(long memberId) {
+
+        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.OFFICAL).orElse(null);
+        if (member == null) {
+            throw new IllegalArgumentException("member khong ton tai");
+        }
+        member.setStatus(MemberStatus.RESERVE);
+        memberRepository.save(member);
+        return "move to offical sucessfully !";
+
+    }
+
 }

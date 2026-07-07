@@ -2,18 +2,13 @@ import { FlagBanner, RocketLaunch, ArrowLeft, Eye } from '@phosphor-icons/react'
 import Button from '../.../../../../shared/Button'
 import StatusBadge from '../../StatusBadge'
 import styles from './CreateEventHeader.module.css'
-
+import { useNavigate } from 'react-router-dom'
 // status: 'draft' | 'live' | 'upcoming' | 'ended' | 'cancelled' | 'archived'
-// Công bố chỉ enabled khi status === 'draft' và không bị disable do validation
-function CreateEventHeader({ title, status = 'draft', onBack, onPublish, onPreview, isPublishDisabled }) {
+// Công bố chỉ enabled khi status === 'draft'
+function CreateEventHeader({ title, status = 'draft', onBack, onPublish, onPreview , isPublishDisabled }) {
+  const navigate=useNavigate();
   return (
     <div className={styles.outer}>
-
-      {/* ── Back link ── */}
-      <button className={styles.backLink} onClick={onBack}>
-        <ArrowLeft size={14} weight="bold" />
-        Quay lại trang quản lí các sự kiện
-      </button>
 
       {/* ── Header banner ── */}
       <div className={styles.wrapper}>

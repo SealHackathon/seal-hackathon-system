@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "milestone")
@@ -14,15 +15,19 @@ public class Milestone {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String milestoneName;
 
-    private LocalDate dateStart;
+    private LocalDateTime dateStart;
 
-    private LocalDate dateEnd;
+    private LocalDateTime dateEnd;
 
-    @Column(length = 255)
+    @Column(columnDefinition = "TEXT")
     private String des;
+
+    @Column(columnDefinition = "TEXT")
+
+    private String link;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "event_id", nullable = false)
@@ -31,6 +36,11 @@ public class Milestone {
     public Milestone() {
     }
 
-    public Milestone(String milestoneName, LocalDate dateStart, LocalDate dateEnd) {
+    public Milestone(String milestoneName, LocalDateTime dateStart, LocalDateTime dateEnd, String des, Event event) {
+        this.milestoneName = milestoneName;
+        this.dateStart = dateStart;
+        this.dateEnd = dateEnd;
+        this.des = des;
+        this.event = event;
     }
 }
