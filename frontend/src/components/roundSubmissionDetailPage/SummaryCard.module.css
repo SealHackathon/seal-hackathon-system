@@ -1,0 +1,168 @@
+.card {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 2em;
+}
+
+.card+.card {
+  margin-top: 1em;
+}
+
+/* ── Tiêu đề (dùng chung cho card head và comment head) ── */
+.cardHead,
+.commentHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5625em;
+}
+
+.cardHead {
+  margin-bottom: 1em;
+}
+
+.cardHead svg,
+.commentHead svg {
+  font-size: 0.9rem;
+  color: var(--color-border-blue);
+}
+
+.cardTitle {
+  font-size: 1em;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.commentHead {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  margin-bottom: 0.375em;
+}
+
+/* ── Ô điểm số ── */
+/* Mỗi trạng thái là 1 class riêng, tự chứa toàn bộ style của nó — dễ đọc, dễ sửa từng cái */
+.sumTop {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+  align-items: stretch;
+}
+
+.sumScore {
+  border-radius: var(--inner-radius);
+  padding: 1em 1.25em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Chưa có điểm */
+.sumScoreGrey {
+  background: var(--color-bg-grey);
+}
+
+.sumScoreGrey .sumScoreVal {
+  color: var(--color-text-muted);
+}
+
+/* Có điểm, chưa chấm xong (state khác 'done_eval') */
+.sumScoreGreen {
+  background: var(--color-bg-green);
+  border: 1px solid var(--color-border-green);
+}
+
+.sumScoreGreen .sumScoreVal {
+  color: var(--color-primary-green);
+}
+
+.sumScoreGreen .sumScoreLbl {
+  color: var(--color-primary-green);
+}
+
+/* Có điểm, đã chấm xong (state === 'done_eval') */
+.sumScoreBlue {
+  background: var(--color-bg-blue);
+  border: 1px solid var(--color-border-blue);
+}
+
+.sumScoreBlue .sumScoreVal {
+  color: var(--color-primary-blue);
+}
+
+.sumScoreBlue .sumScoreLbl {
+  color: var(--color-secondary-blue);
+}
+
+.sumScoreVal {
+  font-family: var(--body-font-main);
+  font-weight: bold;
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.sumScoreLbl {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  margin-top: 0.3125em;
+}
+
+/* ── Thông tin phụ (thời gian, trạng thái...) ── */
+.sumMeta {
+  flex: 1;
+  min-width: 13.75em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5em;
+  align-content: center;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.625em;
+}
+
+.metaItem>svg {
+  font-size: 1.0625rem;
+  color: var(--color-border-blue);
+  flex-shrink: 0;
+}
+
+.metaLbl {
+  font-size: 0.8rem;
+  font-weight: 700;
+  margin-bottom: 0.25em;
+  color: var(--color-dark-blue);
+  display: block;
+}
+
+.metaVal {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+/* ── Nhận xét của giám khảo ── */
+.sumComment {
+  margin-top: 1em;
+  padding: 0.875em 1em;
+  border-left: 2px solid var(--color-border-blue);
+  background: var(--color-bg-white);
+}
+
+.commentText {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.commentEmpty {
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  font-style: italic;
+  margin: 0;
+}
