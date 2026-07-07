@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-// import CoordinatorLayout from '../../../../layouts/CoordinatorLayout'
+import { Clock } from '@phosphor-icons/react'
 import CreateEventSidebar from '../../../../components/coordinator/events/create/CreateEventSidebar'
 import CreateEventHeader from '../../../../components/coordinator/events/create/CreateEventHeader'
-import CreateEventStickyHeader from '../../../../components/coordinator/events/create/CreateEventStickyHeader'
+import StickyHeader from '../../../../components/shared/StickyHeader'
 import CreateEventFooter from '../../../../components/coordinator/events/create/CreateEventFooter'
 import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
@@ -1070,8 +1070,17 @@ function CreateEventPage() {
 
     <div ref={pageRef} className={styles.page} onBlurCapture={() => setBlurredFormData(formData)}>
 
-      {/* ── Sticky Header ── */}
-      <CreateEventStickyHeader isEditing={isEditing} lastUpdated={lastUpdated} />
+      <StickyHeader 
+        title={isEditing ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện mới'}
+        backLink="/admin/coordinator/events"
+        backTooltip="Quay lại danh sách sự kiện"
+        rightContent={isEditing && lastUpdated ? (
+          <>
+            <Clock size={16} />
+            <span>Cập nhật lần cuối: {lastUpdated}</span>
+          </>
+        ) : null}
+      />
 
       {/* ── Header ── */}
       <CreateEventHeader
