@@ -26,10 +26,10 @@
 
 /* ── H2 — white bg, blue text, bottom border ── */
 .h2 {
-    background-color: transparent;
+    background-color: var(--color-bg-white);
+    border: 1.5px solid var(--color-primary-blue);
     color: var(--color-primary-blue);
-    padding: 0.5em 0.25em;
-    border-bottom: 2px solid var(--color-border-blue);
+    padding: 0.5em 1em;
 }
 
 .h2 .left {

@@ -1,30 +1,30 @@
-import { useState } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
 import Navbar from '../components/Navbar/Navbar'
 import CoordinatorSidebar from '../components/coordinator/CoordinatorSidebar'
 import styles from './CoordinatorLayout.module.css'
 
-/**
- * CoordinatorLayout
- * 
- *
- * @param {React.ReactNode} children
- * @param {string}          [defaultPage]  — trang mặc định khi load (default: 'events')
- * @param {string}          [activePage]   — nếu muốn control từ bên ngoài
- * @param {function}        [onNavigate]   — callback(id) khi đổi trang
- */
 function CoordinatorLayout({
   children,
-  defaultPage = 'events',
+  defaultPage,
   activePage: activePageProp,
   onNavigate,
 }) {
-  // Hỗ trợ cả uncontrolled (tự quản state) và controlled (nhận từ bên ngoài)
-  const [internalPage, setInternalPage] = useState(defaultPage)
-  const activePage = activePageProp ?? internalPage
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  // Auto-detect active page from URL
+  let currentActive = 'events'
+  if (location.pathname.includes('/rubrics')) currentActive = 'rubric'
+
+  const activePage = activePageProp ?? currentActive
 
   function handleNavigate(id) {
-    if (!activePageProp) setInternalPage(id)
-    onNavigate?.(id)
+    if (onNavigate) {
+      onNavigate(id)
+    } else {
+      if (id === 'events') navigate('/admin/coordinator/events')
+      else if (id === 'rubric') navigate('/admin/coordinator/rubrics')
+    }
   }
 
   const userInfo = localStorage.getItem('userInfo')

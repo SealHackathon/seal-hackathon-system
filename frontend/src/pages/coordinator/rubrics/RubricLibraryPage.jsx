@@ -148,13 +148,10 @@ export default function RubricLibraryPage() {
         });
     };
 
-    const handleNavigation = (id) => {
-        if (id === 'events') navigate('/admin/coordinator/events');
-        if (id === 'rubric') navigate('/admin/coordinator/rubrics');
-    };
+
 
     return (
-        <CoordinatorLayout activePage="rubric" onNavigate={handleNavigation}>
+        <CoordinatorLayout activePage="rubric">
             <div className={styles.page}>
                 <div className={styles.topRow}>
                     <SectionHeader

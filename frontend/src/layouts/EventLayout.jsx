@@ -1,17 +1,33 @@
+import { useNavigate, useLocation } from 'react-router-dom'
 import Navbar from '../components/Navbar/Navbar'
 import Sidebar from '../components/Sidebar/Sidebar'
 import styles from './EventLayout.module.css'
-import { useNavigate } from 'react-router-dom'
 
-function EventLayout({ children }) {
-  const navigate = useNavigate();
+function EventLayout({
+  children,
+  defaultPage,
+  activePage: activePageProp,
+  onNavigate,
+}) {
+  const navigate = useNavigate()
+  const location = useLocation()
 
-  function handleGoBack() {
+  // Auto-detect active page from URL
+  let currentActive = 'team'
+  if (location.pathname.includes('/team/submissions')) currentActive = 'submit'
 
-    // Note: Sau này gắn React Router vào thì đổi thành navigate('/')
-    navigate('/user/dashboard')
-    console.log('về dashboard')
+  const activePage = activePageProp ?? currentActive
+
+  function handleNavigate(id) {
+    if (onNavigate) {
+      onNavigate(id)
+    } else {
+      if (id === 'team') navigate('/team')
+      else if (id === 'submit') navigate('/team/submissions')
+      else navigate('/user/dashboard')
+    }
   }
+
   const userInfo = localStorage.getItem('userInfo') ? JSON.parse(localStorage.getItem('userInfo')) : null
 
   return (
@@ -27,7 +43,7 @@ function EventLayout({ children }) {
       />
 
       <div className={styles.body}>
-        <Sidebar onGoBack={handleGoBack} />
+        <Sidebar activePage={activePage} onNavigate={handleNavigate} />
 
         <main className={styles.content}>
           {children}

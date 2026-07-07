@@ -1,0 +1,85 @@
+.container {
+  position: relative;
+  padding-left: 3rem; /* space for the vertical line and icons */
+}
+
+.item {
+  position: relative;
+  display: flex;
+  margin-bottom: 2rem;
+}
+
+.iconContainer {
+  position: absolute;
+  left: -3rem; /* align center with vertical line */
+  top: 2rem; /* center with card header roughly */
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  box-shadow: 0 0 0 4px var(--color-bg-white); /* clear line behind */
+}
+
+.iconUpcoming {
+  background-color: var(--color-bg-white);
+  border: 2px solid var(--color-text-muted);
+}
+
+.iconUpcoming svg {
+  fill: var(--color-text-muted);
+}
+
+.iconActive {
+  background-color: var(--color-primary-blue);
+}
+
+.iconDoneSuccess {
+  background-color: var(--color-primary-green);
+}
+
+.iconDoneEval {
+  background-color: var(--color-bg-blue);
+  border: 2px solid var(--color-secondary-blue);
+}
+
+.iconDoneClosed {
+  background-color: var(--color-bg-orange);
+  border: 2px solid var(--color-border-orange);
+}
+
+.iconUpcoming {
+  background-color: var(--color-bg-white);
+  border: 2px solid var(--color-text-muted);
+}
+
+.itemLine {
+  position: absolute;
+  top: 4.5rem;
+  bottom: -2rem;
+  left: -1.75rem;
+  width: 2px;
+  background-color: var(--color-bg-grey);
+  z-index: 1;
+}
+
+.lineDoneSuccess { background-color: var(--color-primary-green); }
+.lineUpcoming { background-color: var(--color-bg-grey); }
+
+.iconDoneFail {
+  background-color: var(--color-text-muted);
+}
+
+.iconLate {
+  background-color: var(--color-primary-blue);
+}
+
+.iconDone {
+  background-color: var(--color-primary-green);
+}
+
+.cardWrapper {
+  width: 100%;
+}
