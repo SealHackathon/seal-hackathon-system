@@ -11,7 +11,6 @@ public class EventNoteRequest {
 
     @Data
     public static class NoteItem {
-        private Long id; // ID của từng dòng note cụ thể (có thể trống ở lần đầu)
         private String title;
         private String desc;
     }

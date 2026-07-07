@@ -48,7 +48,7 @@ function CompleteProfilePage() {
     useEffect(() => {
         if (step2Data) localStorage.setItem('completeProfileStep2', JSON.stringify(step2Data))
     }, [step2Data])
-
+   
     const [step3Data, setStep3Data] = useState(() => {
         const saved = localStorage.getItem('completeProfileStep3')
         return saved ? JSON.parse(saved) : null
