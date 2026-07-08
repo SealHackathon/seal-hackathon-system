@@ -52,70 +52,103 @@ function resolveEventId(location) {
 
 function mapBackendRoundToUi(round) {
   const now = new Date()
-  const start = round.roundStartTime ? new Date(round.roundStartTime) : null
-  const end = round.roundEndTime ? new Date(round.roundEndTime) : null
-  const deadline = round.roundSubmissionDeadline ? new Date(round.roundSubmissionDeadline) : null
+  
+  const startRaw = round.roundStartTime;
+  const endRaw = round.roundEndTime;
+  const deadlineRaw = round.submissionConfig?.submissionDeadline ?? round.roundSubmissionDeadline ?? round.submissionDeadline ?? round.deadline;
+  
+  const start = startRaw ? new Date(startRaw) : null
+  const end = endRaw ? new Date(endRaw) : null
+  const deadline = deadlineRaw ? new Date(deadlineRaw) : null
 
+  // Tính trạng thái vòng thi
   let status = 'UPCOMING'
-  if (round.status === 'IN_PROGRESS' || (start && end && now >= start && now <= end)) {
+  const backendStatus = round.status?.toUpperCase() || 'UPCOMING'
+  
+  if (backendStatus === 'IN_PROGRESS' || backendStatus === 'ACTIVE' || (start && end && now >= start && now <= end)) {
     status = 'ACTIVE'
-  } else if (round.status === 'COMPLETED' || (end && now > end)) {
+  } else if (backendStatus === 'COMPLETED' || backendStatus === 'DONE' || (end && now > end)) {
     status = 'DONE'
   }
 
+  // Tính số ngày còn lại (daysLeft)
+  let daysLeft = undefined;
+  if (deadline) {
+    const diffTime = deadline.getTime() - now.getTime();
+    if (diffTime > 0) {
+      daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    } else {
+      daysLeft = 0;
+    }
+  }
+
+  const hasSubmission = round.submissionConfig?.hasSubmission || round.hasSubmission || false;
+  
+  // Tính trạng thái nộp bài
   let submissionStatus = 'NOT_OPEN'
   if (status === 'UPCOMING') {
     submissionStatus = 'NOT_OPEN'
-  } else if (round.submissionConfig?.hasSubmission) {
-    submissionStatus = 'SUBMITTED_ON_TIME'
-  } else if (deadline && now > deadline) {
-    submissionStatus = 'LATE_NO_SUBMISSION'
   } else if (status === 'DONE') {
-    submissionStatus = 'CLOSED_NO_SUBMISSION'
-  } else {
-    submissionStatus = 'NO_SUBMISSION'
+    if (hasSubmission) {
+      submissionStatus = 'SUBMITTED_ON_TIME'
+    } else {
+      submissionStatus = 'CLOSED_NO_SUBMISSION'
+    }
+  } else if (status === 'ACTIVE') {
+    if (hasSubmission) {
+      submissionStatus = 'SUBMITTED_ON_TIME'
+    } else if (deadline && now > deadline) {
+      status = 'LATE'; // Đổi màu cam cho card
+      submissionStatus = 'LATE_NO_SUBMISSION'
+    } else {
+      submissionStatus = 'NO_SUBMISSION'
+    }
   }
 
+  // Chuẩn bị thông báo (Banner)
   let message = null
-  if (round.submissionConfig?.submissionInstructions) {
+  const submissionInstructions = round.submissionConfig?.submissionInstructions ?? round.submissionGuide;
+  
+  if (submissionInstructions) {
     message = {
       type: 'info',
       title: 'Hướng dẫn nộp bài',
-      content: round.submissionConfig.submissionInstructions,
+      content: submissionInstructions,
     }
   }
 
-  if (status === 'DONE' && round.submissionConfig?.hasSubmission) {
+  if (hasSubmission) {
     message = {
       type: 'success',
       title: 'Đã nộp bài',
-      content: 'Đội đã nộp bài cho vòng này.',
+      content: 'Đội đã nộp bài dự thi thành công cho vòng này.',
     }
-  } else if (deadline && now > deadline && !round.submissionConfig?.hasSubmission) {
+  } else if (submissionStatus === 'LATE_NO_SUBMISSION') {
     message = {
       type: 'warning',
       title: 'Đã quá hạn nộp bài',
-      content: 'Đội chưa nộp bài đúng hạn cho vòng này.',
+      content: 'Đội chưa nộp bài đúng hạn cho vòng này. Bạn vẫn có thể nộp muộn nhưng sẽ bị trừ điểm theo quy định.',
     }
   }
 
   return {
-    id: round.roundId,
-    name: round.roundName,
+    id: round.roundId ?? round.id,
+    name: round.roundName ?? round.name ?? 'Vòng thi',
     dateRange: formatDateRange(start, end),
     status,
     submissionStatus,
     submissionDeadline: deadline ? formatDateLabel(deadline) : null,
+    daysLeft,
     message,
     evaluation: round.scroringTemplateUrl ? {
       title: 'Tiêu chí chấm điểm',
       content: round.scroringTemplateUrl,
     } : null,
-    roundNumber: round.roundOrdinalNumber,
+    roundNumber: round.roundOrdinalNumber ?? round.roundNumber,
     topTeamPass: round.topTeamPass,
     submissionQuantity: round.submissionQuantity,
     roundQuantity: round.roundQuantity,
-    timelines: round.timelines ?? [],
+    timelines: round.timelines ?? round.agenda ?? [],
     submissionConfig: round.submissionConfig,
   }
 }
