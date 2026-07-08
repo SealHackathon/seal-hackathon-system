@@ -1,0 +1,96 @@
+/* Khung chứa lời mời (dài theo số card bên trong) */
+.box {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+
+    background-color: var(--color-bg-white);
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    padding: 1.5em;
+    box-sizing: border-box;
+}
+
+.green {
+    border-color: var(--color-border-green);
+}
+
+.orange {
+    border-color: var(--color-border-orange);
+}
+
+/* ===== Tiêu đề box ===== */
+.head {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+}
+
+.headIcon {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.green .headIcon {
+    color: var(--color-primary-green);
+}
+
+.orange .headIcon {
+    color: var(--color-primary-orange);
+}
+
+.title {
+    flex: 1;
+    min-width: 0;
+    margin: 0;
+    font-size: 1.15rem;
+}
+
+.green .title {
+    color: var(--color-primary-green);
+}
+
+.orange .title {
+    color: var(--color-primary-orange);
+}
+
+/* Huy hiệu đếm số lời mời */
+.count {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 1.9em;
+    height: 1.9em;
+    border-radius: var(--radius-circle);
+    background-color: var(--color-bg-white);
+
+    font-size: 0.85rem;
+    font-weight: 800;
+}
+
+.green .count {
+    color: var(--color-primary-green);
+    border: 1.5px solid var(--color-border-green);
+}
+
+.orange .count {
+    color: var(--color-primary-orange);
+    border: 1.5px solid var(--color-border-orange);
+}
+
+/* ===== Nội dung ===== */
+.body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.85em;
+}
+
+.empty {
+    margin: 0;
+    padding: 0.5em 0;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
