@@ -140,6 +140,8 @@ function DashboardPage() {
   }
   const handleAccept = (invitationId) => {
     // TODO: gọi API chấp nhận lời mời
+
+        axiosClient.post(`/mentor-judge/invitations/${invitationId}/accept`)
   }
   const handleDecline = (invitationId) => {
     // TODO: gọi API từ chối lời mời
