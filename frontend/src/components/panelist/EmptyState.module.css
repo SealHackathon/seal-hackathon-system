@@ -1,0 +1,48 @@
+.empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 0.75em;
+
+    background-color: var(--color-bg-white);
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    padding: 3em 1.5em;
+    box-sizing: border-box;
+}
+
+/* Vòng tròn chứa icon */
+.iconCircle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    width: 3.5em;
+    height: 3.5em;
+    border-radius: var(--radius-circle);
+    background-color: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
+.title {
+    margin: 0;
+    font-family: var(--title-font-main);
+    font-style: italic;
+    font-weight: 800;
+    font-size: 1.15rem;
+    color: var(--color-text-primary);
+}
+
+.desc {
+    margin: 0;
+    max-width: 32em;
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+.action {
+    margin-top: 0.5em;
+}
