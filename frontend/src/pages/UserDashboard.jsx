@@ -88,7 +88,7 @@ function UserDashboard() {
     }, [])
 
     const handleCloseModal = () => {
-        setShowPendingModal(false);
+        setShowPendingModal(false);``
         sessionStorage.setItem('hasSeenProfilePendingModal', 'true');
     };
 

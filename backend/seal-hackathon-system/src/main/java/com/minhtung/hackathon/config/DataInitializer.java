@@ -337,7 +337,7 @@ public class DataInitializer implements CommandLineRunner {
         round1.setEvent(event);
 
         SubmissionConfig config1 = new SubmissionConfig(
-                round1, "Vòng sơ loại", now.minusDays(1), now.plusDays(22),
+                round1, "Vòng sơ loại", now.minusDays(1)    , now.plusDays(22),
                 "Nộp file PDF ý tưởng (tối đa 5 trang) và link GitHub repo (nếu có).", true
         );
         round1.setSubmissionConfig(config1);

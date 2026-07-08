@@ -885,6 +885,7 @@ public class TeamService {
         teamInfoResponse.setTeamName(team.getName());
         teamInfoResponse.setDescription(team.getDescription());
         teamInfoResponse.setTeamStatus(team.getStatus().toString());
+        teamInfoResponse.setTrackName(team.getTrack() != null ? team.getTrack().getName() : "Chưa phân nhánh");
         return teamInfoResponse;
     }
 
