@@ -18,15 +18,11 @@ function TeamMemberPanel({
     onLockTeam,
     onApproveLeave,
     onCancelLeave,
-    onMoveToOfficial,
-    onMoveToReserve,
     rejectionReasons,
     leaveRequests = [],
 }) {
 
-    const officialMembers = members.filter(m => m.memberStatus !== 'RESERVE')
-    const reserveMembers  = members.filter(m => m.memberStatus === 'RESERVE')
-    const emptyCount = Math.max(0, maxSlots - officialMembers.length)
+    const emptyCount = maxSlots - members.length
 
 
     function renderNoticeBox() {
@@ -47,7 +43,7 @@ function TeamMemberPanel({
                             variant="primary"
                             color='orange'
                             onClick={onLockTeam}
-                            disabled={officialMembers.length < minSlots}
+                            disabled={members.length < minSlots}
                         />
                         : undefined
                     }
@@ -146,85 +142,41 @@ function TeamMemberPanel({
     return (
         <div className={styles.panel}>
 
+
             <div className={styles.header}>
                 <span className={styles.memberCount}>
-                    {officialMembers.length}/{maxSlots} thành viên
+                    {members.length}/{maxSlots} thành viên
                 </span>
                 <TeamStatusTag status={teamStatus} />
             </div>
 
 
-            {/* ── Hàng chính thức ── */}
-            <div className={styles.section}>
-                <span className={styles.sectionLabel}>Hàng chính thức</span>
+            <div className={styles.memberList}>
+                {members.map((member, i) => (
+                    <MemberRow
+                        key={member.id}
+                        teamStatus={teamStatus}
+                        index={i + 1}
+                        name={member.name}
+                        email={member.email}
+                        school={member.school}
+                        isLeader={member.isLeader}
+                        isCurrentUser={member.isCurrentUser}
+                        onKick={onKick ? () => onKick(member.id) : undefined}
+                        onPromote={onPromote ? () => onPromote(member.id) : undefined}
+                        onApproveLeave={onApproveLeave ? () => onApproveLeave(member.id) : undefined}
+                        onCancelLeave={onCancelLeave ? () => onCancelLeave(member.id) : undefined}
+                        onLeave={onLeave}
+                        // leaveRequest={leaveRequests.find(r => Number(r.memberId) === Number(member.id)) ?? null}
+                        leaveRequest={leaveRequests.find(r => r.name === member.name) ?? null}
+                    />
+                ))}
+            
 
-                <div className={styles.memberList}>
-                    {officialMembers.map((member, i) => (
-                        <MemberRow
-                            key={member.id}
-                            member={member}
-                            teamStatus={teamStatus}
-                            index={i + 1}
-                            name={member.name}
-                            email={member.email}
-                            school={member.school}
-                            isLeader={member.isLeader}
-                            isCurrentUser={member.isCurrentUser}
-                            memberStatus={member.memberStatus ?? 'OFFICAL'}
-                            joinMethod={member.joinMethod}
-                            onKick={onKick ? () => onKick(member.id) : undefined}
-                            onPromote={onPromote ? () => onPromote(member.id) : undefined}
-                            onMoveToReserve={(!member.isLeader && isLeader && onMoveToReserve)
-                                ? () => onMoveToReserve(member.id)
-                                : undefined
-                            }
-                            onApproveLeave={onApproveLeave ? () => onApproveLeave(member.id) : undefined}
-                            onCancelLeave={onCancelLeave ? () => onCancelLeave(member.id) : undefined}
-                            onLeave={onLeave}
-                            leaveRequest={leaveRequests.find(r => r.name === member.name) ?? null}
-                        />
-                    ))}
-
-                    {Array.from({ length: emptyCount }).map((_, i) => (
-                        <EmptyMemberSlot key={`empty-${i}`} index={officialMembers.length + i + 1} />
-                    ))}
-                </div>
+                {Array.from({ length: emptyCount }).map((_, i) => (
+                    <EmptyMemberSlot key={`empty-${i}`} index={members.length + i + 1} />
+                ))}
             </div>
-
-
-            {/* ── Hàng dự bị ── */}
-            {reserveMembers.length > 0 && (
-                <div className={styles.section}>
-                    <span className={styles.sectionLabel}>Hàng dự bị</span>
-
-                    <div className={styles.memberList}>
-                        {reserveMembers.map((member, i) => (
-                            <MemberRow
-                                key={member.id}
-                                member={member}
-                                teamStatus={teamStatus}
-                                index={i + 1}
-                                name={member.name}
-                                email={member.email}
-                                school={member.school}
-                                isLeader={false}
-                                isCurrentUser={member.isCurrentUser}
-                                memberStatus="RESERVE"
-                                joinMethod={member.joinMethod}
-                                onKick={onKick ? () => onKick(member.id) : undefined}
-                                onMoveToOfficial={(isLeader && onMoveToOfficial)
-                                    ? () => onMoveToOfficial(member.id)
-                                    : undefined
-                                }
-                                onApproveLeave={onApproveLeave ? () => onApproveLeave(member.id) : undefined}
-                                onCancelLeave={onCancelLeave ? () => onCancelLeave(member.id) : undefined}
-                                onLeave={onLeave}
-                                leaveRequest={leaveRequests.find(r => r.name === member.name) ?? null}
-                            />
-                        ))}
-                    </div>
-                </div>
-            )}
 
 
             {renderNoticeBox()}

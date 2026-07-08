@@ -1,4 +1,4 @@
-import { useRef, useState, useEffect } from 'react'
+import { useRef, useState } from 'react'
 import { CloudArrowUp, Image, Trash, ArrowClockwise } from '@phosphor-icons/react'
 import styles from './FileUpload.module.css'
 
@@ -8,7 +8,6 @@ import styles from './FileUpload.module.css'
  * @param {string[]} [accept]       — Định dạng cho phép, vd: ['image/png','image/jpeg']
  * @param {number}   [maxSizeMB]    — Giới hạn dung lượng (MB)
  * @param {number}   [aspectRatio]  — Tỉ lệ preview area, vd: 16/9, 1/1
- * @param {File|string} [value]     — Giá trị khởi tạo (File object hoặc Cloudinary URL)
  * @param {Function} [onFileChange] — Callback(file | null) khi file thay đổi
  */
 function FileUpload({
@@ -17,38 +16,15 @@ function FileUpload({
     accept = ['image/png', 'image/jpeg', 'image/jpg', 'application/pdf'],
     maxSizeMB = 5,
     aspectRatio = 16 / 9,
-    value = null,
     onFileChange,
 }) {
-    const [file, setFile] = useState(null)   // File object hoặc fake File (từ URL)
-    const [preview, setPreview] = useState(null)   // Object URL hoặc Cloudinary URL
+    const [file, setFile] = useState(null)   // File object
+    const [preview, setPreview] = useState(null)   // Object URL để preview ảnh
     const [error, setError] = useState('')      // Lỗi validate
     const [isDragging, setIsDragging] = useState(false)
     const inputRef = useRef(null)
 
-    // Sync from prop 'value'
     const acceptAttr = accept.join(',')
-
-    // ── Sync with value prop ───────────────────────────
-    useEffect(() => {
-        if (!value) {
-            setFile(null)
-            setPreview(null)
-            return
-        }
-
-        if (value instanceof File) {
-            setFile(value)
-            const url = URL.createObjectURL(value)
-            setPreview(url)
-            return () => URL.revokeObjectURL(url)
-        } else if (typeof value === 'string') {
-            // Cloudinary URL or string URL
-            const fakeFile = { name: value.split('/').pop() || 'image_link', size: 0, type: 'image/jpeg' }
-            setFile(fakeFile)
-            setPreview(value)
-        }
-    }, [value])
 
     // ── Validate file ──────────────────────────────────
     function validate(f) {
@@ -75,15 +51,14 @@ function FileUpload({
         }
 
         setError('')
-        // setFile/setPreview sẽ được update thông qua useEffect nếu parent pass 'value'
-        // Nhưng nếu component uncontrolled, set luôn ở đây.
         setFile(f)
 
+        // Preview chỉ cho ảnh — dùng URL.createObjectURL (không cần upload)
         if (f.type.startsWith('image/')) {
             const url = URL.createObjectURL(f)
             setPreview(url)
         } else {
-            setPreview(null)
+            setPreview(null)   // PDF → không preview ảnh
         }
 
         onFileChange?.(f)
@@ -92,9 +67,7 @@ function FileUpload({
     // ── Xoá file ───────────────────────────────────────
     function handleRemove(e) {
         e.stopPropagation()
-        if (preview && preview.startsWith('blob:')) {
-            URL.revokeObjectURL(preview)
-        }
+        if (preview) URL.revokeObjectURL(preview)   // giải phóng bộ nhớ
         setFile(null)
         setPreview(null)
         setError('')
@@ -138,7 +111,6 @@ function FileUpload({
     }
 
     function formatSize(bytes) {
-        if (!bytes) return ''
         return (bytes / (1024 * 1024)).toFixed(1) + ' mb'
     }
 

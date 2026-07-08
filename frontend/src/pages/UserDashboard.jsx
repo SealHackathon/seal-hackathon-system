@@ -1,10 +1,7 @@
-import { useState } from 'react'
 import UserLayout from '../layouts/UserLayout'
 import MilestoneBanner from '../components/dashboard/MilestoneBanner'
 import LiveEventCard from '../components/dashboard/LiveEventCard'
-import ProfilePendingModal from '../components/dashboard/ProfilePendingModal'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../AuthContext'
 // import styles from './UserDashboard.module.css'
 
 const FAKE_TIMELINE = [
@@ -23,39 +20,15 @@ const FAKE_EVENT = {
 }
 
 function UserDashboard() {
-    console.log("UserDashboard rendered")
-    const { userStatus } = useAuth();
-    const navigate = useNavigate();
+        console.log("UserDashboard rendered")
 
-    const [showPendingModal, setShowPendingModal] = useState(() => {
-        if (userStatus === 'PENDING_APPROVAL') {
-            const hasSeen = sessionStorage.getItem('hasSeenProfilePendingModal');
-            return !hasSeen;
-        }
-        return false;
-    });
-
-    const handleCloseModal = () => {
-        setShowPendingModal(false);
-        sessionStorage.setItem('hasSeenProfilePendingModal', 'true');
-    };
-
-    const handleJoinClick = () => {
-        // userStatus PROFILE_PENDING không thể vào trang này nữa nhờ routing
-        if (userStatus === 'PENDING_APPROVAL') {
-            setShowPendingModal(true);
-        } else {
-            navigate('/team');
-        }
-    }
-
+    const navigate= useNavigate();
     return (
         <UserLayout showCard={false}>
-            <ProfilePendingModal isOpen={showPendingModal} onClose={handleCloseModal} />
             <MilestoneBanner timeline={FAKE_TIMELINE} />
             <LiveEventCard
                 event={FAKE_EVENT}
-                onJoin={handleJoinClick}
+                onJoin={() =>navigate('/team')}
                 onViewRules={() => console.log('Chi tiết thể lệ')}
             />
         </UserLayout>

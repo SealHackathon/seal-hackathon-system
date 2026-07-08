@@ -69,15 +69,4 @@ public class UserService {
                 .toList();
     }
 
-
-    // get user status
-
-    public String getUserStatus(long userId) {
-        User user = userRepository.findById(userId).orElse(null);
-        if (user == null) {
-            throw new RuntimeException("User not found");
-        }
-        return user.getStatus().toString();
-    }
-
 }

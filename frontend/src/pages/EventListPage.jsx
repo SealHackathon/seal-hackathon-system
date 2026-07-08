@@ -4,7 +4,6 @@ import EventCard from '../components/coordinator/EventCard'
 import Button from '../components/shared/Button'
 import SectionHeader from '../components/shared/SectionHeader'
 import SearchFilterBar from '../components/shared/SearchFilterBar/SearchFilterBar'
-import CoordinatorLayout from '../layouts/CoordinatorLayout'
 import styles from './EventListPage.module.css'
 import axiosClient from '../api/axiosClient'
 import { useNavigate } from 'react-router-dom'
@@ -248,9 +247,6 @@ function EventListPage({ onManageEvent }) {
   }, [events]) // Đổi sang dependency là [events]
 
   return (
-    <CoordinatorLayout>
-
-    
     <div className={styles.page}>
 
       {/* Header */}
@@ -307,7 +303,6 @@ function EventListPage({ onManageEvent }) {
         }
       </div>
     </div>
-    </CoordinatorLayout>
   )
 }
 

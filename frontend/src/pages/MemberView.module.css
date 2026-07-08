@@ -3,20 +3,3 @@
   flex-direction: column;
   gap: 1.25em;
 }
-
-.content {
-  display: grid;
-  grid-template-columns: 3fr 1fr;
-  gap: 1.25em;
-}
-
-.main {
-  flex-grow: 1;
-}
-
-.side {
-  flex-shrink: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1em;
-}

@@ -50,6 +50,12 @@
 }
 .orange .dot { background-color: var(--color-primary-orange); }
 
+.dashed-orange {
+    background-color: var(--color-bg-white);
+    border: 1px dashed var(--color-primary-orange);
+    color: var(--color-primary-orange);
+}
+.dashed-orange .dot { background-color: var(--color-primary-orange); }
 
 .gray {
     background-color: var(--color-text-muted);
@@ -64,78 +70,6 @@
     color: #C0392B;
 }
 .red .dot { background-color: #E74C3C; }
-
-/* === Solid variants — nền đậm, chữ trắng === */
-.blueSolid {
-    background-color: var(--color-primary-blue);
-    border: 1px solid var(--color-primary-blue);
-    color: #fff;
-}
-.blueSolid .dot { background-color: #fff; }
-
-.greenSolid {
-    background-color: var(--color-primary-green);
-    border: 1px solid var(--color-primary-green);
-    color: #fff;
-}
-.greenSolid .dot { background-color: #fff; }
-
-.orangeSolid {
-    background-color: var(--color-primary-orange);
-    border: 1px solid var(--color-primary-orange);
-    color: #fff;
-}
-.orangeSolid .dot { background-color: #fff; }
-
-.redSolid {
-    background-color: #E74C3C;
-    border: 1px solid #E74C3C;
-    color: #fff;
-}
-.redSolid .dot { background-color: #fff; }
-
-.graySolid {
-    background-color: var(--color-text-secondary);
-    border: 1px solid var(--color-text-secondary);
-    color: #fff;
-}
-.graySolid .dot { background-color: #fff; }
-
-/* === Dashed variants — nền nhạt, viền nét đứt === */
-.dashedBlue {
-    background-color: var(--color-bg-blue);
-    border: 1px dashed var(--color-primary-blue);
-    color: var(--color-primary-blue);
-}
-.dashedBlue .dot { background-color: var(--color-primary-blue); }
-
-.dashedGreen {
-    background-color: var(--color-bg-green);
-    border: 1px dashed var(--color-primary-green);
-    color: var(--color-dark-green);
-}
-.dashedGreen .dot { background-color: var(--color-primary-green); }
-
-.dashedOrange {
-    background-color: var(--color-bg-white);
-    border: 1px dashed var(--color-primary-orange);
-    color: var(--color-primary-orange);
-}
-.dashedOrange .dot { background-color: var(--color-primary-orange); }
-
-.dashedRed {
-    background-color: #FFF0F0;
-    border: 1px dashed #E74C3C;
-    color: #C0392B;
-}
-.dashedRed .dot { background-color: #E74C3C; }
-
-.dashedGray {
-    background-color: var(--color-text-muted);
-    border: 1px dashed var(--color-text-secondary);
-    color: var(--color-text-secondary);
-}
-.dashedGray .dot { background-color: var(--color-text-secondary); }
 
 /* === Sizes === */
 

@@ -1,43 +1,24 @@
 import ReactDatePicker, { registerLocale } from 'react-datepicker'
 import { vi } from 'date-fns/locale/vi'
-import { CalendarBlank, CaretLeft, CaretRight } from '@phosphor-icons/react'
+import { CalendarBlank, Clock, CaretLeft, CaretRight } from '@phosphor-icons/react'
 import 'react-datepicker/dist/react-datepicker.css'
 import styles from './DateTimePicker.module.css'
 
 registerLocale('vi', vi)
 
-/**
- * DateTimePicker
- *
- * Props mới:
- *   showTime    : boolean  — hiển thị phần chọn giờ hay không (default: true)
- *   yearsPast   : number   — số năm trước hiện tại trong dropdown năm (default: 5)
- *   yearsFuture : number   — số năm sau hiện tại trong dropdown năm (default: 14)
- *
- * Ví dụ:
- *   <DateTimePicker label="Ngày sinh" showTime={false} yearsPast={100} maxDate={new Date()} />
- *   <DateTimePicker label="Thời gian sự kiện" />   ← mặc định có giờ
- */
 function DateTimePicker({
     label,
     required,
     value,
     onChange,
-    placeholder,            // nếu không truyền, tự động theo showTime
+    placeholder = 'Chọn ngày và giờ',
     minDate,
     maxDate,
     minTime,
     maxTime,
     disabled,
     error,
-    showTime    = true,     // mặc định có time
-    yearsPast   = 5,        // số năm ngược trong dropdown năm
-    yearsFuture = 14,       // số năm tiếp trong dropdown năm
 }) {
-    const resolvedPlaceholder = placeholder ?? (showTime ? 'Chọn ngày và giờ' : 'Chọn ngày')
-    const resolvedDateFormat   = showTime ? 'EEEE, dd/MM/yyyy, HH:mm' : 'dd/MM/yyyy'
-    const totalYears           = yearsPast + yearsFuture
-
     return (
         <div className={styles.wrapper}>
 
@@ -55,15 +36,13 @@ function DateTimePicker({
                     locale="vi"
                     selected={value}
                     onChange={onChange}
-                    // Đóng ngay sau khi chọn ngày nếu không có time;
-                    // giữ mở nếu có time để user tiếp tục chọn giờ
-                    shouldCloseOnSelect={!showTime}
-                    showTimeSelect={showTime}
+                    shouldCloseOnSelect={false}   // đóng khi click ra ngoài, không đóng khi chọn time
+                    showTimeSelect
                     timeCaption="Giờ"
                     timeFormat="HH:mm"
                     timeIntervals={30}
-                    dateFormat={resolvedDateFormat}
-                    placeholderText={resolvedPlaceholder}
+                    dateFormat="EEEE, dd/MM/yyyy, HH:mm"
+                    placeholderText={placeholder}
                     minDate={minDate}
                     maxDate={maxDate}
                     minTime={minTime}
@@ -72,7 +51,7 @@ function DateTimePicker({
                     showMonthDropdown
                     showYearDropdown
                     dropdownMode="select"
-                    yearDropdownItemNumber={totalYears}
+                    yearDropdownItemNumber={10}
                     className={styles.input}
                     calendarClassName={styles.calendar}
                     wrapperClassName={styles.pickerWrapper}
@@ -111,8 +90,8 @@ function DateTimePicker({
                                     value={date.getFullYear()}
                                     onChange={e => changeYear(parseInt(e.target.value))}
                                 >
-                                    {Array.from({ length: totalYears }, (_, i) => {
-                                        const year = new Date().getFullYear() - yearsPast + i
+                                    {Array.from({ length: 20 }, (_, i) => {
+                                        const year = new Date().getFullYear() - 5 + i
                                         return <option key={year} value={year}>{year}</option>
                                     })}
                                 </select>
@@ -132,13 +111,7 @@ function DateTimePicker({
                                     const now = new Date()
                                     changeMonth(now.getMonth())
                                     changeYear(now.getFullYear())
-                                    // Nếu không có time: chọn ngày hôm nay, reset giờ về 0:00
-                                    if (!showTime) {
-                                        const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-                                        onChange(today)
-                                    } else {
-                                        onChange(now)
-                                    }
+                                    onChange(now)             // chọn luôn ngày + giờ hiện tại
                                 }}
                             >
                                 Hôm nay
@@ -147,6 +120,7 @@ function DateTimePicker({
                         </div>
                     )}
                 />
+
             </div>
 
             {error && <p className={styles.errorMsg}>{error}</p>}
