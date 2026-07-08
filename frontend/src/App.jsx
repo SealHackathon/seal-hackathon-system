@@ -110,6 +110,7 @@ import RubricLibraryPage from './pages/coordinator/rubrics/RubricLibraryPage';
 import CreateRubricPage from './pages/coordinator/rubrics/CreateRubricPage';
 import SubmissionPage from './pages/SubmissionPage';
 import RoundSubmissionDetailPage from './pages/RoundSubmissionDetailPage';
+import PanelistDashboard from './pages/panelist/DashboardPage';
 
 
 function TeamRoute() {
@@ -210,6 +211,15 @@ function AppRoutes() {
                                     <Route path="*" element={<Navigate to="/user/dashboard" replace />} />
                                 </>
                             )}
+                        </>
+                    )}
+
+                    {/* LUONG GIANG VIEN (LECTURER = Mentor & Giam khao) */}
+                    {role === "LECTURER" && (
+                        <>
+                            <Route path="/panelist/dashboard" element={<PanelistDashboard />} />
+                            {/* TODO: <Route path="/panelist/contests" element={<ContestsPage />} /> */}
+                            <Route path="*" element={<Navigate to="/panelist/dashboard" replace />} />
                         </>
                     )}
 

@@ -1,0 +1,56 @@
+.sidebar {
+    width: 6.5em;
+    height: calc(100vh - 80px - 3em);
+    flex-shrink: 0;
+
+    background-color: var(--color-bg-white);
+
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+
+    padding: 0.75em;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+
+    position: sticky;
+    top: 0.75em;
+    transition: height 0.2s ease-out;
+}
+
+.sidebarSticky {
+    height: calc(100vh - 1.5em);
+}
+
+.sidebarSentinel {
+    position: absolute;
+    top: 1.5em;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
+}
+
+.groupLabel {
+    font-size: 0.75rem;
+    font-weight: bold;
+
+    color: var(--color-primary-blue);
+
+    padding-bottom: 0.75em;
+    text-align: center;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid var(--color-border-blue);
+    margin: 0.5em;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2em;
+}
