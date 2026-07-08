@@ -1,8 +1,8 @@
 package com.minhtung.hackathon.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDateTime;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -13,5 +13,17 @@ public class TeamInfoResponse {
     private String description;
     private String teamCode;
     private String teamStatus;
-    private String trackName;
+    private TrackResponse category;
+    private int maxSlots;
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class TrackResponse {
+        private long id;
+        private String trackName;
+        private String desc;
+        private int currentTeams;
+        private int teamLimit;
+    }
 }

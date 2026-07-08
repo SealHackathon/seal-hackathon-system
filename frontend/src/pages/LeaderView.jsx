@@ -161,7 +161,7 @@ function LeaderView() {
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const emptyCount = (teamInfo.maxSlots || 4) - FAKE_MEMBERS.length
-
+  const eventId= localStorage.getItem('eventId') || null;
   const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
   // api lấy team members thành viên đội 
@@ -182,16 +182,16 @@ function LeaderView() {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus)
         // TODO: Cần trả về trường categoryId trong object teamInfo
-        // if (response.data.categoryId) setSelectedCategory(response.data.categoryId)
+        if (response.data.category.id) setSelectedCategory(response.data.category.id)
       })
       .catch((error) => console.log(error));
   }, [refreshTrigger]);
 
   // TODO: Gọi API GET /api/event/{eventId}/categories để lấy danh sách hạng mục
   useEffect(() => {
-    // axiosClient.get(`/event/${eventId}/categories`)
-    //   .then(res => setCategories(res.data))
-    //   .catch(err => console.log(err))
+    axiosClient.get(`/track?eventId=${eventId}`)
+      .then(res => setCategories(res.data))
+      .catch(err => console.log(err))
   }, [])
 
   // TODO: Gọi API PUT /api/team/category để cập nhật/xóa hạng mục

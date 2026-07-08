@@ -118,8 +118,8 @@ function RoundSubmissionDetailPage() {
         let teamTrack = 'Chưa phân nhánh'
         try {
           const teamRes = await axiosClient.get('/team/team-info')
-          if (teamRes.data?.trackName) {
-            teamTrack = teamRes.data.trackName
+          if (teamRes.data?.category.trackName) {
+            teamTrack = teamRes.data.category.trackName
           }
         } catch (e) {
           console.warn('Không thể lấy thông tin đội:', e)
