@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import styles from './RoundSubmissionDetailPage.module.css'
 
 import HeroCard from '../components/roundSubmissionDetailPage/HeroCard'
@@ -11,28 +11,22 @@ import SubmissionForm from '../components/roundSubmissionDetailPage/SubmissionFo
 import ConfirmModal from '../components/shared/ConfirmModal'
 import StickyHeader from '../components/shared/StickyHeader'
 import { REQUIRED_SUBMISSION_FIELDS, validateSubmissionField, computeValidFields } from '../utils/submissionValidation'
+import axiosClient from '../api/axiosClient'
+import { useAuth } from '../AuthContext'
 
-// --- Mock Data ---
-const ROUND = {
-  name: 'Vòng 3: Hoàn thiện Sản phẩm',
-  order: 'Vòng 3 / 6',
-  track: 'Bảng Tech Innovators',
-  desc: 'Hoàn thiện sản phẩm dựa trên phản hồi ở Vòng 2 và nộp bản demo hoàn chỉnh để hội đồng chấm điểm.',
-  openAt: '26/06/2026, 08:00',
-  closeAt: '07/07/2026, 23:59',
-  guidelines: [
-    'Hoàn thiện theo phản hồi Vòng 2: Cập nhật sản phẩm dựa trên nhận xét của giám khảo ở vòng trước, ưu tiên các điểm bị trừ.',
-    'Mở quyền truy cập mã nguồn: Để repository ở chế độ công khai hoặc cấp quyền cho tài khoản BTC để đối soát.',
-    'Video demo tối đa 5 phút: Tập trung trình bày luồng tính năng chính và giá trị thực tế của sản phẩm.',
-    'Đặt tên file theo quy ước: Dùng cú pháp TenDoi_Vong3 cho mọi file đính kèm để BTC dễ quản lý.',
-  ],
-  criteria: [
-    'Tính chính xác và sự phù hợp với Domain',
-    'Kiến trúc Agentic RAG & Giải thuật',
-    'Ý tưởng & Thuyết trình',
-    'Khả năng thực thi & tính sáng tạo',
-    'Trải nghiệm người dùng & Giao diện tương tác',
-  ],
+function formatDateLabel(value) {
+  if (!value) return null
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return null
+
+  return date.toLocaleString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
 }
 
 function mkSub(late, edited, score, comment) {
@@ -82,6 +76,15 @@ function buildFormFromSubmission(submission) {
 
 function RoundSubmissionDetailPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const { teamRole } = useAuth()
+
+  const searchParams = new URLSearchParams(location.search)
+  const roundId = searchParams.get('roundId')
+
+  const [round, setRound] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
 
   const [form, setForm] = useState(createEmptyForm())
   const [errors, setErrors] = useState({})
@@ -89,20 +92,151 @@ function RoundSubmissionDetailPage() {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
 
-  // Nạp dữ liệu bài nộp ban đầu — chạy 1 lần khi mount vì SCENARIO hiện là dữ liệu tĩnh (chưa nối API)
   useEffect(() => {
-    const submission = SCENARIO.submission
-    const newForm = submission ? buildFormFromSubmission(submission) : createEmptyForm()
+    if (!roundId) {
+      setError('Thiếu thông tin roundId trên URL.')
+      setLoading(false)
+      return
+    }
 
-    setForm(newForm)
-    setValidFields(submission ? computeValidFields(newForm) : {})
+    let isMounted = true
+    const loadData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        // Fetch round details
+        const roundRes = await axiosClient.get(`/round/rounds/${roundId}`)
+        const details = roundRes.data
+        if (!details) {
+          throw new Error('Không nhận được dữ liệu vòng thi.')
+        }
 
-    const editable = SCENARIO.role === 'leader' && (SCENARIO.state === 'active' || SCENARIO.state === 'late')
-    setIsEditing(editable && !submission)
-  }, [])
+        // Fetch team info (optional, fallback if no team)
+        let teamTrack = 'Chưa phân nhánh'
+        try {
+          const teamRes = await axiosClient.get('/team/team-info')
+          if (teamRes.data?.trackName) {
+            teamTrack = teamRes.data.trackName
+          }
+        } catch (e) {
+          console.warn('Không thể lấy thông tin đội:', e)
+        }
 
-  const isEditable = SCENARIO.role === 'leader' && (SCENARIO.state === 'active' || SCENARIO.state === 'late')
-  const isLate = SCENARIO.state === 'late'
+        if (!isMounted) return
+
+        const guidelinesText = details.submissionConfig?.submissionInstructions || ''
+        const guidelines = guidelinesText
+          ? guidelinesText.split('\n').map(line => line.trim()).filter(Boolean)
+          : [
+              'Nộp bản demo hoàn chỉnh và báo cáo sản phẩm để hội đồng đánh giá.',
+              'Đảm bảo link demo và link source code (Github) hoạt động bình thường.',
+              'Cung cấp tài khoản test nếu ứng dụng yêu cầu đăng nhập.'
+            ]
+
+        const criteria = [
+          'Tính chính xác và sự phù hợp với Domain',
+          'Kiến trúc Agentic RAG & Giải thuật',
+          'Ý tưởng & Thuyết trình',
+          'Khả năng thực thi & tính sáng tạo',
+          'Trải nghiệm người dùng & Giao diện tương tác'
+        ]
+
+        const mappedRound = {
+          id: details.roundId,
+          name: details.roundName,
+          order: `Vòng ${details.roundOrdinalNumber} / ${details.roundQuantity}`,
+          track: teamTrack,
+          desc: details.submissionConfig?.title || 'Hoàn thiện sản phẩm và nộp báo cáo.',
+          openAt: formatDateLabel(details.roundStartTime) || '—',
+          closeAt: formatDateLabel(details.roundSubmissionDeadline || details.roundEndTime) || '—',
+          submissionOpenAt: formatDateLabel(details.submissionConfig?.openingTime) || '—',
+          guidelines,
+          criteria,
+          rawStart: details.roundStartTime,
+          rawEnd: details.roundEndTime,
+          rawDeadline: details.roundSubmissionDeadline,
+          rawStatus: details.status
+        }
+
+        setRound(mappedRound)
+
+        // Initialize form
+        const submission = SCENARIO.submission
+        const newForm = submission ? buildFormFromSubmission(submission) : createEmptyForm()
+        setForm(newForm)
+        setValidFields(submission ? computeValidFields(newForm) : {})
+
+        // Compute derivedState
+        const now = new Date()
+        const start = details.roundStartTime ? new Date(details.roundStartTime) : null
+        const end = details.roundEndTime ? new Date(details.roundEndTime) : null
+        const deadline = details.roundSubmissionDeadline ? new Date(details.roundSubmissionDeadline) : null
+
+        let derivedState = 'active'
+        if (details.status === 'UPCOMING' || (start && now < start)) {
+          derivedState = 'upcoming'
+        } else if (details.status === 'COMPLETED' || (end && now > end)) {
+          derivedState = 'done_closed'
+        } else if (deadline && now > deadline) {
+          derivedState = 'late'
+        } else {
+          derivedState = 'active'
+        }
+
+        const userRole = teamRole?.toLowerCase() === 'leader' ? 'leader' : 'member'
+        const editable = userRole === 'leader' && (derivedState === 'active' || derivedState === 'late')
+        setIsEditing(editable && !submission)
+
+      } catch (err) {
+        console.error(err)
+        if (isMounted) {
+          setError(err.response?.data || err.message || 'Có lỗi xảy ra khi tải dữ liệu vòng thi.')
+        }
+      } finally {
+        if (isMounted) {
+          setLoading(false)
+        }
+      }
+    }
+
+    loadData()
+    return () => {
+      isMounted = false
+    }
+  }, [roundId, teamRole])
+
+  const userRole = teamRole?.toLowerCase() === 'leader' ? 'leader' : 'member'
+  const isMember = userRole === 'member'
+
+  const nowStr = new Date().toLocaleString('vi-VN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+
+  let currentState = 'active'
+  if (round) {
+    const now = new Date()
+    const start = round.rawStart ? new Date(round.rawStart) : null
+    const end = round.rawEnd ? new Date(round.rawEnd) : null
+    const deadline = round.rawDeadline ? new Date(round.rawDeadline) : null
+
+    if (round.rawStatus === 'UPCOMING' || (start && now < start)) {
+      currentState = 'upcoming'
+    } else if (round.rawStatus === 'COMPLETED' || (end && now > end)) {
+      currentState = 'done_closed'
+    } else if (deadline && now > deadline) {
+      currentState = 'late'
+    } else {
+      currentState = 'active'
+    }
+  }
+
+  const isEditable = userRole === 'leader' && (currentState === 'active' || currentState === 'late')
+  const isLate = currentState === 'late'
   const isUpdate = !!SCENARIO.submission
   const readOnlyForm = !isEditing
 
@@ -152,6 +286,29 @@ function RoundSubmissionDetailPage() {
     setIsEditing(false)
   }
 
+  if (loading) {
+    return (
+      <div className={styles.pageWrap}>
+        <div className={styles.container} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
+          <p style={{ color: 'var(--color-text-muted)' }}>Đang tải dữ liệu vòng thi...</p>
+        </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className={styles.pageWrap}>
+        <div className={styles.container}>
+          <StickyHeader title="Quay lại Hành trình Dự thi" backLink={handleBack} />
+          <div style={{ padding: '2rem', textAlign: 'center', color: 'var(--color-primary-orange)' }}>
+            <p>{error}</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={styles.pageWrap}>
       <div className={styles.container}>
@@ -160,18 +317,18 @@ function RoundSubmissionDetailPage() {
         <div className={styles.grid}>
           {/* Nội dung chính: bên trái */}
           <div className={styles.colMain}>
-            <HeroCard round={ROUND} state={SCENARIO.state} now={SCENARIO.now} />
+            <HeroCard round={round} state={currentState} now={nowStr} />
 
             <div className={styles.guideRow}>
               <div className={styles.guideCol}>
-                <GuidelineCard guidelines={ROUND.guidelines} />
+                <GuidelineCard guidelines={round.guidelines} />
               </div>
               <div className={styles.criteriaCol}>
-                <CriteriaCard criteria={ROUND.criteria} />
+                <CriteriaCard criteria={round.criteria} />
               </div>
             </div>
 
-            {!['upcoming', 'done_closed'].includes(SCENARIO.state) && (
+            {!['upcoming', 'done_closed'].includes(currentState) && (
               <SubmissionForm
                 form={form}
                 setForm={setForm}
@@ -181,7 +338,7 @@ function RoundSubmissionDetailPage() {
                 setValidFields={setValidFields}
                 readOnly={readOnlyForm}
                 isEditable={isEditable}
-                isMember={SCENARIO.role === 'member'}
+                isMember={isMember}
                 readyCount={readyCount}
                 totalCount={REQUIRED_SUBMISSION_FIELDS.length}
                 isLate={isLate}
@@ -196,8 +353,8 @@ function RoundSubmissionDetailPage() {
           {/* Nội dung phụ: bên phải, dính khi cuộn */}
           <div className={styles.colSide}>
             <div className={styles.stickySide}>
-              <TimeCard round={ROUND} state={SCENARIO.state} now={SCENARIO.now} />
-              <SummaryCard submission={SCENARIO.submission} state={SCENARIO.state} />
+              <TimeCard round={round} state={currentState} now={nowStr} />
+              <SummaryCard submission={SCENARIO.submission} state={currentState} />
             </div>
           </div>
         </div>
