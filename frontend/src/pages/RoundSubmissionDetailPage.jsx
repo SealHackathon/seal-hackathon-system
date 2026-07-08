@@ -31,9 +31,9 @@ function formatDateLabel(value) {
 
 function mkSub(late, edited, score, comment) {
   return {
-    github: { mode: 'link', value: 'https://github.com/tech-innovators/hackathon-v3' },
-    video: { mode: 'link', value: 'https://youtu.be/demo-v3-techinnovators' },
-    slide: { mode: 'file', value: 'TechInnovators_Vong3.pdf', size: '8.4 MB' },
+    github: { mode: 'link', value: '' },
+    video: { mode: 'link', value: '' },
+    slide: { mode: 'file', value: '', size: '8.4 MB' },
     submittedAt: late ? '08/07/2026, 09:12' : '05/07/2026, 21:40',
     lastEditedAt: edited || (late ? '08/07/2026, 09:12' : '05/07/2026, 22:15'),
     late: !!late,
@@ -91,6 +91,8 @@ function RoundSubmissionDetailPage() {
   const [validFields, setValidFields] = useState({})
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
+  const [criteria, setCriteria] = useState([]);
+
 
   useEffect(() => {
     if (!roundId) {
@@ -104,7 +106,7 @@ function RoundSubmissionDetailPage() {
       try {
         setLoading(true)
         setError(null)
-        
+
         // Fetch round details
         const roundRes = await axiosClient.get(`/round/rounds/${roundId}`)
         const details = roundRes.data
@@ -129,18 +131,15 @@ function RoundSubmissionDetailPage() {
         const guidelines = guidelinesText
           ? guidelinesText.split('\n').map(line => line.trim()).filter(Boolean)
           : [
-              'Nộp bản demo hoàn chỉnh và báo cáo sản phẩm để hội đồng đánh giá.',
-              'Đảm bảo link demo và link source code (Github) hoạt động bình thường.',
-              'Cung cấp tài khoản test nếu ứng dụng yêu cầu đăng nhập.'
-            ]
+            'Nộp bản demo hoàn chỉnh và báo cáo sản phẩm để hội đồng đánh giá.',
+            'Đảm bảo link demo và link source code (Github) hoạt động bình thường.',
+            'Cung cấp tài khoản test nếu ứng dụng yêu cầu đăng nhập.'
+          ]
 
-        const criteria = [
-          'Tính chính xác và sự phù hợp với Domain',
-          'Kiến trúc Agentic RAG & Giải thuật',
-          'Ý tưởng & Thuyết trình',
-          'Khả năng thực thi & tính sáng tạo',
-          'Trải nghiệm người dùng & Giao diện tương tác'
-        ]
+
+
+        const criteria =
+          details.criteria?.map(item => item.name) ?? []
 
         const mappedRound = {
           id: details.roundId,
@@ -156,10 +155,12 @@ function RoundSubmissionDetailPage() {
           rawStart: details.roundStartTime,
           rawEnd: details.roundEndTime,
           rawDeadline: details.roundSubmissionDeadline,
-          rawStatus: details.status
+          rawStatus: details.status,
         }
 
         setRound(mappedRound)
+
+
 
         // Initialize form
         const submission = SCENARIO.submission
