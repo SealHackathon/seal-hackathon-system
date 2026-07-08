@@ -3,6 +3,7 @@ package com.minhtung.hackathon.service;
 import com.minhtung.hackathon.dto.request.BulkJudgeInviteRequest;
 import com.minhtung.hackathon.dto.request.BulkMentorInviteRequest;
 import com.minhtung.hackathon.dto.request.MentorJudgeRequest;
+import com.minhtung.hackathon.dto.response.InvitationResponseDTO;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.entity.SystemRequest.*;
 import com.minhtung.hackathon.repository.*;
@@ -23,7 +24,7 @@ public class MentorJudgeService {
     private final UserRepository userRepo;
     private final TrackRepository trackRepo;
     private final EventRepository eventRepo;
-
+    private final RoundRepository roundRepo;
 
     // Trạng thái được coi là đang hoạt động / đã tham gia vào Track
     private final List<RequestStatus> activeStatuses = List.of(RequestStatus.PENDING, RequestStatus.ACCEPTED);
@@ -216,6 +217,91 @@ public class MentorJudgeService {
                 systemRequestRepo.save(newRequest);
             }
         }
+    }
+
+
+
+    // 1. Lấy danh sách lời mời chờ duyệt
+    public List<InvitationResponseDTO> getPendingInvitationsForUser(long userId) {
+        // 1. Lấy danh sách các request đang PENDING của user
+        List<SystemRequest> requests = systemRequestRepo.findByReceiverIdAndStatus(userId, RequestStatus.PENDING);
+
+        // 2. Chuyển đổi list Entity sang list DTO
+        return requests.stream().map(request -> {
+
+            // Mặc định ban đầu các giá trị tên là null hoặc chuỗi trống
+            String trackName = null;
+            String roundName = null;
+            String eventDescription = null;
+
+            // Lấy thông tin Track nếu có trackId
+            if (request.getTrackId() > 0) {
+                trackName = trackRepo.findById(request.getTrackId())
+                        .map(track -> track.getName()) // Thay getName() bằng getter thực tế của entity Track
+                        .orElse("Không rõ Track");
+            }
+
+            // Lấy thông tin Round nếu có roundId
+            if (request.getRoundId() > 0) {
+                roundName = roundRepo.findById(request.getRoundId())
+                        .map(round -> round.getName()) // Thay getName() bằng getter thực tế của entity Round
+                        .orElse("Không rõ Vòng thi");
+            }
+
+            // Lấy thông tin Event thông qua referenceId (vì referenceType là EVENT)
+            if (request.getReferenceId() > 0) {
+                eventDescription = eventRepo.findById(request.getReferenceId())
+                        .map(event -> event.getDescription()) // Thay getDescription() bằng getter thực tế của Event
+                        .orElse("Không rõ Sự kiện");
+            }
+
+            // 3. Build DTO trả về
+            return InvitationResponseDTO.builder()
+                    .requestId(request.getId())
+                    .requestType(request.getType().toString())
+                    .trackName(trackName)
+                    .roundName(roundName)
+                    .eventDescription(eventDescription)
+                    .message(request.getMessage())
+                    .build();
+        }).toList();
+    }
+
+    // 2. Chấp nhận lời mời
+    @Transactional
+    public void acceptInvitation(long requestId, long userId) {
+        SystemRequest request = systemRequestRepo.findByIdAndReceiverId(requestId, userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy lời mời hợp lệ"));
+
+        if (request.getStatus() != RequestStatus.PENDING) {
+            throw new IllegalStateException("Lời mời này không còn ở trạng thái chờ");
+        }
+
+        // Cập nhật trạng thái request
+        request.setStatus(RequestStatus.ACCEPTED);
+        systemRequestRepo.save(request);
+
+        // TODO: Thêm logic nghiệp vụ tại đây!
+        // Ví dụ: Thêm user này vào bảng `event_mentors` hoặc `round_judges` tùy thuộc vào request.getType()
+        if (request.getType() == RequestType.MENTOR_INVITE) {
+            // gán quyền mentor cho track/event...
+        } else if (request.getType() == RequestType.JUDGE_INVITE) {
+            // gán quyền chấm thi cho round...
+        }
+    }
+
+    // 3. Từ chối lời mời
+    @Transactional
+    public void rejectInvitation(long requestId, long userId) {
+        SystemRequest request = systemRequestRepo.findByIdAndReceiverId(requestId, userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy lời mời hợp lệ"));
+
+        if (request.getStatus() != RequestStatus.PENDING) {
+            throw new IllegalStateException("Lời mời này không còn ở trạng thái chờ");
+        }
+
+        request.setStatus(RequestStatus.REJECTED);
+        systemRequestRepo.save(request);
     }
 
 }

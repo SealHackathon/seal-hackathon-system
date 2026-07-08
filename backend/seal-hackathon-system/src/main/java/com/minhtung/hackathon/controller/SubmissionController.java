@@ -26,6 +26,8 @@ public class SubmissionController {
    private final SubmissionService submissionService ;
 
 
+
+   // nộp bài
     @PostMapping
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<SubmissionResponse> submit(
@@ -42,6 +44,8 @@ public class SubmissionController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    // update bài nộp
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<SubmissionResponse> updateSubmission(
@@ -59,6 +63,7 @@ public class SubmissionController {
         return ResponseEntity.ok(response);
     }
 
+    // get all submission by round id
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<List<SubmissionListResponse>>
@@ -70,6 +75,8 @@ public class SubmissionController {
         );
     }
 
+
+    // get submission by  id
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<SubmissionDetailResponseid>
@@ -81,6 +88,8 @@ public class SubmissionController {
         );
     }
 
+
+    // get all submission by track id
     @GetMapping("/track/{trackId}")
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<List<ViewSubmissionTrackResponse>>
