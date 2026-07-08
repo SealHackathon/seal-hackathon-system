@@ -223,49 +223,72 @@ public class MentorJudgeService {
 
     // 1. Lấy danh sách lời mời chờ duyệt
     public List<InvitationResponseDTO> getPendingInvitationsForUser(long userId) {
-        // 1. Lấy danh sách các request đang PENDING của user
-        List<SystemRequest> requests = systemRequestRepo.findByReceiverIdAndStatus(userId, RequestStatus.PENDING);
 
-        // 2. Chuyển đổi list Entity sang list DTO
+        List<SystemRequest> requests =
+                systemRequestRepo.findByReceiverIdAndStatus(userId, RequestStatus.PENDING);
+
         return requests.stream().map(request -> {
 
-            // Mặc định ban đầu các giá trị tên là null hoặc chuỗi trống
             String trackName = null;
             String roundName = null;
+            String eventName = null;
             String eventDescription = null;
+            String scope = "";
 
-            // Lấy thông tin Track nếu có trackId
             if (request.getTrackId() > 0) {
                 trackName = trackRepo.findById(request.getTrackId())
-                        .map(track -> track.getName()) // Thay getName() bằng getter thực tế của entity Track
-                        .orElse("Không rõ Track");
+                        .map(Track::getName)
+                        .orElse(null);
             }
 
-            // Lấy thông tin Round nếu có roundId
             if (request.getRoundId() > 0) {
                 roundName = roundRepo.findById(request.getRoundId())
-                        .map(round -> round.getName()) // Thay getName() bằng getter thực tế của entity Round
-                        .orElse("Không rõ Vòng thi");
+                        .map(Round::getName)
+                        .orElse(null);
             }
 
-            // Lấy thông tin Event thông qua referenceId (vì referenceType là EVENT)
             if (request.getReferenceId() > 0) {
-                eventDescription = eventRepo.findById(request.getReferenceId())
-                        .map(event -> event.getDescription()) // Thay getDescription() bằng getter thực tế của Event
-                        .orElse("Không rõ Sự kiện");
+
+                Event event = eventRepo.findById(request.getReferenceId()).orElse(null);
+
+                if (event != null) {
+                    eventName = event.getName();
+                    eventDescription = event.getDescription();
+                }
+            }
+            String roleTypeMapping="";
+
+            if (request.getType() == RequestType.JUDGE_INVITE) {
+                roleTypeMapping="judge";
+                if (trackName != null && roundName != null) {
+                    scope = "Giám khảo Track " + trackName + " — " + roundName;
+                } else if (roundName != null) {
+                    scope = "Giám khảo " + roundName;
+                }
+
+            } else if (request.getType() == RequestType.MENTOR_INVITE) {
+                roleTypeMapping="mentor";
+                if (trackName != null) {
+                    scope = "Mentor chuyên môn " + trackName;
+                } else {
+                    scope = "Mentor";
+                }
             }
 
-            // 3. Build DTO trả về
             return InvitationResponseDTO.builder()
-                    .requestId(request.getId())
-                    .requestType(request.getType().toString())
+                    .id(request.getId())
+                    .roleType(roleTypeMapping)
+                    .eventName(eventName)
                     .trackName(trackName)
                     .roundName(roundName)
+                    .scope(scope)
                     .eventDescription(eventDescription)
                     .message(request.getMessage())
                     .build();
+
         }).toList();
     }
+
 
     // 2. Chấp nhận lời mời
     @Transactional

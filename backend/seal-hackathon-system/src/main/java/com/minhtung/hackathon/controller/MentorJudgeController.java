@@ -145,13 +145,13 @@ public class MentorJudgeController {
     }
 
     // reject invitation
-    @PostMapping("/invitations/{requestId}/reject")
+    @PostMapping("/invitations/{invitationId}/reject")
     public ResponseEntity<?> rejectInvitation(@RequestHeader("Authorization") String auth,
-                                              @PathVariable long requestId) {
+                                              @PathVariable long invitationId) {
         Integer userId = getUid(auth);
         if (userId == null) return unauthorized();
 
-        mentorJudgeService.rejectInvitation(requestId, userId);
+        mentorJudgeService.rejectInvitation(invitationId, userId);
         return ResponseEntity.ok("Bạn đã từ chối lời mời");
     }
 

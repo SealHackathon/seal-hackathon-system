@@ -6,6 +6,9 @@ import InvitationBox from '../../components/panelist/InvitationBox'
 import InvitationCard from '../../components/panelist/InvitationCard'
 import EmptyState from '../../components/panelist/EmptyState'
 import styles from './DashboardPage.module.css'
+import { useEffect,useState } from 'react'
+import axiosClient from '../../api/axiosClient'
+
 
 // --- Mock data (thay bằng dữ liệu API sau) ---
 const ASSIGNED_EVENTS = [
@@ -18,27 +21,27 @@ const ASSIGNED_EVENTS = [
     description:
       'SEAL Hackathon Summer 2026 là sự kiện mở đầu trong hệ thống SEAL – Software Engineering Agile League. Chủ đề mùa Summer 2026 là "AI Agents for Software Innovation", nơi các đội thi xây dựng những tác nhân AI giúp tăng tốc quy trình phát triển phần mềm.',
     // Phân công theo vai trò (giám khảo theo vòng, mentor theo hạng mục)
-assignment: {
-  // Giám khảo: mỗi vòng chấm hạng mục cụ thể hoặc tất cả hạng mục
-  judge: {
-    rounds: [
-      {
-        name: 'Vòng Sơ Khảo',
-        allCategories: false,
-        categories: ['AI Agents for Software Innovation', 'EdTech Track'],
+    assignment: {
+      // Giám khảo: mỗi vòng chấm hạng mục cụ thể hoặc tất cả hạng mục
+      judge: {
+        rounds: [
+          {
+            name: 'Vòng Sơ Khảo',
+            allCategories: false,
+            categories: ['AI Agents for Software Innovation', 'EdTech Track'],
+          },
+          {
+            name: 'Vòng Chung Kết',
+            allCategories: true,
+            categories: [],
+          },
+        ],
       },
-      {
-        name: 'Vòng Chung Kết',
-        allCategories: true,
-        categories: [],
+      // Mentor: phụ trách hạng mục cụ thể (có thể khác hạng mục làm giám khảo)
+      mentor: {
+        categories: ['Smart City & IoT'],
       },
-    ],
-  },
-  // Mentor: phụ trách hạng mục cụ thể (có thể khác hạng mục làm giám khảo)
-  mentor: {
-    categories: ['Smart City & IoT'],
-  },
-},
+    },
     stats: {
       teams: '42 / 100',
       participants: 268,
@@ -72,41 +75,59 @@ assignment: {
   },
 ]
 
-const INVITATIONS = [
-  {
-    id: 1,
-    roleType: 'judge',
-    eventName: 'SEAL Hackathon Summer 2026',
-    scope: 'Giám khảo Track EdTech — Vòng sơ khảo',
-    eventLink: '#',
-  },
-  {
-    id: 2,
-    roleType: 'judge',
-    eventName: 'FPT Edu Research Festival 2026',
-    scope: 'Giám khảo vòng chung kết',
-    eventLink: '#',
-  },
-  {
-    id: 3,
-    roleType: 'mentor',
-    eventName: 'SEAL Hackathon Summer 2026',
-    scope: 'Mentor chuyên môn IoT & Smart City',
-    eventLink: '#',
-  },
-  {
-    id: 4,
-    roleType: 'mentor',
-    eventName: 'Green Tech Challenge 2026',
-    scope: 'Mentor định hướng sản phẩm',
-    eventLink: '#',
-  },
-]
+// const INVITATIONS = [
+//   {
+//     id: 1,
+//     roleType: 'judge',
+//     eventName: 'SEAL Hackathon Summer 2026',
+//     scope: 'Giám khảo Track EdTech — Vòng sơ khảo',
+//     eventLink: '#',
+//   },
+//   {
+//     id: 2,
+//     roleType: 'judge',
+//     eventName: 'FPT Edu Research Festival 2026',
+//     scope: 'Giám khảo vòng chung kết',
+//     eventLink: '#',
+//   },
+//   {
+//     id: 3,
+//     roleType: 'mentor',
+//     eventName: 'SEAL Hackathon Summer 2026',
+//     scope: 'Mentor chuyên môn IoT & Smart City',
+//     eventLink: '#',
+//   },
+//   {
+//     id: 4,
+//     roleType: 'mentor',
+//     eventName: 'Green Tech Challenge 2026',
+//     scope: 'Mentor định hướng sản phẩm',
+//     eventLink: '#',
+//   },
+// ]
 
 function DashboardPage() {
+
+
+  const [invitations, setInvitations] = useState([]);
+
+
   // TODO: nối API — lấy danh sách sự kiện được phân công & lời mời
-  const judgeInvites = INVITATIONS.filter((i) => i.roleType === 'judge')
-  const mentorInvites = INVITATIONS.filter((i) => i.roleType === 'mentor')
+
+
+  useEffect(() => {
+    axiosClient
+      .get("/mentor-judge/invitations")
+      .then((res) => {
+        setInvitations(res.data);
+      })
+      .catch(console.error);
+  }, []);
+
+
+
+  const judgeInvites = invitations.filter((i) => i.roleType === 'judge')
+  const mentorInvites = invitations.filter((i) => i.roleType === 'mentor')
 
   const handleOpenScoring = (eventId) => {
     // TODO: điều hướng sang giao diện chấm thi của sự kiện
@@ -122,6 +143,8 @@ function DashboardPage() {
   }
   const handleDecline = (invitationId) => {
     // TODO: gọi API từ chối lời mời
+    axiosClient.post(`/mentor-judge/invitations/${invitationId}/reject`)
+
   }
 
   return (

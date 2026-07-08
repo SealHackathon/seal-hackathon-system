@@ -7,10 +7,12 @@ import lombok.Data;
 @Data
 @Builder
 public class InvitationResponseDTO {
-    private long requestId;
-    private String requestType;
+    private long id;
+    private String roleType;
     private String trackName;
     private String roundName;
+    private String eventName;
+    private String scope;
     private String eventDescription;
     private String message;
 }
