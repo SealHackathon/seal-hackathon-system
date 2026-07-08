@@ -27,10 +27,8 @@
 
 .title {
     margin: 0;
-    font-family: var(--title-font-main);
-    font-style: italic;
-    font-weight: 800;
-    font-size: 1.6rem;
+    font-weight: bold;
+    font-size: 1.5rem;
     color: var(--color-primary-blue);
 }
 

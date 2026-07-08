@@ -23,7 +23,7 @@
   width: 180px;
   /* Tăng độ rộng fade */
   pointer-events: none;
-  z-index: 10;
+  z-index: 2;
 }
 
 .fadeLeft {
@@ -41,6 +41,7 @@
   align-items: flex-start;
   min-width: max-content;
   padding: 0 2rem;
+  justify-content: center;
 }
 
 .nodeWrapper {
@@ -56,7 +57,6 @@
   /* Wider nodes */
   text-align: center;
   position: relative;
-  z-index: 2;
 }
 
 .iconContainer {
@@ -151,8 +151,9 @@
 
 .subtitle {
   font-family: var(--body-font-main);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
+  max-width: 10.5em;
 }
 
 .doneSuccessTitle { color: var(--color-primary-green); }

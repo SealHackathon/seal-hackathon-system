@@ -2,7 +2,7 @@
     display: inline-flex;
     border: 1px solid var(--color-border-blue);
     border-radius: var(--radius);
-    padding: 0.1875em;
+    padding: 0.3em;
     background: var(--color-bg-blue);
     margin-bottom: 0.75em;
 }
@@ -24,14 +24,34 @@
 
 .button:hover {
     color: var(--color-primary-blue);
+    font-size: 0.95rem;
 }
 
 .button.active {
     background: #fff;
     color: var(--color-primary-blue);
-    box-shadow: 0 1px 0.125em rgba(0,0,0,0.05); /* Just a subtle elevation */
+    font-size: 1rem;
 }
 
 .button svg {
     font-size: 1rem;
+}
+
+/* === Variant: thân primary blue, 2 nút sáng màu === */
+.segmentedControl.primary {
+    border-color: var(--color-primary-blue);
+    background: var(--color-primary-blue);
+}
+
+.segmentedControl.primary .button {
+    color: var(--color-border-blue);
+}
+
+.segmentedControl.primary .button:hover {
+    color: #fff;
+}
+
+.segmentedControl.primary .button.active {
+    background: #fff;
+    color: var(--color-primary-blue);
 }

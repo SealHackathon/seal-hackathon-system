@@ -41,7 +41,7 @@ function RoundInfoCard({ round, onViewRubric }) {
             <Badge variant="orange" dot={false} size="sm" label={round.countdownLabel} />
           )}
         </div>
-        <h4 className={styles.title}>{round.name}</h4>
+        <p className={styles.title}>{round.name}</p>
       </div>
 
       {/* ===== Bài nộp ===== */}

@@ -7,7 +7,7 @@ import styles from './SubmissionRoundCard.module.css'
 
 function SubmissionRoundCard({ round, role }) {
   const navigate = useNavigate()
-  const isLeader = role === 'LEADER';
+  const isLeader = role?.toUpperCase() === 'LEADER';
 
   // Determine card style based on status
   let cardClass = styles.cardUpcoming;

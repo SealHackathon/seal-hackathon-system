@@ -11,14 +11,6 @@ import styles from './TimeCard.module.css'
 import Countdown from '../shared/countdown/Countdown'
 import Badge from '../shared/Badge'
 
-// Dữ liệu ngày giờ có định dạng "DD/MM/YYYY, HH:mm" (giờ Việt Nam) — `Date` không tự đọc được
-// định dạng này, nên phải đổi sang ISO "YYYY-MM-DDTHH:mm:00" trước khi parse.
-const VN_DATETIME_PATTERN = /(\d{2})\/(\d{2})\/(\d{4}),\s*(\d{2}):(\d{2})/
-
-function parseVNDateTime(dateTimeStr) {
-  return new Date(dateTimeStr.replace(VN_DATETIME_PATTERN, '$3-$2-$1T$4:$5:00'))
-}
-
 function daysBetween(from, to) {
   const msPerDay = 24 * 60 * 60 * 1000
   return Math.max(0, Math.ceil((to.getTime() - from.getTime()) / msPerDay))
@@ -29,9 +21,9 @@ function daysBetween(from, to) {
  * @param {string} state  — 'upcoming' | 'active' | 'late' | 'done...'
  * @param {string} now    — Thời điểm hiện tại, cùng định dạng với round.openAt/closeAt
  */
-function TimeCard({ round, state, now }) {
-  const closeDate = parseVNDateTime(round.closeAt)
-  const daysLeft = daysBetween(parseVNDateTime(now), closeDate)
+function TimeCard({ round, state }) {
+  const closeDate = new Date(round.rawDeadline || round.rawEnd)
+  const daysLeft = daysBetween(new Date(), closeDate)
 
   const { deadlineBox, rightContent } = getStateContent(state, round, closeDate, daysLeft)
 
@@ -85,9 +77,6 @@ function getStateContent(state, round, closeDate, daysLeft) {
             openIcon={FolderOpen}
             closeIcon={CalendarBlank}
             round={round}
-            daysLeftBadge={
-              <Badge variant="dashedOrange" icon={<Clock weight="fill" />} label={`Còn ${daysLeft} ngày`} />
-            }
           />
         ),
         rightContent: <Countdown target={closeDate} size="small" />,
@@ -96,7 +85,7 @@ function getStateContent(state, round, closeDate, daysLeft) {
     case 'upcoming':
       return {
         deadlineBox: null,
-        rightContent: <Countdown target={parseVNDateTime(round.openAt)} size="small" />,
+        rightContent: <Countdown target={new Date(round.rawStart)} size="small" />,
       }
 
     case 'done':
@@ -110,8 +99,7 @@ function getStateContent(state, round, closeDate, daysLeft) {
   }
 }
 
-// ── Khối "Mở nộp bài" + "Hạn chính thức" — dùng lại cho late/active/done ──
-function DeadlineBox({ openIcon: OpenIcon, closeIcon: CloseIcon, round, daysLeftBadge }) {
+function DeadlineBox({ openIcon: OpenIcon, closeIcon: CloseIcon, round }) {
   return (
     <div className={styles.deadlineGroup}>
       <div className={styles.deadlineItem}>
@@ -122,7 +110,6 @@ function DeadlineBox({ openIcon: OpenIcon, closeIcon: CloseIcon, round, daysLeft
         <div className={styles.deadline}><CloseIcon weight="fill" size={24}/>Hạn chính thức:</div>
         <div className={styles.deadlineVal}>
           {round.closeAt}
-          {daysLeftBadge}
         </div>
       </div>
     </div>
