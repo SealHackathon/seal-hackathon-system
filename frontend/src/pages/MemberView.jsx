@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import EventLayout from '../layouts/EventLayout'
 import TeamInfoHeader from '../components/leaderView/TeamInfoHeader'
 import TeamMemberPanel from '../components/leaderView/TeamMemberPanel'
+import TeamCategoryPanel from '../components/leaderView/TeamCategoryPanel'
 import InviteTeamCard from '../components/noTeamView/InviteTeamCard'
 import ConfirmModal from '../components/shared/ConfirmModal'
 import styles from './MemberView.module.css'
@@ -98,6 +99,13 @@ import { useAuth } from '../AuthContext'
 
 const FAKE_LEAVE_REQUESTS = []
 
+const MOCK_CATEGORIES = [
+  { id: 1, name: 'Giáo dục (Education)', desc: 'Các giải pháp liên quan đến học tập, giảng dạy, quản lý giáo dục.', currentTeams: 8, teamLimit: 10 },
+  { id: 2, name: 'Y tế (Healthcare)', desc: 'Các giải pháp chăm sóc sức khỏe, quản lý bệnh viện, y tế cộng đồng.', currentTeams: 15, teamLimit: 15 },
+  { id: 3, name: 'Thương mại điện tử (E-commerce)', desc: 'Nền tảng mua sắm trực tuyến, thanh toán điện tử, logistics.', currentTeams: 5, teamLimit: 12 },
+  { id: 4, name: 'Giải trí (Entertainment)', desc: 'Game, mạng xã hội, ứng dụng đa phương tiện.', currentTeams: 12, teamLimit: 20 },
+]
+
 function MemberView() {
   const [teamStatus, setTeamStatus] = useState('OPEN')
   // Use mock data for testing UI
@@ -107,6 +115,8 @@ function MemberView() {
 
   const token = localStorage.getItem("accessToken")
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' });
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [categories, setCategories] = useState(MOCK_CATEGORIES)
   const [leaveRequest, setLeaveRequest] = useState([])
   const { updateTeamRole } = useAuth();
 
@@ -137,9 +147,20 @@ function MemberView() {
       .then((response) => {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus);
+        // TODO: Cần trả về trường categoryId trong object teamInfo
+        // if (response.data.categoryId) setSelectedCategory(response.data.categoryId)
       })
       .catch((error) => console.log(error));
   }, []);
+
+  // TODO: Gọi API GET /api/event/{eventId}/categories để lấy danh sách hạng mục
+  useEffect(() => {
+    // const eventId = 1 // Lấy id từ URL hoặc context
+    // axiosClient.get(`/event/${eventId}/categories`)
+    //   .then(res => setCategories(res.data))
+    //   .catch(err => console.log(err))
+  }, [])
+
 
 
   // api lấy team members - comment out to use mock data
@@ -298,13 +319,21 @@ function MemberView() {
           showFindMember={false}
         />
 
+        <TeamCategoryPanel
+          categories={categories}
+          selectedCategoryId={selectedCategory}
+          isLeader={false}
+          onCategoryChange={setSelectedCategory}
+        />
+
         <div className={styles.content}>
           <div className={styles.main}>
             <TeamMemberPanel
               members={FAKE_MEMBERS}
-              maxSlots={4}
+              maxSlots={teamInfo.maxSlots || 4}
               teamStatus={teamStatus}
               isLeader={false}
+              hasSelectedCategory={!!selectedCategory}
               leaveRequests={leaveRequest}
               onLeave={handleOnLeave}
               onCancelLeave={(id) => handleOnCancelLeave(id)}
