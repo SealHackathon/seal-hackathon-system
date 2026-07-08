@@ -26,6 +26,7 @@ public class MentorJudgeService {
     private final EventRepository eventRepo;
     private final RoundRepository roundRepo;
 
+
     // Trạng thái được coi là đang hoạt động / đã tham gia vào Track
     private final List<RequestStatus> activeStatuses = List.of(RequestStatus.PENDING, RequestStatus.ACCEPTED);
 
@@ -300,16 +301,36 @@ public class MentorJudgeService {
             throw new IllegalStateException("Lời mời này không còn ở trạng thái chờ");
         }
 
-        // Cập nhật trạng thái request
+        // 1. Cập nhật trạng thái request
         request.setStatus(RequestStatus.ACCEPTED);
         systemRequestRepo.save(request);
 
-        // TODO: Thêm logic nghiệp vụ tại đây!
-        // Ví dụ: Thêm user này vào bảng `event_mentors` hoặc `round_judges` tùy thuộc vào request.getType()
+        // 2. Dùng Repo để tìm kiếm Entity (Sẽ phát sinh lệnh SELECT)
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        Event event = eventRepo.findById(request.getReferenceId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện"));
+
+        Track track = trackRepo.findById(request.getTrackId()).orElse(null);
+
+        Round round=roundRepo.findById(request.getRoundId()).orElse(null);
+
+        // 3. Tạo và gán trực tiếp
         if (request.getType() == RequestType.MENTOR_INVITE) {
-            // gán quyền mentor cho track/event...
+            MentorAssignment mentorAssignment = new MentorAssignment();
+            mentorAssignment.setTrack(track);
+            mentorAssignment.setUser(user);
+            mentorAssignment.setEvent(event);
+            mentorAssignmentRepo.save(mentorAssignment);
+
         } else if (request.getType() == RequestType.JUDGE_INVITE) {
-            // gán quyền chấm thi cho round...
+            JudgeAssignment judgeAssignment = new JudgeAssignment();
+            judgeAssignment.setTrack(track);
+            judgeAssignment.setUser(user);
+            judgeAssignment.setEvent(event);
+            judgeAssignment.setRound(round);
+            judgeAssignmentRepo.save(judgeAssignment);
         }
     }
 

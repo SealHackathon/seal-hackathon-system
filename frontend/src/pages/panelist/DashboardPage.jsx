@@ -115,6 +115,8 @@ function DashboardPage() {
   // TODO: nối API — lấy danh sách sự kiện được phân công & lời mời
 
 
+
+  //API get danh sách Loi Moi.
   useEffect(() => {
     axiosClient
       .get("/mentor-judge/invitations")
@@ -122,7 +124,9 @@ function DashboardPage() {
         setInvitations(res.data);
       })
       .catch(console.error);
-  }, []);
+  }, []); 
+
+
 
 
 
@@ -137,14 +141,16 @@ function DashboardPage() {
   }
   const handleViewRubric = (eventId) => {
     // TODO: mở rubric / tiêu chí chấm điểm
+
   }
   const handleAccept = (invitationId) => {
     // TODO: gọi API chấp nhận lời mời
-
+    
         axiosClient.post(`/mentor-judge/invitations/${invitationId}/accept`)
   }
   const handleDecline = (invitationId) => {
     // TODO: gọi API từ chối lời mời
+
     axiosClient.post(`/mentor-judge/invitations/${invitationId}/reject`)
 
   }

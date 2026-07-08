@@ -17,6 +17,10 @@ public class JudgeAssignment {
     private Track track;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "round_id")
+    private Round round;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "judge_id", nullable = false)
     private User user;
 
@@ -28,5 +32,9 @@ public class JudgeAssignment {
     public JudgeAssignment(Track track, User user) {
         this.track = track;
         this.user = user;
+    }
+
+    public JudgeAssignment() {
+
     }
 }
