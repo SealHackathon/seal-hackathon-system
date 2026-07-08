@@ -350,8 +350,20 @@ public class DataInitializer implements CommandLineRunner {
         round1.setSubmissionConfig(config1);
 
         List<RoundTimeline> timeline1 = new ArrayList<>();
-        timeline1.add(new RoundTimeline("Mở cổng nộp bài", "Thí sinh bắt đầu nộp ý tưởng", now.minusDays(1).toString(), null, round1));
-        timeline1.add(new RoundTimeline("Chấm điểm", "Ban giám khảo chấm bài", now.plusDays(22).toString(), null, round1));
+        timeline1.add(new RoundTimeline(
+                "Mở cổng nộp bài",
+                "Thí sinh bắt đầu nộp ý tưởng",
+                "08:00",
+                "08:30",
+                round1
+        ));
+        timeline1.add(new RoundTimeline(
+                "Chấm điểm",
+                "Ban giám khảo chấm bài",
+                "13:00",
+                "17:00",
+                round1
+        ));
         round1.setRoundTimelines(timeline1);
         rounds.add(round1);
 
