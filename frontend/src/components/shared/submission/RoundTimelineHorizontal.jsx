@@ -37,14 +37,10 @@ function RoundTimelineHorizontal({ rounds = [] }) {
     if (!el) return
 
     function onWheel(e) {
+      e.preventDefault() // Luôn khoá scroll bên ngoài khi hover
       const canScroll = el.scrollWidth > el.clientWidth
-      if (!canScroll) return
-      
-      // Stop vertical scrolling only if we are actually scrolling horizontally
-      // trackpad generates horizontal deltaX natively
-      if (e.deltaY !== 0) {
-          e.preventDefault()
-          el.scrollLeft += e.deltaY
+      if (canScroll) {
+          el.scrollLeft += e.deltaY || e.deltaX
       }
     }
 

@@ -62,10 +62,11 @@ function TimelineHorizontal({ milestones = [], showToday = true }) {
     if (!el) return
 
     function onWheel(e) {
+      e.preventDefault() // Luôn khoá scroll bên ngoài khi hover
       const canScroll = el.scrollWidth > el.clientWidth
-      if (!canScroll) return
-      e.preventDefault()
-      el.scrollLeft += e.deltaY || e.deltaX
+      if (canScroll) {
+        el.scrollLeft += e.deltaY || e.deltaX
+      }
     }
 
     el.addEventListener('wheel', onWheel, { passive: false })
