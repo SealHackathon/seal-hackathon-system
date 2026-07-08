@@ -6,7 +6,6 @@ import TeamCategoryPanel from '../components/leaderView/TeamCategoryPanel'
 import InviteTeamCard from '../components/noTeamView/InviteTeamCard'
 import ConfirmModal from '../components/shared/ConfirmModal'
 import styles from './MemberView.module.css'
-import axios from 'axios'
 import axiosClient from '../api/axiosClient'
 import { useAuth } from '../AuthContext'
 
@@ -97,7 +96,6 @@ import { useAuth } from '../AuthContext'
 //   }
 // ]
 
-const FAKE_LEAVE_REQUESTS = []
 
 const MOCK_CATEGORIES = [
   { id: 1, name: 'Giáo dục (Education)', desc: 'Các giải pháp liên quan đến học tập, giảng dạy, quản lý giáo dục.', currentTeams: 8, teamLimit: 10 },
@@ -113,12 +111,12 @@ function MemberView() {
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [confirmModal, setConfirmModal] = useState(null)
 
-  const token = localStorage.getItem("accessToken")
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' });
   const [selectedCategory, setSelectedCategory] = useState(null)
   const [categories, setCategories] = useState(MOCK_CATEGORIES)
   const [leaveRequest, setLeaveRequest] = useState([])
   const { updateTeamRole } = useAuth();
+  const eventId = localStorage.getItem('eventId') || null;
 
   useEffect(() => {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
@@ -148,7 +146,7 @@ function MemberView() {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus);
         // TODO: Cần trả về trường categoryId trong object teamInfo
-        // if (response.data.categoryId) setSelectedCategory(response.data.categoryId)
+        if (response.data.category.id) setSelectedCategory(response.data.category.id)
       })
       .catch((error) => console.log(error));
   }, []);
@@ -156,9 +154,9 @@ function MemberView() {
   // TODO: Gọi API GET /api/event/{eventId}/categories để lấy danh sách hạng mục
   useEffect(() => {
     // const eventId = 1 // Lấy id từ URL hoặc context
-    // axiosClient.get(`/event/${eventId}/categories`)
-    //   .then(res => setCategories(res.data))
-    //   .catch(err => console.log(err))
+    axiosClient.get(`/track?eventId=${eventId}`)
+      .then(res => setCategories(res.data))
+      .catch(err => console.log(err))
   }, [])
 
 
