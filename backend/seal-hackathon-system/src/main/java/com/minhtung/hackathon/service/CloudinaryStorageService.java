@@ -98,5 +98,17 @@ public class CloudinaryStorageService {
             throw new RuntimeException("Upload ảnh thẻ sinh viên thất bại", e);
         }
     }
+
+    public String uploadSubmissionFile(MultipartFile file , Long teamId , Long roundId , String resourceType){
+        try{
+            Map uploadResult = cloudinary.uploader().upload(
+                    file.getBytes(), ObjectUtils.asMap(
+                            "folder","seal-Hackathon/submissions/" + teamId + "/" + roundId + "resouceType" , resourceType));
+            return uploadResult.get("secure_url").toString();
+        }catch (IOException e ){
+            e.printStackTrace();
+            throw new RuntimeException("Upload File that bai ");
+        }
+    }
 }
 

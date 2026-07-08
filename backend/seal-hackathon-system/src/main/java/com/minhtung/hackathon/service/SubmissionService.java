@@ -12,8 +12,11 @@ import com.minhtung.hackathon.enums.MemberRole;
 import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.unit.DataSize;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -28,11 +31,16 @@ public class SubmissionService {
     private final SubmissionRepository submissionRepository;
     private final RoundRepository roundRepository;
     private final TrackRepository trackRepository ;
+    private  final CloudinaryStorageService cloudinaryStorageService ;
 
 
+    @Value("${submission.demo.max-size}")
+    private DataSize maxDemoSize;
 
+    @Value("${submission.document.max-size}")
+    private DataSize maxDocumentSize;
 @Transactional
-public SubmissionResponse sumbit(String email , SubmissionRequest request){
+public SubmissionResponse sumbit(String email , SubmissionRequest request , MultipartFile demoFile, MultipartFile documentFile){
     //kiem tra co tai khoan chua
     User user = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException(" ban chua dang ki tk"));
     //check xem chi leader moi duoc nop bai
@@ -43,12 +51,56 @@ public SubmissionResponse sumbit(String email , SubmissionRequest request){
     // tim kiem co round nay khong
      Team team = leader.getTeam() ;
      Round round = roundRepository.findById(request.getRoundId()).orElseThrow(()-> new RuntimeException("khong tìm thấy vòng thi này"));
-     //kiem tra phai nop du 1 trong 3 link
-     validateSubmittionLinks(request);
+
      //check xem team co thuoc round nay khong
      validateTeamAndRound(team , round);
      //nay la check xem den thoi gian nop hay het han nop
      validateSumssion(round);
+    String githubUrl = normalize(request.getGithUrl());
+    String demoUrl = normalize(request.getDemoUrl());
+    String documentUrl = normalize(request.getDocumentUrl());
+
+
+    //link github la bat buoc
+    if(!hasText(githubUrl)){
+        throw new RuntimeException("Link gihthub la bat buoc");
+    }
+    boolean hasDemoFile =
+            demoFile != null && !demoFile.isEmpty();
+
+    boolean hasDocumentFile =
+            documentFile != null && !documentFile.isEmpty();
+
+    if(!hasText(demoUrl) && !hasDemoFile){
+        throw  new RuntimeException( "phai nop link hoac file video demo") ;
+    }
+    if(!hasText(documentUrl) && !hasDocumentFile){
+        throw  new RuntimeException( "phai nop link hoac file slide demo") ;
+    }
+    if (hasDemoFile) {
+        validateDemoFile(demoFile);
+
+        demoUrl = cloudinaryStorageService
+                .uploadSubmissionFile(
+                        demoFile,
+                        team.getId(),
+                        round.getId(),
+                        "video"
+                );
+    }
+    if (hasDocumentFile) {
+        validateDocumentFile(documentFile);
+
+        documentUrl = cloudinaryStorageService
+                .uploadSubmissionFile(
+                        documentFile,
+                        team.getId(),
+                        round.getId(),
+                        "raw"
+                );
+    }
+
+
     submissionRepository
             .findFirstByTeamIdAndRoundIdAndLatestTrue(
                     team.getId(),
@@ -60,15 +112,14 @@ public SubmissionResponse sumbit(String email , SubmissionRequest request){
     Submission submission = new Submission();
     submission.setTeam(team);
     submission.setRound(round);
-    submission.setGithubUrl(normalize(request.getGithUrl()));
-    submission.setDemoUrl(normalize(request.getDemoUrl()));
-    submission.setDocumentUrl(normalize(request.getDocumentUrl()));
+    submission.setGithubUrl(githubUrl);
+    submission.setDemoUrl(demoUrl);
+    submission.setDocumentUrl(documentUrl);
     submission.setSubmittedAt(LocalDateTime.now());
     submission.setLatest(true);
 
-    Submission saved = submissionRepository.save(submission);
-
-    return SubmissionResponse.from(saved);
+    return SubmissionResponse.from(
+            submissionRepository.save(submission));
 }
 
 @Transactional
@@ -83,7 +134,7 @@ public SubmissionResponse updateSubmission(String email , Long roundId ,UpdateSu
     // tim kiem co round nay khong
     Team team = leader.getTeam() ;
     Round round = roundRepository.findById(roundId).orElseThrow(()-> new RuntimeException("khong tìm thấy vòng thi này"));
-
+    validateSubmittionLinks(request);
     validateTeamAndRound(team,round);
     validateSumssion(round);
 
@@ -216,10 +267,20 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
                 hasText(request.getDocumentUrl());
 
 
-        if (!hasGithub && !hasdocument && !hasdemoUrl) {
-            throw new RuntimeException("phai cung cap it nhat 1 duong link de nop bai ");
+        if (!hasGithub) {
+            throw new RuntimeException("bat buoc phai nop link git ");
 
         }
+        if (!hasdemoUrl) {
+            throw new RuntimeException("bat buoc phai nop video ");
+
+        }
+        if (!hasdocument) {
+            throw new RuntimeException("bat buoc phai nop link slide ");
+
+        }
+
+
     }
     private boolean hasText(String value) {
         return value != null &&
@@ -262,6 +323,44 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
 
         return value.trim();
     }
+    private void validateDemoFile(MultipartFile file) {
 
+
+        if (file.getSize() > maxDemoSize.toBytes()) {
+            throw new IllegalArgumentException(
+                    "Video không được vượt quá 100MB"
+            );
+        }
+
+        String contentType = file.getContentType();
+
+        if (contentType == null
+                || !contentType.startsWith("video/")) {
+            throw new IllegalArgumentException(
+                    "File demo phải là video"
+            );
+        }
+    }
+    private void validateDocumentFile(MultipartFile file) {
+
+
+        if (file.getSize() > maxDocumentSize.toBytes()) {
+            throw new IllegalArgumentException(
+                    "Slide không được vượt quá 20MB"
+            );
+        }
+
+        List<String> allowedTypes = List.of(
+                "application/pdf",
+                "application/vnd.ms-powerpoint",
+                "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+        );
+
+        if (!allowedTypes.contains(file.getContentType())) {
+            throw new IllegalArgumentException(
+                    "Slide chỉ hỗ trợ PDF, PPT hoặc PPTX"
+            );
+        }
+    }
 
 }
