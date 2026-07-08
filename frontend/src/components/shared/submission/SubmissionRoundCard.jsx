@@ -1,10 +1,12 @@
-import { CalendarBlank, FileText, CheckCircle, WarningCircle, Info, Clock, UploadSimple, ArrowSquareOut, PencilSimple } from '@phosphor-icons/react'
+import { FileText, CheckCircle, WarningCircle, Info, Clock, UploadSimple, ArrowSquareOut, PencilSimple } from '@phosphor-icons/react'
+import { useNavigate } from 'react-router-dom'
 import Badge from '../Badge'
 import Banner from '../Banner'
 import Button from '../Button'
 import styles from './SubmissionRoundCard.module.css'
 
 function SubmissionRoundCard({ round, role }) {
+  const navigate = useNavigate()
   const isLeader = role === 'LEADER';
 
   // Determine card style based on status
@@ -92,6 +94,19 @@ function SubmissionRoundCard({ round, role }) {
     );
   };
 
+  const handleOpenDetail = () => {
+    const eventId = localStorage.getItem('eventId')
+    const roundId = round?.id ?? round?.roundId
+
+    if (!roundId) return
+
+    const searchParams = new URLSearchParams()
+    if (eventId) searchParams.set('eventId', eventId)
+    searchParams.set('roundId', String(roundId))
+
+    navigate(`/team/submissions/detail?${searchParams.toString()}`)
+  }
+
   // Render the footer (submission status and actions)
   const renderFooter = () => {
     if (round.submissionStatus === 'NOT_OPEN' || round.submissionStatus === 'CLOSED_NO_SUBMISSION' || round.submissionStatus === 'EVALUATED') {
@@ -134,15 +149,15 @@ function SubmissionRoundCard({ round, role }) {
                     <Button label={`Xem lại bài Vòng ${round.referenceRound}`} variant="outline" color="blue" icon={ArrowSquareOut} />
                 )}
                 {round.submissionStatus === 'NO_SUBMISSION' && isLeader && (
-                    <Button label="Nộp bài" variant="primary" color="blue" icon={UploadSimple} />
+                    <Button label="Nộp bài" variant="primary" color="blue" icon={UploadSimple} onClick={handleOpenDetail} />
                 )}
                 {round.submissionStatus === 'LATE_NO_SUBMISSION' && isLeader && (
-                    <Button label="Nộp bài (Muộn)" variant="outline" color="orange" icon={UploadSimple} />
+                    <Button label="Nộp bài (Muộn)" variant="outline" color="orange" icon={UploadSimple} onClick={handleOpenDetail} />
                 )}
                 {round.submissionStatus === 'CAN_EDIT' && (
                     <>
                         {!isLeader && <Button label="Xem bài nộp" variant="outline" color="blue" />}
-                        {isLeader && <Button label="Cập nhật bài nộp" variant="outline" color="blue" icon={PencilSimple} iconWeight='fill' />}
+                        {isLeader && <Button label="Cập nhật bài nộp" variant="outline" color="blue" icon={PencilSimple} iconWeight='fill' onClick={handleOpenDetail} />}
                     </>
                 )}
                 {round.submissionStatus === 'SUBMITTED_ON_TIME' && (
