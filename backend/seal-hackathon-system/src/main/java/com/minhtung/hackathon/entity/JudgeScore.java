@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "judge_score")
@@ -33,4 +35,11 @@ public class JudgeScore {
 
     @Column (columnDefinition = "TEXT")
     private String comment;
+
+    @OneToMany(
+            mappedBy = "judgeScore",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<JudgeScoreDetail> details = new ArrayList<>();
 }

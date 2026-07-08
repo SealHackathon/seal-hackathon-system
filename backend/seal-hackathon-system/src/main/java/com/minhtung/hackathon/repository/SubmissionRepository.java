@@ -20,4 +20,8 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(
             Long roundId
     );
+    List<Submission>
+    findByTeamTrackIdAndLatestTrueOrderBySubmittedAtDesc(
+            Long trackId
+    );
 }
