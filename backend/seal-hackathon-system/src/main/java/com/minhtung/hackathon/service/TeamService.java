@@ -886,16 +886,20 @@ public class TeamService {
         teamInfoResponse.setDescription(team.getDescription());
         teamInfoResponse.setTeamStatus(team.getStatus().toString());
 
+        // set category
         TeamInfoResponse.TrackResponse category = new TeamInfoResponse.TrackResponse();
         category.setId(team.getTrack().getId());
         category.setTrackName(team.getTrack().getName());
         category.setDesc(team.getTrack().getDes());
         category.setCurrentTeams(team.getTrack().getTeamQuantity());
         category.setTeamLimit(team.getTrack().getMaxTeamPerTrack());
+        teamInfoResponse.setCategory(category);
+
 
         //trả về maxSlots
+        Event event = team.getTrack().getEvent();
+        teamInfoResponse.setMaxSlots(event.getMaxTeamMember());
 
-        teamInfoResponse.setCategory(category);
         return teamInfoResponse;
     }
 
