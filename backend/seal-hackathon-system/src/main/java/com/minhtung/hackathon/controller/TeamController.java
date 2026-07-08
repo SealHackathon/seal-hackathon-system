@@ -327,5 +327,23 @@ public class TeamController {
         }
     }
 
+
+
+    // Update Team Track
+    @PutMapping("/category")
+    public ResponseEntity<?> updateTrack(@RequestHeader("Authorization") String auth, @RequestParam long categoryId) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+        }
+
+        try {
+            return ResponseEntity.ok().body(teamService.updateTrack(categoryId, uid));
+        } catch (IllegalArgumentException e) {
+            // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
 }
 

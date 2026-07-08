@@ -196,12 +196,12 @@ function LeaderView() {
 
   // TODO: Gọi API PUT /api/team/category để cập nhật/xóa hạng mục
   const handleCategoryChange = (categoryId) => {
-    // axiosClient.put('/team/category', { categoryId })
-    //   .then(() => {
-    //     setSelectedCategory(categoryId)
-    //     alert("Cập nhật hạng mục thành công!")
-    //   })
-    //   .catch(err => console.log(err))
+    axiosClient.put(`/team/category?categoryId=${categoryId}`)
+      .then(() => {
+        setSelectedCategory(categoryId)
+        alert("Cập nhật hạng mục thành công!")
+      })
+      .catch(err => console.log(err))
     
     setSelectedCategory(categoryId)
   }

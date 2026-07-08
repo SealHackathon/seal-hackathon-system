@@ -33,6 +33,7 @@ public class TeamService {
     private final RoundRepository roundRepository;
     private final SubmissionRepository submissionRepository;
     private final StudentprofileRepository studentprofileRepository;
+    private final TrackRepository trackRepository;
     //tao 1 team moi
 
 
@@ -1194,5 +1195,32 @@ public class TeamService {
         memberRepository.save(member);
         return "move to offical sucessfully !";
 
+    }
+
+
+    //update Team Track
+    @Transactional
+    public String updateTrack(long categoryId, Integer uid) {
+
+        // Kiểm tra category (track) có tồn tại không
+        Track track = trackRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hạng mục."));
+
+        // Lấy member theo user
+        Member member = memberRepository.findByMemberIdAndStatus(uid,MemberStatus.OFFICAL)
+                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thành viên."));
+
+        // Lấy team của member
+        Team team = member.getTeam();
+        if (team == null) {
+            throw new IllegalArgumentException("Bạn chưa tham gia đội nào.");
+        }
+
+        // Nếu chưa có track thì thêm, có rồi thì cập nhật
+        team.setTrack(track);
+
+        teamRepository.save(team);
+
+        return "Cập nhật hạng mục thành công.";
     }
 }
