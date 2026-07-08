@@ -260,7 +260,7 @@ public class DataInitializer implements CommandLineRunner {
         event.setTopic("Trí tuệ nhân tạo vì cộng đồng");
         event.setMinTeamMember(3);
         event.setMaxTeamMember(5);
-        event.setStatus(EventStatus.PUBLISHED);
+        event.setStatus(EventStatus.LIVE);
         event.setCreateAt(now);
         event.setOpenRegisterTime(now.plusDays(1));
         event.setCloseRegisterTime(now.plusDays(20));
@@ -326,7 +326,7 @@ public class DataInitializer implements CommandLineRunner {
         // -- Vòng 1: Sơ loại --
         Round round1 = new Round();
         round1.setName("Vòng sơ loại");
-        round1.setTimeStart(now.plusDays(21));
+        round1.setTimeStart(now.minusDays(1));
         round1.setTimeEnd(now.plusDays(22));
         round1.setHasPresetiontation(false);
         round1.setTopTeamPass(20);
@@ -337,13 +337,13 @@ public class DataInitializer implements CommandLineRunner {
         round1.setEvent(event);
 
         SubmissionConfig config1 = new SubmissionConfig(
-                round1, "Vòng sơ loại", now.plusDays(21), now.plusDays(22),
+                round1, "Vòng sơ loại", now.minusDays(1), now.plusDays(22),
                 "Nộp file PDF ý tưởng (tối đa 5 trang) và link GitHub repo (nếu có).", true
         );
         round1.setSubmissionConfig(config1);
 
         List<RoundTimeline> timeline1 = new ArrayList<>();
-        timeline1.add(new RoundTimeline("Mở cổng nộp bài", "Thí sinh bắt đầu nộp ý tưởng", now.plusDays(21).toString(), null, round1));
+        timeline1.add(new RoundTimeline("Mở cổng nộp bài", "Thí sinh bắt đầu nộp ý tưởng", now.minusDays(1).toString(), null, round1));
         timeline1.add(new RoundTimeline("Chấm điểm", "Ban giám khảo chấm bài", now.plusDays(22).toString(), null, round1));
         round1.setRoundTimelines(timeline1);
         rounds.add(round1);

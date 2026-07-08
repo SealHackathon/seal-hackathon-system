@@ -1153,4 +1153,30 @@ public class TeamService {
                 )
                 .build();
     }
+
+    // move to offical
+    public String moveMemberToOffical(long memberId) {
+
+        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.RESERVE).orElse(null);
+        if (member == null) {
+            throw new IllegalArgumentException("member khong ton tai");
+        }
+        member.setStatus(MemberStatus.OFFICAL);
+        memberRepository.save(member);
+        return "move to offical sucessfully !";
+
+    }
+
+    // move to reserve
+    public String moveMemberToReserve(long memberId) {
+
+        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.OFFICAL).orElse(null);
+        if (member == null) {
+            throw new IllegalArgumentException("member khong ton tai");
+        }
+        member.setStatus(MemberStatus.RESERVE);
+        memberRepository.save(member);
+        return "move to offical sucessfully !";
+
+    }
 }
