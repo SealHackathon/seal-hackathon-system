@@ -17,7 +17,6 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
-    private final TeamService teamService;
     private final TeamRepository teamRepository;
     private final StudentprofileRepository studentprofileRepository;
     private final EventRepository eventRepository;

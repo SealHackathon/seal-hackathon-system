@@ -30,6 +30,7 @@ public class TeamService {
     private final TeamRequestRepository teamRequestRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
+    private  final RoundRepository roundRepository ;
     private final SubmissionRepository submissionRepository;
     private final StudentprofileRepository studentprofileRepository;
     //tao 1 team moi
@@ -1086,31 +1087,70 @@ public class TeamService {
         return responseList;
     }
 
+    @Transactional
+    public List<ViewTeamListRespone> viewTeamByRound(Long roundId){
+        Round round = roundRepository.findById(roundId).orElseThrow(() -> new RuntimeException("khong tim thay round"));
+        Long eventId = round.getEvent().getId() ;
+        List<Team> teams= teamRepository.findByEventIdAndStatus(
+                eventId,TeamStatus.APPROVED
+        );
 
-    // move to offical
-    public String moveMemberToOffical(long memberId) {
+        return teams.stream()
+                .map(team -> {
+                    Submission submission =
+                            submissionRepository
+                                    .findFirstByTeamIdAndRoundIdAndLatestTrue(
+                                            team.getId(),
+                                            roundId
+                                    )
+                                    .orElse(null);
 
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.RESERVE).orElse(null);
-        if (member == null) {
-            throw new IllegalArgumentException("member khong ton tai");
-        }
-        member.setStatus(MemberStatus.OFFICAL);
-        memberRepository.save(member);
-        return "move to offical sucessfully !";
-
+                    return mapToTeamResponse(
+                            team,
+                            submission
+                    );
+                })
+                .toList();
     }
-
-    // move to reserve
-    public String moveMemberToReserve(long memberId) {
-
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.OFFICAL).orElse(null);
-        if (member == null) {
-            throw new IllegalArgumentException("member khong ton tai");
-        }
-        member.setStatus(MemberStatus.RESERVE);
-        memberRepository.save(member);
-        return "move to offical sucessfully !";
-
+    private ViewTeamListRespone mapToTeamResponse(
+            Team team,
+            Submission submission
+    ) {
+        return ViewTeamListRespone.builder()
+                .teamId(team.getId())
+                .teamName(team.getName())
+                .teamStatus(team.getStatus().name())
+                .leaderId(
+                        team.getLeader() != null
+                                ? team.getLeader().getId()
+                                : null
+                )
+                .leaderName(
+                        team.getLeader() != null
+                                ? team.getLeader().getFullName()
+                                : null
+                )
+                .trackId(
+                        team.getTrack() != null
+                                ? team.getTrack().getId()
+                                : null
+                )
+                .trackName(
+                        team.getTrack() != null
+                                ? team.getTrack().getName()
+                                : null
+                )
+                .memberCount(
+                        team.getMembers() != null
+                                ? team.getMembers().size()
+                                : 0
+                )
+                .hassSubmissionn(submission != null)
+                .submissionId(
+                        submission != null
+                                ? submission.getId()
+                                : null
+                )
+                .build();
     }
-
 }

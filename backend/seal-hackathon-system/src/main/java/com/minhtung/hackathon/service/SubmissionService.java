@@ -6,13 +6,11 @@ import com.minhtung.hackathon.dto.request.UpdateSubmissionRequest;
 import com.minhtung.hackathon.dto.response.SubmissionDetailResponseid;
 import com.minhtung.hackathon.dto.response.SubmissionListResponse;
 import com.minhtung.hackathon.dto.response.SubmissionResponse;
+import com.minhtung.hackathon.dto.response.ViewSubmissionTrackResponse;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.MemberRole;
 import com.minhtung.hackathon.enums.MemberStatus;
-import com.minhtung.hackathon.repository.MemberRepository;
-import com.minhtung.hackathon.repository.RoundRepository;
-import com.minhtung.hackathon.repository.SubmissionRepository;
-import com.minhtung.hackathon.repository.UserRepository;
+import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,6 +27,7 @@ public class SubmissionService {
     private final MemberRepository memberRepository;
     private final SubmissionRepository submissionRepository;
     private final RoundRepository roundRepository;
+    private final TrackRepository trackRepository ;
 
 
 
@@ -114,7 +113,7 @@ public SubmissionResponse updateSubmission(String email , Long roundId ,UpdateSu
 }
 
 
-@Transactional(readOnly = true)
+@Transactional
 public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
     if(!roundRepository.existsById(roundId)){
         throw  new RuntimeException("khong tim thay vong thi");
@@ -122,10 +121,39 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
     return  submissionRepository.findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(roundId).stream().map(this::mapToListResponse).toList();
 }
 
-    @Transactional(readOnly = true)
+
+
+    @Transactional
     public SubmissionDetailResponseid getSubmissionById(Long id){
      Submission submission = submissionRepository.findById(id).orElseThrow(() -> new RuntimeException("khong tim thay bai nop ")) ;
      return mapToDetailResponse(submission);
+    }
+
+    @Transactional
+    public List<ViewSubmissionTrackResponse> viewSubmissionTrackResponses(Long trackId){
+      if(!trackRepository.existsById(trackId)){
+            throw  new RuntimeException("khong tim thay track");
+
+      }
+      return  submissionRepository.findByTeamTrackIdAndLatestTrueOrderBySubmittedAtDesc(trackId).stream().map(this::responeviewTrack).toList();
+    }
+
+    private ViewSubmissionTrackResponse responeviewTrack(Submission submission){
+     Team team = submission.getTeam() ;
+     Track track = team.getTrack() ;
+     Round round = submission.getRound() ;
+     return ViewSubmissionTrackResponse.builder()
+             .submissionId(submission.getId())
+             .teamId(team.getId())
+             .teamName(team.getName())
+             .trackId(track.getId())
+             .roundId(round.getId())
+             .roundName(round.getName())
+             .submittedAt(submission.getSubmittedAt())
+
+
+
+             .build() ;
     }
 
     private void validateSubmittionLinks(SubmissionRequest request) {
@@ -163,6 +191,13 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
                 .teamName(submission.getTeam().getName())
                 .roundId(submission.getRound().getId())
                 .roundName(submission.getRound().getName())
+                .scoringTemplateId(
+                        submission.getRound().getScoringTemplate() != null
+                                ? submission.getRound()
+                                .getScoringTemplate()
+                                .getId()
+                                : null
+                )
                 .githubUrl(submission.getGithubUrl())
                 .demoUrl(submission.getDemoUrl())
                 .documentUrl(submission.getDocumentUrl())
