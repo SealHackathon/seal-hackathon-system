@@ -111,7 +111,7 @@ import CreateRubricPage from './pages/coordinator/rubrics/CreateRubricPage';
 import SubmissionPage from './pages/SubmissionPage';
 import RoundSubmissionDetailPage from './pages/RoundSubmissionDetailPage';
 import PanelistDashboard from './pages/panelist/DashboardPage';
-
+import EventDetailPage from './pages/panelist/EventDetailPage'; 
 
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
@@ -219,6 +219,7 @@ function AppRoutes() {
                         <>
                             <Route path="/panelist/dashboard" element={<PanelistDashboard />} />
                             {/* TODO: <Route path="/panelist/contests" element={<ContestsPage />} /> */}
+                            <Route path="/panelist/events/:eventId" element={<EventDetailPage />} />   
                             <Route path="*" element={<Navigate to="/panelist/dashboard" replace />} />
                         </>
                     )}
