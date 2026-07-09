@@ -366,5 +366,21 @@ public class SubmissionService {
         }
     }
 
+    public SubmissionResponse getCurrentSubmission(String email, Long roundId) {
+        // 1. Tìm thông tin User từ email của token
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
 
+        // 2. Xác định xem user này có phải Leader chính thức của nhóm nào không
+        Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL)
+                .orElseThrow(() -> new IllegalArgumentException("Chỉ trưởng nhóm mới có quyền xem bài nộp"));
+
+        Team team = leader.getTeam();
+
+        // 3. Tìm bài nộp mới nhất của Team tại Vòng thi này
+        return submissionRepository
+                .findFirstByTeamIdAndRoundIdAndLatestTrue(team.getId(), roundId)
+                .map(SubmissionResponse::from)
+                .orElse(null); // Trả về null nếu đội chưa nộp bài bao giờ
+    }
 }

@@ -115,6 +115,24 @@ public class SubmissionController {
                 submissionService.viewSubmissionTrackResponses(trackId)
         );
     }
+
+
+    @GetMapping("/current")
+    @PreAuthorize("hasRole('USER')")
+    public ResponseEntity<SubmissionResponse> getCurrentSubmission(
+            Authentication authentication,
+            @RequestParam("roundId") Long roundId
+    ) {
+        SubmissionResponse response =
+                submissionService.getCurrentSubmission(authentication.getName(), roundId);
+
+        // Nếu chưa có bài nộp nào, trả về status 204 No Content để FE biết mà dùng POST
+        if (response == null) {
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(response);
+    }
 }
 
 
