@@ -1,0 +1,131 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.25em;
+}
+
+.cardHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75em;
+}
+
+.cardTitle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.titleIcon {
+  color: var(--color-border-blue);
+}
+
+.empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-dark-green);
+}
+
+/* Khung chứa vùng cuộn + overlay fade */
+.scrollShell {
+  position: relative;
+}
+
+/* Cuộn ngang các card câu hỏi */
+.hscroll {
+  display: flex;
+  gap: 0.9em;
+  overflow-x: auto;
+  padding-bottom: 0.35em;
+}
+
+/* Card ngang, thấp: câu hỏi + nút nằm cạnh nhau */
+.qCard {
+  flex: 0 0 24em;
+  width: 28em;
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  background: var(--color-bg-blue);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  padding: 0.8em 1em;
+}
+
+.qCardMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.qCardHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+
+.qTeam {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.qTime {
+  font-size: 0.8rem;
+  color: var(--color-secondary-blue);
+  white-space: nowrap;
+}
+
+/* Cắt ngang 1 dòng, thêm dấu … */
+.qText {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-secondary-blue);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.replyBtn {
+  flex-shrink: 0;
+}
+
+/* Overlay fade hai mép khi còn cuộn được */
+.fade {
+  position: absolute;
+  top: 0;
+  bottom: 0.35em;
+  width: 2.5em;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.fadeLeft {
+  left: 0;
+  background: linear-gradient(to right, var(--color-bg-white), transparent);
+}
+
+.fadeRight {
+  right: 0;
+  background: linear-gradient(to left, var(--color-bg-white), transparent);
+}
