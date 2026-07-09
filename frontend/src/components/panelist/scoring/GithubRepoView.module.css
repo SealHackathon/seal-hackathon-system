@@ -1,0 +1,391 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+.empty {
+  margin: 0;
+  padding: 2em 0;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+.infoCircle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2.4em;
+  height: 2.4em;
+  border-radius: var(--radius-circle);
+  background: var(--color-bg-blue);
+  color: var(--color-primary-blue);
+}
+
+/* Tiêu đề section: chữ to nhưng dùng body font, KHÔNG dùng Exo */
+.title {
+  margin: 0;
+  font-family: var(--body-font-main);
+  font-style: normal;
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-dark-blue);
+}
+
+/* ── Tên repo ── */
+.repoName {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+/* ── Chỉ số repo ── */
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6em;
+}
+
+.statChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.45em 0.85em;
+  border: 1.5px solid var(--color-border-blue);
+  background: var(--color-bg-white);
+  border-radius: var(--radius);
+}
+
+.statIcon {
+  flex-shrink: 0;
+  color: var(--color-primary-blue);
+}
+
+.statNum {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.statLabel {
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+}
+
+/* ── Metadata phụ ── */
+.metaRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25em 2.5em;
+}
+
+.metaCellDate {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  flex-shrink: 0;
+}
+
+.metaCellDesc {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  flex: 1 1 16em;
+  min-width: 0;
+}
+
+.metaLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.metaValue {
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.metaMuted {
+  font-size: 0.95rem;
+  color: var(--color-text-muted);
+}
+
+/* ── Commit (nổi bật) ── */
+.commitBox {
+  display: flex;
+  gap: 1.5em;
+  background: var(--color-bg-blue);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.25em 1.5em;
+}
+
+.commitLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  flex-shrink: 0;
+  min-width: 10em;
+  padding-right: 1.5em;
+  border-right: 1.5px solid var(--color-border-blue);
+}
+
+.numBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+}
+
+/* Con số quan trọng: to, nhưng dùng body font (không Exo) */
+.bigNum {
+  font-family: var(--body-font-main);
+  font-size: 1.9rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-primary-blue);
+}
+
+.bigLabel {
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+}
+
+.commitRight {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.commitHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-dark-blue);
+}
+
+.commitIcon {
+  flex-shrink: 0;
+  color: var(--color-primary-blue);
+}
+
+.commitMsg {
+  margin: 0;
+  font-size: 1rem;
+  font-style: italic;
+  color: var(--color-text-primary);
+}
+
+.commitMeta {
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+}
+
+.commitMuted {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+/* ── Ngôn ngữ ── */
+.langBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.1em 1.25em;
+}
+
+.langHead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.langBar {
+  display: flex;
+  width: 100%;
+  height: 0.9em;
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--color-bg-grey);
+}
+
+.langSeg {
+  height: 100%;
+}
+
+.langLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 1.25em;
+}
+
+.langLegendItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.85rem;
+}
+
+.langDot {
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: var(--radius-circle);
+  flex-shrink: 0;
+}
+
+.langName {
+  font-weight: 700;
+  color: var(--color-primary-blue);
+}
+
+.langPct {
+  color: var(--color-secondary-blue);
+}
+
+.langChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+
+.langChip {
+  padding: 0.4em 0.9em;
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  background: var(--color-bg-white);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+}
+
+/* ── README ── */
+.readmeBox {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.1em 1.25em;
+}
+
+.readmeHead {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.readmeBody {
+  max-height: 24em;
+  overflow: auto;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+}
+
+.readmeBody :where(h1, h2, h3) {
+  color: var(--color-dark-blue);
+}
+
+.readmeBody a {
+  color: var(--color-primary-blue);
+}
+
+.readmeBody pre {
+  background: var(--color-bg-grey);
+  padding: 0.75em;
+  border-radius: var(--inner-radius);
+  overflow: auto;
+}
+
+.readmeBody code {
+  background: var(--color-bg-grey);
+  padding: 0.1em 0.3em;
+  border-radius: var(--inner-radius);
+}
+
+/* ── Thông tin phụ (dưới cùng) ── */
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85em;
+}
+
+.extraRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 0.9em;
+}
+
+.extraItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.extraLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  text-decoration: none;
+}
+
+.extraLink:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 40em) {
+  .commitBox {
+    flex-direction: column;
+    gap: 1em;
+  }
+
+  .commitLeft {
+    flex-direction: row;
+    gap: 1.5em;
+    padding-right: 0;
+    padding-bottom: 1em;
+    border-right: none;
+    border-bottom: 1.5px solid var(--color-border-blue);
+  }
+}
