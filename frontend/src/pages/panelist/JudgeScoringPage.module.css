@@ -1,12 +1,11 @@
 .page {
   min-height: 100vh;
   background: var(--color-bg-white);
+  padding: 0.5em 1.5em 1.5em;
 }
 
 .body {
-  max-width: 84em;
   margin: 0 auto;
-  padding: 1.5em 2em 3em;
   display: flex;
   flex-direction: column;
   gap: 1.25em;

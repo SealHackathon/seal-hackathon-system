@@ -5,7 +5,7 @@ import styles from './Badge.module.css'
  *
  * @param {'green'|'blue'|'orange'|'red'|'gray'
  *        |'greenSolid'|'blueSolid'|'orangeSolid'|'redSolid'|'graySolid'
- *        |'dashedGreen'|'dashedBlue'|'dashedOrange'|'dashedRed'|'dashedGray'} [variant='gray']
+ *        |'dashedGreen'|'dashedBlue'|'dashedOrange'|'dashedRed'|'dashedGray'|'blueWhiteBg'} [variant='gray']
  * @param {string}          label        — text hiển thị (bắt buộc)
  * @param {'sm'|'md'|'lg'}  [size='md']
  * @param {boolean}         [dot=true]   — hiển thị dot bên trái
