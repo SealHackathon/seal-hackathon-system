@@ -85,7 +85,7 @@ public class SubmissionController {
 
     // get all submission by round id
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
+//    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<List<SubmissionListResponse>>
     getSubmissionsByRound(
             @RequestParam Long roundId

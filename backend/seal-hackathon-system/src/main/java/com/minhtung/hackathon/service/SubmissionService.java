@@ -230,17 +230,57 @@ public class SubmissionService {
 
     }
 
-    private SubmissionListResponse mapToListResponse(
-            Submission submission
-    ) {
+    private SubmissionListResponse mapToListResponse(Submission submission) {
+        Team team = submission.getTeam();
+
+        // 1. Tìm thông tin chấm điểm của bài nộp này (nếu có)
+        // Bạn có thể tìm theo submissionId và nếu cần thì filter thêm theo Judge đang đăng nhập
+        Optional<JudgeScore> judgeScoreOpt = judgeScoreRepository.findBySubmissionId(submission.getId());
+
+        String scoringStatus = "unscored";
+        Double finalScore = null;
+        LocalDateTime scoredAt = null;
+
+        if (judgeScoreOpt.isPresent()) {
+            JudgeScore score = judgeScoreOpt.get();
+            finalScore = score.getTotalScore();
+            scoredAt = score.getUpdatedAt() != null ? score.getUpdatedAt() : score.getSubmitAt();
+
+            // Bạn có thể quy ước: Nếu có bản ghi nhưng chưa bấm submit chính thức (hoặc tùy logic business của bạn)
+            // Ở đây giả định nếu đã lưu vào DB tức là đã chấm (done hoặc draft tùy thuộc một trường status bạn có thể thêm sau)
+            scoringStatus = "done";
+        }
+
+        // 2. Map thông tin file đính kèm từ entity Submission
+        SubmissionListResponse.AttachmentStatus attachmentStatus = SubmissionListResponse.AttachmentStatus.builder()
+                .github(submission.getGithubUrl() != null && !submission.getGithubUrl().isBlank())
+                .video(submission.getDemoUrl() != null && !submission.getDemoUrl().isBlank())
+                .slide(submission.getDocumentUrl() != null && !submission.getDocumentUrl().isBlank())
+                .build();
+
+        // 3. Build Response hoàn chỉnh
         return SubmissionListResponse.builder()
                 .id(submission.getId())
-                .teamId(submission.getTeam().getId())
-                .teamName(submission.getTeam().getName())
+                .teamId(team.getId())
+                .teamName(team.getName())
                 .roundId(submission.getRound().getId())
                 .sumbittedAt(submission.getSubmittedAt())
+
+                // Thông tin Team (Giả định entity Team của bạn đã có các trường này)
+                // Nếu bảng Team chưa có, bạn tạm thời để Hardcode hoặc chuỗi rỗng để tránh lỗi
+                .leaderName(team.getLeader().getFullName() != null ? team.getLeader().getFullName() : "Chưa cập nhật")
+                .leaderPosition(team.getLeader().getRole().toString() != null ? team.getLeader().getRole().toString(): "MEMBER")
+                .memberCount(team.getMembers() != null ? team.getMembers().size() : 1)
+                .categoryName(team.getTrack() != null ? team.getTrack().getName() : "Chung")
+
+                // Dữ liệu chấm điểm và đính kèm
+                .scoringStatus(scoringStatus)
+                .finalScore(finalScore)
+                .scoredAt(scoredAt)
+                .submission(attachmentStatus)
                 .build();
     }
+
 
     private SubmissionDetailResponseid mapToDetailResponse(
             Submission submission

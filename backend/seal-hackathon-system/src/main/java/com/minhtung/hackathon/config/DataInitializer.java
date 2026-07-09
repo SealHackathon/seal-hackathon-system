@@ -79,7 +79,7 @@ public class DataInitializer implements CommandLineRunner {
             u8.setPassword("123456");
             u8.setFullName("TS. Trần Quốc Bảo");
             u8.setTitle("CTO");
-            u8.setOrg("MoMo");
+            u8.setOrg("   ");
             u8.setRole(Role.LECTURER);
             u8.setActive(true);
             u8.setStatus(UserStatus.ACCEPTED);
