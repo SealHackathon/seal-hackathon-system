@@ -5,9 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-import java.util.Map;
-
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
@@ -23,13 +20,5 @@ public class TeamMembersResponse {
     private boolean currentUser;
     @JsonProperty("isOffical")
     private boolean offical;
-    private String memberStatus;
-    private String joinMethod;
-    private String bio;
-    private List<String> positions;
-    private Map<String, List<String>> techTags;
-    private List<String> topics;
-    private String cvLink;
-
 
 }
