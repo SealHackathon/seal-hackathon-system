@@ -4,7 +4,7 @@
   background: var(--color-bg-white);
   border: 1.5px solid var(--color-border-blue);
   border-radius: var(--radius);
-  overflow: hidden;
+  overflow: auto;
   height: 100%;
 }
 

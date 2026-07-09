@@ -26,7 +26,7 @@ const mockTeam = {
 
 const mockSubmission = {
   github: {
-    url: 'https://github.com/hngbtran/seal-hackathon-system',
+    url: 'https://github.com/react/react',
   },
   slide: { url: 'https://drive.google.com/file/d/1wJVDgrYoYjIfSaWGFcT_B9s3GyAMOGxm/view?usp=sharing', fileUrl: null },
   video: { url: 'https://www.youtube.com/', fileUrl: null },
