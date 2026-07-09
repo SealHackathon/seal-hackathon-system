@@ -1,0 +1,53 @@
+.split {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.pane {
+  min-width: 0;
+  flex-grow: 0;
+  flex-shrink: 1;
+}
+
+.handle {
+  flex: 0 0 1.25em;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.grip {
+  width: 0.28em;
+  height: 3em;
+  border-radius: 999px;
+  background: var(--color-border-blue);
+  transition: background 0.15s ease, height 0.15s ease;
+}
+
+.handle:hover .grip,
+.dragging .grip {
+  background: var(--color-secondary-blue);
+  height: 4.5em;
+}
+
+.dragging {
+  user-select: none;
+  cursor: col-resize;
+}
+
+@media (max-width: 60em) {
+  .split {
+    flex-direction: column;
+  }
+  .pane {
+    flex-basis: auto !important;
+    width: 100%;
+  }
+  .handle {
+    display: none;
+  }
+}

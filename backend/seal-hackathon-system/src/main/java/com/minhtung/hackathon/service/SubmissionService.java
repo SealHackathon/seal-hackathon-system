@@ -316,10 +316,20 @@ public class SubmissionService {
                 hasText(request.getDocumentUrl());
 
 
-        if (!hasGithub && !hasdocument && !hasdemoUrl) {
-            throw new RuntimeException("phai cung cap it nhat 1 duong link de nop bai ");
+        if (!hasGithub) {
+            throw new RuntimeException("bat buoc phai nop link git ");
 
         }
+        if (!hasdemoUrl) {
+            throw new RuntimeException("bat buoc phai nop video ");
+
+        }
+        if (!hasdocument) {
+            throw new RuntimeException("bat buoc phai nop link slide ");
+
+        }
+
+
     }
 
     private boolean hasText(String value) {
@@ -364,6 +374,7 @@ public class SubmissionService {
 
         return value.trim();
     }
+    private void validateDemoFile(MultipartFile file) {
 
 
     private void validateDemoFile(MultipartFile file) {

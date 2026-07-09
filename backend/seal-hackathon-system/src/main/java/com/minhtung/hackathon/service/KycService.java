@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -63,9 +65,8 @@ public class KycService {
             throw new RuntimeException("Ảnh hồ sơ tối đa 2MB");
         }
         Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
-
-                .orElse(new Student_profile());
-
+                .orElse(new Student_profile() {
+                });
 
         studentProfile.setUser(user);
         String imageUrl = cloudinaryStorageService.uploadStudentCard(file, user.getId());
@@ -371,9 +372,9 @@ public class KycService {
         }
 
         // Validate tổng số lượng công nghệ trong Map techTags
-        if (req.getTechTags() != null) {
+        if (req.getTags() != null) {
             // Gom tất cả các phần tử trong các mảng con lại để đếm tổng số tag thực tế
-            long totalTags = req.getTechTags().values().stream()
+            long totalTags = req.getTags().values().stream()
                     .mapToLong(List::size)
                     .sum();
             if (totalTags > 10) {
@@ -388,7 +389,7 @@ public class KycService {
         // --- 3. Map dữ liệu vào Entity ---
         profile.setBio(req.getBio());
         profile.setPositions(req.getPositons());
-        profile.setTechTags(req.getTechTags());
+        profile.setTechTags(req.getTags());
         profile.setTopics(req.getTopics());
         user.setStatus(UserStatus.PENDING_APPROVAL);
         studentprofileRepository.save(profile);

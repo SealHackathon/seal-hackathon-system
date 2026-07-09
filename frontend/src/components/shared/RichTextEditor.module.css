@@ -15,14 +15,18 @@
 .toolbar {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 0.25rem;
     padding: 0.4rem 0.6rem;
-    border-bottom: 1px solid var(--color-border-blue);
 
-    border-top-left-radius: var(--radius);
-    border-top-right-radius: var(--radius);
+    border-radius: var(--inner-radius);
+    margin: 0.5em 0.5em 0 0.5em;
 
     background: var(--color-bg-blue);
+
+    position: sticky;
+    top: -1em;
+    z-index: 10;
 }
 
 .toolBtn {
@@ -56,19 +60,95 @@
     margin: 0 0.25rem;
 }
 
+.tableControls {
+    display: flex;
+    align-items: center;
+    gap: 0.2em;
+}
+
+.toolBtnText {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 30px;
+    padding: 0 0.4em;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--color-secondary-blue);
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.toolBtnText:hover {
+    background: white;
+}
+
+.importBtn {
+    height: 32px;
+    padding: 0 0.75rem;
+}
+
+.subToolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    padding: 0.3rem 0.6rem;
+    background: var(--color-bg-blue);
+    border-radius: var(--inner-radius);
+    margin: 0.25em 0.5em 0.5em 0.5em;
+}
+
 /* ── Editor area ── */
 .editorArea {
-    padding: 0.75rem 1rem;
+    padding: 0.5em 1.5em 1.5em;
     min-height: 150px;
     font-size: 1rem;
     color: var(--color-text-primary);
     cursor: text;
+    overflow: auto;
+
 }
 
 /* Style nội dung bên trong editor */
 .editorArea :global(.tiptap) {
     outline: none;
     min-height: 120px;
+    font-family: var(--body-font-main);
+}
+
+.editorArea :global(.tiptap h1),
+.editorArea :global(.tiptap h2),
+.editorArea :global(.tiptap h3) {
+    font-family: var(--body-font-main);
+    font-weight: 700;
+    font-style: normal;
+    color: var(--color-dark-blue);
+}
+
+.editorArea :global(.tiptap h1) {
+    font-size: 1.6rem;
+}
+
+.editorArea :global(.tiptap h2) {
+    font-size: 1.3rem;
+}
+
+.editorArea :global(.tiptap h3) {
+    font-size: 1.1rem;
+}
+
+.editorArea :global(.tiptap p) {
+    font-size: 0.95rem;
+    line-height: 1.8;
+}
+
+.editorArea :global(.tiptap hr) {
+    border: none;
+    border-top: 1px solid var(--color-secondary-blue);
 }
 
 .editorArea :global(.tiptap p.is-editor-empty:first-child::before) {
@@ -173,8 +253,39 @@
     font-size: 0.9rem;
 }
 
-.editorArea :global(.tiptap th) {
-    background: var(--color-bg-blue);
-    font-weight: 700;
-    color: var(--color-primary-blue);
+/* ── Resize Image Extension UI Overrides ── */
+.editorArea :global([data-resize-image-ui="position-controller"]) {
+    border: 1px solid var(--color-border-blue) !important;
+    border-radius: 6px !important;
+    background-color: #ffffff !important;
+    padding: 0.5rem !important;
+    display: flex !important;
+    gap: 0.2rem !important;
+    transform: translate(-50%, -130%) !important;
+}
+
+.editorArea :global([data-resize-image-ui="position-controller"] img) {
+    filter: invert(24%) sepia(87%) saturate(2359%) hue-rotate(206deg) brightness(98%) contrast(105%) !important;
+    /* turns it to a shade of blue */
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    border-radius: 4px;
+}
+
+.editorArea :global([data-resize-image-ui="position-controller"] img:hover) {
+    opacity: 1;
+    background-color: var(--color-bg-blue) !important;
+}
+
+.editorArea :global([data-resize-image-ui="resize-handle"]) {
+    border: 2px solid var(--color-border-blue) !important;
+    background-color: white !important;
+    border-radius: 50% !important;
+    width: 12px !important;
+    height: 12px !important;
+}
+
+.editorArea :global(.ProseMirror-selectednode div[style*="dashed"]) {
+    border-color: var(--color-border-blue) !important;
+    border-style: solid !important;
 }

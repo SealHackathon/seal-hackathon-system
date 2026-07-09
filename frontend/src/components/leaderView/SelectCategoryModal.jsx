@@ -101,7 +101,7 @@ function SelectCategoryModal({
                                             styles.statBadge, 
                                             isFull && styles.statBadgeFull
                                         ].filter(Boolean).join(' ')}>
-                                           {displayedCurrentTeams} / {category.maxTeamPerTrack} đội
+                                            {displayedCurrentTeams} / {category.maxTeamPerTrack} đội
                                         </span>
                                     </div>
                                 </div>

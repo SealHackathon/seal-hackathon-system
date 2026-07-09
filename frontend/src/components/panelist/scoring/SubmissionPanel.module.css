@@ -1,0 +1,54 @@
+.panel {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  overflow: hidden;
+  height: 100%;
+}
+
+.tabs {
+  display: flex;
+  gap: 0.25em;
+  padding: 0.4em 0.6em 0;
+  border-bottom: 1.5px solid var(--color-bg-blue);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  padding: 0.75em 1em;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  border-bottom: 2.5px solid transparent;
+  margin-bottom: -1.5px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover {
+  color: var(--color-primary-blue);
+}
+
+.tabActive {
+  color: var(--color-primary-blue);
+  border-bottom-color: var(--color-primary-blue);
+}
+
+.missingDot {
+  width: 0.5em;
+  height: 0.5em;
+  border-radius: var(--radius-circle);
+  background: var(--color-text-muted);
+}
+
+.tabBody {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 1.25em;
+}
