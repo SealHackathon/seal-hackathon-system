@@ -2,6 +2,7 @@ package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.BulkJudgeInviteRequest;
 import com.minhtung.hackathon.dto.request.BulkMentorInviteRequest;
+import com.minhtung.hackathon.dto.response.AssignedEventResponseDTO;
 import com.minhtung.hackathon.dto.response.InvitationResponseDTO;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
@@ -145,16 +146,23 @@ public class MentorJudgeController {
     }
 
     // reject invitation
-    @PostMapping("/invitations/{requestId}/reject")
+    @PostMapping("/invitations/{invitationId}/reject")
     public ResponseEntity<?> rejectInvitation(@RequestHeader("Authorization") String auth,
-                                              @PathVariable long requestId) {
+                                              @PathVariable long invitationId) {
         Integer userId = getUid(auth);
         if (userId == null) return unauthorized();
 
-        mentorJudgeService.rejectInvitation(requestId, userId);
+        mentorJudgeService.rejectInvitation(invitationId, userId);
         return ResponseEntity.ok("Bạn đã từ chối lời mời");
     }
 
+    @GetMapping("/assigned-event")
+    public ResponseEntity<?> getAssignedEvent(@RequestHeader("Authorization") String auth) {
+        Integer userId = getUid(auth);
+        if (userId == null) return unauthorized();
 
+        AssignedEventResponseDTO result = mentorJudgeService.getAssignedEvent(userId);
+        return ResponseEntity.ok(result);
+    }
 
 }
