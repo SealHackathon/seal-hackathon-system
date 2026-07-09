@@ -12,8 +12,24 @@ function SelectCategoryModal({
 }) {
     const [selected, setSelected] = useState(selectedCategoryId)
 
+    function getDisplayedCurrentTeams(category) {
+        let currentTeams = category.currentTeams
+
+        if (selected === category.id && selectedCategoryId !== category.id) {
+            currentTeams += 1
+        }
+
+        if (selectedCategoryId === category.id && selected !== category.id) {
+            currentTeams -= 1
+        }
+
+        return currentTeams
+    }
+
+
+
     function toggle(category) {
-        const isFull = category.currentTeams >= category.teamLimit
+          const isFull = getDisplayedCurrentTeams(category) >= category.maxTeamPerTrack
         if (isFull && category.id !== selectedCategoryId) return
         
         if (selected === category.id) {
@@ -60,7 +76,8 @@ function SelectCategoryModal({
                     )}
 
                     {categories.map(category => {
-                        const isFull = category.currentTeams >= category.teamLimit
+                           const displayedCurrentTeams = getDisplayedCurrentTeams(category)
+                        const isFull = displayedCurrentTeams >= category.maxTeamPerTrack
                         const isSelected = selected === category.id
                         // Nếu full thì disable, trừ khi đây chính là hạng mục đội đang chọn (để họ có thể click bỏ chọn)
                         const isDisabled = isFull && !isSelected
@@ -84,13 +101,13 @@ function SelectCategoryModal({
                                             styles.statBadge, 
                                             isFull && styles.statBadgeFull
                                         ].filter(Boolean).join(' ')}>
-                                            {category.currentTeams} / {category.teamLimit} đội
+                                           {displayedCurrentTeams} / {category.maxTeamPerTrack} đội
                                         </span>
                                     </div>
                                 </div>
 
                                 <div className={styles.categoryState}>
-                                    {isDisabled ? (
+                                   {isDisabled || getDisplayedCurrentTeams(category) === category.maxTeamPerTrack ? (
                                         <span className={styles.disabledLabel}>Đã đầy</span>
                                     ) : isSelected ? (
                                         <span className={styles.checkmark}>
