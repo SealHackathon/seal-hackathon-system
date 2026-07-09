@@ -95,7 +95,7 @@ function RoundSubmissionDetailPage() {
 
   const [submissionId, setSubmissionId] = useState(null)
   const [isUpdate, setIsUpdate] = useState(false)
-
+  const [realSubmission, setRealSubmission] = useState(null)
   useEffect(() => {
     if (!roundId) {
       setError('Thiếu thông tin roundId trên URL.')
@@ -138,12 +138,28 @@ function RoundSubmissionDetailPage() {
             activeSubmission = subRes.data
             setSubmissionId(activeSubmission.id) // Lưu lại ID để phục vụ lệnh PUT
             setIsUpdate(true)                    // Đánh dấu chuyển form sang trạng thái cập nhật (PUT)
+
+            // ĐƯA DỮ LIỆU THẬT VÀO STATE (Mới thêm)
+            // Map các trường từ API về đúng định dạng mà component `<SummaryCard />` yêu cầu
+            setRealSubmission({
+              github: { mode: 'link', value: activeSubmission.githubUrl },
+              video: { mode: activeSubmission.demoUrl?.startsWith('http') ? 'link' : 'file', value: activeSubmission.demoUrl },
+              slide: { mode: activeSubmission.documentUrl?.startsWith('http') ? 'link' : 'file', value: activeSubmission.documentUrl },
+              submittedAt: formatDateLabel(activeSubmission.submittedAt),
+              lastEditedAt: formatDateLabel(activeSubmission.lastEditedAt || activeSubmission.submittedAt),
+              late: activeSubmission.isLate || false,
+              score: activeSubmission.score || null,
+              comment: activeSubmission.comment || null,
+              judge: activeSubmission.score ? 'Hội đồng giám khảo' : null,
+            })
           } else {
             setIsUpdate(false)                   // Nhận diện HTTP 204 No Content -> Dùng POST
+            setRealSubmission(null) // Chưa nộp bài
           }
         } catch (e) {
           console.log('Chưa có bài nộp nào cho vòng này hoặc phát sinh lỗi, mặc định dùng POST.', e)
           setIsUpdate(false)
+          setRealSubmission(null)
         }
 
         if (!isMounted) return
@@ -459,7 +475,7 @@ function RoundSubmissionDetailPage() {
           <div className={styles.colSide}>
             <div className={styles.stickySide}>
               <TimeCard round={round} state={currentState} now={nowStr} />
-              <SummaryCard submission={SCENARIO.submission} state={currentState} />
+              <SummaryCard submission={realSubmission} state={currentState} />
             </div>
           </div>
         </div>
