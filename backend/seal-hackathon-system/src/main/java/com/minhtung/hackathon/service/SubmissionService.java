@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -33,7 +34,7 @@ public class SubmissionService {
     private final RoundRepository roundRepository;
     private final TrackRepository trackRepository;
     private final CloudinaryStorageService cloudinaryStorageService;
-
+    private final JudgeAssignmentRepository judgeAssignmentRepository;
     @Value("${submission.demo.max-size}")
     private DataSize maxDemoSize;
 
@@ -175,9 +176,26 @@ public class SubmissionService {
 
 
     @Transactional
-    public SubmissionDetailResponseid getSubmissionById(Long id) {
-        Submission submission = submissionRepository.findById(id).orElseThrow(() -> new RuntimeException("khong tim thay bai nop "));
-        return mapToDetailResponse(submission);
+    public SubmissionDetailResponseid getSubmissionDetail(String email, Long submissionId) {
+        Submission submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài nộp"));
+
+        User judge = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Judge"));
+
+        Long trackId = submission.getTeam().getTrack() != null ? submission.getTeam().getTrack().getId() : null;
+
+        // Tìm kiếm thông tin chấm điểm cũ
+        Optional<JudgeScore> judgeScoreOpt = Optional.empty();
+        if (trackId != null) {
+            Optional<JudgeAssignment> assignmentOpt = judgeAssignmentRepository.findByUser_IdAndTrackId(judge.getId(), trackId);
+            if (assignmentOpt.isPresent()) {
+                judgeScoreOpt = judgeScoreRepository.findByJudgeAssignmentIdAndSubmissionId(assignmentOpt.get().getId(), submission.getId());
+            }
+        }
+
+        // Truyền cả 2 vào hàm mapper đã cập nhật ở trên
+        return mapToDetailResponse(submission, judgeScoreOpt);
     }
 
     @Transactional
@@ -281,8 +299,7 @@ public class SubmissionService {
                 .build();
     }
 
-
-    private SubmissionDetailResponseid mapToDetailResponse(Submission submission) {
+    private SubmissionDetailResponseid mapToDetailResponse(Submission submission, Optional<JudgeScore> judgeScoreOpt) {
         // 1. Chuyển đổi danh sách Entity thành viên của Team sang MemberResponse DTO
         List<SubmissionDetailResponseid.MemberResponse> memberDTOs = null;
 
@@ -290,15 +307,15 @@ public class SubmissionService {
             memberDTOs = submission.getTeam().getMembers().stream()
                     .map(member -> SubmissionDetailResponseid.MemberResponse.builder()
                             .id(member.getId())
-                            .fullName(member.getMember().getFullName()) // Hoặc member.getName() tùy thuộc vào Entity của bạn
-                            .roleInTeam(member.getRole().toString() != null ? member.getRole().toString() : "Thành viên")
-                            .isLeader(member.getRole().equals(MemberRole.LEADER)) // Trả về true/false để FE highlight icon Trưởng nhóm
+                            .fullName(member.getMember().getFullName())
+                            .roleInTeam(member.getRole() != null ? member.getRole().toString() : "Thành viên")
+                            .isLeader(member.getRole() == MemberRole.LEADER)
                             .build())
-                    .toList(); // Hoặc .collect(Collectors.toList()) nếu dùng Java dưới 16
+                    .toList();
         }
 
-        // 2. Build Object phản hồi chính
-        return SubmissionDetailResponseid.builder()
+        // 2. Khởi tạo Builder cho Object phản hồi chính
+        SubmissionDetailResponseid.SubmissionDetailResponseidBuilder responseBuilder = SubmissionDetailResponseid.builder()
                 .id(submission.getId())
                 .teamId(submission.getTeam().getId())
                 .teamName(submission.getTeam().getName())
@@ -314,10 +331,40 @@ public class SubmissionService {
                 .documentUrl(submission.getDocumentUrl())
                 .submittedAt(submission.getSubmittedAt())
                 .latest(submission.isLatest())
+                .members(memberDTOs);
 
+        // 🎯 3. THỰC HIỆN BÓC TÁCH ĐIỂM CŨ (Nếu giám khảo đã từng Lưu nháp hoặc Chấm điểm bài này)
+        if (judgeScoreOpt != null && judgeScoreOpt.isPresent()) {
+            JudgeScore judgeScore = judgeScoreOpt.get();
 
-                .members(memberDTOs)
-                .build();
+            // Map mảng danh sách điểm chi tiết: Key = String(criterionId), Value = Double(score)
+            java.util.Map<String, Double> scoresMap = judgeScore.getDetails().stream()
+                    .collect(Collectors.toMap(
+                            detail -> String.valueOf(detail.getCriterion().getId()),
+                            detail -> detail.getScore()
+                    ));
+
+            // Map mảng danh sách nhận xét chi tiết: Key = String(criterionId), Value = String(comment)
+            java.util.Map<String, String> notesMap = judgeScore.getDetails().stream()
+                    .filter(detail -> detail.getComment() != null)
+                    .collect(Collectors.toMap(
+                            detail -> String.valueOf(detail.getCriterion().getId()),
+                            detail -> detail.getComment()
+                    ));
+
+            // Gán các thông tin điểm số vào Builder
+            responseBuilder.scoringStatus(judgeScore.getStatus().name()) // DRAFT hoặc SUBMITTED
+                    .finalScore(judgeScore.getTotalScore())
+                    .overallComment(judgeScore.getComment())
+                    .scoredAt(judgeScore.getUpdatedAt())
+                    .scores(scoresMap)
+                    .notes(notesMap);
+        } else {
+            // Nếu chưa từng chấm, gán trạng thái mặc định để FE biết đường xử lý giao diện trống
+            responseBuilder.scoringStatus("UNSCORED");
+        }
+
+        return responseBuilder.build();
     }
 
     private void validateSubmittionLinks(UpdateSubmissionRequest request) {

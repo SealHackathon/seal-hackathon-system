@@ -101,10 +101,10 @@ public class SubmissionController {
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<SubmissionDetailResponseid>
     getSubmissionById(
-            @PathVariable Long id
+            Authentication authentication,@PathVariable Long id
     ) {
         return ResponseEntity.ok(
-                submissionService.getSubmissionById(id)
+                submissionService.getSubmissionDetail(authentication.getName(),id)
         );
     }
 

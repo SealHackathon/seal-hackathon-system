@@ -114,9 +114,10 @@ import PanelistDashboard from './pages/panelist/DashboardPage';
 import EventDetailPage from './pages/panelist/EventDetailPage'; 
 import JudgeRoundDetailPage from './pages/panelist/JudgeRoundDetailPage';
 import JudgeScoringPage from './pages/panelist/JudgeScoringPage';
-
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
+
+
 
     useEffect(() => {
         fetchTeamRole();
