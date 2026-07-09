@@ -1,0 +1,49 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-white);
+}
+
+/* Full-width — không giới hạn max-width */
+.body {
+  padding: 1.5em 2em 3em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+/* Chia 2 cột: timeline | side box */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24em;
+  gap: 1.25em;
+  align-items: start;
+}
+
+.main {
+  min-width: 0;
+}
+
+.sidebar {
+  min-width: 0;
+}
+
+.stickyWrap {
+  position: sticky;
+  top: 1.5em;
+}
+
+@media (max-width: 60em) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .stickyWrap {
+    position: static;
+  }
+}
+
+@media (max-width: 48em) {
+  .body {
+    padding: 1.25em 1em 2.5em;
+  }
+}
