@@ -1,0 +1,187 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.25em;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.titleIcon {
+  color: var(--color-border-blue);
+}
+
+/* ── Chỉ số nổi bật ── */
+.highlightRow {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75em;
+}
+
+.highlight {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  padding: 1.25em;
+}
+
+.hlIcon {
+  display: inline-flex;
+  margin-bottom: 0.4em;
+  color: var(--color-border-blue);
+}
+
+.hlIconOrange {
+  display: inline-flex;
+  margin-bottom: 0.4em;
+  color: var(--color-primary-orange);
+}
+
+.hlValue,
+.hlValueOrange {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.2em;
+  font-family: var(--body-font-main);
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.hlValue {
+  color: var(--color-primary-blue);
+}
+
+.hlValueOrange {
+  color: var(--color-primary-orange);
+}
+
+.hlUnit {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.hlLabel {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-secondary-blue);
+}
+
+/* ── Biểu đồ cột ── */
+.chartBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.blockLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.chart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1.5em;
+  height: 8em;
+}
+
+.barCol {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+  height: 100%;
+}
+
+.barValue {
+  font-family: var(--body-font-main);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.barTrack {
+  flex: 1;
+  width: 3em;
+  display: flex;
+  align-items: flex-end;
+  background: var(--color-bg-grey);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barFill {
+  width: 100%;
+  background: var(--color-secondary-blue);
+  border-radius: 4px;
+  min-height: 0.3em;
+}
+
+.barFillCurrent {
+  background: var(--color-primary-blue);
+}
+
+.barLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+/* ── Khối thống kê có thanh tiến độ ── */
+.statBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.statHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+
+.statLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.statIcon {
+  color: var(--color-border-blue);
+}
+
+.statValue {
+  font-family: var(--body-font-main);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+
+
+.statHint {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-secondary-blue);
+}

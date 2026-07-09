@@ -114,6 +114,8 @@ import PanelistDashboard from './pages/panelist/DashboardPage';
 import EventDetailPage from './pages/panelist/EventDetailPage'; 
 import JudgeRoundDetailPage from './pages/panelist/JudgeRoundDetailPage';
 import JudgeScoringPage from './pages/panelist/JudgeScoringPage';
+import MentorTeamDetailPage from './pages/panelist/MentorTeamDetailPage';
+
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
 
@@ -225,6 +227,7 @@ function AppRoutes() {
                             <Route path="/panelist/events/:eventId" element={<EventDetailPage />} />   
                             <Route path="/panelist/events/:eventId/judge/rounds/:roundId" element={<JudgeRoundDetailPage />} />
                             <Route path="/panelist/events/:eventId/judge/rounds/:roundId/submissions/:submissionId" element={<JudgeScoringPage />} />
+                            <Route path="/panelist/events/:eventId/mentor/teams/:teamId" element={<MentorTeamDetailPage />} />
                             <Route path="*" element={<Navigate to="/panelist/dashboard" replace />} />
                         </>
                     )}
