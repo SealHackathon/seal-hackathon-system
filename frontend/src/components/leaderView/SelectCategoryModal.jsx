@@ -26,8 +26,10 @@ function SelectCategoryModal({
         return currentTeams
     }
 
+
+
     function toggle(category) {
-        const isFull = getDisplayedCurrentTeams(category) >= category.maxTeamPerTrack
+          const isFull = getDisplayedCurrentTeams(category) >= category.maxTeamPerTrack
         if (isFull && category.id !== selectedCategoryId) return
         
         if (selected === category.id) {
@@ -74,7 +76,7 @@ function SelectCategoryModal({
                     )}
 
                     {categories.map(category => {
-                        const displayedCurrentTeams = getDisplayedCurrentTeams(category)
+                           const displayedCurrentTeams = getDisplayedCurrentTeams(category)
                         const isFull = displayedCurrentTeams >= category.maxTeamPerTrack
                         const isSelected = selected === category.id
                         // Nếu full thì disable, trừ khi đây chính là hạng mục đội đang chọn (để họ có thể click bỏ chọn)
@@ -105,7 +107,7 @@ function SelectCategoryModal({
                                 </div>
 
                                 <div className={styles.categoryState}>
-                                    {isDisabled || getDisplayedCurrentTeams(category) === category.maxTeamPerTrack ? (
+                                   {isDisabled || getDisplayedCurrentTeams(category) === category.maxTeamPerTrack ? (
                                         <span className={styles.disabledLabel}>Đã đầy</span>
                                     ) : isSelected ? (
                                         <span className={styles.checkmark}>

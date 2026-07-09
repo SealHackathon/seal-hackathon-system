@@ -12,7 +12,7 @@ import com.minhtung.hackathon.enums.MemberRole;
 import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
@@ -119,7 +119,7 @@ public class SubmissionService {
         submission.setLatest(true);
 
         return SubmissionResponse.from(
-                submissionRepository.save(submission));
+                submissionRepository.save(submission),null);
     }
 
     @Transactional
@@ -134,7 +134,6 @@ public class SubmissionService {
         // tim kiem co round nay khong
         Team team = leader.getTeam();
         Round round = roundRepository.findById(roundId).orElseThrow(() -> new RuntimeException("khong tìm thấy vòng thi này"));
-        validateSubmittionLinks(request);
         validateTeamAndRound(team, round);
         validateSumssion(round);
 
@@ -162,7 +161,7 @@ public class SubmissionService {
         newSubmission.setSubmittedAt(LocalDateTime.now());
         newSubmission.setLatest(true);
 
-        return SubmissionResponse.from(submissionRepository.save(newSubmission));
+        return SubmissionResponse.from(submissionRepository.save(newSubmission),null);
     }
 
 
@@ -378,4 +377,31 @@ public class SubmissionService {
         }
     }
 
+    @Autowired
+    private JudgeScoreRepository judgeScoreRepository;
+
+    public SubmissionResponse getCurrentSubmission(String email, Long roundId) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
+
+        Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL)
+                .orElseThrow(() -> new IllegalArgumentException("Chỉ trưởng nhóm mới có quyền xem"));
+
+        Team team = leader.getTeam();
+
+        // 1. Tìm bài nộp mới nhất
+        Submission submission = submissionRepository
+                .findFirstByTeamIdAndRoundIdAndLatestTrue(team.getId(), roundId)
+                .orElse(null);
+
+        if (submission == null) {
+            return null; // Trả về null nếu chưa nộp bài bao giờ -> FE biết đường dùng POST
+        }
+
+        // 2. Tìm điểm số tương ứng của bài nộp này (nếu có)
+        JudgeScore judgeScore = judgeScoreRepository.findBySubmissionId(submission.getId()).orElse(null);
+
+        // 3. Trả về Response chứa đầy đủ cả thông tin bài nộp lẫn điểm số từ thực tế
+        return SubmissionResponse.from(submission, judgeScore);
+    }
 }

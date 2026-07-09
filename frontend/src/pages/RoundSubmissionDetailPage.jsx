@@ -93,7 +93,9 @@ function RoundSubmissionDetailPage() {
   const [isEditing, setIsEditing] = useState(false)
   const [criteria, setCriteria] = useState([]);
 
-
+  const [submissionId, setSubmissionId] = useState(null)
+  const [isUpdate, setIsUpdate] = useState(false)
+  const [realSubmission, setRealSubmission] = useState(null)
   useEffect(() => {
     if (!roundId) {
       setError('Thiếu thông tin roundId trên URL.')
@@ -107,14 +109,14 @@ function RoundSubmissionDetailPage() {
         setLoading(true)
         setError(null)
 
-        // Fetch round details
+        // 1. Fetch thông tin vòng thi
         const roundRes = await axiosClient.get(`/round/rounds/${roundId}`)
         const details = roundRes.data
         if (!details) {
           throw new Error('Không nhận được dữ liệu vòng thi.')
         }
 
-        // Fetch team info (optional, fallback if no team)
+        // 2. Fetch thông tin team
         let teamTrack = 'Chưa phân nhánh'
         try {
           const teamRes = await axiosClient.get('/team/team-info')
@@ -125,8 +127,44 @@ function RoundSubmissionDetailPage() {
           console.warn('Không thể lấy thông tin đội:', e)
         }
 
+        // FETCH BÀI NỘP HIỆN TẠI CỦA TEAM
+        let activeSubmission = null
+        try {
+          // Thay thế chính xác endpoint mà bạn vừa cấu hình ở Backend
+          const subRes = await axiosClient.get(`/submission/current?roundId=${roundId}`)
+
+          // Nếu status là 200 và có data trả về (đã từng nộp)
+          if (subRes.status === 200 && subRes.data) {
+            activeSubmission = subRes.data
+            setSubmissionId(activeSubmission.id) // Lưu lại ID để phục vụ lệnh PUT
+            setIsUpdate(true)                    // Đánh dấu chuyển form sang trạng thái cập nhật (PUT)
+
+            // ĐƯA DỮ LIỆU THẬT VÀO STATE (Mới thêm)
+            // Map các trường từ API về đúng định dạng mà component `<SummaryCard />` yêu cầu
+            setRealSubmission({
+              github: { mode: 'link', value: activeSubmission.githubUrl },
+              video: { mode: activeSubmission.demoUrl?.startsWith('http') ? 'link' : 'file', value: activeSubmission.demoUrl },
+              slide: { mode: activeSubmission.documentUrl?.startsWith('http') ? 'link' : 'file', value: activeSubmission.documentUrl },
+              submittedAt: formatDateLabel(activeSubmission.submittedAt),
+              lastEditedAt: formatDateLabel(activeSubmission.lastEditedAt || activeSubmission.submittedAt),
+              late: activeSubmission.isLate || false,
+              score: activeSubmission.score || null,
+              comment: activeSubmission.comment || null,
+              judge: activeSubmission.score ? 'Hội đồng giám khảo' : null,
+            })
+          } else {
+            setIsUpdate(false)                   // Nhận diện HTTP 204 No Content -> Dùng POST
+            setRealSubmission(null) // Chưa nộp bài
+          }
+        } catch (e) {
+          console.log('Chưa có bài nộp nào cho vòng này hoặc phát sinh lỗi, mặc định dùng POST.', e)
+          setIsUpdate(false)
+          setRealSubmission(null)
+        }
+
         if (!isMounted) return
 
+        // Map thông tin cấu hình vòng thi
         const guidelinesText = details.submissionConfig?.submissionInstructions || ''
         const guidelines = guidelinesText
           ? guidelinesText.split('\n').map(line => line.trim()).filter(Boolean)
@@ -136,10 +174,7 @@ function RoundSubmissionDetailPage() {
             'Cung cấp tài khoản test nếu ứng dụng yêu cầu đăng nhập.'
           ]
 
-
-
-        const criteria =
-          details.criteria?.map(item => item.name) ?? []
+        const criteria = details.criteria?.map(item => item.name) ?? []
 
         const mappedRound = {
           id: details.roundId,
@@ -157,18 +192,33 @@ function RoundSubmissionDetailPage() {
           rawDeadline: details.roundSubmissionDeadline,
           rawStatus: details.status,
         }
-
         setRound(mappedRound)
 
+        // 4. Khởi tạo dữ liệu cho Form dựa trên bài nộp thật từ DB
+        if (activeSubmission) {
+          // Map dữ liệu từ API Response về cấu trúc form mong muốn
+          const existingForm = {
+            github: { mode: 'link', value: activeSubmission.githubUrl || '', file: null },
+            video: {
+              mode: activeSubmission.demoUrl?.startsWith('http') ? 'link' : 'file',
+              value: activeSubmission.demoUrl || '',
+              file: null
+            },
+            slide: {
+              mode: activeSubmission.documentUrl?.startsWith('http') ? 'link' : 'file',
+              value: activeSubmission.documentUrl || '',
+              file: null
+            }
+          }
+          setForm(existingForm)
+          setValidFields(computeValidFields(existingForm))
+        } else {
+          // Nếu chưa nộp bài bao giờ, để form trống
+          setForm(createEmptyForm())
+          setValidFields({})
+        }
 
-
-        // Initialize form
-        const submission = SCENARIO.submission
-        const newForm = submission ? buildFormFromSubmission(submission) : createEmptyForm()
-        setForm(newForm)
-        setValidFields(submission ? computeValidFields(newForm) : {})
-
-        // Compute derivedState
+        // Tính toán trạng thái đóng/mở vòng thi
         const now = new Date()
         const start = details.roundStartTime ? new Date(details.roundStartTime) : null
         const end = details.roundEndTime ? new Date(details.roundEndTime) : null
@@ -181,13 +231,11 @@ function RoundSubmissionDetailPage() {
           derivedState = 'done_closed'
         } else if (deadline && now > deadline) {
           derivedState = 'late'
-        } else {
-          derivedState = 'active'
         }
 
         const userRole = teamRole?.toLowerCase() === 'leader' ? 'leader' : 'member'
         const editable = userRole === 'leader' && (derivedState === 'active' || derivedState === 'late')
-        setIsEditing(editable && !submission)
+        setIsEditing(editable && !activeSubmission) // Nếu đã có bài nộp thì hiển thị chế độ Read-only trước
 
       } catch (err) {
         console.error(err)
@@ -206,6 +254,8 @@ function RoundSubmissionDetailPage() {
       isMounted = false
     }
   }, [roundId, teamRole])
+
+
 
   const userRole = teamRole?.toLowerCase() === 'leader' ? 'leader' : 'member'
   const isMember = userRole === 'member'
@@ -238,7 +288,6 @@ function RoundSubmissionDetailPage() {
 
   const isEditable = userRole === 'leader' && (currentState === 'active' || currentState === 'late')
   const isLate = currentState === 'late'
-  const isUpdate = !!SCENARIO.submission
   const readOnlyForm = !isEditing
 
   const readyCount = REQUIRED_SUBMISSION_FIELDS.filter((key) => !!validFields[key]).length
@@ -254,6 +303,7 @@ function RoundSubmissionDetailPage() {
       setErrors({})
     }
     setIsEditing(false)
+    window.location.reload()
   }
 
   const handleOpenConfirm = () => {
@@ -281,11 +331,79 @@ function RoundSubmissionDetailPage() {
     setIsConfirmOpen(true)
   }
 
-  const handleSubmit = () => {
+
+  // TODO: API submit bài nộp
+  // API submit bài nộp
+  const handleSubmit = async () => {
     setIsConfirmOpen(false)
-    alert('Nộp bài thành công!')
-    setIsEditing(false)
+    try {
+      setLoading(true)
+
+      if (!isUpdate) {
+        // ==========================================
+        // TH 1: CHƯA CÓ BÀI NỘP -> DÙNG LỆNH POST (MULTIPART)
+        // ==========================================
+        const formData = new FormData()
+        const requestData = {
+          roundId: parseInt(roundId, 10),
+          githUrl: form.github.value || '',
+          demoUrl: form.video.mode === 'link' ? form.video.value : '',
+          documentUrl: form.slide.mode === 'link' ? form.slide.value : ''
+        }
+
+        formData.append(
+          'request',
+          new Blob([JSON.stringify(requestData)], { type: 'application/json' })
+        )
+
+        if (form.video.mode === 'file' && form.video.file instanceof File) {
+          formData.append('demoFile', form.video.file)
+        }
+        if (form.slide.mode === 'file' && form.slide.file instanceof File) {
+          formData.append('documentFile', form.slide.file)
+        }
+
+        const response = await axiosClient.post('/submission', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        })
+
+        if (response.status === 201 || response.status === 200) {
+          alert('Nộp bài thành công!')
+          setIsEditing(false)
+          window.location.reload()
+        }
+
+      } else {
+        // ==========================================
+        // TH 2: ĐÃ CÓ BÀI NỘP -> DÙNG LỆNH PUT (JSON BODY)
+        // ==========================================
+        const updateRequestData = {
+          githubUrl: form.github.value || '',
+          demoUrl: form.video.value || '',
+          documentUrl: form.slide.value || ''
+        }
+
+        // Gọi API PUT kèm theo PathVariable `submissionId`
+        const response = await axiosClient.put(`/submission/${roundId}`, updateRequestData)
+
+        if (response.status === 200) {
+          alert('Cập nhật bài nộp thành công!')
+          setIsEditing(false)
+          window.location.reload()
+        }
+      }
+
+    } catch (err) {
+      console.error('Lỗi khi nộp/cập nhật bài:', err)
+      const errorMsg = err.response?.data?.message || err.message || 'Có lỗi xảy ra.'
+      alert(`Thao tác thất bại: ${errorMsg}`)
+    } finally {
+      setLoading(false)
+    }
   }
+
+
+
 
   if (loading) {
     return (
@@ -355,7 +473,7 @@ function RoundSubmissionDetailPage() {
           <div className={styles.colSide}>
             <div className={styles.stickySide}>
               <TimeCard round={round} state={currentState} now={nowStr} />
-              <SummaryCard submission={SCENARIO.submission} state={currentState} />
+              <SummaryCard submission={realSubmission} state={currentState} />
             </div>
           </div>
         </div>
