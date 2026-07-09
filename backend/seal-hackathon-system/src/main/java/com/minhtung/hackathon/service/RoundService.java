@@ -4,10 +4,7 @@ import com.minhtung.hackathon.dto.round.ComingRoundResponse;
 import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
 import com.minhtung.hackathon.dto.round.RoundRequest;
 import com.minhtung.hackathon.dto.round.SubmissionConfigResponse;
-import com.minhtung.hackathon.entity.Event;
-import com.minhtung.hackathon.entity.Round;
-import com.minhtung.hackathon.entity.RoundTimeline;
-import com.minhtung.hackathon.entity.SubmissionConfig;
+import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.EventStatus;
 import com.minhtung.hackathon.repository.*;
 import jakarta.transaction.Transactional;
@@ -26,7 +23,8 @@ public class RoundService {
     private final EventRepository eventRepository;
     private final RoundTimelineRepository roundTimelineRepository;
     private final SubmissionConfigRepository submissionConfigRepository;
-
+    private final CriterionRepository criterionRepository;
+    private final ScoringTemplateRepository scoringTemplateRepository;
 
     public ComingRoundResponse getComingRound() {
         Round round = roundRepository.findFirstByTimeEndAfterOrderByTimeEndAsc(LocalDateTime.now())
@@ -90,7 +88,7 @@ public class RoundService {
 
         // Tìm và xóa các Round thuộc Event này nhưng KHÔNG nằm trong danh sách FE gửi lên
         if (!activeRoundIds.isEmpty()) {
-                roundRepository.deleteByEventIdAndIdNotIn(event.getId(), activeRoundIds);
+            roundRepository.deleteByEventIdAndIdNotIn(event.getId(), activeRoundIds);
         } else {
             // Nếu FE gửi lên mảng rounds rỗng hoặc toàn bộ roundId đều là tạo mới -> Xóa sạch các round cũ của Event
             roundRepository.deleteByEventId(event.getId());
@@ -325,6 +323,24 @@ public class RoundService {
             }
         }
         dto.setStatus(status);
+
+        ScoringTemplate scoringTemplate = round.getScoringTemplate();
+        List<Criterion> criteria = criterionRepository.findByScoringTemplateId(scoringTemplate.getId());
+        if (scoringTemplate == null || criteria.isEmpty()) {
+            dto.setCriteria(new ArrayList<>());
+        } else {
+            List<RoundDetailsResponse.CriteriaResponse> criteriaDTOs = new ArrayList<>();
+            for (Criterion criterion : criteria) {
+                RoundDetailsResponse.CriteriaResponse criteriaDTO = new RoundDetailsResponse.CriteriaResponse();
+                criteriaDTO.setId(criterion.getId());
+                criteriaDTO.setName(criterion.getName());
+                criteriaDTO.setDescription(criterion.getDescription());
+                criteriaDTO.setWeight(criterion.getWeight());
+                criteriaDTOs.add(criteriaDTO);
+            }
+            dto.setCriteria(criteriaDTOs);
+        }
+
 
         return dto;
     }

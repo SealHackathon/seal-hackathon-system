@@ -1,0 +1,269 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.25em;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75em;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.titleIcon {
+  color: var(--color-border-blue);
+}
+
+/* Toolbar: search bên trái, cột filter + sort bên phải */
+.toolbar {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+.search {
+  flex: 0 1 32em;
+  min-width: 14em;
+}
+
+.filterCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  flex: 1;
+  min-width: 0;
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table th {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  border-bottom: 1.5px solid var(--color-border-blue);
+  padding: 0.7em 0.7em;
+  white-space: nowrap;
+}
+
+.thLeft {
+  text-align: left;
+}
+
+.table td {
+  padding: 0.85em 0.7em;
+  border-bottom: 1px solid var(--color-bg-blue);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tdLeft {
+  text-align: left;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Dòng cần chú ý: viền trái cam */
+.rowBehind td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-primary-orange);
+}
+
+/* Nội dung tooltip cần chú ý (hiện khi hover cột đội) */
+.attentionTip {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+  align-items: flex-start;
+  max-width: 16em;
+}
+
+.attentionReason {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+/* Cột đội */
+.teamCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  align-items: flex-start;
+}
+
+.teamName {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.teamLeader {
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+}
+
+.teamTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35em;
+  margin-top: 0.1em;
+}
+
+/* Số liệu (thành viên) */
+.dataNum {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.cellIcon {
+  color: var(--color-border-blue);
+}
+
+/* Cột vòng & tiến độ */
+.roundCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.8em;
+  min-width: 9em;
+}
+
+.roundTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  flex-wrap: wrap;
+  gap: 0.5em;
+}
+
+.progressValue {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+  white-space: nowrap;
+}
+
+.track {
+  width: 100%;
+  height: 0.5em;
+  background: var(--color-bg-blue);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: var(--color-primary-blue);
+  border-radius: var(--radius);
+}
+
+.centerCell {
+  display: flex;
+  justify-content: center;
+}
+
+/* Cột kết quả */
+.resultCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3em;
+}
+
+.resultScore {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+/* Cột câu hỏi chờ */
+.questionBtn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0.2em 0.4em;
+  border-radius: var(--inner-radius);
+  transition: background 0.15s ease;
+}
+
+.questionBtn:hover {
+  background: var(--color-bg-blue);
+}
+
+.qPending {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.qIcon {
+  color: var(--color-border-blue);
+}
+
+.qDone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary-green);
+}
+
+.questionBtnDone:hover {
+  background: var(--color-bg-green);
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.tdAction {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.emptyRow {
+  padding: 2em;
+  text-align: center;
+  color: var(--color-secondary-blue);
+}
+
+.pageWrap {
+  display: flex;
+  justify-content: center;
+}

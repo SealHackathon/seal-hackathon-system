@@ -1,0 +1,52 @@
+.card {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 2em;
+}
+.card + .card {
+  margin-top: 1em;
+}
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5625em;
+  margin-bottom: 1em;
+}
+.cardHead svg {
+  font-size: 1.125rem;
+  color: var(--color-border-blue);
+}
+.cardTitle {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--color-secondary-blue);
+}
+.critList {
+  display: flex;
+  flex-direction: column;
+}
+.critItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625em;
+  padding: 0.6875em 0;
+  border-bottom: 1px solid var(--color-border-blue);
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.4;
+  color: var(--color-text-primary);
+}
+.critItem:first-child {
+  padding-top: 0;
+}
+.critItem:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.critItem svg {
+  font-size: 1rem;
+  color: var(--color-primary-blue);
+  flex-shrink: 0;
+  margin-top: 1px;
+}

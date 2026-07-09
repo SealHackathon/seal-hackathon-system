@@ -1,0 +1,71 @@
+.box {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85em;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.25em;
+  box-sizing: border-box;
+}
+
+.title {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 0.6em;
+}
+
+.tile {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.6em 0.7em;
+  background: var(--color-bg-blue);
+  border-radius: var(--inner-radius);
+}
+
+.tileIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-border-blue);
+  flex-shrink: 0;
+}
+
+.tileText {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.tileValue {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  white-space: nowrap;
+}
+
+.tileLabel {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.theme {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-primary);
+}
+
+.themeLabel {
+  font-weight: 700;
+  color: var(--color-primary-blue);
+}

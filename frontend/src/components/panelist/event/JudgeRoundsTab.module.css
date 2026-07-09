@@ -1,0 +1,27 @@
+.tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  border: 1px solid var(--color-border-blue);
+  padding: 2em;
+  border-radius: var(--radius);
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  color: var(--color-border-blue);
+}
+
+.sectionTitle p {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight:bold;
+  color: var(--color-primary-blue);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}

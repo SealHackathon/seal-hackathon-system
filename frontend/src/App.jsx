@@ -91,6 +91,7 @@
 
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { useEffect } from 'react';
+import Lenis from 'lenis';
 import './App.css';
 import { AuthProvider, useAuth } from './AuthContext';
 
@@ -105,6 +106,8 @@ import RegisterPage from './pages/RegisterPage';
 import VerifyEmailPage from './pages/VerifyEmailPage';
 import CompleteProfilePage from './pages/completeProfile/CompleteProfilePage';
 import EmailVerifiedPage from './pages/EmailVerifiedPage';
+import RubricLibraryPage from './pages/coordinator/rubrics/RubricLibraryPage';
+import CreateRubricPage from './pages/coordinator/rubrics/CreateRubricPage';
 
 
 function TeamRoute() {
@@ -117,18 +120,22 @@ function TeamRoute() {
     if (role !== "USER") return <Navigate to="/admin/coordinator/events" replace />;
     if (teamRoleLoading) return <div>Loading...</div>;
     if (teamRole === null) return <div>Loading...</div>;
+
     if (teamRole === "LEADER") return <LeaderView />;
+
     if (teamRole === "MEMBER") return <MemberView />;
+
     return <NoTeamView />;
 }
 
 
 
+
 function AppRoutes() {
-    const { role, isAuthenticated, userStatus,fetchUserStatus } = useAuth();
+    const { role, isAuthenticated, userStatus, fetchUserStatus } = useAuth();
     // console.log(userStatus)
     // console.log(teamRole)
-      useEffect(() => {
+    useEffect(() => {
         fetchUserStatus();
     }, []);
 
@@ -150,6 +157,11 @@ function AppRoutes() {
                         <>
                             <Route path="/admin/coordinator/events" element={<EventListPage />} />
                             <Route path="/admin/coordinator/events/create" element={<CreateEventPage />} />
+                            <Route path="/admin/coordinator/events/manage/:id" element={<CreateEventPage />} />
+                            <Route path="/admin/coordinator/rubrics" element={<RubricLibraryPage />} />
+                            <Route path="/admin/coordinator/rubrics/create" element={<CreateRubricPage />} />
+                            <Route path="/admin/coordinator/rubrics/:id/edit" element={<CreateRubricPage />} />
+
                         </>
                     )}
 
@@ -166,7 +178,7 @@ function AppRoutes() {
                                 // User đã hoàn thiện hồ sơ -> Các trang bình thường
                                 <>
                                     <Route path="/user/dashboard" element={<UserDashboard />} />
-                                    
+
                                     <Route path="/team" element={
                                         userStatus === "PENDING_APPROVAL" ? (
                                             <Navigate to="/user/dashboard" replace />
@@ -194,13 +206,28 @@ function AppRoutes() {
     );
 }
 
+function SmoothScroll({ children }) {
+    useEffect(() => {
+        const lenis = new Lenis({
+            autoRaf: true,
+            lerp: 0.25, // Tốc độ nội suy nhanh, không bị hiệu ứng slow-motion
+        });
+        return () => {
+            lenis.destroy();
+        };
+    }, []);
+    return children;
+}
+
 function App() {
     return (
-        <AuthProvider>
-            <BrowserRouter>
-                <AppRoutes />
-            </BrowserRouter>
-        </AuthProvider>
+        <SmoothScroll>
+            <AuthProvider>
+                <BrowserRouter>
+                    <AppRoutes />
+                </BrowserRouter>
+            </AuthProvider>
+        </SmoothScroll>
     );
 }
 

@@ -10,6 +10,7 @@ import NoticeBox from '../components/shared/NoticeBox'
 import axios from 'axios'
 import { Bell } from '@phosphor-icons/react'
 import axiosClient from '../api/axiosClient'
+import { useAuth } from '../AuthContext'
 
 // Data tạm — sau này thay bằng API
 // const FAKE_MEMBERS = [
@@ -139,6 +140,7 @@ function LeaderView() {
   const [teamStatus, setTeamStatus] = useState('OPEN') // ! fix chỗ này lại thành OPEN vì trong TeamStatusTag.jsx không có 'pending'
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' })
   const token = localStorage.getItem("accessToken")
+  const { updateTeamRole } = useAuth();
 
   useEffect(() => {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
@@ -149,7 +151,10 @@ function LeaderView() {
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   const emptyCount = MAX_SLOTS - FAKE_MEMBERS.length
+
+  const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
   // api lấy team members thành viên đội 
   useEffect(() => {
@@ -159,7 +164,7 @@ function LeaderView() {
         setFAKE_MEMBERS(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
   // api lấy team info
   useEffect(() => {
@@ -170,7 +175,7 @@ function LeaderView() {
         setTeamStatus(response.data.teamStatus)
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
 
   // api teamLeader xem những join request gửi đến team này 
@@ -181,7 +186,7 @@ function LeaderView() {
         setFAKE_REQUESTS(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
   // api teamLeader xem những invitation da gui di 
   useEffect(() => {
@@ -191,7 +196,7 @@ function LeaderView() {
         setFAKE_INVITES(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
   // api teamLeader xem những leave request da gui di 
   useEffect(() => {
@@ -201,37 +206,28 @@ function LeaderView() {
         setFAKE_LEAVE_REQUESTS(response.data);
       })
       .catch((error) => console.log(error));
-  }, []);
+  }, [refreshTrigger]);
 
 
 
 
   const handleOnAccept = ((requestId, isAccept) => {
-    setConfirmModal({
-      title: 'Phê duyệt thành viên vào đội',
-      message: 'Bạn có chắc chắn muốn PHÊ DUYỆT thành viên này vào đội không?',
-      confirmLabel: 'Phê duyệt',
-      onConfirm: () => {
-        axiosClient
-          .put('/teamrequest/Join-request/respond', {
-            requestId: requestId,
-            accept: isAccept
-          })
-          .then((response) => {
-            console.log(response.data);
-            // alert("Đã chấp nhận thành viên vào đội thành công!");
+    axiosClient
+      .put('/teamrequest/Join-request/respond', {
+        requestId: requestId,
+        accept: isAccept
+      })
+      .then((response) => {
+        console.log(response.data);
+        // alert("Đã chấp nhận thành viên vào đội thành công!");
 
-            // 2. Reload lại trang để cập nhật danh sách mới
-            window.location.reload();
-          })
-          .catch((error) => {
-            console.log(error);
-            alert("Có lỗi xảy ra khi thực hiện phê duyệt!");
-          });
-
-        setConfirmModal(null)
-      }
-    })
+        // 2. Reload lại trang để cập nhật danh sách mới
+        triggerRefresh();
+      })
+      .catch((error) => {
+        console.log(error);
+        alert("Có lỗi xảy ra khi thực hiện phê duyệt!");
+      });
   });
 
 
@@ -254,7 +250,7 @@ function LeaderView() {
             // alert("Đã từ chối yêu cầu gia nhập!");
 
             // 2. Reload lại trang để yêu cầu biến mất khỏi danh sách chờ
-            // window.location.reload();
+            // triggerRefresh();
           })
           .catch((error) => {
             console.log(error);
@@ -286,7 +282,7 @@ function LeaderView() {
             // alert("Đã hủy lời mời thành công!");
 
             // 2. Tải lại trang để cập nhật giao diện (mất lời mời vừa hủy)
-            window.location.reload();
+            triggerRefresh();
           })
           .catch((error) => {
             console.log(error);
@@ -313,15 +309,17 @@ function LeaderView() {
             //thêm reload trang
 
             setConfirmModal({
+              title: 'Thành công',
               message: 'Đã kick thành viên thành công!',
               confirmLabel: 'Xác nhận',
               isNotification: true,
-              onConfirm: () => { window.location.reload() }
+              variant: 'success',
+              onConfirm: () => { triggerRefresh() }
             })
 
             // alert("Đã kick thành viên thành công!");
             //reload trang
-            window.location.reload();
+            // triggerRefresh();
           })
           .catch((error) => {
             console.log(error);
@@ -352,9 +350,11 @@ function LeaderView() {
             console.log(response.data);
 
             setConfirmModal({
+              title: 'Thành công',
               message: 'Đã chuyển giao quyền Trưởng nhóm thành công!',
               confirmLabel: 'Xác nhận',
               isNotification: true,
+              variant: 'success',
               onConfirm: () => { window.location.reload() }
             })
 
@@ -379,31 +379,35 @@ function LeaderView() {
       return;
     }
 
-    const isConfirmed = window.confirm("Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!");
+    setConfirmModal({
+      title: 'Xác nhận rời nhóm',
+      message: 'Bạn có chắc chắn muốn rời khỏi nhóm này không? Hành động này không thể hoàn tác!',
+      confirmLabel: 'Xác nhận',
+      onConfirm: () => {
+        axiosClient
+          .post('/teamrequest/out-team', {})
+          .then((response) => {
+            console.log(response.data);
 
-    if (isConfirmed) {
-      axiosClient
-        .post('/teamrequest/out-team', {})
-        .then((response) => {
-          console.log(response.data);
-
-          setConfirmModal({
-            message: 'Bạn đã rời nhóm thành công!',
-            confirmLabel: 'Xác nhận',
-            isNotification: true,
-            onConfirm: () => { window.location.reload() }
+            setConfirmModal({
+              title: 'Thành công',
+              message: 'Bạn đã rời nhóm thành công!',
+              confirmLabel: 'Xác nhận',
+              isNotification: true,
+              variant: 'success',
+              onConfirm: () => {
+                localStorage.removeItem('lastKnownTeamRole');
+                updateTeamRole('NO_TEAM');
+              }
+            })
           })
-
-          // alert("Bạn đã rời nhóm thành công!");
-          window.location.reload();
-        })
-        .catch((error) => {
-          console.log(error);
-          alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
-        });
-    } else {
-      console.log("Người dùng đã hủy bỏ yêu cầu rời nhóm.");
-    }
+          .catch((error) => {
+            console.log(error);
+            alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+            setConfirmModal(null)
+          });
+      }
+    })
   };
 
 
@@ -411,20 +415,21 @@ function LeaderView() {
   // TODO: Xử lí chỉnh sửa thông tin đội
 
   const handleOnApproveLeave = (id) => {
-    axios
+    axiosClient
       .put(`/teamrequest/Leave-request/${id}/respond`, {})
       .then((response) => {
         console.log(response.data);
-
         setConfirmModal({
+          title: 'Thành công',
           message: 'Bạn đã duyệt yêu cầu rời nhóm thành công!',
           confirmLabel: 'Xác nhận',
           isNotification: true,
-          onConfirm: () => { window.location.reload() }
+          variant: 'info',
+          onConfirm: () => { setConfirmModal(null); triggerRefresh() }
         })
 
         // alert("Bạn đã duyet yeu cau roi nhóm thành công!");
-        window.location.reload();
+        // triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
@@ -438,16 +443,18 @@ function LeaderView() {
       .post('/teamrequest/out-team/cancle', id)
       .then((response) => {
         console.log(response.data);
-
+        
         setConfirmModal({
+          title: 'Thành công',
           message: 'Bạn đã từ chối yêu cầu rời nhóm thành công!',
           confirmLabel: 'Xác nhận',
           isNotification: true,
-          onConfirm: () => { window.location.reload() }
+          variant: 'info',
+          onConfirm: () => { setConfirmModal(null); triggerRefresh() }
         })
 
         // alert("Bạn đã tu choi yeu cau roi nhóm thành công!");
-        window.location.reload();
+        // triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
@@ -464,7 +471,7 @@ function LeaderView() {
         setTeamStatus('PENDING_APPROVAL')
 
         // alert("Đã chốt đội thành công!");
-        window.location.reload();
+        triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
@@ -484,7 +491,7 @@ function LeaderView() {
         console.log('TODO: Gọi API promote RESERVE → OFFICAL, memberId:', id)
         // ! đang check là cái id này là MEMBER id FK của bảng MEMBER
         axiosClient.put(`/team/move-to-official/${id}`).then(() => {
-          window.location.reload
+          triggerRefresh()
         }).catch((error) => {
           console.log(error)
         })
@@ -504,7 +511,7 @@ function LeaderView() {
         console.log('TODO: Gọi API demote OFFICAL → RESERVE, memberId:', id)
         // ! đang check là cái id này là MEMBER id FK của bảng MEMBER
         axiosClient.put(`/team/move-to-reserve/${id}`).then(() => {
-          window.location.reload
+          triggerRefresh()
         }).catch((error) => {
           console.log(error)
         })
@@ -548,11 +555,10 @@ function LeaderView() {
           teamName={teamInfo.teamName}
           description={teamInfo.description}
           teamCode={teamInfo.teamCode}
-          emptyCount={emptyCount}
           teamStatus={teamStatus}
+          emptyCount={emptyCount}
           isLeader
-          // onEdit={() => console.log('mở popup chỉnh sửa thông tin đội')}
-          onFindMember={() => console.log('mở popup tìm thành viên')}
+          onRefresh={triggerRefresh}
         />
 
         {/* {renderNoticeBox()} */}
@@ -603,10 +609,10 @@ function LeaderView() {
         title={confirmModal?.title}
         message={confirmModal?.message}
         confirmLabel={confirmModal?.confirmLabel}
-        confirmColor={confirmModal?.confirmColor}
         onConfirm={confirmModal?.onConfirm}
         onCancel={() => setConfirmModal(null)}
         isNotification={confirmModal?.isNotification}
+        variant={confirmModal?.variant}
       />
 
     </EventLayout>

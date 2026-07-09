@@ -31,6 +31,9 @@ public class RoundDetailsResponse {
     // --- THÊM: Mảng lịch trình chi tiết của vòng thi này ---
     private List<TimelineResponse> timelines;
 
+    // --- THÊM: Mảng lịch trình chi tiết của vòng thi này ---
+    private List<CriteriaResponse> criteria;
+
     @AllArgsConstructor
     @NoArgsConstructor
     @Getter
@@ -41,5 +44,16 @@ public class RoundDetailsResponse {
         private String description;
         private String timeStart;
         private String timeEnd;
+    }
+
+    @AllArgsConstructor
+    @NoArgsConstructor
+    @Getter
+    @Setter
+    public static class CriteriaResponse {
+        private long id;
+        private String name;
+        private String description;
+        private float weight;
     }
 }

@@ -7,7 +7,7 @@ function Tooltip({
     content,
     contentSize = 14,
     bgColor = 'blue', // "blue", "green", "orange", "white"
-    textColor = 'white', // "blue", "green", "orange", "white"
+    textColor = 'white', // "blueTxt", "greenTxt", "orangeTxt", "whiteTxt"
     position = 'top', // "top", "bottom", "right", "left"
     wrapperClassName = '',
     wrapperStyle = {},

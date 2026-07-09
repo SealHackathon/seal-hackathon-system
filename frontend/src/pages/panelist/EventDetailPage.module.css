@@ -1,0 +1,75 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-white);
+  padding: 0.5em 1.5em 1.5em;
+}
+
+.body {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+/* Section 1: header + box meta */
+.topSection {
+  display: flex;
+  gap: 1.25em;
+  align-items: stretch;
+}
+
+.headerCol {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.metaCol {
+  display: flex;
+}
+
+/* Section 2: 80% nội dung + 20% sticky box */
+.layout {
+  display: flex;
+  gap: 1.5em;
+  align-items: flex-start;
+}
+
+.main {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.sidebar {
+  flex: 0 0 16em;
+}
+
+.stickyWrap {
+  position: sticky;
+  top: 5em;
+}
+
+.placeholder {
+  border: 1px dashed var(--color-border-blue);
+  background: var(--color-bg-blue);
+  border-radius: var(--radius);
+  padding: 3em 2em;
+  text-align: center;
+  color: var(--color-text-secondary);
+  font-weight: 700;
+}
+
+@media (max-width: 60em) {
+  .topSection,
+  .layout {
+    flex-direction: column;
+  }
+  .metaCol,
+  .sidebar {
+    flex: 1 1 auto;
+    width: 100%;
+  }
+  .stickyWrap {
+    position: static;
+  }
+}

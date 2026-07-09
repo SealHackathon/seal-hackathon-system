@@ -2,6 +2,7 @@ package com.minhtung.hackathon.repository;
 
 
 import com.minhtung.hackathon.entity.Round;
+import com.minhtung.hackathon.entity.ScoringTemplate;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

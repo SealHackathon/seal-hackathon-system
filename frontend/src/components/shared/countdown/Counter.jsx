@@ -7,9 +7,9 @@ const ANGLE = -360 / FACES.length
 // - Cái trục quay sẽ quay lên hay quay xuống (Đối với Rotator)
 // - Cái thứ tự xếp các mặt số (Đối với faces)
 
-function Counter({ number }) {
+function Counter({ number, size = 'large' }) {
     return (
-        <div className={styles.counter}>
+        <div className={`${styles.counter} ${size === 'small' ? styles.small : ''}`}>
             <div className={styles.scene}>
                 <div
                     className={styles.rotator}

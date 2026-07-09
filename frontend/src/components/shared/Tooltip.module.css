@@ -264,3 +264,8 @@
 .green.left::after {
     border-color: var(--color-primary-green) transparent transparent transparent;
 }
+
+/* === TEXT COLOR VARIANT === */
+.blueTxt {
+    color: var(--color-primary-blue);
+}

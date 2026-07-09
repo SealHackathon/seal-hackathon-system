@@ -45,7 +45,9 @@ public class TrackService {
                         track.getName(),
                         track.getDes(), // Biến mô tả trong Entity của bạn
                         track.getMaxTeamPerTrack(),
-                        track.getMinTeamPerTrack(),eventId
+                        track.getMinTeamPerTrack(),
+                        track.getTeamQuantity()
+                        ,eventId
                 ))
                 .toList();
     }
@@ -96,6 +98,7 @@ public class TrackService {
                             track.getDes(),
                             track.getMinTeamPerTrack(),
                             track.getMaxTeamPerTrack(),
+                            track.getTeamQuantity(),
                             event.getId()
                     ))
                     .toList();

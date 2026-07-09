@@ -104,10 +104,12 @@ function TimelineVertical({ milestones = [], showToday = true }) {
             <div className={styles.lineDone} />
 
             {/* HÔM NAY */}
-            <div className={styles.todayIndicator}>
-                <span className={styles.todayLine} />
-                <span className={styles.todayLabel}>HÔM NAY</span>
-            </div>
+            {showToday && (
+                <div className={styles.todayIndicator}>
+                    <span className={styles.todayLine} />
+                    <span className={styles.todayLabel}>HÔM NAY</span>
+                </div>
+            )}
 
             {/* Nodes */}
             {nodes.map((node, i) => {

@@ -1,0 +1,281 @@
+/* ========================================================================== */
+/* BASE CARD (BỐ CỤC CHUNG THẺ) */
+/* ========================================================================== */
+.card {
+  border-radius: var(--inner-radius);
+  background-color: var(--color-bg-white);
+  border: 1px solid var(--color-bg-grey);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.header {
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid var(--color-bg-grey);
+}
+
+.headerTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.roundName {
+  font-size: 1.25rem;
+  color: var(--color-text-primary);
+  margin: 0;
+  font-family: var(--body-font-main);
+  font-weight: 700;
+  font-style: normal;
+}
+
+.dateRange {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
+  font-weight: bold;
+}
+
+.noticeArea {
+  padding: 1em 1.5rem 0;
+}
+
+.deadlineBox {
+  margin: 1em 1.5em;
+  padding: 1.5rem;
+  border: 1px solid var(--color-text-muted);
+  border-radius: var(--inner-radius);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: var(--color-bg-white);
+}
+
+.deadlineLabel {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  text-transform: none;
+  margin-bottom: 0.25rem;
+  font-weight: 600;
+}
+
+.deadlineValue {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.closedBox, .upcomingBox {
+  padding: 3rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.closedBox {
+  margin: 1.5rem;
+  border: 1px solid var(--color-border-orange);
+  background-color: var(--color-bg-orange);
+  border-radius: var(--inner-radius);
+}
+
+.closedTitle, .upcomingTitle {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-text-primary);
+}
+
+.closedSub, .upcomingSub {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.closedDesc,
+.upcomingDesc {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.evaluationBox {
+  margin: 1.5rem;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-blue);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+}
+
+.evalLabel {
+  font-size: 0.85rem;
+  font-weight: bold;
+  color: var(--color-text-primary);
+  margin-bottom: 0.5rem;
+}
+
+.evalTitle {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-primary-blue);
+  margin-bottom: 0.25rem;
+}
+
+.evalDesc {
+  color: var(--color-text-secondary);
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.evalAction {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.footer {
+  padding: 1rem 1.5rem 1.5rem 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.footerLabel {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  text-transform: none;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.statusRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.statusText {
+  font-weight: 700;
+  font-size: 1.05rem;
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+}
+
+/* ========================================================================== */
+/* CARD ACTIVE (ĐANG DIỄN RA) */
+/* ========================================================================== */
+.cardActive {
+  border-color: var(--color-primary-blue);
+  border-width: 2px;
+}
+
+.cardActive .header {
+  border-bottom-color: var(--color-bg-blue);
+  background-color: var(--color-bg-blue);
+}
+
+.cardActive .roundName {
+  color: var(--color-primary-blue);
+}
+
+/* ========================================================================== */
+/* CARD LATE (TRỄ HẠN) */
+/* ========================================================================== */
+.cardLate {
+  border-color: var(--color-primary-orange);
+  border-width: 2px;
+}
+
+.cardLate .header {
+  border-bottom-color: var(--color-bg-orange);
+  background-color: var(--color-bg-orange);
+}
+
+.cardLate .roundName {
+  color: var(--color-primary-orange);
+}
+
+/* ========================================================================== */
+/* CARD UPCOMING (SẮP TỚI) */
+/* ========================================================================== */
+.cardUpcoming {
+  border-color: var(--color-text-muted);
+}
+
+.cardUpcoming .roundName {
+  color: var(--color-text-secondary);
+}
+
+/* ========================================================================== */
+/* CARD DONE - SUCCESS (ĐÃ HOÀN THÀNH - VƯỢT QUA) */
+/* ========================================================================== */
+.cardDoneSuccess {
+  border-color: var(--color-border-green);
+  background-color: var(--color-bg-white);
+}
+
+.cardDoneSuccess .header {
+  /* background-color: var(--color-bg-green); */
+}
+
+.cardDoneSuccess .roundName {
+  color: var(--color-primary-green);
+}
+
+/* ========================================================================== */
+/* CARD DONE - FAILED/CLOSED (ĐÃ KẾT THÚC) */
+/* ========================================================================== */
+.cardDone {
+  border-color: var(--color-bg-grey);
+}
+
+.cardDone .header {
+  border-bottom-color: transparent;
+}
+
+.cardDone .roundName {
+  color: var(--color-text-primary);
+}
+
+/* ========================================================================== */
+/* CARD DONE - EVALUATED (Hành trình dừng lại) */
+/* ========================================================================== */
+.cardDoneEval {
+  border-color: var(--color-secondary-blue);
+  background-color: var(--color-bg-white);
+}
+
+.cardDoneEval .header {
+  border-bottom-color: var(--color-bg-blue);
+}
+
+
+.cardDoneEval .roundName {
+  color: var(--color-primary-blue);
+}
+
+/* ========================================================================== */
+/* CARD DONE - CLOSED (Đóng cổng hoàn toàn) */
+/* ========================================================================== */
+.cardDoneClosed {
+  border-color: var(--color-border-orange);
+  background-color: var(--color-bg-white);
+}
+
+.cardDoneClosed .header {
+  border-bottom-color: transparent;
+}
+
+.cardDoneClosed .roundName {
+  color: var(--color-primary-orange);
+}

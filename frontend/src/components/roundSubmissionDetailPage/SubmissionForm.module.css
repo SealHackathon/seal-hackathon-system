@@ -1,0 +1,196 @@
+.card {
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 2em;
+}
+
+.card+.card {
+  margin-top: 1em;
+}
+
+/* ── Tiêu đề ── */
+.cardHead {
+  display: flex;
+  align-items: center;
+  gap: 0.5625em;
+  margin-bottom: 1em;
+}
+
+.cardHead svg {
+  font-size: 1.125rem;
+  color: var(--color-border-blue);
+}
+
+.cardTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.cardSub {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  margin-left: auto;
+}
+
+/* ── Từng hạng mục bài nộp ── */
+.field {
+  padding: 1em 0;
+}
+
+.fieldHead {
+  display: flex;
+  align-items: center;
+  gap: 0.625em;
+  margin-bottom: 0.75em;
+}
+
+.fieldName {
+  font-size: 1rem;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 0.4375em;
+  color: var(--color-primary-blue);
+}
+
+.fieldName svg {
+  font-size: 1rem;
+}
+
+.ast {
+  color: var(--color-dark-orange);
+  font-weight: 800;
+  margin-left: 0.125em;
+}
+
+.fieldDone {
+  font-size: 1rem;
+  color: var(--color-primary-green);
+  flex-shrink: 0;
+}
+
+.fieldDone[data-on="false"] {
+  color: var(--color-text-muted);
+}
+
+.fieldControl {
+  margin-top: 0.75em;
+}
+
+/* ── Control box dùng chung: giá trị chỉ xem & thông báo view-only ── */
+.controlBox {
+  display: flex;
+  align-items: center;
+  gap: 0.5625em;
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  padding: 0.625em 0.8125em;
+  font-size: 1rem;
+}
+
+.controlBox svg {
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.roVal {
+  background: var(--color-bg-blue);
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.roVal svg {
+  color: var(--color-primary-blue);
+}
+
+.roVal a {
+  color: var(--color-primary-blue);
+  text-decoration: none;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.viewOnly {
+  background: var(--color-bg-grey);
+  border-color: var(--color-border-grey);
+  color: var(--color-dark-grey);
+  font-weight: 700;
+  padding: 0.75em 0.9375em;
+  margin-top: 0.875em;
+}
+
+/* ── Tiến độ & hành động nộp bài ── */
+.footerArea {
+  margin-top: 2em;
+  padding-top: 1.5em;
+  border-top: 1px dashed var(--color-border-grey);
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1.25em;
+}
+
+.progressArea {
+  flex: 1;
+  max-width: 25em;
+}
+
+.progressTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4375em;
+}
+
+.progressLbl {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+}
+
+.progressCount {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.bar {
+  height: 0.5em;
+  border-radius: var(--radius);
+  background: var(--color-bg-grey);
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  border-radius: var(--radius);
+  background: var(--color-primary-green);
+  transition: width .25s;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  align-items: flex-end;
+}
+
+.btnGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+}
+
+.note {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  text-align: right;
+}

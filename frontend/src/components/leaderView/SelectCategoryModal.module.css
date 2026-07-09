@@ -1,0 +1,119 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 1rem;
+    margin-right: -0.5rem;
+}
+
+.categoryRow {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid var(--color-border-blue);
+    border-radius: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.categoryRow:not(.categoryRowDisabled):hover {
+    background: var(--color-bg-light);
+    border-color: var(--color-secondary-blue);
+}
+
+.categoryRowSelected {
+    border-color: var(--color-secondary-blue);
+    background: var(--color-bg-blue);
+}
+
+.categoryRowDisabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background: var(--color-bg-light);
+}
+
+.categoryInfo {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.categoryName {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.categoryDesc {
+    font-size: 0.875rem;
+    color: var(--color-secondary-blue);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.categoryStats {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+}
+
+.statBadge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: white;
+    background: var(--color-primary-blue);
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+}
+
+.statBadgeFull {
+    background: var(--color-primary-orange);
+}
+
+.categoryState {
+    width: 28px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.checkmark {
+    color: var(--color-primary-blue);
+}
+
+.disabledLabel {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary-orange);
+    white-space: nowrap;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--color-border-blue);
+}

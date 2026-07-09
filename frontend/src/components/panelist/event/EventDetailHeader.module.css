@@ -1,0 +1,76 @@
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  background: var(--color-primary-blue);
+  border-radius: var(--radius);
+  padding: 1.5em 2em;
+  color: var(--color-bg-white);
+  width: 100%;
+
+  overflow:hidden;
+}
+
+.hero::before,
+.hero::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+
+  background: linear-gradient(120deg,
+      rgba(255, 255, 255, 0.10),
+      rgba(255, 255, 255, 0.02));
+  transform: skewX(-25deg);
+  pointer-events: none;
+
+  z-index: 0;
+}
+
+.hero::before {
+  width: 16em;
+  left: -10em;
+}
+
+.hero::after {
+  width: 2em;
+  left: 8em;
+  opacity: 0.6;
+}
+
+.heroTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.extLink {
+  width: 2.25em;
+  height: 2.25em;
+  border-radius: 0.5em;
+  border: 2px solid var(--color-border-blue);
+  background: var(--color-bg-white);
+  color: var(--color-secondary-blue);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  flex-shrink: 0;
+  transition: all 0.15s ease-in;
+}
+
+.extLink:hover {
+  color: var(--color-primary-blue);
+  transform: scale(1.1);
+}
+
+.title {
+  margin: 0.1em 0 0;
+  font-size: 2rem;
+  color: var(--color-bg-white);
+}
+
+.titleRow {
+  display: flex;
+  gap: 0.5em;
+}

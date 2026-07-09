@@ -91,7 +91,8 @@
 }
 .node:hover .dot  { transform: scale(1.12); }
 .dotDone          { background-color: #dcfce7; border-color: #22c55e; color: #16a34a; }
-.dotActive        { background-color: var(--color-primary-blue); border-color: var(--color-primary-blue); color: #fff; }
+.dotActive        { background-color: var(--color-bg-white); border-color: var(--color-primary-blue); position: relative; }
+.dotActive::after { content: ''; position: absolute; width: 12px; height: 12px; border-radius: 50%; background-color: var(--color-primary-blue); }
 .dotUpcoming      { background-color: var(--color-bg-white); border-color: var(--color-border-blue); }
 
 .nodeLabel {

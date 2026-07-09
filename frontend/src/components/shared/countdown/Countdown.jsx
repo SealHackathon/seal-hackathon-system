@@ -19,7 +19,7 @@ function digits(value) {
     return [parseInt(str[0]), parseInt(str[1])]
 }
 
-function Countdown( {target} ) {
+function Countdown( {target, size = 'large'} ) {
     const [time, setTime] = useState(getTimeLeft(target))
 
     useEffect(() => {
@@ -33,25 +33,25 @@ function Countdown( {target} ) {
     }, [target])
 
     return (
-        <div className={styles.countdown}>
-            <Unit label="Ngày"   value={time.days} />
+        <div className={`${styles.countdown} ${size === 'small' ? styles.small : ''}`}>
+            <Unit label="Ngày"   value={time.days} size={size} />
             <span className={styles.sep}>:</span>
-            <Unit label="Giờ"    value={time.hours} />
+            <Unit label="Giờ"    value={time.hours} size={size} />
             <span className={styles.sep}>:</span>
-            <Unit label="Phút"   value={time.minutes} />
+            <Unit label="Phút"   value={time.minutes} size={size} />
             <span className={styles.sep}>:</span>
-            <Unit label="Giây"   value={time.seconds} />
+            <Unit label="Giây"   value={time.seconds} size={size} />
         </div>
     )
 }
 
-function Unit({ label, value }) {
+function Unit({ label, value, size }) {
     const [d0, d1] = digits(value)
     return (
         <div className={styles.unit}>
             <div className={styles.rollers}>
-                <Counter number={d0} />
-                <Counter number={d1} />
+                <Counter number={d0} size={size} />
+                <Counter number={d1} size={size} />
             </div>
             <p className={styles.label}>{label}</p>
         </div>

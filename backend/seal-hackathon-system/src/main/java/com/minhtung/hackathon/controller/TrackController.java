@@ -27,7 +27,6 @@ public class TrackController {
     private final TrackService trackService;
 
     // 1. GET ALL hoặc GET BY EVENT ID (Ví dụ: /api/track?eventId=1)
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<?> getTracks(@RequestHeader("Authorization") String auth,
                                        @RequestParam(required = false) Long eventId) {

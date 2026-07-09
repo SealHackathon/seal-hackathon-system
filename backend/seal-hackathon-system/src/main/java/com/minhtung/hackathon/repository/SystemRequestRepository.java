@@ -24,6 +24,9 @@ public interface SystemRequestRepository extends JpaRepository<SystemRequest, Lo
             long receiverId, long referenceId, long trackId, SystemRequest.RequestType type, Collection<SystemRequest.RequestStatus> statuses);
 
 
+    List<SystemRequest> findByReceiverIdAndStatus(long receiverId, SystemRequest.RequestStatus status);
+    Optional<SystemRequest> findByIdAndReceiverId(long id, long receiverId);
+
     // Lấy danh sách lời mời Mentor/Judge đã gửi cho 1 Event, chỉ lấy PENDING hoặc ACCEPTED
     // JOIN FETCH receiver để tránh LazyInitializationException khi map sang DTO
     @Query("SELECT sr FROM SystemRequest sr JOIN FETCH sr.receiver " +

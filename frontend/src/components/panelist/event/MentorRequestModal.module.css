@@ -1,0 +1,189 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 37, 114, 0.28);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5em;
+  z-index: 1000;
+}
+
+.dialog {
+  background: var(--color-bg-white);
+  border-radius: var(--radius);
+  width: min(70em, 100%);
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75em;
+  padding: 1.25em 1.5em;
+  border-bottom: 1px solid var(--color-border-blue);
+}
+
+.headTitle {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.headIcon {
+  color: var(--color-border-blue);
+  flex-shrink: 0;
+}
+
+.teamName {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.headSub {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+}
+
+.closeBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2em;
+  height: 2em;
+  border: none;
+  border-radius: var(--inner-radius);
+  background: none;
+  color: var(--color-secondary-blue);
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.closeBtn:hover {
+  background: var(--color-bg-blue);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  gap: 1em;
+  padding: 1.25em 1.5em;
+  overflow-y: auto;
+}
+
+.fadeBottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4.5em;
+  background: linear-gradient(to top, var(--color-bg-white) 15%, transparent 100%);
+  pointer-events: none;
+  z-index: 10;
+  border-bottom-left-radius: var(--radius);
+  border-bottom-right-radius: var(--radius);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.fadeBottomShow {
+  opacity: 1;
+}
+
+.empty {
+  font-size: 0.95rem;
+  color: var(--color-secondary-blue);
+  text-align: center;
+  padding: 1.5em 0;
+}
+
+/* Mỗi câu hỏi: câu hỏi 40% | phản hồi 60% */
+.qaCard {
+  display: flex;
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+}
+
+.qaCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  padding: 1em 1.1em;
+  min-width: 0;
+}
+
+.questionCol {
+  flex: 0 0 40%;
+}
+
+.answerCol {
+  flex: 0 0 60%;
+  border-left: 1px solid var(--color-border-blue);
+}
+
+.qaLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.qaQuestion {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  font-weight: 600;
+  color: var(--color-primary-blue);
+}
+
+.qaAnswer {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--color-text-primary);
+}
+
+.qaTime {
+  font-size: 0.8rem;
+  color: var(--color-secondary-blue);
+  margin-top: auto;
+}
+
+/* Chưa trả lời */
+
+.replyForm {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.replyInputRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.8em;
+}
+
+.replyTextarea {
+  flex: 1;
+  min-width: 0; /* prevent overflow */
+}
+
+/* Max height 8em for the actual textarea */
+.replyTextarea textarea {
+  max-height: 5em;
+}
+
+.replyActions {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}

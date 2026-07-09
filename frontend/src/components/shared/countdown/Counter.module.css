@@ -9,7 +9,7 @@
 .scene {
     width: 100%;
     height: 100%;
-    perspective: 10rem; 
+    perspective: 10rem;
 }
 
 .rotator {
@@ -30,7 +30,21 @@
     font-size: 1.5rem;
     font-weight: bold;
     font-family: var(--title-font-main);
-    color: #ffffff;
+    color: var(--color-bg-white);
 
-    backface-visibility: hidden; 
+    backface-visibility: hidden;
+}
+
+.counter.small {
+    background: transparent;
+    width: 1.5em;
+    height: 3em;
+}
+
+.counter.small .face {
+    font-family: var(--body-font-main);
+    font-weight: 800;
+    font-size: 1rem;
+    padding: 0.5em;
+    color: var(--color-primary-blue);
 }

@@ -2,15 +2,34 @@ import { CalendarBlank, Users, MapPin, Trophy } from '@phosphor-icons/react'
 import Button from '../shared/Button'
 import styles from './LiveEventCard.module.css'
 import coverPlaceholder from '../../assets/seal_hackathon_poster.png'
-const INFO_ITEMS = [
-    { icon: CalendarBlank, label: 'Thời gian thi đấu',        value: '20/07/2026 - 21/07/2026' },
-    { icon: Users,         label: 'Số lượng thành viên',      value: '3 - 5 người / đội'       },
-    { icon: MapPin,        label: 'Địa điểm tổ chức',         value: 'Đại học FPT'             },
-    { icon: Trophy,        label: 'Tổng giá trị giải thưởng', value: '16.500.000 VNĐ'          },
-]
+
+function formatDateRange(start, end) {
+    const formatDate = (value) => {
+        if (!value) return 'Chưa cập nhật'
+
+        const date = new Date(value)
+        if (Number.isNaN(date.getTime())) return 'Chưa cập nhật'
+
+        return date.toLocaleDateString('vi-VN', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+        })
+    }
+
+    if (start && end) return `${formatDate(start)} - ${formatDate(end)}`
+    return formatDate(start || end)
+}
 
 function LiveEventCard({ event, onJoin, onViewRules }) {
     if (!event) return null
+
+    const infoItems = [
+        { icon: CalendarBlank, label: 'Thời gian thi đấu', value: formatDateRange(event.startDate, event.endDate) },
+        { icon: Users, label: 'Số lượng thành viên', value: event.maxTeamMember ? `Tối đa ${event.maxTeamMember} người / đội` : 'Chưa cập nhật' },
+        { icon: MapPin, label: 'Địa điểm tổ chức', value: event.location || 'Chưa cập nhật' },
+        { icon: Trophy, label: 'Tổng giá trị giải thưởng', value: event.prize ? `${Number(event.prize).toLocaleString('vi-VN')} VNĐ` : 'Chưa cập nhật' },
+    ]
 
     return (
         <div className={styles.card}>
@@ -36,7 +55,7 @@ function LiveEventCard({ event, onJoin, onViewRules }) {
 
                 {/* Info row */}
                 <div className={styles.infoRow}>
-                    {INFO_ITEMS.map((item, i) => (
+                    {infoItems.map((item, i) => (
                         <div key={i} className={styles.infoItem}>
                             <item.icon size={28} weight="fill" color="var(--color-secondary-blue)" />
                             <div>

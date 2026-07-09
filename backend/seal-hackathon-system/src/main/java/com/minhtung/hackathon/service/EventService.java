@@ -380,7 +380,7 @@ public class EventService {
                             t.getName(),
                             t.getDes(),
                             t.getMaxTeamPerTrack(),
-                            t.getMinTeamPerTrack(), event.getId()
+                            t.getMinTeamPerTrack(),t.getTeamQuantity()  , event.getId()
                     ))
                     .toList();
             response.setTracks(trackDTOs);

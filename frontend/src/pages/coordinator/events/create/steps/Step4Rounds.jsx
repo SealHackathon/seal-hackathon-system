@@ -11,10 +11,11 @@ import DateTimePicker from '../../../../../components/shared/DateTimePicker'
 import RichTextEditor from '../../../../../components/shared/RichTextEditor'
 import {
     CalendarBlank, MapPin, Broadcast, Trophy,
-    Folder, ArrowCounterClockwise, ListChecks, ClipboardText, Textbox
+    Folder, ArrowCounterClockwise, ListChecks, ClipboardText, Textbox, Trash, Plus
 } from '@phosphor-icons/react'
 import { getRecentLocations, saveRecentLocation } from '../../../../../utils/useRecentLocation'
 import styles from './Step4Rounds.module.css'
+import SelectRubricModal from './SelectRubricModal'
 
 // ── Tạo round mới với giá trị mặc định
 function createRound(name = 'Vòng mới') {
@@ -31,6 +32,8 @@ function createRound(name = 'Vòng mới') {
         submissionGuide: '',
         agenda: [],
         meetingLink: '',
+        topTeamPass: '',
+        rubricId: null,
     }
 }
 
@@ -47,6 +50,7 @@ const SUBMISSION_OPTIONS = [
 // ── Form cho 1 vòng thi
 function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, teamDeadline, highlightRanges }) {
     const [recents, setRecents] = useState(() => getRecentLocations())
+    const [showRubricModal, setShowRubricModal] = useState(false)
 
     function update(field, val) {
         onChange({ ...round, [field]: val })
@@ -107,7 +111,7 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
     // ── Validate thời gian mở nộp bài
     const submissionOpenError = errors?.[`round-${roundIndex}-submissionOpen`] || (() => {
         if (!round.submissionOpen) return null
-        
+
         if (!round.startDate) {
             return 'Vui lòng chọn thời gian bắt đầu vòng thi trước'
         }
@@ -191,11 +195,26 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
                                 message="Đây là vòng cuối cùng, sẽ được dùng để trao giải cho các đội thi."
                             />
                         ) : (
-                            <Banner
-                                color="blue" variant="flat" icon={Trophy}
-                                title="Không phải vòng trao giải"
-                                message="Vòng này không phải vòng trao giải, vòng trao giải sẽ là vòng cuối cùng."
-                            />
+                            <>
+                                <Banner
+                                    color="blue" variant="flat" icon={Trophy}
+                                    title="Không phải vòng trao giải"
+                                    message="Vòng này không phải vòng trao giải, vòng trao giải sẽ là vòng cuối cùng."
+                                />
+                                <div style={{ marginTop: '1rem' }}>
+                                    <FormInput
+                                        label="Số đội được vào vòng tiếp theo"
+                                        type="number"
+                                        min={1}
+                                        required
+                                        placeholder="Ví dụ: 10"
+                                        value={round.topTeamPass || ''}
+                                        onChange={e => update('topTeamPass', e?.target ? e.target.value : e)}
+                                        status={errors?.[`round-${roundIndex}-topTeamPass`] ? 'error' : 'default'}
+                                        message={errors?.[`round-${roundIndex}-topTeamPass`]}
+                                    />
+                                </div>
+                            </>
                         )}
                     </FieldGroup>
 
@@ -291,10 +310,40 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
                             </FieldGroup>
 
                             <FieldGroup icon={ListChecks} title="Rubric chấm điểm">
-                                <div className={styles.rubricPlaceholder}>
-                                    Chọn rubric
-                                </div>
+                                {round.rubricId ? (
+                                    <div className={styles.rubricSelected}>
+                                        <div className={styles.rubricInfo}>
+                                            <span className={styles.rubricLabel}>{round.rubricName || `Bộ tiêu chí đã chọn`}</span>
+                                        </div>
+                                        <div className={styles.rubricActions}>
+                                            <button className={styles.rubricChangeBtn} onClick={() => setShowRubricModal(true)}>
+                                                Thay đổi
+                                            </button>
+                                            <button className={styles.rubricRemoveBtn} onClick={() => {
+                                                onChange({ ...round, rubricId: null, rubricName: null })
+                                            }}>
+                                                <Trash size={20} weight='fill' />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className={styles.rubricPlaceholder} onClick={() => setShowRubricModal(true)}>
+                                        <Plus size={20} />
+                                        <span>Chọn rubric</span>
+                                    </div>
+                                )}
                             </FieldGroup>
+
+                            {showRubricModal && (
+                                <SelectRubricModal
+                                    onClose={() => setShowRubricModal(false)}
+                                    selectedRubricId={round.rubricId}
+                                    onSelect={(selected) => {
+                                        onChange({ ...round, rubricId: selected.id, rubricName: selected.name })
+                                        setShowRubricModal(false)
+                                    }}
+                                />
+                            )}
                         </>
                     )}
 

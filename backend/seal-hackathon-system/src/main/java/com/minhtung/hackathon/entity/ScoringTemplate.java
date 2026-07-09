@@ -49,7 +49,7 @@ public class ScoringTemplate {
             orphanRemoval = true)
     private List<Criterion> criteria = new ArrayList<>();
 
-    @OneToMany(mappedBy = "scoringTemplate")
+    @OneToMany(mappedBy = "scoringTemplate", cascade = CascadeType.ALL)
     private List<Round> rounds = new ArrayList<>();
 
     public ScoringTemplate() {

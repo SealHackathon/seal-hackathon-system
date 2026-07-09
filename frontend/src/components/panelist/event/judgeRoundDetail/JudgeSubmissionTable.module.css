@@ -1,0 +1,214 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.25em;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75em;
+}
+
+.title {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.titleIcon {
+  color: var(--color-border-blue);
+}
+
+/* Toolbar: search + filter + sort cùng một hàng */
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1em;
+}
+
+.search {
+  flex: 1;
+}
+
+.filterCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  min-width: 0;
+
+  transform: scale(0.85);
+}
+
+.tableWrap {
+  overflow-x: auto;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.table th {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  padding: 0.7em;
+  white-space: nowrap;
+}
+
+.thLeft {
+  text-align: left;
+}
+
+.table td {
+  padding: 0.85em 0.7em;
+  border-bottom: 1px solid var(--color-bg-blue);
+  text-align: center;
+  vertical-align: middle;
+}
+
+.tdLeft {
+  text-align: left;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Hàng tiêu đề nhóm hạng mục */
+.groupRow td {
+  background: var(--color-primary-blue);
+  border-radius: var(--radius) var(--radius) 4px 4px;
+  text-align: left;
+  padding: 1em 0.9em;
+  border-bottom: none;
+}
+
+.groupName {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-bg-white);
+}
+
+.groupCount {
+  margin-left: 0.6em;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-border-blue);
+}
+
+/* Dòng đang lưu nháp: viền trái cam nhắc hoàn tất chấm */
+.rowDraft td:first-child {
+  box-shadow: inset 3px 0 0 var(--color-primary-orange);
+}
+
+/* Cột đội thi */
+.teamCell {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  align-items: flex-start;
+}
+
+.teamName {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.teamLeader {
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+}
+
+.teamTags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5em;
+  margin-top: 0.1em;
+}
+
+.memberCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.cellIcon {
+  color: var(--color-border-blue);
+}
+
+.subTime {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  white-space: nowrap;
+}
+
+.centerCell {
+  display: flex;
+  justify-content: center;
+}
+
+.score {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.scoreMax {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.muted {
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.tdAction {
+  text-align: right;
+  white-space: nowrap;
+}
+
+.actionCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  align-items: stretch;
+}
+
+.actionTime {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  text-align: center;
+  margin-top: 0.5em;
+}
+
+.emptyRow {
+  padding: 2em;
+  text-align: center;
+  color: var(--color-secondary-blue);
+}
+
+.actionBtn {
+  width: 100%;
+}
