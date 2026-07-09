@@ -1,0 +1,51 @@
+.wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.count {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.tipList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+  min-width: 10em;
+}
+
+.tipItem {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+}
+
+.tipLabel {
+  flex: 1;
+}
+
+.tipDone {
+  color: var(--color-dark-green);
+  font-weight: 700;
+  font-size: 0.8rem;
+}
+
+.tipPending {
+  color: var(--color-text-secondary);
+  font-weight: 700;
+  font-size: 0.8rem;
+}

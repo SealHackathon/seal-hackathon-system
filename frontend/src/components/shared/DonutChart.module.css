@@ -1,0 +1,108 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25em;
+}
+
+.chartArea {
+  position: relative;
+}
+
+.svg {
+  display: block;
+  overflow: visible;
+}
+
+.seg {
+  cursor: pointer;
+  transition: stroke-width 0.15s ease;
+}
+
+/* Nội dung ở giữa donut */
+.center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1em;
+  pointer-events: none;
+}
+
+.centerValue {
+  font-size: 1.9rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  line-height: 1;
+}
+
+.centerLabel {
+  font-size: 0.8rem;
+  color: var(--color-secondary-blue);
+}
+
+/* Tooltip khi hover segment */
+.tooltip {
+  position: absolute;
+  left: 50%;
+  top: -0.4em;
+  transform: translate(-50%, -100%);
+  background: var(--color-primary-blue);
+  color: var(--color-bg-white);
+  font-size: 0.8rem;
+  padding: 0.4em 0.7em;
+  border-radius: var(--inner-radius);
+  white-space: nowrap;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15em;
+}
+
+.tooltipNote {
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
+.tooltip strong {
+  font-weight: 800;
+}
+
+/* Legend */
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+  width: 100%;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.9rem;
+}
+
+.legendDot {
+  width: 0.7em;
+  height: 0.7em;
+  border-radius: var(--radius-circle);
+  flex-shrink: 0;
+}
+
+.legendLabel {
+  flex: 1;
+  color: var(--color-secondary-blue);
+}
+
+.legendValue {
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
