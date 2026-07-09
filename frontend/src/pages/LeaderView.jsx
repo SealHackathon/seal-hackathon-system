@@ -146,7 +146,7 @@ function LeaderView() {
   const [teamStatus, setTeamStatus] = useState('OPEN') // ! fix chỗ này lại thành OPEN vì trong TeamStatusTag.jsx không có 'pending'
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' })
   const [selectedCategory, setSelectedCategory] = useState(null)
-  const [categories, setCategories] = useState([])
+  const [categories, setCategories] = useState(MOCK_CATEGORIES)
   const token = localStorage.getItem("accessToken")
   const { updateTeamRole } = useAuth();
 

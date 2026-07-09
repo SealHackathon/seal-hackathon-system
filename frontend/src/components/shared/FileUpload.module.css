@@ -91,6 +91,7 @@
     opacity: 1;
 }
 
+
 /* Ảnh mờ khi hover */
 .previewImg {
     width: 100%;
@@ -106,6 +107,11 @@
 
 .hintIcon {
     color: var(--color-secondary-blue);
+    transition: all 0.15s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.dropzone:hover .hintIcon {
+    transform: scale(1.2) translateY(-0.3em);
 }
 
 .hintMain {

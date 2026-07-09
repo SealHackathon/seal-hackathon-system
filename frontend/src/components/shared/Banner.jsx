@@ -51,7 +51,7 @@ function Banner({
 
             {/* Body */}
             <div className={styles.body}>
-                {title && <p className={styles.title}>{title}</p>}
+                {title && <div className={styles.title}>{title}</div>}
                 {message && <p className={styles.message}>{message}</p>}
                 {detail && <div className={styles.detail}>{detail}</div>}
             </div>

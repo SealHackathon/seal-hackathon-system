@@ -1,0 +1,19 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-white);
+}
+
+.body {
+  max-width: 84em;
+  margin: 0 auto;
+  padding: 1.5em 2em 3em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+@media (max-width: 48em) {
+  .body {
+    padding: 1.25em 1em 2.5em;
+  }
+}
