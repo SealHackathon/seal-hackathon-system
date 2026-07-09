@@ -85,7 +85,7 @@
   bottom: 0;
   left: 0;
   right: 0;
-  height: 3.5em;
+  height: 4.5em;
   background: linear-gradient(to top, var(--color-bg-white) 15%, transparent 100%);
   pointer-events: none;
   z-index: 10;
@@ -111,7 +111,6 @@
   display: flex;
   border: 1px solid var(--color-border-blue);
   border-radius: var(--inner-radius);
-  overflow: hidden;
 }
 
 .qaCol {
@@ -179,7 +178,7 @@
 
 /* Max height 8em for the actual textarea */
 .replyTextarea textarea {
-  max-height: 8em;
+  max-height: 5em;
 }
 
 .replyActions {
