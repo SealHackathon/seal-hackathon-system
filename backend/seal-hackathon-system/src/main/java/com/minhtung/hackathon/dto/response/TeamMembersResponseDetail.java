@@ -12,7 +12,7 @@ import java.util.Map;
 @NoArgsConstructor
 @Data
 
-public class TeamMembersResponse {
+public class TeamMembersResponseDetail {
     private long id;
     private String name;
     private String email;

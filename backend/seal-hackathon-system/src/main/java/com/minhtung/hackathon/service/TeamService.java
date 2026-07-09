@@ -13,7 +13,6 @@ import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.*;
 import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -629,17 +628,17 @@ public class TeamService {
 
     //tra ve danh sach thanh vien trong team hien tai cua account
     @Transactional
-    public List<TeamMembersResponse> getAllMembers(long userId) {
+    public List<TeamMembersResponseDetail> getAllMembers(long userId) {
         Member member = memberRepository.findByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE)).orElse(null);
         Team team = teamRepository.findById(member.getTeam().getId()).orElse(null);
         if (member == null) {
             throw new IllegalArgumentException("bạn chưa tham gia team nào");
         }
         List<Member> memberList = memberRepository.findByTeamId(member.getTeam().getId()).orElse(null);
-        List<TeamMembersResponse> membersResponsesList = new ArrayList<>();
+        List<TeamMembersResponseDetail> membersResponsesList = new ArrayList<>();
         for (Member member1 : memberList) {
             if (member1.getStatus() != MemberStatus.OUT) {
-                TeamMembersResponse membersResponse = new TeamMembersResponse();
+                TeamMembersResponseDetail membersResponse = new TeamMembersResponseDetail();
                 User user = member1.getMember();
                 Student_profile profile = studentprofileRepository.findByUserId(user.getId()).orElse(null);
                 membersResponse.setBio(profile.getBio());
@@ -1083,11 +1082,11 @@ public class TeamService {
                 roundTeamDto.setHasSubmission(false);
             }
 
-            // 3. Map danh sách thành viên sang định dạng TeamMembersResponse DTO của bạn
-            List<TeamMembersResponse> memberDTOs = new ArrayList<>();
+            // 3. Map danh sách thành viên sang định dạng TeamMembersResponseDetail DTO của bạn
+            List<TeamMembersResponseDetail> memberDTOs = new ArrayList<>();
             if (team.getMembers() != null) {
                 memberDTOs = team.getMembers().stream().map(m -> {
-                    TeamMembersResponse memberDto = new TeamMembersResponse();
+                    TeamMembersResponseDetail memberDto = new TeamMembersResponseDetail();
                     memberDto.setId(m.getMember().getId());
                     memberDto.setName(m.getMember().getFullName());
                     memberDto.setEmail(m.getMember().getEmail());
