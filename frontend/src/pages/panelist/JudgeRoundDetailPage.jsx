@@ -1,14 +1,22 @@
 import { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom' 
+import { useParams } from 'react-router-dom'
 import StickyHeader from '../../components/shared/StickyHeader'
 import JudgeRoundHero from '../../components/panelist/event/judgeRoundDetail/JudgeRoundHero'
 import JudgeScoringProgress from '../../components/panelist/event/judgeRoundDetail/JudgeScoringProgress'
 import JudgeSubmissionTable from '../../components/panelist/event/judgeRoundDetail/JudgeSubmissionTable'
 import styles from './JudgeRoundDetailPage.module.css'
-import axiosClient from '../../api/axiosClient' 
+import axiosClient from '../../api/axiosClient'
+import { useNavigate } from 'react-router-dom';
 
 function JudgeRoundDetailPage({ backLink = '/panelist/events/1?tab=judge' }) {
-  const { roundId } = useParams()
+  const { eventId, roundId } = useParams()
+
+  const navigate = useNavigate();
+
+  const handleScore = (submissionId) => {
+    // Chuyển hướng chính xác theo Route cấu hình của bạn
+    navigate(`/panelist/events/${eventId}/judge/rounds/${roundId}/submissions/${submissionId}`);
+  };
 
   const [round, setRound] = useState(null)
   const [submissions, setSubmissions] = useState([])
@@ -116,7 +124,7 @@ function JudgeRoundDetailPage({ backLink = '/panelist/events/1?tab=judge' }) {
         </div>
 
         <div className={styles.tableRow}>
-          <JudgeSubmissionTable submissions={submissions} />
+          <JudgeSubmissionTable submissions={submissions} onScore={handleScore} />
         </div>
       </div>
     </div>

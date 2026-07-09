@@ -282,9 +282,22 @@ public class SubmissionService {
     }
 
 
-    private SubmissionDetailResponseid mapToDetailResponse(
-            Submission submission
-    ) {
+    private SubmissionDetailResponseid mapToDetailResponse(Submission submission) {
+        // 1. Chuyển đổi danh sách Entity thành viên của Team sang MemberResponse DTO
+        List<SubmissionDetailResponseid.MemberResponse> memberDTOs = null;
+
+        if (submission.getTeam() != null && submission.getTeam().getMembers() != null) {
+            memberDTOs = submission.getTeam().getMembers().stream()
+                    .map(member -> SubmissionDetailResponseid.MemberResponse.builder()
+                            .id(member.getId())
+                            .fullName(member.getMember().getFullName()) // Hoặc member.getName() tùy thuộc vào Entity của bạn
+                            .roleInTeam(member.getRole().toString() != null ? member.getRole().toString() : "Thành viên")
+                            .isLeader(member.getRole().equals(MemberRole.LEADER)) // Trả về true/false để FE highlight icon Trưởng nhóm
+                            .build())
+                    .toList(); // Hoặc .collect(Collectors.toList()) nếu dùng Java dưới 16
+        }
+
+        // 2. Build Object phản hồi chính
         return SubmissionDetailResponseid.builder()
                 .id(submission.getId())
                 .teamId(submission.getTeam().getId())
@@ -293,9 +306,7 @@ public class SubmissionService {
                 .roundName(submission.getRound().getName())
                 .scoringTemplateId(
                         submission.getRound().getScoringTemplate() != null
-                                ? submission.getRound()
-                                  .getScoringTemplate()
-                                  .getId()
+                                ? submission.getRound().getScoringTemplate().getId()
                                 : null
                 )
                 .githubUrl(submission.getGithubUrl())
@@ -303,9 +314,11 @@ public class SubmissionService {
                 .documentUrl(submission.getDocumentUrl())
                 .submittedAt(submission.getSubmittedAt())
                 .latest(submission.isLatest())
+
+
+                .members(memberDTOs)
                 .build();
     }
-
 
     private void validateSubmittionLinks(UpdateSubmissionRequest request) {
         boolean hasGithub =

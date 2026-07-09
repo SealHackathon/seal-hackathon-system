@@ -42,21 +42,21 @@ function JudgeSubmissionRow({ submission, onScore }) {
   if (submission.status === 'done') {
     action = (
       <div className={styles.actionCol}>
-        <Button className={styles.actionBtn} labelSize={18} label="Xem lại điểm" variant="outline" color="blue" icon={CaretRight} iconPosition="right" onClick={() => onScore?.(submission)} />
+        <Button className={styles.actionBtn} labelSize={18} label="Xem lại điểm" variant="outline" color="blue" icon={CaretRight} iconPosition="right" onClick={() => onScore?.(submission.id)} />
         {submission.scoredAt && <span className={styles.actionTime}>Đã nộp: {fmtDateTime(submission.scoredAt)}</span>}
       </div>
     )
   } else if (submission.status === 'draft') {
     action = (
       <div className={styles.actionCol}>
-        <Button className={styles.actionBtn} labelSize={18} label="Tiếp tục chấm" variant="outline" color="blue" icon={Pen} iconWeight="fill" onClick={() => onScore?.(submission)} />
+        <Button className={styles.actionBtn} labelSize={18} label="Tiếp tục chấm" variant="outline" color="blue" icon={Pen} iconWeight="fill" onClick={() => onScore?.(submission.id)} />
         {submission.scoredAt && <span className={styles.actionTime}>Lưu lúc: {fmtDateTime(submission.scoredAt)}</span>}
       </div>
     )
   } else {
     action = (
       <div className={styles.actionCol}>
-        <Button className={styles.actionBtn} labelSize={18} label="Chấm điểm" variant="primary" color="blue" icon={Pen} iconWeight="fill" onClick={() => onScore?.(submission)} />
+        <Button className={styles.actionBtn} labelSize={18} label="Chấm điểm" variant="primary" color="blue" icon={Pen} iconWeight="fill" onClick={() => onScore?.(submission.id)} />
       </div>
     )
   }
