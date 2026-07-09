@@ -1,0 +1,276 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    max-height: 85vh;
+    overflow: hidden;
+    scrollbar-width: none;
+    position: relative;
+}
+
+/* --- Banner Section --- */
+.banner {
+    background-color: var(--color-primary-blue);
+    /* Pattern sọc chéo giống Info Header */
+    border-radius: var(--radius);
+    padding: 1em 2em;
+    /* dư ra để phần content đè lên */
+    color: white;
+    margin: 1em 0 0;
+}
+
+.banner::before,
+.banner::after {
+    content: "";
+    position: absolute;
+    top: -50%;
+    bottom: -50%;
+
+    background: linear-gradient(30deg,
+            rgba(255, 255, 255, 0.18),
+            rgba(255, 255, 255, 0.02));
+    transform: skewX(25deg);
+    pointer-events: none;
+
+    z-index: 0;
+
+}
+
+.banner::before {
+    width: 8em;
+    right: 15em;
+}
+
+.banner::after {
+    width: 2em;
+    right: 12em;
+    opacity: 0.6;
+}
+
+.bannerContent {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.bannerTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+}
+
+/* --- Content Wrapper --- */
+.contentWrapper {
+    padding: 1em 2em 2em;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    position: relative;
+    z-index: 2;
+    overflow: auto;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-border-blue) var(--color-bg-blue);
+    overscroll-behavior: contain;
+    /* Ngăn scroll lan ra ngoài */
+}
+
+/* --- Top Section --- */
+
+.profileCard {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    border: 1px solid var(--color-border-blue);
+    border-radius: 24px;
+    padding: 32px;
+    background-color: var(--color-bg-blue);
+    gap: 40px;
+}
+
+/* Card Left */
+.cardLeft {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 250px;
+    flex-shrink: 0;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 24px;
+    border: 6px solid #ffffff;
+    /* Dùng outline và outline-offset để tạo viền ngoài cùng thay vì ::after */
+    outline: 2px solid var(--color-border-blue);
+}
+
+.name {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--color-primary-blue);
+    margin: 0;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.roleLabel {
+    font-size: 1rem;
+    color: var(--color-secondary-blue);
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+/* Card Divider */
+.cardDivider {
+    width: 1px;
+    background-color: var(--color-border-blue);
+}
+
+/* Card Right */
+.cardRight {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.infoList {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.infoItem {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.infoIcon {
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+}
+
+.infoText {
+    color: var(--color-text-primary);
+    line-height: 1.4;
+}
+
+.infoHighlight {
+    font-weight: bold;
+}
+
+.cvLink {
+    color: var(--color-primary-green);
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.cvLink:hover {
+    color: var(--color-dark-green);
+}
+
+
+/* --- Bottom Section --- */
+.bottomSection {
+    display: flex;
+    flex-direction: column;
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.sectionIcon {
+    color: var(--color-border-blue);
+}
+
+.sectionTitle {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+.orange .sectionTitle,
+.orange .sectionIcon {
+    color: var(--color-primary-orange);
+}
+
+/* Bio */
+.bioSection {
+    margin-bottom: 24px;
+    padding-left: 2em;
+    border-left: 1px solid var(--color-border-blue);
+}
+
+.bioText {
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.divider {
+    height: 1px;
+    background-color: #ebebeb;
+    margin: 1em 0;
+}
+
+/* Tags Grid (2fr 1fr) */
+.tagsGrid {
+    display: grid;
+    grid-template-columns: 5fr 4fr;
+    gap: 48px;
+}
+
+
+.tagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 12px;
+    border: 1px solid #b0b0b0;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.blueBadge {
+    background-color: var(--color-bg-blue);
+    border-color: var(--color-border-blue);
+    color: var(--color-primary-blue);
+}
+
+.orangeBadge {
+    background-color: var(--color-bg-orange);
+    border-color: var(--color-border-orange);
+    color: var(--color-primary-orange);
+}
+
+.emptyText {
+    font-size: 1rem;
+    color: #9ca3af;
+    /* muted gray */
+    font-style: italic;
+    margin: 0;
+}
+
+.emptyTextInline {
+    color: #9ca3af;
+    font-style: italic;
+}
