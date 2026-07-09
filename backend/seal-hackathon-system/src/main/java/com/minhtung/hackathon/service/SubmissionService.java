@@ -12,6 +12,7 @@ import com.minhtung.hackathon.enums.MemberRole;
 import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Value;
@@ -118,7 +119,7 @@ public class SubmissionService {
         submission.setLatest(true);
 
         return SubmissionResponse.from(
-                submissionRepository.save(submission));
+                submissionRepository.save(submission),null);
     }
 
     @Transactional
@@ -161,7 +162,7 @@ public class SubmissionService {
         newSubmission.setSubmittedAt(LocalDateTime.now());
         newSubmission.setLatest(true);
 
-        return SubmissionResponse.from(submissionRepository.save(newSubmission));
+        return SubmissionResponse.from(submissionRepository.save(newSubmission),null);
     }
 
 
@@ -366,21 +367,31 @@ public class SubmissionService {
         }
     }
 
+    @Autowired
+    private JudgeScoreRepository judgeScoreRepository;
+
     public SubmissionResponse getCurrentSubmission(String email, Long roundId) {
-        // 1. Tìm thông tin User từ email của token
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
 
-        // 2. Xác định xem user này có phải Leader chính thức của nhóm nào không
         Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL)
-                .orElseThrow(() -> new IllegalArgumentException("Chỉ trưởng nhóm mới có quyền xem bài nộp"));
+                .orElseThrow(() -> new IllegalArgumentException("Chỉ trưởng nhóm mới có quyền xem"));
 
         Team team = leader.getTeam();
 
-        // 3. Tìm bài nộp mới nhất của Team tại Vòng thi này
-        return submissionRepository
+        // 1. Tìm bài nộp mới nhất
+        Submission submission = submissionRepository
                 .findFirstByTeamIdAndRoundIdAndLatestTrue(team.getId(), roundId)
-                .map(SubmissionResponse::from)
-                .orElse(null); // Trả về null nếu đội chưa nộp bài bao giờ
+                .orElse(null);
+
+        if (submission == null) {
+            return null; // Trả về null nếu chưa nộp bài bao giờ -> FE biết đường dùng POST
+        }
+
+        // 2. Tìm điểm số tương ứng của bài nộp này (nếu có)
+        JudgeScore judgeScore = judgeScoreRepository.findBySubmissionId(submission.getId()).orElse(null);
+
+        // 3. Trả về Response chứa đầy đủ cả thông tin bài nộp lẫn điểm số từ thực tế
+        return SubmissionResponse.from(submission, judgeScore);
     }
 }
