@@ -8,7 +8,7 @@ import EmptyState from '../../components/panelist/EmptyState'
 import styles from './DashboardPage.module.css'
 import { useEffect, useState } from 'react'
 import axiosClient from '../../api/axiosClient'
-
+import { useNavigate } from 'react-router-dom'
 
 // // --- Mock data (thay bằng dữ liệu API sau) ---
 // const ASSIGNED_EVENTS = [
@@ -82,6 +82,8 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
+  const navigate = useNavigate()
+
   // ===== API: lấy sự kiện được phân công =====
   useEffect(() => {
     let isMounted = true // tránh setState khi component đã unmount
@@ -136,12 +138,23 @@ function DashboardPage() {
 
   const handleOpenScoring = (eventId) => {
     // TODO: điều hướng sang giao diện chấm thi của sự kiện
+    const roundId = assignedEvent?.currentRound?.id
+    if (eventId && roundId) {
+      // Điều hướng tới: /panelist/events/:eventId/judge/rounds/:roundId
+      navigate(`/panelist/events/${eventId}/judge/rounds/${roundId}`)
+    } else {
+      // Fallback nếu chưa có thông tin vòng đấu hoặc API chưa trả về roundId
+      console.warn("Không tìm thấy thông tin vòng đấu hiện tại (roundId).")
+      navigate(`/panelist/dashboard`)
+    }
   }
   const handleManageTeams = (eventId) => {
     // TODO: điều hướng sang trang quản lý đội thi
+    navigate(`/panelist/events/${eventId}`)
   }
   const handleViewRubric = (eventId) => {
     // TODO: mở rubric / tiêu chí chấm điểm
+    navigate(`/panelist/events/${eventId}?tab=rubric`)
   }
   const handleAccept = (invitationId) => {
     axiosClient.post(`/mentor-judge/invitations/${invitationId}/accept`)
@@ -168,12 +181,12 @@ function DashboardPage() {
       assignment: {
         judge: assignment?.judge
           ? {
-              rounds: assignment.judge.rounds.map((r) => ({
-                name: r.name,
-                allCategories: r.allCategories,
-                categories: r.categories,
-              })),
-            }
+            rounds: assignment.judge.rounds.map((r) => ({
+              name: r.name,
+              allCategories: r.allCategories,
+              categories: r.categories,
+            })),
+          }
           : undefined,
         mentor: assignment?.mentor
           ? { categories: assignment.mentor.categories }
@@ -196,15 +209,15 @@ function DashboardPage() {
       mentoring: undefined,
       currentRound: currentRound
         ? {
-            index: currentRound.index,
-            total: currentRound.total,
-            name: currentRound.name,
-            countdownLabel: undefined, // API chưa có, cần tính từ startTime nếu muốn hiển thị
-            submitDeadline: currentRound.submissionDeadline,
-            submitted: undefined, // API chưa có số bài đã nộp
-            rubricName: undefined, // API chưa trả rubric
-            schedule: currentRound.schedule ?? [],
-          }
+          index: currentRound.index,
+          total: currentRound.total,
+          name: currentRound.name,
+          countdownLabel: undefined, // API chưa có, cần tính từ startTime nếu muốn hiển thị
+          submitDeadline: currentRound.submissionDeadline,
+          submitted: undefined, // API chưa có số bài đã nộp
+          rubricName: undefined, // API chưa trả rubric
+          schedule: currentRound.schedule ?? [],
+        }
         : undefined,
     }
   }
