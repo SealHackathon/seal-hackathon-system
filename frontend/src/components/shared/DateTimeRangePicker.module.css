@@ -11,7 +11,10 @@
     color: var(--color-dark-blue);
     padding: 0 1em;
 }
-.asterisk { color: var(--color-primary-orange); }
+
+.asterisk {
+    color: var(--color-primary-orange);
+}
 
 /* Row: [date] [time] – [time] */
 .row {
@@ -24,8 +27,14 @@
     overflow: hidden;
     transition: border-color 0.15s;
 }
-.row:focus-within { border-color: var(--color-primary-blue); }
-.rowError { border-color: var(--color-primary-orange) !important; }
+
+.row:focus-within {
+    border-color: var(--color-primary-blue);
+}
+
+.rowError {
+    border-color: var(--color-primary-orange) !important;
+}
 
 /* Date part */
 .datePart {
@@ -38,7 +47,10 @@
     min-width: 0;
 }
 
-.icon { color: var(--color-secondary-blue); flex-shrink: 0; }
+.icon {
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+}
 
 .dateInput {
     border: none;
@@ -51,6 +63,7 @@
     width: 170px;
     font-family: inherit;
 }
+
 .dateInput::placeholder {
     color: var(--color-secondary-blue);
     opacity: 0.6;
@@ -85,14 +98,22 @@
     text-align: center;
     font-family: inherit;
 }
+
 .timeInput::placeholder {
     color: var(--color-secondary-blue);
     opacity: 0.5;
     font-weight: 400;
 }
-.timeInput:disabled { cursor: not-allowed; opacity: 0.4; }
 
-.timeIcon { color: var(--color-text-muted); flex-shrink: 0; }
+.timeInput:disabled {
+    cursor: not-allowed;
+    opacity: 0.4;
+}
+
+.timeIcon {
+    color: var(--color-text-muted);
+    flex-shrink: 0;
+}
 
 .sep {
     color: var(--color-text-muted);
@@ -109,33 +130,46 @@
 }
 
 /* Shared picker styles */
-.pickerWrapper { display: block; }
+.pickerWrapper {
+    display: block;
+}
 
 .calendar {
     font-family: inherit !important;
     border: 1.5px solid var(--color-border-blue) !important;
     border-radius: 12px !important;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1) !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1) !important;
     overflow: hidden;
 }
 
-.popper { z-index: 9999; }
+.popper {
+    z-index: 9999;
+}
 
 /* Custom header */
 .customHeader {
     display: flex;
-    flex-direction: column;
     gap: 0.5rem;
     padding: 0.5rem 0.5rem 0;
 }
+
 .headerRow {
     display: flex;
     align-items: center;
     gap: 0.25rem;
 }
+
+:global(.react-datepicker__header:not(.react-datepicker__header--has-time-select,
+        .react-datepicker__header--middle, .react-datepicker__header--bottom)) {
+    height: 4em !important;
+}
+
 .navBtn {
-    display: flex; align-items: center; justify-content: center;
-    width: 28px; height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
     border: 1.5px solid var(--color-border-blue);
     border-radius: 8px;
     background: white;
@@ -144,8 +178,16 @@
     flex-shrink: 0;
     transition: background 0.15s;
 }
-.navBtn:hover { background: var(--color-bg-blue); }
-.navBtn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.navBtn:hover {
+    background: var(--color-bg-blue);
+}
+
+.navBtn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
 .headerSelect {
     flex: 1;
     border: 1.5px solid var(--color-border-blue);
@@ -158,9 +200,10 @@
     cursor: pointer;
     outline: none;
 }
+
 .todayBtn {
-    width: 100%;
-    padding: 0.35rem;
+    width: auto;
+    padding: 0.2rem 0.5rem;
     border: 1.5px solid var(--color-border-blue);
     border-radius: 8px;
     background: white;
@@ -170,5 +213,9 @@
     cursor: pointer;
     transition: background 0.15s;
     font-family: inherit;
+    flex-shrink: 0;
 }
-.todayBtn:hover { background: var(--color-bg-blue); }
+
+.todayBtn:hover {
+    background: var(--color-bg-blue);
+}

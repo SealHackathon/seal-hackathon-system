@@ -5,8 +5,8 @@
     justify-content: center;
     gap: 0.2em;
 
-    width: 100%;
-    height: auto;
+    width: 5.5em;
+    height: 5.5em;
 
     color: var(--color-secondary-blue);
     background-color: var(--color-bg-white);
@@ -16,6 +16,8 @@
 
     padding: 0.5em;
     cursor: pointer;
+
+    font-family: var(--body-font-main);
 }
 
 .pill:hover {
@@ -28,7 +30,7 @@
 }
 
 .label {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
     font-weight: bold;
     text-align: center;
     line-height: 1.2;

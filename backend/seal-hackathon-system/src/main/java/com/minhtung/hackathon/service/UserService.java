@@ -28,7 +28,6 @@ public class UserService {
     //ham get nhung user chua co team
     //những ai đã có request tới team hoặc đã đc team invitation thì ko get
     public List<SearchMemberResponse> getMemberNoTeam(long leaderId) {
-        List<User> freeUsers = userRepository.findUsersWithoutTeam(Role.USER, MemberStatus.OFFICAL);
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
 //        int memberCount = memberRepository.countByTeamIdAndStatus(team.getId(), true);
         if (team.getStatus() != TeamStatus.OPEN) {
@@ -37,6 +36,14 @@ public class UserService {
         if (team == null) {
             return Collections.emptyList();
         }
+
+        List<User> freeUsers = userRepository.findUsersWithoutTeam(
+                Role.USER,
+                team.getId(),
+                MemberStatus.OFFICAL,
+                MemberStatus.OUT
+        );
+
         if (freeUsers.isEmpty()) {
             return Collections.emptyList();
         }

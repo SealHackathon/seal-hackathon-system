@@ -20,7 +20,8 @@ public class Round {
     private String name;
 
     private LocalDateTime timeStart;
-
+    @Column(columnDefinition = "TEXT")
+    private String meetingLink;
     private LocalDateTime timeEnd;
 
     private boolean hasPresetiontation;

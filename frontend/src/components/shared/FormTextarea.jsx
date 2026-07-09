@@ -5,6 +5,8 @@ import styles from './FormTextarea.module.css'
 function FormTextarea({
   className,
   label,
+  labelVariant = 'default',
+  labelColorVariant = '',
   required,
   hint,
   iconLeft,
@@ -24,7 +26,8 @@ function FormTextarea({
     <div className={`${formInputStyles.wrapper} ${className}`}>
 
       {label && (
-        <label className={formInputStyles.label}>
+        <label className={`${formInputStyles.label} ${labelVariant === 'small' ? formInputStyles.labelSmall : ''} ${formInputStyles[labelColorVariant] || ''}`}>
+          
           {label}
           {required && <span className={formInputStyles.asterisk}> *</span>}
         </label>

@@ -1,7 +1,13 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
@@ -10,6 +16,11 @@ body {
 
 p {
   font-size: 16px;
+  font-family: var(--body-font-main);
+}
+
+button {
+  font-family: var(--body-font-main);
 }
 
 h1,
@@ -46,7 +57,7 @@ h2 {
   /* ! Màu xanh lá */
   --color-bg-green: #F8FFEA;
   --color-primary-green: #0DB04B;
-  /* Border green dùng lại màu primary-green*/
+  --color-border-green: #a1e2ba;
   /* Secondary green (cho text) dùng màu đen */
   --color-dark-green: #0F8B3E;
 
@@ -81,5 +92,35 @@ h2 {
 
 .scrollbar {
   /* scrollbar-gutter: stable both-edges; */
-  scrollbar-color: var(--color-secondary-blue) transparent;
+  scrollbar-color: var(--color-border-blue) var(--color-bg-blue);
+}
+
+/* Ẩn window scrollbar cho các trang cần ẩn (toggle bằng JS class trên html) */
+.hide-scrollbar {
+  scrollbar-width: none;
+  /* Firefox */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+  /* Chrome, Safari, Edge */
+}
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }

@@ -18,7 +18,7 @@
     padding: 0.3em 0.75em;
     border-radius: var(--inner-radius);
     border: 1.5px solid var(--color-border-blue);
-    background: none;
+    background: var(--color-bg-white);
     font-size: 0.9rem;
     color: var(--color-secondary-blue);
     cursor: pointer;
@@ -32,7 +32,12 @@
 
 .btnActive {
     border-color: var(--color-primary-blue);
-    color: var(--color-primary-blue);
-    font-weight: 600;
-    background-color: var(--color-bg-blue);
+    color: var(--color-bg-white);
+    font-weight: bold;
+    background-color: var(--color-primary-blue);
+}
+
+.btnActive:hover {
+    border-color: var(--color-primary-blue);
+    color: var(--color-bg-white);
 }

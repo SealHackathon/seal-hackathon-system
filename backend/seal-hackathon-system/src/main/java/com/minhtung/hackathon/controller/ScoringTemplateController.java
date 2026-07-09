@@ -1,6 +1,7 @@
 package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.ScoringTemplateRequest;
+import com.minhtung.hackathon.dto.response.ScoringTemplateResponse;
 import com.minhtung.hackathon.entity.ScoringTemplate;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
@@ -8,6 +9,7 @@ import com.minhtung.hackathon.service.ScoringTemplateService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -62,23 +64,23 @@ public class ScoringTemplateController {
     public ResponseEntity<?> create(@RequestHeader("Authorization") String auth, @RequestBody ScoringTemplateRequest request) {
         if (getUid(auth) == null) return unauthorized();
         try {
-            ScoringTemplate created = templateService.createTemplate(request);
-            return ResponseEntity.status(201).body(created);
+
+            return ResponseEntity.ok(templateService.createTemplate(request));
         } catch (Exception e) {
+            // In log ra để dễ debug khi phát triển
+            e.printStackTrace();
             return ResponseEntity.badRequest().body("Lỗi tạo biểu mẫu chấm điểm: " + e.getMessage());
         }
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+    // API PUT bạn cần bổ sung thêm
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@RequestHeader("Authorization") String auth, @PathVariable Long id, @RequestBody ScoringTemplateRequest request) {
-        if (getUid(auth) == null) return unauthorized();
-        try {
-            ScoringTemplate updated = templateService.updateTemplate(id, request);
-            return ResponseEntity.ok(updated);
-        } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Lỗi cập nhật biểu mẫu chấm điểm: " + e.getMessage());
-        }
+    public ResponseEntity<ScoringTemplateResponse> updateTemplate(
+            @PathVariable Long id,
+            @RequestBody ScoringTemplateRequest request) {
+
+        ScoringTemplateResponse updatedResponse = templateService.updateTemplate(id, request);
+        return ResponseEntity.ok(updatedResponse);
     }
 
     @PreAuthorize("hasRole('ADMIN')")

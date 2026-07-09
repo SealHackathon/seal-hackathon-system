@@ -101,6 +101,11 @@ import LoginPage from './pages/LoginPage';
 import UserDashboard from './pages/UserDashboard';
 import EventListPage from './pages/EventListPage';
 import CreateEventPage from './pages/coordinator/events/create/CreateEventPage';
+import RegisterPage from './pages/RegisterPage';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import CompleteProfilePage from './pages/completeProfile/CompleteProfilePage';
+import EmailVerifiedPage from './pages/EmailVerifiedPage';
+
 
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
@@ -117,12 +122,27 @@ function TeamRoute() {
     return <NoTeamView />;
 }
 
+
+
 function AppRoutes() {
-    const { role, isAuthenticated } = useAuth();
+    const { role, isAuthenticated, userStatus,fetchUserStatus } = useAuth();
+    // console.log(userStatus)
+    // console.log(teamRole)
+      useEffect(() => {
+        fetchUserStatus();
+    }, []);
 
     return (
         <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/verify-email" element={<VerifyEmailPage />} />
+            <Route path="/verified-email" element={<EmailVerifiedPage />} />
+
+
+            {/* <Route path="/user/dashboard" element={<UserDashboard />} /> */}
+
+            {/* <Route path="/complete-profile" element={<CompleteProfilePage />} /> */}
 
             {isAuthenticated ? (
                 <>
@@ -133,16 +153,39 @@ function AppRoutes() {
                         </>
                     )}
 
+
                     {role === "USER" && (
                         <>
-                            <Route path="/user/dashboard" element={<UserDashboard />} />
-                            <Route path="/team" element={<TeamRoute />} />
+                            {userStatus === "PROFILE_PENDING" ? (
+                                // User chưa hoàn thiện hồ sơ -> Chỉ cho phép ở trang complete-profile
+                                <>
+                                    <Route path="/user/complete-profile" element={<CompleteProfilePage />} />
+                                    <Route path="*" element={<Navigate to="/user/complete-profile" replace />} />
+                                </>
+                            ) : (
+                                // User đã hoàn thiện hồ sơ -> Các trang bình thường
+                                <>
+                                    <Route path="/user/dashboard" element={<UserDashboard />} />
+                                    
+                                    <Route path="/team" element={
+                                        userStatus === "PENDING_APPROVAL" ? (
+                                            <Navigate to="/user/dashboard" replace />
+                                        ) : (
+                                            <TeamRoute />
+                                        )
+                                    } />
+
+                                    {/* Không cho phép quay lại complete-profile nếu đã xong */}
+                                    <Route path="/user/complete-profile" element={<Navigate to="/user/dashboard" replace />} />
+                                    <Route path="*" element={<Navigate to="/user/dashboard" replace />} />
+                                </>
+                            )}
                         </>
                     )}
 
-                    <Route path="*" element={
-                        <Navigate to={role === "ADMIN" ? "/admin/coordinator/events" : "/user/dashboard"} replace />
-                    } />
+                    {role === "ADMIN" && (
+                        <Route path="*" element={<Navigate to="/admin/coordinator/events" replace />} />
+                    )}
                 </>
             ) : (
                 <Route path="*" element={<Navigate to="/login" replace />} />

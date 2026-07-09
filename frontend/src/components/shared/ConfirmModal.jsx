@@ -1,3 +1,4 @@
+import { WarningCircle, CheckCircle, Info } from '@phosphor-icons/react'
 import Button from './Button'
 import ModalShell from './ModalShell'
 import styles from './ConfirmModal.module.css'
@@ -11,8 +12,20 @@ function ConfirmModal({
     confirmLabel = 'Đồng ý', 
     denyLabel = 'Hủy',
     isNotification = false,
+    variant = 'warning', // 'warning', 'success', 'info'
     }) {
     if (!isOpen) return null
+
+    let color = 'orange'
+    let Icon = WarningCircle
+
+    if (variant === 'success') {
+        color = 'green'
+        Icon = CheckCircle
+    } else if (variant === 'info') {
+        color = 'blue'
+        Icon = Info
+    }
 
     return (
         <ModalShell
@@ -21,13 +34,18 @@ function ConfirmModal({
             footer={
                 <div className={styles.actions}>
                     {!isNotification && (
-                        <Button label={denyLabel} variant="outline" color='orange' onClick={onCancel} />
+                        <Button className={styles.actionButton} label={denyLabel} variant="outline" color={color} onClick={onCancel} />
                     )}
-                    <Button label={confirmLabel} color='orange' onClick={onConfirm} />
+                    <Button className={styles.actionButton} label={confirmLabel} color={color} onClick={onConfirm} />
                 </div>
             }
         >
-            <p className={styles.title}>{title}</p>
+            <div className={styles.header}>
+                <div className={`${styles.iconWrapper} ${styles[variant]}`}>
+                    <Icon size={32} weight="fill" />
+                </div>
+                <p className={`${styles.title} ${styles[variant]}`}>{title}</p>
+            </div>
             <p className={styles.message}>{message}</p>
         </ModalShell>
     )

@@ -10,6 +10,9 @@ function FormInput({
   hint,
   iconLeft,
   iconRight,
+  iconSize = 28,
+  iconWeight = 'regular',
+  iconColor,
   onIconRightClick,
   actionIcon,           // icon nằm ngoài input, bên phải
   onActionIconClick,
@@ -22,8 +25,10 @@ function FormInput({
   status,              // 'default' | 'error' | 'success'
   message,             // error hoặc success message
   disabled,
+  suffix,
   name,
   id,
+  showCount,
   ...rest
 }) {
 
@@ -53,18 +58,51 @@ function FormInput({
         <div className={`${styles.box} ${status ? styles[status] : ''} ${disabled ? styles.disabled : ''}`}>
           {IconLeft && (
             <span className={styles.iconLeft}>
-              <IconLeft size={28} />
+              <IconLeft size={iconSize} weight={iconWeight} color={iconColor} />
             </span>
           )}
 
           <input
             className={styles.input}
             id={inputId}
-            type={type}
+            type={type === 'number' ? 'text' : type}
+            inputMode={type === 'number' ? 'numeric' : undefined}
             name={name}
             value={value}
-            onChange={onChange}
-            onBlur={onBlur}
+            onChange={(e) => {
+              if (type === 'number') { // ! === VALIDATION cho số (number) ===
+                let val = e.target.value.replace(/[^0-9]/g, '')
+                if (val !== '') {
+                  let num = parseInt(val, 10)
+                  if (rest.max !== undefined && num > Number(rest.max)) {
+                    num = Number(rest.max)
+                  }
+                  e.target.value = num.toString()
+                } else {
+                  e.target.value = ''
+                }
+              }
+              onChange?.(e)
+            }}
+            onBlur={(e) => {
+              if (type === 'number' && e.target.value !== '') {
+                let num = parseInt(e.target.value, 10)
+                if (rest.min !== undefined && num < Number(rest.min)) {
+                  num = Number(rest.min)
+                  e.target.value = num.toString()
+                  onChange?.(e)
+                }
+              }
+              onBlur?.(e)
+            }}
+            onKeyDown={(e) => {
+              if (type === 'number') {
+                if (['-', '+', 'e', 'E', '.', ','].includes(e.key)) {
+                  e.preventDefault()
+                }
+              }
+              rest.onKeyDown?.(e)
+            }}
             placeholder={placeholder}
             maxLength={maxLength}
             disabled={disabled}
@@ -78,8 +116,12 @@ function FormInput({
               onClick={onIconRightClick}
               tabIndex={-1}
             >
-              <IconRight size={28} />
+              <IconRight size={iconSize} weight={iconWeight} color={iconColor} />
             </button>
+          )}
+
+          {suffix && (
+            <span className={styles.suffix}>{suffix}</span>
           )}
         </div>
 
@@ -89,7 +131,7 @@ function FormInput({
             onClick={onActionIconClick}
             style={onActionIconClick ? { cursor: 'pointer' } : {}}
           >
-            <ActionIcon size={28} />
+            <ActionIcon size={iconSize} weight={iconWeight} color={iconColor} />
           </span>
         )}
 

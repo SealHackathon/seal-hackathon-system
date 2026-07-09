@@ -1,9 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import {
   ChartPieSlice,
   CalendarBlank,
   Star,
-  Trophy,
+  Clipboard,
   Megaphone,
   Users,
   Headset,
@@ -15,16 +15,16 @@ const NAV_GROUPS = [
   {
     items: [
       { id: 'overview', label: 'Tổng quan',  icon: ChartPieSlice },
-      { id: 'schedule', label: 'Lịch trình', icon: CalendarBlank },
+      // { id: 'schedule', label: 'Lịch trình', icon: CalendarBlank },
     ],
   },
   {
     label: 'Quản lí',
     items: [
       { id: 'events',   label: 'Sự kiện',              icon: Star },
-      { id: 'rubric',   label: 'Tiêu chí chấm điểm', icon: Trophy },
-      { id: 'notify',   label: 'Thông báo',            icon: Megaphone },
-      { id: 'users',    label: 'Người dùng',           icon: Users },
+      { id: 'rubric',   label: 'Bộ tiêu chí', icon:   Clipboard, },
+      // { id: 'notify',   label: 'Thông báo',            icon: Megaphone },
+      // { id: 'users',    label: 'Người dùng',           icon: Users },
     ],
   },
   {
@@ -43,8 +43,22 @@ const NAV_GROUPS = [
  * @param {function} onNavigate   — callback(id)
  */
 function CoordinatorSidebar({ activePage, onNavigate }) {
+  const [isSticky, setIsSticky] = useState(false)
+  const sentinelRef = useRef(null)
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsSticky(!entry.isIntersecting),
+      { rootMargin: '-96px 0px 0px 0px', threshold: 0 }
+    )
+    if (sentinelRef.current) observer.observe(sentinelRef.current)
+    return () => observer.disconnect()
+  }, [])
+
   return (
-    <aside className={styles.sidebar}>
+    <>
+      <div ref={sentinelRef} className={styles.sidebarSentinel} />
+      <aside className={`${styles.sidebar} ${isSticky ? styles.sidebarSticky : ''}`}>
       {NAV_GROUPS.map((group, gi) => (
         <div key={gi}>
           {gi > 0 && <hr className={styles.divider} />}
@@ -65,6 +79,7 @@ function CoordinatorSidebar({ activePage, onNavigate }) {
         </div>
       ))}
     </aside>
+    </>
   )
 }
 

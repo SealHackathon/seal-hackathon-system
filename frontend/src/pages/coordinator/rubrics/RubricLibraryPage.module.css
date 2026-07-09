@@ -1,0 +1,65 @@
+.pageContainer {
+    min-height: 100vh;
+    background-color: var(--color-bg-white);
+    font-family: var(--body-font-main);
+    color: var(--color-text-primary);
+    padding: 1.5em;
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border-blue);
+}
+
+@media (min-width: 640px) {
+    .pageContainer {
+        padding: 2.5em;
+    }
+}
+
+.maxWidthWrapper {
+    max-width: 80em;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.topRow {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.topRow> :first-child {
+    flex: 1;
+    /* SectionHeader takes remaining width */
+}
+
+.toolbar {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+@media (min-width: 640px) {
+    .toolbar {
+        flex-direction: row;
+    }
+}
+
+.searchBox {
+    position: relative;
+    flex: 1;
+    max-width: 28em;
+}
+
+.sortBox {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    width: 25em;
+}

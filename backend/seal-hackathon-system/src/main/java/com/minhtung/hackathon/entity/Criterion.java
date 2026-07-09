@@ -2,10 +2,12 @@ package com.minhtung.hackathon.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "criterion")
 @Data
+@NoArgsConstructor
 public class Criterion {
 
     @Id
@@ -27,11 +29,10 @@ public class Criterion {
     @JoinColumn(name = "scoring_template_id", nullable = false)
     private ScoringTemplate scoringTemplate;
 
-    public Criterion(String name, String des, float weight, Integer maxRange, ScoringTemplate scoringTemplate) {
+    public Criterion(String name, String des, float weight,  ScoringTemplate scoringTemplate) {
         this.name = name;
         this.description = des;
         this.weight = weight;
-        this.maxRange = maxRange;
         this.scoringTemplate = scoringTemplate;
     }
 

@@ -15,7 +15,7 @@ export default function Step3StudentInfo({ onNext, onBack, initialData, onSaveDa
     const [school, setSchool] = useState(initialData?.school || '')
     const [customSchool, setCustomSchool] = useState(initialData?.customSchool || '')
     const [studentId, setStudentId] = useState(initialData?.studentId || '')
-    const [cardFile, setCardFile] = useState(initialData?.cardFile || null)
+    const [cardFile, setCardFile] = useState(initialData?.cardFile || initialData?.img_studentcard || null)
     const [cardAspectRatio, setCardAspectRatio] = useState(initialData?.cardAspectRatio || 4 / 3)   // default landscape
     const [cardOrientation, setCardOrientation] = useState(initialData?.cardOrientation || null)    // 'landscape' | 'portrait'
     const [loading, setLoading] = useState(false)
@@ -50,11 +50,18 @@ export default function Step3StudentInfo({ onNext, onBack, initialData, onSaveDa
         fd.append('mssv',       studentId.trim())
         fd.append('file', cardFile)
         try {
-            await axiosClient.post('/kyc/student-card', fd, {
+            const res = await axiosClient.post('/kyc/student-card', fd, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
+            // res.data chứa trực tiếp chuỗi URL Cloudinary
+            if (res.data && typeof res.data === 'string') {
+                setCardFile(res.data)
+            }
             setApiSuccess(true)
-            saveData(true)
+            // Lấy trực tiếp res.data truyền vào saveData nếu backend trả về, 
+            // nhưng vì setCardFile là async nên ta truyền trực tiếp vào saveData để cập nhật kịp thời
+            const latestCardFile = (res.data && typeof res.data === 'string') ? res.data : cardFile
+            onSaveData?.({ school, customSchool, studentId, cardFile: latestCardFile, cardAspectRatio, cardOrientation, apiSuccess: true })
             onNext()
         } catch (err) {
             console.error(err)

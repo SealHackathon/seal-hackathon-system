@@ -5,6 +5,12 @@
     gap: 2rem;
 }
 
+.contentWrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+}
+
 /* ── 2 cột: Lưu ý + Preview ── */
 .layout {
     display: grid;
@@ -218,7 +224,7 @@
 
 .previewEmpty {
     font-size: 0.85rem;
-    color: var(--color-secondary-muted);
+    color: var(--color-text-secondary);
     font-style: italic;
     margin: 0;
     text-align: center;

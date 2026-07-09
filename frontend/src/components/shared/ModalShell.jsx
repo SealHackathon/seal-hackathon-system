@@ -6,7 +6,8 @@ function ModalShell({
     onClose,
     children,
     footer,
-    size = 'md' // 'sm', 'md', 'lg', 'xl'
+    size = 'md', // 'sm', 'md', 'lg', 'xl'
+    disableScroll = false
 }) {
 
     useEffect(() => {
@@ -18,7 +19,7 @@ function ModalShell({
     }, [])
 
     return (
-        <div className={`${styles.backdrop} ${'scrollbar'}`} onClick={onClose}>
+        <div className={`${styles.backdrop} ${'scrollbar'}`} onClick={onClose} data-lenis-prevent="true">
             <div
                 className={`${styles.card} ${styles[size]}`}
                 onClick={e => e.stopPropagation()}
@@ -29,7 +30,10 @@ function ModalShell({
                     </button>
                 )}
 
-                <div className={styles.content}>
+                <div
+                    className={styles.content}
+                    style={disableScroll ? { overflow: 'hidden' } : {}}
+                >
                     {children}
                 </div>
 

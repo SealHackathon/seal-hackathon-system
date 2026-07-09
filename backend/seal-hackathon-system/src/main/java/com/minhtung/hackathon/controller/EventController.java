@@ -78,6 +78,19 @@ public class EventController {
             return ResponseEntity.badRequest().body("Lỗi tạo event: " + e.getMessage());
         }
     }
+
+
+    // UPDATE EVENT
+    @PutMapping(value = "/{id}" ,consumes = {"multipart/form-data"})
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<EventDetailsResponse> updateEvent(
+            @PathVariable Long id,
+            @ModelAttribute EventRequest request) {
+
+        return ResponseEntity.ok(eventService.updateEvent(id, request));
+    }
+
+
     //admin xoa 1 event
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}")

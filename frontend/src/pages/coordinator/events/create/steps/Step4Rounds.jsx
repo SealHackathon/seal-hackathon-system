@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import SectionHeader from '../../../../../components/shared/SectionHeader'
 import FieldGroup from '../../../../../components/shared/FieldGroup'
 import FormInput from '../../../../../components/shared/FormInput'
@@ -11,7 +11,7 @@ import DateTimePicker from '../../../../../components/shared/DateTimePicker'
 import RichTextEditor from '../../../../../components/shared/RichTextEditor'
 import {
     CalendarBlank, MapPin, Broadcast, Trophy,
-    Folder, ArrowCounterClockwise, ListChecks, ClipboardText
+    Folder, ArrowCounterClockwise, ListChecks, ClipboardText, Textbox
 } from '@phosphor-icons/react'
 import { getRecentLocations, saveRecentLocation } from '../../../../../utils/useRecentLocation'
 import styles from './Step4Rounds.module.css'
@@ -45,7 +45,7 @@ const SUBMISSION_OPTIONS = [
 ]
 
 // ── Form cho 1 vòng thi
-function RoundForm({ round, onChange, isLast, prevRound }) {
+function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, teamDeadline, highlightRanges }) {
     const [recents, setRecents] = useState(() => getRecentLocations())
 
     function update(field, val) {
@@ -60,11 +60,33 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
         }
     }
 
-    // ── Validate ngày bắt đầu so với vòng trước
-    const startDateError = (() => {
+    // ── Không cho phép nộp bài vòng trước nếu là vòng đầu tiên
+    useEffect(() => {
+        if (!prevRound && round.submissionType === 'previous') {
+            update('submissionType', 'new')
+        }
+    }, [prevRound, round.submissionType])
+
+    const submissionOptions = SUBMISSION_OPTIONS.map(opt => {
+        if (opt.value === 'previous' && !prevRound) {
+            return { ...opt, disabled: true, description: 'Chỉ áp dụng từ vòng thứ 2 trở đi' }
+        }
+        return opt
+    })
+
+    // ── Validate ngày bắt đầu so với vòng trước và so với thời gian chốt đội
+    const startDateError = errors?.[`round-${roundIndex}-startDate`] || (() => {
         if (!round.startDate) return null
+        const start = new Date(round.startDate)
+
+        if (teamDeadline) {
+            const teamDeadlineDate = new Date(teamDeadline)
+            if (start <= teamDeadlineDate) {
+                return `Ngày bắt đầu phải sau thời gian chốt đội (${teamDeadlineDate.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })})`
+            }
+        }
+
         if (prevRound && prevRound.endDate) {
-            const start = new Date(round.startDate)
             const prevEnd = new Date(prevRound.endDate)
             if (start < prevEnd) {
                 return `Ngày bắt đầu phải sau hoặc bằng ngày kết thúc của vòng trước (${prevEnd.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })})`
@@ -74,17 +96,22 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
     })()
 
     // ── Validate thời gian vòng thi
-    const endDateError = (() => {
+    const endDateError = errors?.[`round-${roundIndex}-endDate`] || (() => {
         if (!round.startDate || !round.endDate) return null
         const start = new Date(round.startDate)
         const end = new Date(round.endDate)
-        if (end <= start) return 'Ngày kết thúc phải sau ngày bắt đầu'
+        if (end <= start) return 'Thời gian kết thúc phải sau thời gian bắt đầu'
         return null
     })()
 
     // ── Validate thời gian mở nộp bài
-    const submissionOpenError = (() => {
+    const submissionOpenError = errors?.[`round-${roundIndex}-submissionOpen`] || (() => {
         if (!round.submissionOpen) return null
+        
+        if (!round.startDate) {
+            return 'Vui lòng chọn thời gian bắt đầu vòng thi trước'
+        }
+
         const subOpen = new Date(round.submissionOpen)
         if (round.startDate) {
             const start = new Date(round.startDate)
@@ -96,21 +123,19 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
     })()
 
     // ── Validate thời gian nộp bài
-    const submissionDeadlineError = (() => {
+    const submissionDeadlineError = errors?.[`round-${roundIndex}-submissionDeadline`] || (() => {
         if (!round.submissionDeadline) return null
         const subDeadline = new Date(round.submissionDeadline)
 
-        if (round.startDate) {
-            const start = new Date(round.startDate)
-            if (subDeadline <= start) {
-                return 'Hạn nộp bài phải sau thời gian bắt đầu vòng thi'
-            }
+        if (!round.startDate || !round.endDate) {
+            return 'Vui lòng chọn thời gian bắt đầu và kết thúc vòng thi trước'
         }
 
-        if (round.endDate) {
+        if (round.startDate && round.endDate) {
+            const start = new Date(round.startDate)
             const end = new Date(round.endDate)
-            if (subDeadline >= end) {
-                return 'Hạn nộp bài phải trước thời gian kết thúc vòng thi'
+            if (subDeadline <= start || subDeadline >= end) {
+                return 'Hạn nộp bài phải nằm trong thời gian vòng thi'
             }
         }
 
@@ -131,16 +156,14 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
             <section>
                 <SectionHeader level="h1" title="Thông tin chung" />
                 <div className={styles.sectionBody}>
-
-                    <FormInput
-                        label="Tên vòng"
-                        required
-                        hint="Tên vòng cũng hiển thị trên tab bên trên, chỉnh ở đây sẽ tự cập nhật."
-                        value={round.name}
-                        onChange={e => update('name', e?.target ? e.target.value : e)}
-                        placeholder="SEAL Hackathon Summer 2026"
-                    />
-
+                    <FieldGroup icon={Textbox} layout='row' title="Tên vòng" required>
+                        <FormInput
+                            value={round.name}
+                            onChange={e => update('name', e?.target ? e.target.value : e)}
+                            placeholder="SEAL Hackathon Summer 2026"
+                            error={errors?.[`round-${roundIndex}-name`]}
+                        />
+                    </FieldGroup>
                     <FieldGroup icon={CalendarBlank} layout='row' title="Thời gian" required>
                         <DateTimePicker
                             label="Ngày bắt đầu"
@@ -148,6 +171,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                             value={round.startDate}
                             onChange={val => update('startDate', val)}
                             error={startDateError}
+                            highlightRanges={highlightRanges}
                         />
                         <DateTimePicker
                             label="Ngày kết thúc"
@@ -155,6 +179,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                             value={round.endDate}
                             onChange={val => update('endDate', val)}
                             error={endDateError}
+                            highlightRanges={highlightRanges}
                         />
                     </FieldGroup>
 
@@ -163,7 +188,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                             <Banner
                                 color="green" variant="solid" icon={Trophy}
                                 title="Vòng trao giải"
-                                message="Đây là vòng cuối cùng, kết quả sẽ được công bố tại đây."
+                                message="Đây là vòng cuối cùng, sẽ được dùng để trao giải cho các đội thi."
                             />
                         ) : (
                             <Banner
@@ -195,6 +220,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                             value={round.location}
                             onChange={handleLocationChange}
                             recentPlaces={recents}
+                            error={errors?.[`round-${roundIndex}-location`]}
                         />
                     )}
 
@@ -206,6 +232,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                             placeholder="https://meet.google.com/..."
                             value={round.meetingLink ?? ''}
                             onChange={e => update('meetingLink', e?.target ? e.target.value : e)}
+                            error={errors?.[`round-${roundIndex}-meetingLink`]}
                         />
                     )}
 
@@ -219,7 +246,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
 
                     <FieldGroup icon={Folder} title="Cách thức nộp bài" required>
                         <RadioCardGroup
-                            options={SUBMISSION_OPTIONS}
+                            options={submissionOptions}
                             value={round.submissionType}
                             onChange={val => update('submissionType', val)}
                         />
@@ -243,6 +270,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                                     onChange={val => update('submissionOpen', val)}
                                     error={submissionOpenError}
                                     status={submissionOpenError ? 'error' : 'default'}
+                                    highlightRanges={highlightRanges}
                                 />
                                 <DateTimePicker
                                     label="Hạn nộp bài"
@@ -250,6 +278,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
                                     value={round.submissionDeadline}
                                     onChange={val => update('submissionDeadline', val)}
                                     error={submissionDeadlineError}
+                                    highlightRanges={highlightRanges}
                                 />
                             </FieldGroup>
 
@@ -288,7 +317,7 @@ function RoundForm({ round, onChange, isLast, prevRound }) {
 }
 
 // ── Container chính
-function Step4Rounds({ formData, onChange }) {
+function Step4Rounds({ formData, onChange, errors }) {
     // Khởi tạo 1 lần — tránh render loop
     const [rounds, setRounds] = useState(() =>
         formData.rounds?.length
@@ -299,6 +328,37 @@ function Step4Rounds({ formData, onChange }) {
             ]
     )
     const [activeId, setActiveId] = useState(() => rounds[0]?.id)
+
+    useEffect(() => {
+        if (!formData.rounds?.length) {
+            onChange?.({ ...formData, rounds })
+        }
+    }, [])
+
+    const highlightRanges = useMemo(() => {
+        const ranges = []
+        if (formData.openDate && formData.closeDate) {
+            ranges.push({
+                start: formData.openDate,
+                end: formData.closeDate,
+                colorType: 'registration',
+                label: 'Thời gian đăng ký'
+            })
+        }
+        if (formData.rounds && formData.rounds.length > 0) {
+            formData.rounds.forEach(round => {
+                if (round.startDate && round.endDate) {
+                    ranges.push({
+                        start: round.startDate,
+                        end: round.endDate,
+                        colorType: 'round',
+                        label: 'Vòng thi'
+                    })
+                }
+            })
+        }
+        return ranges
+    }, [formData.openDate, formData.closeDate, formData.rounds])
 
     function syncAndSet(newRounds) {
         setRounds(newRounds)
@@ -329,7 +389,7 @@ function Step4Rounds({ formData, onChange }) {
 
     return (
         <div className={styles.wrapper}>
-            <h1 className={styles.title}>Thông tin cơ bản</h1>
+            <h1 className={styles.title}>Vòng thi</h1>
 
             <Banner
                 color="blue" variant="dashed"
@@ -352,6 +412,10 @@ function Step4Rounds({ formData, onChange }) {
                     onChange={handleRoundChange}
                     isLast={isLast}
                     prevRound={prevRound}
+                    roundIndex={activeIndex}
+                    errors={errors}
+                    teamDeadline={formData.teamDeadline}
+                    highlightRanges={highlightRanges}
                 />
             )}
         </div>

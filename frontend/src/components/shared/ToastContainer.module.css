@@ -1,0 +1,17 @@
+/* Container: fixed, bottom-right, just above the sticky footer */
+.container {
+    position: fixed;
+    bottom: 6.5rem;
+    /* sit above the sticky footer (~5rem tall + 1em gap) */
+    right: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    pointer-events: none;
+}
+
+/* Each toast re-enables pointer events */
+.container>* {
+    pointer-events: auto;
+}

@@ -6,11 +6,12 @@ import {
     SortableContext, sortableKeyboardCoordinates,
     verticalListSortingStrategy, arrayMove,
 } from '@dnd-kit/sortable'
-import { Star, Plus } from '@phosphor-icons/react'
+import { Star, Plus, Trophy, Medal, Gift } from '@phosphor-icons/react'
 import SortableCard from '../../../../../components/shared/SortableCard'
 import FormInput from '../../../../../components/shared/FormInput'
 import FormTextarea from '../../../../../components/shared/FormTextarea'
 import RichTextEditor from '../../../../../components/shared/RichTextEditor'
+import FieldGroup from '../../../../../components/shared/FieldGroup'
 import styles from './Step3Prizes.module.css'
 
 // ── Cấu hình các loại giải ──
@@ -28,94 +29,10 @@ const RANK_OPTIONS = [
     { value: 4, label: '4 giải (có Khuyến khích)' },
 ]
 
-// ── Nội dung 1 prize card ──
-function PrizeCardContent({ prize, onChange, disabled = false }) {
-    function update(field, val) {
-        const value = val?.target ? val.target.value : val
-        onChange({ ...prize, [field]: value })
-    }
-
-    return (
-        <>
-            <FormInput
-                label="Tên giải"
-                required
-                placeholder={prize.defaultName}
-                value={String(prize.name ?? '')}
-                onChange={val => update('name', val)}
-                disabled={disabled}
-            />
-
-            <div className={styles.prizeRow}>
-                {/* Trái: số lượng + giá trị */}
-                <div className={styles.prizeLeft}>
-                    <div className={styles.fieldGroup}>
-                        <label className={styles.fieldLabel}>Số lượng</label>
-                        <div className={`${styles.inputBox} ${disabled ? styles.inputDisabled : ''}`}>
-                            <input
-                                type="number"
-                                min={1}
-                                className={styles.baseInput}
-                                placeholder="Số đội / cá nhân nhận giải"
-                                value={prize.quantity ?? ''}
-                                onChange={e => {
-                                    const val = e.target.value
-                                    if (val !== '' && Number(val) < 1) return
-                                    update('quantity', val === '' ? '' : Number(val))
-                                }}
-                                onKeyDown={e => {
-                                    if (['-', '+', 'e', 'E', '.', ','].includes(e.key)) {
-                                        e.preventDefault()
-                                    }
-                                }}
-                                disabled={disabled}
-                            />
-                        </div>
-                    </div>
-
-                    <div className={styles.fieldGroup}>
-                        <label className={styles.fieldLabel}>Giá trị hiện kim</label>
-                        <div className={`${styles.inputBox} ${disabled ? styles.inputDisabled : ''}`}>
-                            <input
-                                type="text"
-                                inputMode="numeric"
-                                className={styles.baseInput}
-                                placeholder="0"
-                                value={
-                                    prize.cash !== undefined && prize.cash !== ''
-                                        ? Number(prize.cash).toLocaleString('vi-VN')
-                                        : ''
-                                }
-                                onChange={e => {
-                                    const raw = e.target.value.replace(/[^0-9]/g, '')
-                                    update('cash', raw)
-                                }}
-                                disabled={disabled}
-                            />
-                            <span className={styles.inputSuffix}>VNĐ</span>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Phải: mô tả */}
-                <div className={styles.prizeRight}>
-                    <FormTextarea
-                        className={styles.textArea}
-                        label="Mô tả"
-                        rows={4}
-                        placeholder="Tiền mặt + Cúp + Giấy chứng nhận + Hoa"
-                        value={String(prize.desc ?? '')}
-                        onChange={e => update('desc', e.target.value)}
-                        disabled={disabled}
-                    />
-                </div>
-            </div>
-        </>
-    )
-}
+import PrizeCardContent from '../../../../../components/coordinator/events/create/PrizeCardContent'
 
 // ── Main component ──
-function Step3Prizes({ formData, onFormChange }) {
+function Step3Prizes({ formData, onFormChange, errors = {} }) {
     const rankCount = formData.rankCount ?? 3
     const extendedPrizes = formData.extendedPrizes ?? []
 
@@ -173,7 +90,7 @@ function Step3Prizes({ formData, onFormChange }) {
     function addExtendedPrize() {
         onFormChange('extendedPrizes', [
             ...extendedPrizes,
-            { id: Date.now(), defaultName: 'Tên giải', name: '', quantity: '', cash: '', desc: '' },
+            { id: Date.now(), defaultName: 'VD: Giải Sáng tạo, Giải Cống hiến...', name: '', quantity: '', cash: '', desc: '' },
         ])
     }
 
@@ -192,110 +109,117 @@ function Step3Prizes({ formData, onFormChange }) {
 
             {/* ── Quyền lợi khi tham gia ── */}
             <section className={styles.section}>
-                <p className={styles.sectionTitle}>Quyền lợi khi tham gia</p>
-                <p className={styles.sectionHint}>
-                    Hiển thị nổi bật trên trang sự kiện. Mô tả những gì thí sinh tham gia sẽ được nhận dù không đoạt giải.
-                </p>
-                <RichTextEditor
-                    value={formData.benefits ?? ''}
-                    onChange={val => onFormChange('benefits', val)}
-                    placeholder="Chứng chỉ tham gia, Networking với mentor & doanh nghiệp, Cơ hội thực tập..."
-                />
+                <FieldGroup icon={Gift} title="Quyền lợi khi tham gia">
+                    <p className={styles.sectionHint}>
+                        Hiển thị nổi bật trên trang sự kiện. Mô tả những gì thí sinh tham gia sẽ được nhận dù không đoạt giải.
+                    </p>
+                    <RichTextEditor
+                        value={formData.benefits ?? ''}
+                        onChange={val => onFormChange('benefits', val)}
+                        placeholder="Chứng chỉ tham gia, Networking với mentor & doanh nghiệp, Cơ hội thực tập..."
+                    />
+                </FieldGroup>
             </section>
 
             {/* ── Giải thưởng chính ── */}
             <section className={styles.section}>
-                <p className={styles.sectionTitle}>Giải thưởng chính</p>
-                <p className={styles.sectionHint}>
-                    Các giải theo thứ hạng tự động hiển thị nổi bật trên trang sự kiện theo thứ tự Nhất, Nhì, Ba, Khuyến khích.
-                    Có thể đổi lại tên các giải thưởng theo mong muốn.
-                </p>
+                <FieldGroup icon={Trophy} title="Giải thưởng chính" required>
+                    <p className={styles.sectionHint}>
+                        Các giải theo thứ hạng tự động hiển thị nổi bật trên trang sự kiện theo thứ tự Nhất, Nhì, Ba, Khuyến khích.
+                        Có thể đổi lại tên các giải thưởng theo mong muốn.
+                    </p>
 
-                {/* Dropdown */}
-                <div className={styles.rankRow}>
-                    <label className={styles.fieldLabel}>Số giải theo thứ hạng</label>
-                    <div className={styles.selectBox}>
-                        <select
-                            className={styles.select}
-                            value={rankCount}
-                            onChange={e => handleRankCountChange(e.target.value)}
-                        >
-                            {RANK_OPTIONS.map(opt => (
-                                <option key={opt.value} value={opt.value}>{opt.label}</option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                {/* Main prize cards — không drag, không xóa */}
-                <div className={styles.prizeList}>
-                    {mainPrizes.map(prize => {
-                        const cfg = RANK_CONFIGS[prize.rank - 1]
-                        return (
-                            <SortableCard
-                                key={prize.rank}
-                                id={`main-${prize.rank}`}
-                                draggable={false}
-                                showDelete={false}
-                                avatar={<Star size={18} weight="fill" color={cfg.iconColor} />}
-                                avatarBg={cfg.avatarBg}
+                    {/* Dropdown */}
+                    <div className={styles.rankRow}>
+                        <label className={styles.fieldLabel}>Số giải theo thứ hạng</label>
+                        <div className={styles.selectBox}>
+                            <select
+                                className={styles.select}
+                                value={rankCount}
+                                onChange={e => handleRankCountChange(e.target.value)}
                             >
-                                <PrizeCardContent
-                                    prize={prize}
-                                    onChange={updated => updateMainPrize(prize.rank, updated)}
-                                />
-                            </SortableCard>
-                        )
-                    })}
-                </div>
+                                {RANK_OPTIONS.map(opt => (
+                                    <option key={opt.value} value={opt.value}>{opt.label}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* Main prize cards — không drag, không xóa */}
+                    <div className={styles.prizeList}>
+                        {mainPrizes.map(prize => {
+                            const cfg = RANK_CONFIGS[prize.rank - 1]
+                            return (
+                                <SortableCard
+                                    key={prize.rank}
+                                    id={`main-${prize.rank}`}
+                                    draggable={false}
+                                    showDelete={false}
+                                    avatar={<Star size={18} weight="fill" color={cfg.iconColor} />}
+                                    avatarBg={cfg.avatarBg}
+                                >
+                                    <PrizeCardContent
+                                        prize={prize}
+                                        onChange={updated => updateMainPrize(prize.rank, updated)}
+                                        errors={errors}
+                                        prefix={`mainPrize-${prize.rank}`}
+                                    />
+                                </SortableCard>
+                            )
+                        })}
+                    </div>
+                </FieldGroup>
             </section>
 
             {/* ── Giải thưởng mở rộng ── */}
             <section className={styles.section}>
-                <p className={styles.sectionTitle}>Giải thưởng mở rộng</p>
-                <p className={styles.sectionHint}>Thêm các giải ngoài bảng xếp hạng chính.</p>
+                <FieldGroup icon={Medal} title="Giải thưởng mở rộng">
+                    <p className={styles.sectionHint}>Thêm các giải ngoài bảng xếp hạng chính.</p>
 
-                {extendedPrizes.length > 0 && (
-                    <div className={styles.dragHint}>
-                        <span className={styles.dragHintLabel}>Thứ tự hiển thị</span>
-                        <span className={styles.dragHintDesc}>
-                            Kéo ⋮⋮ để sắp xếp thứ tự, giải sẽ hiển thị theo đúng thứ tự này trên trang sự kiện.
-                        </span>
-                    </div>
-                )}
-
-                <DndContext
-                    sensors={sensors}
-                    collisionDetection={closestCenter}
-                    onDragEnd={handleDragEnd}
-                >
-                    <SortableContext
-                        items={extendedPrizes.map(p => p.id)}
-                        strategy={verticalListSortingStrategy}
-                    >
-                        <div className={styles.prizeList}>
-                            {extendedPrizes.map(prize => (
-                                <SortableCard
-                                    key={prize.id}
-                                    id={prize.id}
-                                    onDelete={() => deleteExtendedPrize(prize.id)}
-                                    avatar={<Star size={18} weight="fill" color="var(--color-border-blue)" />}
-                                    avatarBg="blue"
-                                >
-                                    <PrizeCardContent
-                                        prize={prize}
-                                        onChange={updated => updateExtendedPrize(prize.id, updated)}
-                                    />
-                                </SortableCard>
-                            ))}
+                    {extendedPrizes.length > 0 && (
+                        <div className={styles.dragHint}>
+                            <span className={styles.dragHintLabel}>Thứ tự hiển thị</span>
+                            <span className={styles.dragHintDesc}>
+                                Kéo ⋮⋮ để sắp xếp thứ tự, giải sẽ hiển thị theo đúng thứ tự này trên trang sự kiện.
+                            </span>
                         </div>
-                    </SortableContext>
-                </DndContext>
+                    )}
 
-                <button type="button" className={styles.addBtn} onClick={addExtendedPrize}>
-                    <Plus size={16} weight="bold" />
-                    Thêm giải thưởng
-                </button>
+                    <DndContext
+                        sensors={sensors}
+                        collisionDetection={closestCenter}
+                        onDragEnd={handleDragEnd}
+                    >
+                        <SortableContext
+                            items={extendedPrizes.map(p => p.id)}
+                            strategy={verticalListSortingStrategy}
+                        >
+                            <div className={styles.prizeList}>
+                                {extendedPrizes.map(prize => (
+                                    <SortableCard
+                                        key={prize.id}
+                                        id={prize.id}
+                                        onDelete={() => deleteExtendedPrize(prize.id)}
+                                        avatar={<Star size={18} weight="fill" color="var(--color-border-blue)" />}
+                                        avatarBg="blue"
+                                    >
+                                        <PrizeCardContent
+                                            prize={prize}
+                                            onChange={updated => updateExtendedPrize(prize.id, updated)}
+                                            errors={errors}
+                                            prefix={`extPrize-${prize.id}`}
+                                        />
+                                    </SortableCard>
+                                ))}
+                            </div>
+                        </SortableContext>
+                    </DndContext>
+
+                    <button type="button" className={styles.addBtn} onClick={addExtendedPrize}>
+                        <Plus size={16} weight="bold" />
+                        Thêm giải thưởng
+                    </button>
+                </FieldGroup>
             </section>
 
         </div>

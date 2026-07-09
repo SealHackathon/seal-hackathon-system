@@ -1,8 +1,10 @@
 package com.minhtung.hackathon.config;
 
+import com.minhtung.hackathon.dto.request.CreateTeamDto;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.*;
 import com.minhtung.hackathon.repository.*;
+import com.minhtung.hackathon.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -15,6 +17,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
+    private final TeamService teamService;
     private final TeamRepository teamRepository;
     private final StudentprofileRepository studentprofileRepository;
     private final EventRepository eventRepository;
@@ -189,7 +192,6 @@ public class DataInitializer implements CommandLineRunner {
 
             Student_profile profile2 = new Student_profile();
             profile2.setUser(user2);
-            profile2.setBio("Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình chuyên về phía Backend, có kinh nghiệm làm việc với Java, Spring Boot và quản trị cơ sở dữ liệu MySQL, Redis.");
             profile2.setPositions("Backend Developer");
             profile2.setTags("Java, Spring Boot, MySQL, Redis");
             profile2.setTopics("System Design, Cloud Computing");
@@ -198,9 +200,9 @@ public class DataInitializer implements CommandLineRunner {
             Student_profile profile3 = new Student_profile();
             profile3.setUser(user3);
             profile3.setBio("Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình đam mê học hỏi các công nghệ web mới, chuyên phát triển Frontend với React và luôn sẵn sàng hỗ trợ team.");
-            profile3.setPositions("Frontend Developer");
-            profile3.setTags("React, JavaScript, HTML/CSS");
-            profile3.setTopics("Web Development, Creative Coding");
+            profile3.setPositions("Frontend Developer, UI/UX Designer");
+            profile3.setTags("React, Tailwind CSS, Figma, Adobe XD");
+            profile3.setTopics("UI/UX Design, Web Development");
             studentprofileRepository.save(profile3);
 
             Student_profile profile4 = new Student_profile();
@@ -229,11 +231,6 @@ public class DataInitializer implements CommandLineRunner {
             userRepository.save(user12);
         }
 
-        // Template must exist before rounds are created so each round can reference one.
-        if (templateRepository.count() == 0) {
-            initSampleScoringTemplates();
-        }
-
         if (eventRepository.count() == 0) {
             // Lấy lại các User từ DB để phục vụ luồng gom team trong hàm initSampleEvent
             User u1 = userRepository.findByEmail("user1@gmail.com").orElse(null);
@@ -245,6 +242,9 @@ public class DataInitializer implements CommandLineRunner {
             initSampleEvent(u1, u2, u3, u4, u5);
         }
 
+        if (templateRepository.count() == 0) {
+            initSampleScoringTemplates();
+        }
     }
 
     private void initSampleEvent(User user1, User user2, User user3, User user4, User user5) {
@@ -332,6 +332,7 @@ public class DataInitializer implements CommandLineRunner {
         round1.setTopTeamPass(20);
         round1.setOrdinal_number(1);
         round1.setSubmissionDeadline(now.plusDays(22));
+        round1.setMeetingLink("https://meet.google.com/seal-round1");
         round1.setPosition("https://meet.google.com/seal-round1");
         round1.setEvent(event);
 
@@ -370,21 +371,6 @@ public class DataInitializer implements CommandLineRunner {
         round3.setPosition("Hội trường lớn, Đại học FPT TP.HCM");
         round3.setEvent(event);
         rounds.add(round3);
-
-        // Reuse the templates initialized above. The draft template is suitable
-        // for screening; the official template is used for later rounds.
-        ScoringTemplate draftTemplate = templateRepository.findAll().stream()
-                .filter(template -> "Tiêu chí Sơ loại Ý tưởng (Nháp)".equals(template.getName()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Không tìm thấy scoring template sơ loại"));
-        ScoringTemplate officialTemplate = templateRepository.findAll().stream()
-                .filter(template -> "Khung Đánh Giá Hackathon Chung Cuộc".equals(template.getName()))
-                .findFirst()
-                .orElseThrow(() -> new IllegalStateException("Không tìm thấy scoring template chính thức"));
-
-        round1.setScoringTemplate(draftTemplate);
-        round2.setScoringTemplate(officialTemplate);
-        round3.setScoringTemplate(officialTemplate);
 
         event.setRounds(rounds);
 
@@ -589,29 +575,29 @@ public class DataInitializer implements CommandLineRunner {
         officialTemplate.setName("Khung Đánh Giá Hackathon Chung Cuộc");
         officialTemplate.setDescription("Bảng tiêu chí chuẩn dùng để đánh giá toàn diện sản phẩm công nghệ vòng chung kết.");
         officialTemplate.setCreateAt(timeNow);
+        officialTemplate.setUpdateAt(timeNow);
+        officialTemplate.setTieBreaking(true);
+        officialTemplate.setStandardDeviation(1.5);
+        officialTemplate.setStatus(ScoringTemplateStatus.OFFICIAL);
+        officialTemplate.setUsageCount(3);
 
-        Criterion crit1 = new Criterion(
-                "Tính Sáng Tạo & Đột Phá",
-                "Ý tưởng có mới lạ, độc đáo và giải quyết triệt để nỗi đau của thị trường không?",
-                30,
-                10,
-                officialTemplate
-        );
-        Criterion crit2 = new Criterion(
-                "Kiến Trúc & Hoàn Thiện Kỹ Thuật",
-                "Mức độ hoàn thiện của mã nguồn, độ ổn định của bản demo sản phẩm thực tế.",
-                40,
-                10,
-                officialTemplate
-        );
-        Criterion crit3 = new Criterion(
-                "Kỹ Năng Thuyết Trình (Pitching)",
-                "Khả năng trình bày mạch lạc, trả lời câu hỏi phản biện từ Hội đồng Giám khảo.",
-                30,
-                10,
-                officialTemplate
-        );
-        officialTemplate.setCriteria(new ArrayList<>(List.of(crit1, crit2, crit3)));
+        Criterion crit1 = new Criterion();
+        crit1.setName("Tính Sáng Tạo & Đột Phá");
+        crit1.setDescription("Ý tưởng có mới lạ, độc đáo và giải quyết triệt để nỗi đau của thị trường không?");
+        crit1.setWeight(30);
+        officialTemplate.addCriterion(crit1);
+
+        Criterion crit2 = new Criterion();
+        crit2.setName("Kiến Trúc & Hoàn Thiện Kỹ Thuật");
+        crit2.setDescription("Mức độ hoàn thiện của mã nguồn, độ ổn định của bản demo sản phẩm thực tế.");
+        crit2.setWeight(40);
+        officialTemplate.addCriterion(crit2);
+
+        Criterion crit3 = new Criterion();
+        crit3.setName("Kỹ Năng Thuyết Trình (Pitching)");
+        crit3.setDescription("Khả năng trình bày mạch lạc, trả lời câu hỏi phản biện từ Hội đồng Giám khảo.");
+        crit3.setWeight(30);
+        officialTemplate.addCriterion(crit3);
 
         templateRepository.save(officialTemplate);
 
@@ -620,22 +606,23 @@ public class DataInitializer implements CommandLineRunner {
         draftTemplate.setName("Tiêu chí Sơ loại Ý tưởng (Nháp)");
         draftTemplate.setDescription("Khung đánh giá nhanh file Pitch Deck sơ bộ của các đội thi gửi về hệ thống.");
         draftTemplate.setCreateAt(timeNow);
+        draftTemplate.setUpdateAt(timeNow);
+        draftTemplate.setTieBreaking(false);
+        draftTemplate.setStandardDeviation(2.0);
+        draftTemplate.setStatus(ScoringTemplateStatus.DRAFT);
+        draftTemplate.setUsageCount(0);
 
-        Criterion draftCrit1 = new Criterion(
-                "Mức độ phù hợp chủ đề",
-                "Giải pháp đưa ra có bám sát bài toán cộng đồng mà Hackathon đề ra không?",
-                50,
-                10,
-                draftTemplate
-        );
-        Criterion draftCrit2 = new Criterion(
-                "Tính khả thi thực tế",
-                "Mô hình kinh doanh hoặc mô hình triển khai có khả năng áp dụng thật hay không?",
-                50,
-                10,
-                draftTemplate
-        );
-        draftTemplate.setCriteria(new ArrayList<>(List.of(draftCrit1, draftCrit2)));
+        Criterion draftCrit1 = new Criterion();
+        draftCrit1.setName("Mức độ phù hợp chủ đề");
+        draftCrit1.setDescription("Giải pháp đưa ra có bám sát bài toán cộng đồng mà Hackathon đề ra không?");
+        draftCrit1.setWeight(50);
+        draftTemplate.addCriterion(draftCrit1);
+
+        Criterion draftCrit2 = new Criterion();
+        draftCrit2.setName("Tính khả thi thực tế");
+        draftCrit2.setDescription("Mô hình kinh doanh hoặc mô hình triển khai có khả năng áp dụng thật hay không?");
+        draftCrit2.setWeight(50);
+        draftTemplate.addCriterion(draftCrit2);
 
         templateRepository.save(draftTemplate);
 

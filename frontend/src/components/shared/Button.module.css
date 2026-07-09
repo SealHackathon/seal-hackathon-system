@@ -34,16 +34,16 @@
 .outline {
   background-color: var(--color-bg-white);
   color: var(--color-primary-blue);
-  border: 1.5px solid var(--color-secondary-blue);
-  box-shadow: 0 0.5em var(--color-secondary-blue);
+  border: 1.5px solid var(--color-border-blue);
+  box-shadow: 0 0.5em var(--color-border-blue);
 }
 .outline:hover:not(:disabled) {
   transform: translateY(0.15em);
-  box-shadow: 0 0.45em var(--color-secondary-blue);
+  box-shadow: 0 0.45em var(--color-border-blue);
 }
 .outline:active:not(:disabled) {
   transform: translateY(0.5em);
-  box-shadow: 0 0 var(--color-secondary-blue);
+  box-shadow: 0 0 var(--color-border-blue);
 }
 
 
@@ -100,36 +100,36 @@
 .outline.green {
   background-color: var(--color-bg-white);
   color: var(--color-primary-green);
-  border: 1.5px solid var(--color-primary-green);
-  box-shadow: 0 0.5em var(--color-primary-green);
+  border: 1.5px solid var(--color-border-green);
+  box-shadow: 0 0.5em var(--color-border-green);
 }
 
 .outline.green:hover:not(:disabled) {
   transform: translateY(0.15em);
-  box-shadow: 0 0.45em var(--color-primary-green);
+  box-shadow: 0 0.45em var(--color-border-green);
 }
 
 .outline.green:active:not(:disabled) {
   transform: translateY(0.5em);
-  box-shadow: 0 0 var(--color-primary-green);
+  box-shadow: 0 0 var(--color-border-green);
 }
 
 
 .outline.grey {
   background-color: var(--color-bg-white);
   color: var(--color-text-primary);
-  border: 1.5px solid var(--color-text-secondary);
-  box-shadow: 0 0.5em var(--color-text-secondary);
+  border: 1.5px solid var(--color-text-muted);
+  box-shadow: 0 0.5em var(--color-text-muted);
 }
 
 .outline.grey:hover:not(:disabled) {
   transform: translateY(0.15em);
-  box-shadow: 0 0.45em var(--color-text-secondary);
+  box-shadow: 0 0.45em var(--color-text-muted);
 }
 
 .outline.grey:active:not(:disabled) {
   transform: translateY(0.5em);
-  box-shadow: 0 0 var(--color-text-secondary);
+  box-shadow: 0 0 var(--color-text-muted);
 }
 
 

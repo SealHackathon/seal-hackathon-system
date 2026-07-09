@@ -1,9 +1,11 @@
 .page {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    min-height: 120vh;
     padding: 1em;
+    background-color: var(--color-bg-blue);
 }
+
 
 /* ── Body: sidebar + content ── */
 .body {
@@ -12,7 +14,17 @@
     gap: 1.5em;
     /* Chừa chỗ cho header (~80px) và footer (~72px) */
     padding-top: 1.5rem;
-    padding-bottom: calc(72px + 2rem);
+    position: relative;
+    /* Cho sentinel absolute (nếu cần) */
+}
+
+.sidebarSentinel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1px;
+    height: 1px;
+    pointer-events: none;
 }
 
 .sidebar {
@@ -20,21 +32,51 @@
     flex-shrink: 0;
     /* Sticky sidebar */
     position: sticky;
-    top: 1.5rem;
+    top: calc(3em + 1rem);
     align-self: flex-start;
-    max-height: calc(100vh - 80px - 72px - 3rem);
+    /* Ban đầu (chưa sticky): height = 100vh - sticky header - info header - footer - padding */
+    height: calc(100vh - 3em - 8.75em - 4.5em - 3rem);
     overflow-y: auto;
+    transition: height 0.2s ease-out;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebarInner {
+    flex-grow: 1;
+}
+
+.sidebarSticky {
+    /* Khi sticky: height = 100vh - sticky header - footer - padding */
+    height: calc(100vh - 3em - 1.5em - 4.5em - 2em);
+}
+
+.contentWrapper {
+    flex: 1;
+    min-width: 0;
 }
 
 .content {
-    flex: 1;
-    padding: 0 1.5rem;
-    min-width: 0;      /* quan trọng: tránh overflow trong flex */
-
     background-color: var(--color-bg-white);
     padding: 2em;
     border-radius: var(--radius);
     border: 1.5px solid var(--color-border-blue);
+    box-sizing: border-box;
+    /* Ban đầu: height = 100vh - sticky header - info header(8.75em) - footer(4.5em) - gap */
+    height: calc(100vh - 3em - 8.75em - 4.5em - 3rem);
+    overflow-y: scroll;
+    overscroll-behavior: contain;
+    scrollbar-color: var(--color-border-blue) transparent;
+    transition: height 0.2s ease-out;
+}
+
+.contentSticky {
+    position: sticky;
+    top: calc(3em + 1rem);
+    /* Khi sticky: info header đã scrolled away, height dài hơn */
+    height: calc(100vh - 3em - 1.5rem - 4.5em - 2rem);
+    overflow-y: scroll;
+    overscroll-behavior: contain;
 }
 
 /* ── Step placeholder ── */

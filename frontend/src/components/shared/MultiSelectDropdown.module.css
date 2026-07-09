@@ -131,6 +131,11 @@
     overflow: hidden;
 }
 
+.menuUp {
+    top: auto;
+    bottom: calc(100% + 0.5rem);
+}
+
 .menuHint {
     font-size: 0.9rem;
     color: var(--color-text-muted);

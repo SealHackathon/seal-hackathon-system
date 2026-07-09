@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import FieldGroup from '../../../../../components/shared/FieldGroup'
 import FormInput from '../../../../../components/shared/FormInput'
 import FormTextarea from '../../../../../components/shared/FormTextarea'
@@ -24,11 +24,37 @@ const KEYWORD_OPTIONS = [
     { value: 'devops', label: 'DevOps' },
 ]
 
-function Step1BasicInfo({ formData, onFormChange }) {
+function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
     const deadlineSameAsClose = formData.deadlineSameAsClose ?? true
+
+    const highlightRanges = useMemo(() => {
+        const ranges = []
+        if (formData.openDate && formData.closeDate) {
+            ranges.push({
+                start: formData.openDate,
+                end: formData.closeDate,
+                colorType: 'registration',
+                label: 'Thời gian đăng ký'
+            })
+        }
+        if (formData.rounds && formData.rounds.length > 0) {
+            formData.rounds.forEach(round => {
+                if (round.startDate && round.endDate) {
+                    ranges.push({
+                        start: round.startDate,
+                        end: round.endDate,
+                        colorType: 'round',
+                        label: 'Vòng thi'
+                    })
+                }
+            })
+        }
+        return ranges
+    }, [formData.openDate, formData.closeDate, formData.rounds])
 
     // Tính lỗi cho closeDate
     const closeDateError = (() => {
+        if (errors.closeDate) return errors.closeDate
         const open = formData.openDate
         const close = formData.closeDate
         if (!open || !close) return null
@@ -37,6 +63,7 @@ function Step1BasicInfo({ formData, onFormChange }) {
     })()
 
     const teamDeadlineError = (() => {
+        if (errors.teamDeadline) return errors.teamDeadline
         const close = formData.closeDate
         const deadline = formData.teamDeadline
         if (!deadline) return null
@@ -45,6 +72,7 @@ function Step1BasicInfo({ formData, onFormChange }) {
     })()
 
     const minMemberError = (() => {
+        if (errors.minMembers) return errors.minMembers
         const min = formData.minMembers
         const max = formData.maxMembers
         if (!min || !max) return null
@@ -53,6 +81,7 @@ function Step1BasicInfo({ formData, onFormChange }) {
     })()
 
     const maxMemberError = (() => {
+        if (errors.maxMembers) return errors.maxMembers
         const min = formData.minMembers
         const max = formData.maxMembers
         if (!min || !max) return null
@@ -101,56 +130,60 @@ function Step1BasicInfo({ formData, onFormChange }) {
             {/* ════════════════════════
                     PHẦN TRÊN — 2 CỘT
              ════════════════════════ */}
-            <div className={styles.twoCol}>
+            <div className={styles.contentWrapper}>
+                <div className={styles.twoCol}>
 
-                {/* ── Cột trái ── */}
+                    {/* ── Cột trái ── */}
                 <div className={styles.colLeft}>
 
+                    <FieldGroup icon={TextAlignLeft} title="Tổng quan sự kiện" required>
 
-                    <FormInput
-                        label="Tên sự kiện"
-                        required
-                        placeholder="VD: SEAL Hackathon Summer 2026"
-                        hint="Tên hiển thị công khai trên toàn hệ thống, không thay đổi được sau khi công bố."
-                        maxLength={50}
-                        showCount
-                        value={formData.name ?? ''}
-                        onChange={val => handleChange('name', val)}
-                    />
+                        <FormInput
+                            label="Tên sự kiện"
+                            labelColorVariant="primary"
+                            required
+                            placeholder="VD: SEAL Hackathon Summer 2026"
+                            maxLength={50}
+                            showCount
+                            value={formData.name ?? ''}
+                            onChange={val => handleChange('name', val)}
+                            status={errors.name ? 'error' : 'default'}
+                            message={errors.name}
+                        />
 
-                    <FormInput
-                        label="Chủ đề"
-                        placeholder="VD: AI Agents for Software Innovation"
-                        hint="Chủ đề chính của cuộc thi, giúp thí sinh định hướng giải pháp."
-                        maxLength={50}
-                        showCount
-                        value={formData.theme ?? ''}
-                        onChange={val => handleChange('theme', val)}
-                    />
+                        <FormInput
+                            label="Chủ đề"
+                            labelColorVariant="primary"
+                            placeholder="VD: AI Agents for Software Innovation"
+                            hint="Chủ đề chính của cuộc thi, giúp thí sinh định hướng giải pháp."
+                            maxLength={50}
+                            showCount
+                            value={formData.theme ?? ''}
+                            onChange={val => handleChange('theme', val)}
+                        />
 
-                    <FormTextarea
-                        className={styles.textArea}
-                        label="Mô tả ngắn"
-                        placeholder="Giới thiệu ngắn gọn về sự kiện trong 1–2 câu..."
-                        hint="Hiển thị dưới tên sự kiện ở trang danh sách và kết quả tìm kiếm."
-                        multiline
-                        rows={3}
-                        maxLength={200}
-                        showCount
-                        value={formData.shortDesc ?? ''}
-                        onChange={val => handleChange('shortDesc', val)}
-                    />
+                        <FormTextarea
+                            className={styles.textArea}
+                            labelColorVariant="primary"
+                            label="Mô tả ngắn"
+                            placeholder="Giới thiệu ngắn gọn về sự kiện trong 1–2 câu..."
+                            hint="Hiển thị dưới tên sự kiện ở trang danh sách và kết quả tìm kiếm."
+                            multiline
+                            rows={3}
+                            maxLength={200}
+                            showCount
+                            value={formData.shortDesc ?? ''}
+                            onChange={val => handleChange('shortDesc', val)}
+                        />
 
+                    </FieldGroup>
 
-                    <FieldGroup icon={TextAlignLeft} title="Mô tả chi tiết">
+                    <FieldGroup icon={Flag} title="Mô tả chi tiết">
 
                         <div className={styles.richTextHeader}>
                             <span className={styles.richTextHint}>
                                 Trình bày mục tiêu, đối tượng tham gia và điểm nổi bật của sự kiện.
                             </span>
-                            {/* <button type="button" className={styles.btnTemplate}>
-                                Tải mẫu có sẵn
-                            </button> */}
                         </div>
 
                         <RichTextEditor
@@ -163,6 +196,8 @@ function Step1BasicInfo({ formData, onFormChange }) {
 
                 </div>
 
+                <div className={styles.verticalDivider} />
+
                 {/* ── Cột phải ── */}
                 <div className={styles.colRight}>
 
@@ -174,6 +209,8 @@ function Step1BasicInfo({ formData, onFormChange }) {
                             value={formData.openDate ?? null}
                             onChange={val => onFormChange?.('openDate', val)}
                             placeholder="Thứ tư, 12/08/2026, 09:00"
+                            error={errors.openDate}
+                            highlightRanges={highlightRanges}
                         />
 
                         <DateTimePicker
@@ -190,6 +227,7 @@ function Step1BasicInfo({ formData, onFormChange }) {
                             // minTime={getCloseDateMinTime()}
                             // maxTime={new Date(new Date().setHours(23, 59, 0, 0))}
                             error={closeDateError}
+                            highlightRanges={highlightRanges}
                         />
 
                     </FieldGroup>
@@ -264,6 +302,7 @@ function Step1BasicInfo({ formData, onFormChange }) {
                                 // }
                                 
                                 error={teamDeadlineError}
+                                highlightRanges={highlightRanges}
                             />
                         )}
 
@@ -286,56 +325,55 @@ function Step1BasicInfo({ formData, onFormChange }) {
                 </div>
             </div>
 
+            <div className={styles.horizontalDivider} />
+
             {/* ════════════════════════
           PHẦN DƯỚI — ẢNH (full width)
       ════════════════════════ */}
             <FieldGroup icon={Image} title="Ảnh đại diện và ảnh bìa">
 
-                {/* Hàng trên: avatar (trái) + hướng dẫn cả 2 (phải) */}
-                <div className={styles.imageTopRow}>
-
-                    <div className={styles.avatarUpload}>
-                        <FileUpload
-                            label="Ảnh đại diện"
-                            required
-                            accept={['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']}
-                            maxSizeMB={5}
-                            aspectRatio={1}
-                            onFileChange={file => onFormChange?.('avatarFile', file)}
-                        />
+                <div className={styles.imageGuide}>
+                    <div className={styles.imageGuideItem}>
+                        <p className={styles.imageGuideTitle}>Ảnh đại diện sự kiện</p>
+                        <p className={styles.imageGuideText}>
+                            Hiển thị tại trang danh sách và kết quả tìm kiếm. Tỉ lệ 1:1, tối thiểu 300×300px.
+                        </p>
                     </div>
-
-                    <div className={styles.imageGuide}>
-                        <div className={styles.imageGuideItem}>
-                            <p className={styles.imageGuideTitle}>Ảnh đại diện sự kiện</p>
-                            <p className={styles.imageGuideText}>
-                                Hiển thị tại trang danh sách và kết quả tìm kiếm.
-                                Nên dùng logo hoặc hình ảnh rõ nét. Tỉ lệ 1:1, tối thiểu 300×300px.
-                            </p>
-                        </div>
-                        <div className={styles.imageGuideItem}>
-                            <p className={styles.imageGuideTitle}>Ảnh bìa sự kiện</p>
-                            <p className={styles.imageGuideText}>
-                                Hiển thị ở đầu trang chi tiết sự kiện. Chọn ảnh ngang, nội dung
-                                quan trọng nên đặt ở giữa vì hai cạnh có thể bị cắt trên một số thiết bị.
-                                Tỉ lệ 8:1, tối thiểu 1170×156px.
-                            </p>
-                        </div>
+                    <div className={styles.imageGuideItem}>
+                        <p className={styles.imageGuideTitle}>Ảnh bìa sự kiện</p>
+                        <p className={styles.imageGuideText}>
+                            Hiển thị ở đầu trang chi tiết sự kiện. Chọn ảnh ngang, nội dung quan trọng nên đặt ở giữa vì hai cạnh có thể bị cắt trên một số thiết bị. Tỉ lệ 8:1, tối thiểu 1170×156px.
+                        </p>
                     </div>
-
                 </div>
 
-                {/* Hàng dưới: thumbnail full width */}
-                <FileUpload
-                    label="Ảnh bìa"
-                    required
-                    accept={['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']}
-                    maxSizeMB={5}
-                    aspectRatio={8 / 1}
-                    onFileChange={file => onFormChange?.('coverFile', file)}
-                />
+                <div className={styles.imageUploadRow}>
+                    <FileUpload
+                        label="Ảnh đại diện"
+                        required
+                        accept={['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']}
+                        maxSizeMB={5}
+                        aspectRatio={1}
+                        value={formData.avatarFile}
+                        onFileChange={file => onFormChange?.('avatarFile', file)}
+                        errorMsg={errors.avatarFile}
+                    />
+                    
+                    <FileUpload
+                        label="Ảnh bìa"
+                        required
+                        accept={['image/png', 'image/jpeg', 'image/jpg', 'application/pdf']}
+                        maxSizeMB={5}
+                        aspectRatio={2.63 / 1}
+                        value={formData.coverFile}
+                        onFileChange={file => onFormChange?.('coverFile', file)}
+                        errorMsg={errors.coverFile}
+                    />
+                </div>
 
             </FieldGroup>
+            
+            </div>
 
         </div>
     )
