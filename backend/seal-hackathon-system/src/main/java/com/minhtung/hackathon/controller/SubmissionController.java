@@ -7,7 +7,7 @@ import com.minhtung.hackathon.dto.response.SubmissionListResponse;
 import com.minhtung.hackathon.dto.response.SubmissionResponse;
 import com.minhtung.hackathon.dto.response.ViewSubmissionTrackResponse;
 import com.minhtung.hackathon.service.SubmissionService;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
+
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -32,25 +33,41 @@ public class SubmissionController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<SubmissionResponse> submit(
             Authentication authentication,
-            @Valid @RequestBody SubmissionRequest request
+
+            @Valid
+            @RequestPart("request")
+            SubmissionRequest request,
+
+            @RequestPart(
+                    value = "demoFile",
+                    required = false
+            )
+            MultipartFile demoFile,
+
+            @RequestPart(
+                    value = "documentFile",
+                    required = false
+            )
+            MultipartFile documentFile
     ) {
         SubmissionResponse response =
                 submissionService.sumbit(
                         authentication.getName(),
-                        request
+                        request,
+                        demoFile ,
+                        demoFile
+
                 );
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
-
-    // update bài nộp
-    @PutMapping("/{id}")
+    @PutMapping("/{submissionIds}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<SubmissionResponse> updateSubmission(
             Authentication authentication,
-            @PathVariable("id") Long submissionId,
+            @PathVariable("submissionIds") Long submissionId,
             @RequestBody UpdateSubmissionRequest request
     ) {
         SubmissionResponse response =
