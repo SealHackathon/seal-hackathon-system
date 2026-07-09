@@ -134,7 +134,6 @@ public class SubmissionService {
         // tim kiem co round nay khong
         Team team = leader.getTeam();
         Round round = roundRepository.findById(roundId).orElseThrow(() -> new RuntimeException("khong tìm thấy vòng thi này"));
-        validateSubmittionLinks(request);
         validateTeamAndRound(team, round);
         validateSumssion(round);
 

@@ -61,17 +61,22 @@ public class SubmissionController {
     }
 
     // update bài nộp
-    @PutMapping("/{submissionIds}")
+    @PutMapping("/{roundId}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<SubmissionResponse> updateSubmission(
             Authentication authentication,
-            @PathVariable("submissionIds") Long submissionId,
+            @PathVariable("roundId") Long roundId,
             @RequestBody UpdateSubmissionRequest request
     ) {
+        System.out.println(request);
+        System.out.println(request.getGithubUrl());
+        System.out.println(request.getDemoUrl());
+        System.out.println(request.getDocumentUrl());
+
         SubmissionResponse response =
                 submissionService.updateSubmission(
                         authentication.getName(),
-                        submissionId,
+                        roundId,
                         request
                 );
 

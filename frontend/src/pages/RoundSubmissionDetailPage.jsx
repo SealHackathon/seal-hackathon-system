@@ -377,16 +377,14 @@ function RoundSubmissionDetailPage() {
         // ==========================================
         // TH 2: ĐÃ CÓ BÀI NỘP -> DÙNG LỆNH PUT (JSON BODY)
         // ==========================================
-        // Lưu ý: Đối khớp chính xác các trường trong UpdateSubmissionRequest ở Backend của bạn
         const updateRequestData = {
-          roundId: parseInt(roundId, 10),
-          githUrl: form.github.value || '',
-          demoUrl: form.video.mode === 'link' ? form.video.value : form.video.value,
-          documentUrl: form.slide.mode === 'link' ? form.slide.value : form.slide.value
+          githubUrl: form.github.value || '',
+          demoUrl: form.video.value || '',
+          documentUrl: form.slide.value || ''
         }
 
         // Gọi API PUT kèm theo PathVariable `submissionId`
-        const response = await axiosClient.put(`/submission/${submissionId}`, updateRequestData)
+        const response = await axiosClient.put(`/submission/${roundId}`, updateRequestData)
 
         if (response.status === 200) {
           alert('Cập nhật bài nộp thành công!')
