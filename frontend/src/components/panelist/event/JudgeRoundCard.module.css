@@ -1,0 +1,192 @@
+.item {
+  display: flex;
+  gap: 0.85em;
+  align-items: stretch;
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 1em;
+}
+
+.node {
+  width: 2.5em;
+  height: 2.5em;
+  border-radius: var(--radius-circle);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.node_active {
+  background: var(--color-primary-blue);
+  color: var(--color-bg-white);
+}
+
+.node_ended {
+  background: var(--color-primary-green);
+  color: var(--color-bg-white);
+}
+
+.node_upcoming {
+  background: var(--color-bg-grey);
+  color: var(--color-text-secondary);
+}
+
+.connector {
+  flex: 1;
+  width: 2px;
+  background: var(--color-border-blue);
+  margin-top: 0.4em;
+  min-height: 1.5em;
+}
+
+/* Card ngang gọn. Border mặc định bg-grey cho mọi card. */
+.card {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 1.25em;
+  border: 1.5px solid var(--color-bg-grey);
+  border-radius: var(--inner-radius);
+  padding: 1em 1.25em;
+  margin-bottom: 1em;
+  background: var(--color-bg-white);
+}
+
+/* Chỉ card đang diễn ra được tô xanh + viền xanh. */
+.cardActive {
+  border-color: var(--color-secondary-blue);
+  background: var(--color-bg-blue);
+}
+
+/* Các card còn lại giữ style thường (nền trắng, viền bg-grey). */
+.cardEnded { border-color: var(--color-bg-grey); }
+.cardUpcoming { border-color: var(--color-bg-grey); }
+.cardUnassigned { border-color: var(--color-bg-grey); }
+
+/* Đang diễn ra: nền card là bg-blue nên thanh tiến độ chuyển nền trắng */
+.cardActive .track { background: var(--color-bg-white); }
+
+.divider {
+  width: 1px;
+  align-self: stretch;
+  background: var(--color-bg-grey);
+  flex-shrink: 0;
+}
+
+.cardActive .divider { background: var(--color-border-blue); }
+
+/* Cột 1 */
+.colMain {
+  flex: 0 0 15em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.kicker {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.name {
+  margin: 0;
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: var(--color-primary-blue);
+}
+
+/* Cột 2 */
+.colInfo {
+  flex: 0 0 25em;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+  justify-content: center;
+}
+
+.infoRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+}
+
+.metaLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  flex-shrink: 0;
+}
+
+/* Icon tiêu đề nội dung: fill, màu border-blue, 18px */
+.labelIcon {
+  color: var(--color-border-blue);
+  flex-shrink: 0;
+}
+
+/* Cột 3: tiến độ + nút */
+.colAction {
+  flex: 1;
+  min-width: 10em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85em;
+  justify-content: center;
+}
+
+.progressBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4em;
+}
+
+/* Số XX/XX bài nằm cùng hàng với title "Tiến độ chấm" */
+.progressHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75em;
+}
+
+.progressValue {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  white-space: nowrap;
+}
+
+.progressUnit {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.track {
+  height: 0.5em;
+  background: var(--color-bg-blue);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: var(--color-primary-blue);
+  border-radius: 999px;
+}
+
+/* Cột cuối: nút hành động */
+.btnWrap { width: 100%; }
+.btn { width: 100%; }
