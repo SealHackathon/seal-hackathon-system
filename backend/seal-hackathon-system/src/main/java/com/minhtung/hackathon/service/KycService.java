@@ -19,6 +19,9 @@ import com.minhtung.hackathon.repository.UserIdentityProfileRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -43,8 +46,7 @@ public class KycService {
     private final EmailService emailService;
     private final StudentprofileRepository studentprofileRepository;
     private final Cloudinary cloudinary;
-
-    private final IdAnalyzerService idAnalyzerService ;
+    private final IdAnalyzerService idAnalyzerService;
 
 
     @Value("${kyc.face-match-threshold}")
@@ -69,7 +71,6 @@ public class KycService {
         studentProfile.setUser(user);
         String imageUrl = cloudinaryStorageService.uploadStudentCard(file, user.getId());
         studentProfile.setImg_studentcard(imageUrl);
-
         studentprofileRepository.save(studentProfile);
 
         return imageUrl;
@@ -127,8 +128,8 @@ public class KycService {
 
         String documentNumber = getIdAnalyzerValue(scanResult, "documentNumber");
 //        String fullName = getIdAnalyzerValue(scanResult, "fullName");
-        String lastname = getIdAnalyzerValue(scanResult,"lastName");
-        String firstname = getIdAnalyzerValue(scanResult,"firstName");
+        String lastname = getIdAnalyzerValue(scanResult, "lastName");
+        String firstname = getIdAnalyzerValue(scanResult, "firstName");
         String fullName = lastname + " " + firstname;
         String dateOfBirth = formatVietnameseDate(getIdAnalyzerValue(scanResult, "dob"));
         String gender = getIdAnalyzerValue(scanResult, "sex");
@@ -136,7 +137,6 @@ public class KycService {
         String hometown = getIdAnalyzerValue(scanResult, "placeOfBirth");
 
         validateIdAnalyzerCccd(documentNumber, fullName, dateOfBirth);
-
         UserIdentityProfile profile = profileRepository.findByUserId(user.getId()).orElse(new UserIdentityProfile());
 
 
@@ -204,7 +204,6 @@ public class KycService {
             return isoDate;
         }
     }
-
 
     private JsonNode getFirstData(JsonNode result) {
         JsonNode data = result.path("data");
@@ -277,7 +276,6 @@ public class KycService {
                         profile.getFace_image(),
                         selfieImg
                 );
-
         System.out.println("Face match result " + faceResult.toPrettyString());
 
         if (!faceResult.path("success").asBoolean(false)) {

@@ -16,7 +16,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.util.List;
 
 
@@ -33,7 +32,6 @@ public class SubmissionController {
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<SubmissionResponse> submit(
             Authentication authentication,
-
             @Valid
             @RequestPart("request")
             SubmissionRequest request,
@@ -54,15 +52,15 @@ public class SubmissionController {
                 submissionService.sumbit(
                         authentication.getName(),
                         request,
-                        demoFile ,
-                        demoFile
-
+                        demoFile,demoFile
                 );
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    // update bài nộp
     @PutMapping("/{submissionIds}")
     @PreAuthorize("hasRole('USER')")
     public ResponseEntity<SubmissionResponse> updateSubmission(
