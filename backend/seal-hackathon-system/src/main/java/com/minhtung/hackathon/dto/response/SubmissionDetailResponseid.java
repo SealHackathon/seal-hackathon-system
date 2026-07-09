@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
@@ -22,5 +23,15 @@ public class SubmissionDetailResponseid {
 
     private LocalDateTime submittedAt;
     private boolean latest;
+
+    private List<MemberResponse> members;
+    @Data
+    @Builder
+    public static class MemberResponse {
+        private Long id;
+        private String fullName;
+        private String roleInTeam; // Vị trí trong đội (Ví dụ: Developer, Designer...)
+        private boolean isLeader;  // Có phải trưởng nhóm không
+    }
 
 }
