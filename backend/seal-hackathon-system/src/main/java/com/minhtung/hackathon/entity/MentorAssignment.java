@@ -28,4 +28,8 @@ public class MentorAssignment {
         this.track = track;
         this.user = user;
     }
+
+    public MentorAssignment() {
+
+    }
 }

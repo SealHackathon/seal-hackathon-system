@@ -2,6 +2,8 @@ package com.minhtung.hackathon.repository;
 
 import com.minhtung.hackathon.entity.JudgeAssignment;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,5 +21,16 @@ public interface JudgeAssignmentRepository extends JpaRepository<JudgeAssignment
 
 
     Optional<JudgeAssignment> findByUser_IdAndTrackId(Long userId, Long trackId);
+
+    List<JudgeAssignment> findByUserId(Long userId);
+
+    // Fetch join Round + Track + Event để tránh N+1 khi build JudgeRoundDTO
+    // (Track dùng LEFT JOIN vì có thể null - nghĩa là chấm toàn bộ track của round)
+    @Query("SELECT ja FROM JudgeAssignment ja " +
+            "JOIN FETCH ja.round r " +
+            "LEFT JOIN FETCH ja.track t " +
+            "JOIN FETCH ja.event e " +
+            "WHERE ja.user.id = :userId")
+    List<JudgeAssignment> findAllByUserIdWithDetails(@Param("userId") long userId);
 
 }

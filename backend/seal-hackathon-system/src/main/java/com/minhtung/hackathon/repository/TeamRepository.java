@@ -49,4 +49,6 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
             @Param("eventId") Long eventId,
             @Param("status") TeamStatus status
     );
+
+    long countByTrack_Event_Id(Long eventId);
 }

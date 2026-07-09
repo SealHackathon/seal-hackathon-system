@@ -59,4 +59,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
             MemberRole role,
             MemberStatus status
     );
+
+    long countByTeam_Track_Event_Id(Long eventId);
 }
