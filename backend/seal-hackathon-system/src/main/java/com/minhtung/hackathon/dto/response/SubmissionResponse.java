@@ -12,23 +12,26 @@ import java.time.LocalDateTime;
 @Data
 @Builder
 public class SubmissionResponse {
-    private  Long id ;
-    private Team teamId ;
-    private Round roundId ;
-    private String githuburl ;
-    private String demoUrl ;
-    private String documenTrl ;
-    private LocalDateTime submittedAt ;
+    private Long id;
+    private Long teamId;
+    private Long roundId;
+    private String githubUrl;
+    private String demoUrl;
+    private String documentUrl;
+    private LocalDateTime submittedAt;
+
+    //đanh dấu đây là bai nộp mới nhất
     private boolean latest;
+
 
     public static  SubmissionResponse from(Submission submission){
         return SubmissionResponse.builder()
                 .id(submission.getId())
-                .teamId(submission.getTeam())
-                .roundId(submission.getRound())
-                .githuburl(submission.getGithubUrl())
+                .teamId(submission.getTeam().getId())
+                .roundId(submission.getRound().getId())
+                .githubUrl(submission.getGithubUrl())
                 .demoUrl(submission.getDemoUrl())
-                .documenTrl(submission.getDocumentUrl())
+                .documentUrl(submission.getDocumentUrl())
                 .submittedAt(submission.getSubmittedAt())
                 .latest(submission.isLatest())
                 .build() ;

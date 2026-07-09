@@ -2,7 +2,6 @@ package com.minhtung.hackathon.service;
 
 
 import com.minhtung.hackathon.dto.request.SubmissionRequest;
-import com.minhtung.hackathon.dto.request.UpdateSubmissionRequest;
 import com.minhtung.hackathon.dto.response.SubmissionDetailResponseid;
 import com.minhtung.hackathon.dto.response.SubmissionListResponse;
 import com.minhtung.hackathon.dto.response.SubmissionResponse;
@@ -123,44 +122,86 @@ public SubmissionResponse sumbit(String email , SubmissionRequest request , Mult
 }
 
 @Transactional
-public SubmissionResponse updateSubmission(String email , Long roundId ,UpdateSubmissionRequest request){
-    validateSubmittionLinks(request);
-    User user = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException(" ban chua dang ki tk"));
+public SubmissionResponse updateSubmission(String email, Long submissionId, SubmissionRequest request, MultipartFile demoFile, MultipartFile documentFile) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException(" ban chua dang ki tk"));
 
-    Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER , MemberStatus.OFFICAL).orElseThrow(() ->
+    Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL).orElseThrow(() ->
             new IllegalArgumentException(
-                    "Chỉ trưởng nhóm được phép nộp bài"
+                    "Chi truong nhom duoc phep nop bai"
             ));
-    // tim kiem co round nay khong
-    Team team = leader.getTeam() ;
-    Round round = roundRepository.findById(roundId).orElseThrow(()-> new RuntimeException("khong tìm thấy vòng thi này"));
-    validateSubmittionLinks(request);
-    validateTeamAndRound(team,round);
+
+    Submission oldSubmission = submissionRepository.findById(submissionId)
+            .orElseThrow(() -> new RuntimeException("khong tim thay bai nop"));
+
+    if (!oldSubmission.isLatest()) {
+        throw new RuntimeException("Chi duoc cap nhat bai nop moi nhat");
+    }
+
+    Team team = oldSubmission.getTeam();
+    Round round = oldSubmission.getRound();
+
+    if (team.getId() != leader.getTeam().getId()) {
+        throw new RuntimeException("ban khong phai truong nhom cua bai nop nay");
+    }
+
+    validateTeamAndRound(team, round);
     validateSumssion(round);
 
-    //khuc nay de tim bai nop cu de update
-    Submission oldSubmission = submissionRepository
-            .findFirstByTeamIdAndRoundIdAndLatestTrue(
-                    team.getId(),
-                    roundId
-            )
-            .orElseThrow(() ->
-                    new IllegalArgumentException(
-                            "Nhóm chưa có bài nộp để cập nhật"
-                    )
-            );
+    String githubUrl = normalize(request.getGithUrl());
+    String demoUrl = normalize(request.getDemoUrl());
+    String documentUrl = normalize(request.getDocumentUrl());
+
+    if (!hasText(githubUrl)) {
+        throw new RuntimeException("Link gihthub la bat buoc");
+    }
+    boolean hasDemoFile =
+            demoFile != null && !demoFile.isEmpty();
+
+    boolean hasDocumentFile =
+            documentFile != null && !documentFile.isEmpty();
+
+    if (!hasText(demoUrl) && !hasDemoFile) {
+        throw new RuntimeException("phai nop link hoac file video demo");
+    }
+    if (!hasText(documentUrl) && !hasDocumentFile) {
+        throw new RuntimeException("phai nop link hoac file slide demo");
+    }
+    if (hasDemoFile) {
+        validateDemoFile(demoFile);
+
+        demoUrl = cloudinaryStorageService
+                .uploadSubmissionFile(
+                        demoFile,
+                        team.getId(),
+                        round.getId(),
+                        "video"
+                );
+    }
+    if (hasDocumentFile) {
+        validateDocumentFile(documentFile);
+
+        documentUrl = cloudinaryStorageService
+                .uploadSubmissionFile(
+                        documentFile,
+                        team.getId(),
+                        round.getId(),
+                        "raw"
+                );
+    }
+
     oldSubmission.setLatest(false);
     submissionRepository.save(oldSubmission);
-    Submission newSubmission = new Submission() ;
+
+    Submission newSubmission = new Submission();
     newSubmission.setTeam(team);
     newSubmission.setRound(round);
-    newSubmission.setGithubUrl(normalize(request.getGithubUrl()));; ;
-    newSubmission.setDemoUrl(normalize(request.getDemoUrl()));
-    newSubmission.setDocumentUrl(normalize(request.getDocumentUrl()));
+    newSubmission.setGithubUrl(githubUrl);
+    newSubmission.setDemoUrl(demoUrl);
+    newSubmission.setDocumentUrl(documentUrl);
     newSubmission.setSubmittedAt(LocalDateTime.now());
     newSubmission.setLatest(true);
 
-    return  SubmissionResponse.from(submissionRepository.save(newSubmission));
+    return SubmissionResponse.from(submissionRepository.save(newSubmission));
 }
 
 
@@ -173,10 +214,12 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
 }
 
 
-
-    @Transactional
+@Transactional
     public SubmissionDetailResponseid getSubmissionById(Long id){
      Submission submission = submissionRepository.findById(id).orElseThrow(() -> new RuntimeException("khong tim thay bai nop ")) ;
+     if(!submission.isLatest()){
+         throw new RuntimeException("ban dang nhap id bai cu roi ");
+     }
      return mapToDetailResponse(submission);
     }
 
@@ -258,30 +301,6 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
     }
 
 
-    private void validateSubmittionLinks(UpdateSubmissionRequest request) {
-        boolean hasGithub =
-                hasText(request.getGithubUrl());
-        boolean hasdemoUrl =
-                hasText(request.getDemoUrl());
-        boolean hasdocument =
-                hasText(request.getDocumentUrl());
-
-
-        if (!hasGithub) {
-            throw new RuntimeException("bat buoc phai nop link git ");
-
-        }
-        if (!hasdemoUrl) {
-            throw new RuntimeException("bat buoc phai nop video ");
-
-        }
-        if (!hasdocument) {
-            throw new RuntimeException("bat buoc phai nop link slide ");
-
-        }
-
-
-    }
     private boolean hasText(String value) {
         return value != null &&
                 !value.trim().isEmpty();
@@ -328,7 +347,7 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
 
         if (file.getSize() > maxDemoSize.toBytes()) {
             throw new IllegalArgumentException(
-                    "Video không được vượt quá 100MB"
+                    "Video không được vượt quá 50MB"
             );
         }
 
@@ -346,7 +365,7 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
 
         if (file.getSize() > maxDocumentSize.toBytes()) {
             throw new IllegalArgumentException(
-                    "Slide không được vượt quá 20MB"
+                    "Slide không được vượt quá 10MB"
             );
         }
 

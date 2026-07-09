@@ -1,7 +1,6 @@
 package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.SubmissionRequest;
-import com.minhtung.hackathon.dto.request.UpdateSubmissionRequest;
 import com.minhtung.hackathon.dto.response.SubmissionDetailResponseid;
 import com.minhtung.hackathon.dto.response.SubmissionListResponse;
 import com.minhtung.hackathon.dto.response.SubmissionResponse;
@@ -11,6 +10,7 @@ import com.minhtung.hackathon.service.SubmissionService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -27,58 +27,75 @@ public class SubmissionController {
    private final SubmissionService submissionService ;
 
 
-    @PostMapping
-    @PreAuthorize("hasRole('USER')")
+
+    @PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<SubmissionResponse> submit(
             Authentication authentication,
 
-            @Valid
-            @RequestPart("request")
-            SubmissionRequest request,
+            @RequestParam("roundId") Long roundId,
+            @RequestParam("githUrl") String githUrl,
+            @RequestParam(value = "demoUrl", required = false) String demoUrl,
+            @RequestParam(value = "documentUrl", required = false) String documentUrl,
 
-            @RequestPart(
-                    value = "demoFile",
-                    required = false
-            )
+            @RequestPart(value = "demoFile", required = false)
             MultipartFile demoFile,
 
-            @RequestPart(
-                    value = "documentFile",
-                    required = false
-            )
+            @RequestPart(value = "documentFile", required = false)
             MultipartFile documentFile
     ) {
+        SubmissionRequest request = new SubmissionRequest();
+        request.setRoundId(roundId);
+        request.setGithUrl(githUrl);
+        request.setDemoUrl(demoUrl);
+        request.setDocumentUrl(documentUrl);
+
         SubmissionResponse response =
                 submissionService.sumbit(
                         authentication.getName(),
                         request,
-                        demoFile ,
-                        demoFile
-
+                        demoFile,
+                        documentFile
                 );
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
-    @PutMapping("/{submissionIds}")
-    @PreAuthorize("hasRole('USER')")
+    @PutMapping(value = "/updateSumssion/{submissionId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<SubmissionResponse> updateSubmission(
             Authentication authentication,
-            @PathVariable("submissionIds") Long submissionId,
-            @RequestBody UpdateSubmissionRequest request
+
+            @PathVariable("submissionId") Long submissionId,
+            @RequestParam("githUrl") String githUrl,
+            @RequestParam(value = "demoUrl", required = false) String demoUrl,
+            @RequestParam(value = "documentUrl", required = false) String documentUrl,
+
+            @RequestPart(value = "demoFile", required = false)
+            MultipartFile demoFile,
+
+            @RequestPart(value = "documentFile", required = false)
+            MultipartFile documentFile
     ) {
+        SubmissionRequest request = new SubmissionRequest();
+        request.setGithUrl(githUrl);
+        request.setDemoUrl(demoUrl);
+        request.setDocumentUrl(documentUrl);
+
         SubmissionResponse response =
                 submissionService.updateSubmission(
                         authentication.getName(),
                         submissionId,
-                        request
+                        request,
+                        demoFile,
+                        documentFile
                 );
 
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping
+    @GetMapping("/viewSubmissionRound")
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<List<SubmissionListResponse>>
     getSubmissionsByRound(

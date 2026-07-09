@@ -103,7 +103,8 @@ public class CloudinaryStorageService {
         try{
             Map uploadResult = cloudinary.uploader().upload(
                     file.getBytes(), ObjectUtils.asMap(
-                            "folder","seal-Hackathon/submissions/" + teamId + "/" + roundId + "resouceType" , resourceType));
+                            "folder", "seal-Hackathon/submissions/" + teamId + "/" + roundId,
+                            "resource_type", resourceType));
             return uploadResult.get("secure_url").toString();
         }catch (IOException e ){
             e.printStackTrace();
