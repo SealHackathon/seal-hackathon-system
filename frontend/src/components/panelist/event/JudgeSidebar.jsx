@@ -22,7 +22,7 @@ function JudgeSidebar({ event }) {
           size={132}
           stroke={14}
           color="var(--color-primary-blue)"
-          trackColor="var(--color-bg-white)"
+          trackColor="var(--color-bg-blue)"
           labelColor="var(--color-secondary-blue)"
           totalColor="var(--color-secondary-blue)"
         />

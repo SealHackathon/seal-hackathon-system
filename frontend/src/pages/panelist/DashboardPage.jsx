@@ -9,6 +9,73 @@ import styles from './DashboardPage.module.css'
 import { useEffect, useState } from 'react'
 import axiosClient from '../../api/axiosClient'
 
+
+// // --- Mock data (thay bằng dữ liệu API sau) ---
+// const ASSIGNED_EVENTS = [
+//   {
+//     id: 1,
+//     name: 'SEAL Hackathon Summer 2026',
+//     // Thử đổi thành ['judge'] hoặc ['mentor'] để xem từng biến thể vai trò
+//     roles: ['judge', 'mentor'],
+//     theme: 'AI Agents for Software Innovation',
+//     description:
+//       'SEAL Hackathon Summer 2026 là sự kiện mở đầu trong hệ thống SEAL – Software Engineering Agile League. Chủ đề mùa Summer 2026 là "AI Agents for Software Innovation", nơi các đội thi xây dựng những tác nhân AI giúp tăng tốc quy trình phát triển phần mềm.',
+//     // Phân công theo vai trò (giám khảo theo vòng, mentor theo hạng mục)
+//     assignment: {
+//       // Giám khảo: mỗi vòng chấm hạng mục cụ thể hoặc tất cả hạng mục
+//       judge: {
+//         rounds: [
+//           {
+//             name: 'Vòng Sơ Khảo',
+//             allCategories: false,
+//             categories: ['AI Agents for Software Innovation', 'EdTech Track'],
+//           },
+//           {
+//             name: 'Vòng Chung Kết',
+//             allCategories: true,
+//             categories: [],
+//           },
+//         ],
+//       },
+//       // Mentor: phụ trách hạng mục cụ thể (có thể khác hạng mục làm giám khảo)
+//       mentor: {
+//         categories: ['Smart City & IoT'],
+//       },
+//     },
+//     stats: {
+//       teams: '42 / 100',
+//       participants: 268,
+//       categories: 4,
+//       rounds: 2,
+//     },
+//     timeline: [
+//       { date: '08/07/2026', label: 'Mở cổng đăng ký' },
+//       { date: '20/07/2026', label: 'Đóng cổng đăng ký' },
+//       { date: '28/07/2026', label: 'Workshop Online' },
+//       { date: '30/07/2026', label: 'Vòng Sơ khảo' },
+//       { date: '31/07/2026', label: 'Vòng Chung kết' },
+//     ],
+//     judging: { roundName: 'Vòng Sơ Khảo', done: 15, total: 20 },
+//     mentoring: { teamCount: 2 },
+//     currentRound: {
+//       index: 1,
+//       total: 2,
+//       name: 'Vòng Sơ Khảo',
+//       countdownLabel: 'Bắt đầu trong 12 ngày',
+//       submitDeadline: '21:00 - 05/08/2026',
+//       submitted: '0 / 100',
+//       rubricName: 'SEAL 2026',
+//       schedule: [
+//         { time: '08:00 – 08:30', title: 'Khai mạc', desc: 'Phát biểu khai mạc từ BTC' },
+//         { time: '08:30 – 12:00', title: 'Thuyết trình vòng 1', desc: 'Các team lần lượt trình bày' },
+//         { time: '12:00 – 13:00', title: 'Nghỉ trưa', desc: '' },
+//         { time: '13:00 – 17:00', title: 'Chấm điểm', desc: 'Giám khảo tổng hợp và chấm điểm' },
+//       ],
+//     },
+//   },
+// ]
+
+
 function DashboardPage() {
   const [invitations, setInvitations] = useState([])
   const [assignedEvent, setAssignedEvent] = useState(null)

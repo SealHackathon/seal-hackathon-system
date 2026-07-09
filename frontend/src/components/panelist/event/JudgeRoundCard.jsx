@@ -68,7 +68,7 @@ if (round.lifecycle === 'ended') {
           
           <p className={styles.name}>{round.name}</p>
           <Badge
-            variant="blueSolid"
+            variant={round.lifecycle === 'active' ? "blueSolid" : "dashedBlue"}
             size="sm"
             dot={false}
             icon={<CalendarBlank size={14} weight="fill" />}
