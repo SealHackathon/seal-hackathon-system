@@ -30,10 +30,9 @@ public class TeamService {
     private final TeamRequestRepository teamRequestRepository;
     private final UserRepository userRepository;
     private final EmailService emailService;
-    private final RoundRepository roundRepository;
+    private  final RoundRepository roundRepository ;
     private final SubmissionRepository submissionRepository;
-    private final StudentprofileRepository studentprofileRepository;
-    private final TrackRepository trackRepository;
+
     //tao 1 team moi
 
 
@@ -53,7 +52,7 @@ public class TeamService {
         if (newTeam.getDescription().length() > 200) {
             throw new IllegalArgumentException("mo ta không thể lớn hơn 200 kí tự ");
         }
-        if (leader.getStatus() != UserStatus.ACCEPTED) {
+        if(leader.getStatus() !=UserStatus.ACCEPTED){
             throw new IllegalArgumentException("chua duoc admin duyet ");
         }
 
@@ -173,6 +172,8 @@ public class TeamService {
         return "tham gia đội " + team.getName() + " thành công";
 
     }
+
+
 
 
     //ham nay de gui join request
@@ -529,18 +530,21 @@ public class TeamService {
     }
 
 
+
+
+
     // day la ham dung de leader duyet viec leave_request trong team
     // memberId trong đây là primary key của bảng member á nha.
     @Transactional
     public String respondToLeaveRequest(long memberId, long leaderId) {
         Team team = teamRepository.findByLeaderId(leaderId).orElse(null);
         Member memberSender = memberRepository.findByIdAndStatus(memberId, MemberStatus.OFFICAL).orElse(null);
-        if (memberSender == null) {
+        if(memberSender==null){
             throw new IllegalArgumentException("MEMBER not found");
 
         }
         User user = memberSender.getMember();
-        if (user == null) {
+        if(user ==null){
             throw new IllegalArgumentException("User not found");
         }
         if (team == null) {
@@ -554,6 +558,8 @@ public class TeamService {
         memberRepository.save(memberSender);
         return "Duyet yeu cau roi doi ko thanh cong";
     }
+
+
 
 
     //Admin duyet / tu choi team submisson
@@ -633,15 +639,6 @@ public class TeamService {
         for (Member member1 : memberList) {
             if (member1.getStatus() != MemberStatus.OUT) {
                 TeamMembersResponse membersResponse = new TeamMembersResponse();
-                User user = member1.getMember();
-                Student_profile profile = studentprofileRepository.findByUserId(user.getId()).orElse(null);
-                membersResponse.setBio(profile.getBio());
-                membersResponse.setPositions(profile.getPositions());
-                membersResponse.setTechTags(profile.getTechTags());
-                membersResponse.setTopics(profile.getTopics());
-                membersResponse.setCvLink("đang hard code chưa fix chỗ cv này");
-                membersResponse.setJoinMethod(member1.getJoinMethod().toString());
-                membersResponse.setMemberStatus(member1.getStatus().toString());
                 membersResponse.setId(member1.getId());
                 membersResponse.setName(member1.getMember().getFullName());
                 membersResponse.setEmail(member1.getMember().getEmail());
@@ -708,6 +705,7 @@ public class TeamService {
         Member member = memberRepository.findByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE))
                 .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND")); // Ném ra ngoại lệ rõ ràng
 
+
         return member.getRole().toString(); // Trả về "LEADER" hoặc "MEMBER"
     }
 
@@ -732,7 +730,7 @@ public class TeamService {
         outTeamResponse.setMemberId(member.getId());
         outTeamResponse.setName(sender.getFullName());
         outTeamResponse.setMessage("Thành viên " + sender.getFullName() + " xin rời đội.");
-        if (member.getStatus().equals(MemberStatus.RESERVE)) {
+        if(member.getStatus().equals(MemberStatus.RESERVE)) {
             member.setStatus(MemberStatus.OUT);
             memberRepository.save(member);
         }
@@ -792,7 +790,7 @@ public class TeamService {
         List<TeamRequest> teamRequests = new ArrayList<>(team.getTeamRequest());
         List<OutTeamResponse> outTeamResponses = new ArrayList<>(teamRequests.size());
         for (TeamRequest teamRequest : teamRequests) {
-            if ((teamRequest.getReceiver().equals(member.getMember()) || teamRequest.getSender().equals(member.getMember())) &&
+            if ((teamRequest.getReceiver().equals(member.getMember())||teamRequest.getSender().equals(member.getMember()) ) &&
                     teamRequest.getType() == RequestType.LEAVE_REQUEST &&
                     teamRequest.getStatus() == RequestStatus.PENDING
             ) {
@@ -886,21 +884,6 @@ public class TeamService {
         teamInfoResponse.setTeamName(team.getName());
         teamInfoResponse.setDescription(team.getDescription());
         teamInfoResponse.setTeamStatus(team.getStatus().toString());
-
-        // set category
-        TeamInfoResponse.TrackResponse category = new TeamInfoResponse.TrackResponse();
-        category.setId(team.getTrack().getId());
-        category.setTrackName(team.getTrack().getName());
-        category.setDesc(team.getTrack().getDes());
-        category.setCurrentTeams(team.getTrack().getTeamQuantity());
-        category.setTeamLimit(team.getTrack().getMaxTeamPerTrack());
-        teamInfoResponse.setCategory(category);
-
-
-        //trả về maxSlots
-        Event event = team.getTrack().getEvent();
-        teamInfoResponse.setMaxSlots(event.getMaxTeamMember());
-
         return teamInfoResponse;
     }
 
@@ -1043,6 +1026,8 @@ public class TeamService {
     }
 
 
+
+
     // lấy tất cả team trong sự kiện
     public List<RoundTeamResponse> getTeamsInRoundOfEvent(long eventId, long roundId, long currentUserId) {
         // 1. Lấy tất cả các đội thi thuộc về sự kiện (Tìm thông qua cấu trúc quan hệ Track -> Event)
@@ -1104,11 +1089,11 @@ public class TeamService {
     }
 
     @Transactional
-    public List<ViewTeamListRespone> viewTeamByRound(Long roundId) {
+    public List<ViewTeamListRespone> viewTeamByRound(Long roundId){
         Round round = roundRepository.findById(roundId).orElseThrow(() -> new RuntimeException("khong tim thay round"));
-        Long eventId = round.getEvent().getId();
-        List<Team> teams = teamRepository.findByEventIdAndStatus(
-                eventId, TeamStatus.APPROVED
+        Long eventId = round.getEvent().getId() ;
+        List<Team> teams= teamRepository.findByEventIdAndStatus(
+                eventId,TeamStatus.APPROVED
         );
 
         return teams.stream()
@@ -1128,7 +1113,6 @@ public class TeamService {
                 })
                 .toList();
     }
-
     private ViewTeamListRespone mapToTeamResponse(
             Team team,
             Submission submission
@@ -1169,58 +1153,5 @@ public class TeamService {
                                 : null
                 )
                 .build();
-    }
-
-    // move to offical
-    public String moveMemberToOffical(long memberId) {
-
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.RESERVE).orElse(null);
-        if (member == null) {
-            throw new IllegalArgumentException("member khong ton tai");
-        }
-        member.setStatus(MemberStatus.OFFICAL);
-        memberRepository.save(member);
-        return "move to offical sucessfully !";
-
-    }
-
-    // move to reserve
-    public String moveMemberToReserve(long memberId) {
-
-        Member member = memberRepository.findByIdAndStatus(memberId, MemberStatus.OFFICAL).orElse(null);
-        if (member == null) {
-            throw new IllegalArgumentException("member khong ton tai");
-        }
-        member.setStatus(MemberStatus.RESERVE);
-        memberRepository.save(member);
-        return "move to offical sucessfully !";
-
-    }
-
-
-    //update Team Track
-    @Transactional
-    public String updateTrack(long categoryId, Integer uid) {
-
-        // Kiểm tra category (track) có tồn tại không
-        Track track = trackRepository.findById(categoryId)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy hạng mục."));
-
-        // Lấy member theo user
-        Member member = memberRepository.findByMemberIdAndStatus(uid,MemberStatus.OFFICAL)
-                .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy thành viên."));
-
-        // Lấy team của member
-        Team team = member.getTeam();
-        if (team == null) {
-            throw new IllegalArgumentException("Bạn chưa tham gia đội nào.");
-        }
-
-        // Nếu chưa có track thì thêm, có rồi thì cập nhật
-        team.setTrack(track);
-
-        teamRepository.save(team);
-
-        return "Cập nhật hạng mục thành công.";
     }
 }

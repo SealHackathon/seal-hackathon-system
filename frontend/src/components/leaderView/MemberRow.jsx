@@ -6,14 +6,13 @@ import Button from '../shared/Button'
 import Badge from '../shared/Badge'
 import LeaveRequestDetailModal from './LeaveRequestDetailModal'
 import UserProfileModal from './UserProfileModal'
-import ConfirmModal from '../shared/ConfirmModal'
 import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 
 // Map joinMethod → Badge props — cùng màu green, khác variant theo cấp độ
 const JOIN_METHOD_BADGE = {
-  JOINBYINVITATION: { variant: 'greenSolid', label: 'Được mời', dim: false },
-  JOINBYREQUEST: { variant: 'green', label: 'Xin vào', dim: false },
-  JOINBYCODE: { variant: 'dashedGreen', label: 'Dùng mã', dim: true }, // opacity 0.45 qua CSS
+  INVITE: { variant: 'greenSolid', label: 'Được mời', dim: false },
+  REQUEST: { variant: 'green', label: 'Xin vào', dim: false },
+  CODE: { variant: 'dashedGreen', label: 'Dùng mã', dim: true }, // opacity 0.45 qua CSS
 }
 
 function MemberRow({
@@ -38,8 +37,6 @@ function MemberRow({
 }) {
   const [selectedRequest, setSelectedRequest] = useState(null)
   const [isProfileOpen, setIsProfileOpen] = useState(false)
-  const [isHovered, setIsHovered] = useState(false)
-  const [showLeaveConfirm, setShowLeaveConfirm] = useState(false)
 
   const badge = !isLeader && joinMethod ? JOIN_METHOD_BADGE[joinMethod] : null
 
@@ -48,50 +45,32 @@ function MemberRow({
 
       <span className={styles.index}>{index}</span>
 
-      <div 
-        className={`${styles.profileWrapper} ${isCurrentUser ? styles.noHover : ''}`} 
-        onClick={() => { isCurrentUser ? {} : setIsProfileOpen(true) }}
-        onMouseEnter={() => { if (!isCurrentUser) setIsHovered(true) }}
-        onMouseLeave={() => { if (!isCurrentUser) setIsHovered(false) }}
-      >
+      <div className={`${styles.avatar} ${styles.clickable}`} onClick={() => setIsProfileOpen(true)}>
+        <img src={avatarPlaceholder} alt="user avatar placeholder" className={styles.avatarImg} />
+        {isLeader && (
+          <CrownSimple size={32} weight="fill" className={styles.crownIcon} />
+        )}
+      </div>
 
-        <Tooltip
-          content={isCurrentUser ? '' : "Xem thông tin chi tiết"}
-          position="top"
-          forceVisible={isHovered}
-        >
-          <div className={styles.innerWrapper}>
-            <div className={styles.avatar}>
-              <img src={avatarPlaceholder} alt="user avatar placeholder" className={styles.avatarImg} />
-              {isLeader && (
-                <CrownSimple size={32} weight="fill" className={styles.crownIcon} />
-              )}
-            </div>
-
-            <div className={styles.info}>
-              <div className={styles.nameRow}>
-                <span className={styles.name}>
-                  {name}
-                </span>
-                {isCurrentUser && <span className={styles.youBadge}>(Bạn)</span>}
-                {badge && (
-                  <span className={badge.dim ? styles.badgeDim : undefined}>
-                    <Badge
-                      variant={badge.variant}
-                      label={badge.label}
-                      size="sm"
-                      dot={false}
-                    />
-                  </span>
-                )}
-              </div>
-              <span className={styles.email}>{email}</span>
-              <span className={styles.school}>{school}</span>
-            </div>
-          </div>
-
-
-        </Tooltip>
+      <div className={styles.info}>
+        <div className={styles.nameRow}>
+          <span className={`${styles.name} ${styles.clickable}`} onClick={() => setIsProfileOpen(true)}>
+            {name}
+          </span>
+          {isCurrentUser && <span className={styles.youBadge}>(Bạn)</span>}
+          {badge && (
+            <span className={badge.dim ? styles.badgeDim : undefined}>
+              <Badge
+                variant={badge.variant}
+                label={badge.label}
+                size="sm"
+                dot={false}
+              />
+            </span>
+          )}
+        </div>
+        <span className={styles.email}>{email}</span>
+        <span className={styles.school}>{school}</span>
       </div>
 
 
@@ -116,15 +95,7 @@ function MemberRow({
                 <Tooltip content="Rời đội">
                   <button
                     className={styles.actionBtn}
-                    onClick={() => {
-                      if (isLeader) {
-                        onLeave();
-                      } else if (memberStatus === 'RESERVE') {
-                        setShowLeaveConfirm(true);
-                      } else {
-                        setSelectedRequest({ compose: true });
-                      }
-                    }}
+                    onClick={isLeader ? onLeave : () => setSelectedRequest({ compose: true })}
                   // thêm một trường compose vào request gốc để phân biệt việc gửi leave request của member
                   >
                     <SignOut size={28} weight='bold' color="var(--color-secondary-blue)" />
@@ -208,23 +179,12 @@ function MemberRow({
       />
 
       {isProfileOpen && member && (
-        <UserProfileModal
-          member={member}
-          onClose={() => setIsProfileOpen(false)}
+        <UserProfileModal 
+          member={member} 
+          onClose={() => setIsProfileOpen(false)} 
         />
       )}
 
-      <ConfirmModal
-        isOpen={showLeaveConfirm}
-        title="Xác nhận rời nhóm"
-        message="Bạn có chắc chắn muốn rời nhóm ngay lập tức không? Hành động này không thể hoàn tác."
-        confirmLabel="Xác nhận"
-        onConfirm={() => {
-          setShowLeaveConfirm(false);
-          onLeave('');
-        }}
-        onCancel={() => setShowLeaveConfirm(false)}
-      />
     </div>
   )
 }

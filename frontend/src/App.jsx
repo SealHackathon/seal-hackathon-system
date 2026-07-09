@@ -108,11 +108,7 @@ import CompleteProfilePage from './pages/completeProfile/CompleteProfilePage';
 import EmailVerifiedPage from './pages/EmailVerifiedPage';
 import RubricLibraryPage from './pages/coordinator/rubrics/RubricLibraryPage';
 import CreateRubricPage from './pages/coordinator/rubrics/CreateRubricPage';
-import SubmissionPage from './pages/SubmissionPage';
-import RoundSubmissionDetailPage from './pages/RoundSubmissionDetailPage';
-import PanelistDashboard from './pages/panelist/DashboardPage';
-import EventDetailPage from './pages/panelist/EventDetailPage'; 
-import JudgeRoundDetailPage from './pages/panelist/JudgeRoundDetailPage';
+
 
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
@@ -190,39 +186,12 @@ function AppRoutes() {
                                             <TeamRoute />
                                         )
                                     } />
-                                    
-                                    <Route path="/team/submissions" element={
-                                        userStatus === "PENDING_APPROVAL" ? (
-                                            <Navigate to="/user/dashboard" replace />
-                                        ) : (
-                                            <SubmissionPage />
-                                        )
-                                    } />
-
-                                    <Route path="/team/submissions/detail" element={
-                                        userStatus === "PENDING_APPROVAL" ? (
-                                            <Navigate to="/user/dashboard" replace />
-                                        ) : (
-                                            <RoundSubmissionDetailPage />
-                                        )
-                                    } />
 
                                     {/* Không cho phép quay lại complete-profile nếu đã xong */}
                                     <Route path="/user/complete-profile" element={<Navigate to="/user/dashboard" replace />} />
                                     <Route path="*" element={<Navigate to="/user/dashboard" replace />} />
                                 </>
                             )}
-                        </>
-                    )}
-
-                    {/* LUONG GIANG VIEN (LECTURER = Mentor & Giam khao) */}
-                    {role === "LECTURER" && (
-                        <>
-                            <Route path="/panelist/dashboard" element={<PanelistDashboard />} />
-                            {/* TODO: <Route path="/panelist/contests" element={<ContestsPage />} /> */}
-                            <Route path="/panelist/events/:eventId" element={<EventDetailPage />} />   
-                            <Route path="/panelist/events/:eventId/judge/rounds/:roundId" element={<JudgeRoundDetailPage />} />
-                            <Route path="*" element={<Navigate to="/panelist/dashboard" replace />} />
                         </>
                     )}
 

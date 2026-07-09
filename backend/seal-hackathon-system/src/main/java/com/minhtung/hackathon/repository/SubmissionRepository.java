@@ -24,4 +24,8 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     findByTeamTrackIdAndLatestTrueOrderBySubmittedAtDesc(
             Long trackId
     );
+    Optional<Submission> findFirstByTeamIdAndTeamTrackIdAndLatestTrue(
+            Long teamId,
+            Long trackId
+    );
 }

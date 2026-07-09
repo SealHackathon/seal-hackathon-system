@@ -19,7 +19,6 @@ function FileUpload({
     aspectRatio = 16 / 9,
     value = null,
     onFileChange,
-    errorMsg,
 }) {
     const [file, setFile] = useState(null)   // File object hoặc fake File (từ URL)
     const [preview, setPreview] = useState(null)   // Object URL hoặc Cloudinary URL
@@ -45,7 +44,7 @@ function FileUpload({
             return () => URL.revokeObjectURL(url)
         } else if (typeof value === 'string') {
             // Cloudinary URL or string URL
-            const fakeFile = { name: value.split('/').pop() || 'image_link', size: 0, type: 'image/jpeg', isLink: true }
+            const fakeFile = { name: value.split('/').pop() || 'image_link', size: 0, type: 'image/jpeg' }
             setFile(fakeFile)
             setPreview(value)
         }
@@ -144,8 +143,7 @@ function FileUpload({
     }
 
     const hasFile = !!file
-    const hasError = !!error || !!errorMsg
-    const displayError = error || errorMsg
+    const hasError = !!error
     const isImage = file?.type?.startsWith('image/')
 
     return (
@@ -203,12 +201,8 @@ function FileUpload({
                         <Image size={32} className={styles.fileIcon} weight='fill' />
 
                         <div className={styles.fileMeta}>
-                            <span className={styles.fileName}>
-                                {file.isLink ? (label || 'Ảnh đã tải lên') : truncateName(file.name)}
-                            </span>
-                            {!file.isLink && (
-                                <span className={styles.fileSize}>{formatSize(file.size)}</span>
-                            )}
+                            <span className={styles.fileName}>{truncateName(file.name)}</span>
+                            <span className={styles.fileSize}>{formatSize(file.size)}</span>
                             <p className={styles.fileSuccess}>Tải lên thành công</p>
                         </div>
 

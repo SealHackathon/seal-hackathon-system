@@ -152,4 +152,4 @@
 
 .primary:not(:disabled) .icon { color: white; }
 .outline:not(:disabled) .icon { color: var(--color-border-blue); }
-.outline.orange:not(:disabled) .icon { color: var(--color-border-orange); }
+.outline.orange:not(:disabled) .icon { color: var(--color-primary-orange); }

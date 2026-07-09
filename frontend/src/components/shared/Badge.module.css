@@ -117,7 +117,7 @@
 .dashedGreen .dot { background-color: var(--color-primary-green); }
 
 .dashedOrange {
-    background-color: var(--color-bg-orange);
+    background-color: var(--color-bg-white);
     border: 1px dashed var(--color-primary-orange);
     color: var(--color-primary-orange);
 }

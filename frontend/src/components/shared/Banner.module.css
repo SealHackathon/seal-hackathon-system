@@ -5,8 +5,8 @@
     display: flex;
     align-items: flex-start;
     gap: 0.75rem;
-    padding: 0.75em 1.5em;
-    border-radius: var(--inner-radius);
+    padding: 1.5em;
+    border-radius: var(--radius);
     width: 100%;
     box-sizing: border-box;
 }
@@ -31,6 +31,7 @@
     font-size: 1rem;
     font-weight: 700;
     margin: 0;
+    line-height: 1.4;
 }
 
 .message {
@@ -120,31 +121,31 @@
 
 /* Green */
 .green {
-    background: var(--color-bg-green);
-    border-color: var(--color-border-green);
-    color: var(--color-primary-green);
+    background: #edfbf3;
+    border-color: #6ee7a0;
+    color: #166534;
 }
 
 .green .title {
-    color: var(--color-primary-green);
+    color: #15803d;
 }
 
 .green .message {
-    color: var(--color-text-primary);
+    color: #166534;
 }
 
 .green .icon {
-    color: var(--color-primary-green);
+    color: #16a34a;
 }
 
 .green .badge {
-    color: var(--color-primary-green);
+    color: #16a34a;
 }
 
 /* Orange */
 .orange {
     background: var(--color-bg-orange);
-    border-color: var(--color-border-orange);
+    border-color: #fbbf7a;
     color: var(--color-primary-orange);
 }
 

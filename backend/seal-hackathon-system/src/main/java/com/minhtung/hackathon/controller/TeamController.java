@@ -185,7 +185,8 @@ public class TeamController {
         }
 
         try {
-            return ResponseEntity.ok(teamService.getTeamRole(uid));
+            String role = teamService.getTeamRole(uid);
+            return ResponseEntity.ok().body(role);
         } catch (IllegalArgumentException e) {
             // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
@@ -289,59 +290,6 @@ public class TeamController {
         } catch (Exception e) {
             // Phòng hờ các lỗi hệ thống hoặc lỗi ép kiểu NullPointerException dữ liệu dưới DB
             return ResponseEntity.internalServerError().body("Đã xảy ra lỗi hệ thống: " + e.getMessage());
-        }
-    }
-
-
-    // move to offical
-    @PutMapping("/move-to-official/{id}")
-    public ResponseEntity<?> moveMemberToOffical(@RequestHeader("Authorization") String auth, @PathVariable("id") long userId) {
-        Integer uid = getUid(auth);
-        if (uid == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
-        }
-
-        try {
-            return ResponseEntity.ok().body(teamService.moveMemberToOffical(userId));
-        } catch (IllegalArgumentException e) {
-            // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-
-
-    // move to offical
-    @PutMapping("/move-to-reserve/{id}")
-    public ResponseEntity<?> moveMemberToReserve(@RequestHeader("Authorization") String auth, @PathVariable("id") long userId) {
-        Integer uid = getUid(auth);
-        if (uid == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
-        }
-
-        try {
-            return ResponseEntity.ok().body(teamService.moveMemberToReserve(userId));
-        } catch (IllegalArgumentException e) {
-            // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
-    }
-
-
-
-    // Update Team Track
-    @PutMapping("/category")
-    public ResponseEntity<?> updateTrack(@RequestHeader("Authorization") String auth, @RequestParam long categoryId) {
-        Integer uid = getUid(auth);
-        if (uid == null) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
-        }
-
-        try {
-            return ResponseEntity.ok().body(teamService.updateTrack(categoryId, uid));
-        } catch (IllegalArgumentException e) {
-            // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
     }
 

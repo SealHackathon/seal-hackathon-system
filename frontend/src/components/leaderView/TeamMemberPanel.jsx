@@ -22,7 +22,6 @@ function TeamMemberPanel({
     onMoveToReserve,
     rejectionReasons,
     leaveRequests = [],
-    hasSelectedCategory = true,
 }) {
 
     const officialMembers = members.filter(m => m.memberStatus !== 'RESERVE')
@@ -48,7 +47,7 @@ function TeamMemberPanel({
                             variant="primary"
                             color='orange'
                             onClick={onLockTeam}
-                            disabled={officialMembers.length < minSlots || !hasSelectedCategory}
+                            disabled={officialMembers.length < minSlots}
                         />
                         : undefined
                     }
@@ -119,7 +118,6 @@ function TeamMemberPanel({
                             variant="primary"
                             color='orange'
                             onClick={onLockTeam}
-                            disabled={!hasSelectedCategory}
                         />
                         : undefined
                     }

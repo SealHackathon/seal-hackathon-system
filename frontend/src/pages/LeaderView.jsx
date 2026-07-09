@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import EventLayout from '../layouts/EventLayout'
 import TeamInfoHeader from '../components/leaderView/TeamInfoHeader'
 import TeamMemberPanel from '../components/leaderView/TeamMemberPanel'
-import TeamCategoryPanel from '../components/leaderView/TeamCategoryPanel'
 import RequestCard from '../components/leaderView/RequestCard'
 import InviteCard from '../components/leaderView/InviteCard'
 import ConfirmModal from '../components/shared/ConfirmModal'
@@ -132,12 +131,7 @@ const MOCK_MEMBERS = [
   },
 ]
 
-const MOCK_CATEGORIES = [
-  { id: 1, name: 'Giáo dục (Education)', desc: 'Các giải pháp liên quan đến học tập, giảng dạy, quản lý giáo dục.', currentTeams: 8, teamLimit: 10 },
-  { id: 2, name: 'Y tế (Healthcare)', desc: 'Các giải pháp chăm sóc sức khỏe, quản lý bệnh viện, y tế cộng đồng.', currentTeams: 15, teamLimit: 15 },
-  { id: 3, name: 'Thương mại điện tử (E-commerce)', desc: 'Nền tảng mua sắm trực tuyến, thanh toán điện tử, logistics.', currentTeams: 5, teamLimit: 12 },
-  { id: 4, name: 'Giải trí (Entertainment)', desc: 'Game, mạng xã hội, ứng dụng đa phương tiện.', currentTeams: 12, teamLimit: 20 },
-]
+
 
 function LeaderView() {
   // lay du lieu tu API len 
@@ -145,8 +139,6 @@ function LeaderView() {
   const [confirmModal, setConfirmModal] = useState(null)
   const [teamStatus, setTeamStatus] = useState('OPEN') // ! fix chỗ này lại thành OPEN vì trong TeamStatusTag.jsx không có 'pending'
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' })
-  const [selectedCategory, setSelectedCategory] = useState(null)
-  const [categories, setCategories] = useState([])
   const token = localStorage.getItem("accessToken")
   const { updateTeamRole } = useAuth();
 
@@ -160,8 +152,8 @@ function LeaderView() {
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const emptyCount = (teamInfo.maxSlots || 4) - FAKE_MEMBERS.length
-  const eventId= localStorage.getItem('eventId') || null;
+  const emptyCount = MAX_SLOTS - FAKE_MEMBERS.length
+
   const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
   // api lấy team members thành viên đội 
@@ -181,31 +173,9 @@ function LeaderView() {
       .then((response) => {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus)
-        // TODO: Cần trả về trường categoryId trong object teamInfo
-        if (response.data.category.id) setSelectedCategory(response.data.category.id)
       })
       .catch((error) => console.log(error));
   }, [refreshTrigger]);
-
-  // TODO: Gọi API GET /api/event/{eventId}/categories để lấy danh sách hạng mục
-  useEffect(() => {
-    axiosClient.get(`/track?eventId=${eventId}`)
-      .then(res => setCategories(res.data))
-      .catch(err => console.log(err))
-  }, [])
-
-  // TODO: Gọi API PUT /api/team/category để cập nhật/xóa hạng mục
-  const handleCategoryChange = (categoryId) => {
-    axiosClient.put(`/team/category?categoryId=${categoryId}`)
-      .then(() => {
-        setSelectedCategory(categoryId)
-        alert("Cập nhật hạng mục thành công!")
-      })
-      .catch(err => console.log(err))
-    
-    setSelectedCategory(categoryId)
-  }
-
 
 
   // api teamLeader xem những join request gửi đến team này 
@@ -591,13 +561,6 @@ function LeaderView() {
           onRefresh={triggerRefresh}
         />
 
-        <TeamCategoryPanel 
-          categories={categories} 
-          selectedCategoryId={selectedCategory} 
-          isLeader={true} 
-          onCategoryChange={handleCategoryChange} 
-        />
-
         {/* {renderNoticeBox()} */}
 
         {/* 2 cột bên dưới */}
@@ -606,10 +569,9 @@ function LeaderView() {
           <div className={styles.main}>
             <TeamMemberPanel
               members={FAKE_MEMBERS}
-              maxSlots={teamInfo.maxSlots || 4}
+              maxSlots={MAX_SLOTS}
               teamStatus={teamStatus}
               isLeader
-              hasSelectedCategory={!!selectedCategory}
               onLockTeam={() => handleOnLockTeam()}
               onKick={(id) => handleOnKick(id)}
               onPromote={(id) => handleOnPromote(id)}

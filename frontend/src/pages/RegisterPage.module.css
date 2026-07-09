@@ -98,7 +98,7 @@
 .resendWrapper {
   display: flex;
   flex-direction: column;
-  gap: 0.75em;
+  gap: 0.25em;
   margin: 3em 0 0;
 }
 
@@ -126,18 +126,18 @@
 /* Modal */
 .modalFooter {
   display: flex;
-  gap: 0.75em;
+  gap: 12px;
   justify-content: flex-end;
   width: 100%;
 }
 
 .modalContent {
-  padding: 0.75em 0;
+  padding: 12px 0;
 }
 
 .modalTitle {
-  margin-bottom: 1em;
-  font-size: 1.25em;
+  margin-bottom: 16px;
+  font-size: 20px;
   font-weight: bold;
   color: var(--color-primary-blue);
 }

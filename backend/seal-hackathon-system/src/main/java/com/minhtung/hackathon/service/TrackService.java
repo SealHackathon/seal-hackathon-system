@@ -8,6 +8,7 @@ import com.minhtung.hackathon.entity.Submission;
 import com.minhtung.hackathon.entity.Team;
 import com.minhtung.hackathon.entity.Track;
 import com.minhtung.hackathon.repository.EventRepository;
+import com.minhtung.hackathon.repository.SubmissionRepository;
 import com.minhtung.hackathon.repository.TeamRepository;
 import com.minhtung.hackathon.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,7 @@ public class TrackService {
     private final TrackRepository trackRepository;
     private final EventRepository eventRepository;
     private final TeamRepository teamRepository ;
+    private final SubmissionRepository submissionRepository ;
 
 
     // Lấy tất cả danh sách bảng đấu (Track) thuộc về một sự kiện cụ thể
@@ -112,12 +114,21 @@ public class TrackService {
     }
 
     @Transactional
-    public List<ViewTeamListRespone> viewTeamByTrack(Long trackId){
-        Track track = trackRepository.findById(trackId).orElseThrow(()-> new RuntimeException("khong tim thay track")) ;
+    public List<ViewTeamListRespone> viewTeamByTrack(Long trackId) {
+        Track track = trackRepository.findById(trackId).orElseThrow(() -> new RuntimeException("khong tim thay track"));
         return teamRepository.findByTrackId(trackId)
                 .stream()
-                .map(team -> mapToTeamResponse(team, null))
-                .toList() ;
+                .map(team -> {
+                    Submission submission = submissionRepository
+                            .findFirstByTeamIdAndTeamTrackIdAndLatestTrue(
+                                    team.getId(),
+                                    trackId
+                            )
+                            .orElse(null);
+
+                    return mapToTeamResponse(team, submission);
+                })
+                .toList();
     }
 
     private ViewTeamListRespone mapToTeamResponse(

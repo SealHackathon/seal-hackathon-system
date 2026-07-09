@@ -2,7 +2,6 @@ package com.minhtung.hackathon.service;
 
 
 import com.minhtung.hackathon.dto.request.SubmissionRequest;
-import com.minhtung.hackathon.dto.request.UpdateSubmissionRequest;
 import com.minhtung.hackathon.dto.response.SubmissionDetailResponseid;
 import com.minhtung.hackathon.dto.response.SubmissionListResponse;
 import com.minhtung.hackathon.dto.response.SubmissionResponse;
@@ -12,10 +11,9 @@ import com.minhtung.hackathon.enums.MemberRole;
 import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,179 +29,225 @@ public class SubmissionService {
     private final MemberRepository memberRepository;
     private final SubmissionRepository submissionRepository;
     private final RoundRepository roundRepository;
-    private final TrackRepository trackRepository;
-    private final CloudinaryStorageService cloudinaryStorageService;
+    private final TrackRepository trackRepository ;
+    private  final CloudinaryStorageService cloudinaryStorageService ;
+
 
     @Value("${submission.demo.max-size}")
     private DataSize maxDemoSize;
 
     @Value("${submission.document.max-size}")
     private DataSize maxDocumentSize;
+@Transactional
+public SubmissionResponse sumbit(String email , SubmissionRequest request , MultipartFile demoFile, MultipartFile documentFile){
+    //kiem tra co tai khoan chua
+    User user = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException(" ban chua dang ki tk"));
+    //check xem chi leader moi duoc nop bai
+    Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER , MemberStatus.OFFICAL).orElseThrow(() ->
+            new IllegalArgumentException(
+                    "Chỉ trưởng nhóm được phép nộp bài"
+            ));
+    // tim kiem co round nay khong
+     Team team = leader.getTeam() ;
+     Round round = roundRepository.findById(request.getRoundId()).orElseThrow(()-> new RuntimeException("khong tìm thấy vòng thi này"));
 
-    @Transactional
-    public SubmissionResponse sumbit(String email, SubmissionRequest request, MultipartFile demoFile, MultipartFile documentFile) {
-        //kiem tra co tai khoan chua
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException(" ban chua dang ki tk"));
-        //check xem chi leader moi duoc nop bai
-        Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL).orElseThrow(() ->
-                new IllegalArgumentException(
-                        "Chỉ trưởng nhóm được phép nộp bài"
-                ));
-        // tim kiem co round nay khong
-        Team team = leader.getTeam();
-        Round round = roundRepository.findById(request.getRoundId()).orElseThrow(() -> new RuntimeException("khong tìm thấy vòng thi này"));
-
-
-        //check xem team co thuoc round nay khong
-        validateTeamAndRound(team, round);
-        //nay la check xem den thoi gian nop hay het han nop
-        validateSumssion(round);
-        String githubUrl = normalize(request.getGithUrl());
-        String demoUrl = normalize(request.getDemoUrl());
-        String documentUrl = normalize(request.getDocumentUrl());
+     //check xem team co thuoc round nay khong
+     validateTeamAndRound(team , round);
+     //nay la check xem den thoi gian nop hay het han nop
+     validateSumssion(round);
+    String githubUrl = normalize(request.getGithUrl());
+    String demoUrl = normalize(request.getDemoUrl());
+    String documentUrl = normalize(request.getDocumentUrl());
 
 
-        //link github la bat buoc
-        if (!hasText(githubUrl)) {
-            throw new RuntimeException("Link gihthub la bat buoc");
-        }
-        boolean hasDemoFile =
-                demoFile != null && !demoFile.isEmpty();
+    //link github la bat buoc
+    if(!hasText(githubUrl)){
+        throw new RuntimeException("Link gihthub la bat buoc");
+    }
+    boolean hasDemoFile =
+            demoFile != null && !demoFile.isEmpty();
 
-        boolean hasDocumentFile =
-                documentFile != null && !documentFile.isEmpty();
+    boolean hasDocumentFile =
+            documentFile != null && !documentFile.isEmpty();
 
-        if (!hasText(demoUrl) && !hasDemoFile) {
-            throw new RuntimeException("phai nop link hoac file video demo");
-        }
-        if (!hasText(documentUrl) && !hasDocumentFile) {
-            throw new RuntimeException("phai nop link hoac file slide demo");
-        }
-        if (hasDemoFile) {
-            validateDemoFile(demoFile);
+    if(!hasText(demoUrl) && !hasDemoFile){
+        throw  new RuntimeException( "phai nop link hoac file video demo") ;
+    }
+    if(!hasText(documentUrl) && !hasDocumentFile){
+        throw  new RuntimeException( "phai nop link hoac file slide demo") ;
+    }
+    if (hasDemoFile) {
+        validateDemoFile(demoFile);
 
-            demoUrl = cloudinaryStorageService
-                    .uploadSubmissionFile(
-                            demoFile,
-                            team.getId(),
-                            round.getId(),
-                            "video"
-                    );
-        }
-        if (hasDocumentFile) {
-            validateDocumentFile(documentFile);
-
-            documentUrl = cloudinaryStorageService
-                    .uploadSubmissionFile(
-                            documentFile,
-                            team.getId(),
-                            round.getId(),
-                            "raw"
-                    );
-        }
-        submissionRepository
-                .findFirstByTeamIdAndRoundIdAndLatestTrue(
+        demoUrl = cloudinaryStorageService
+                .uploadSubmissionFile(
+                        demoFile,
                         team.getId(),
-                        round.getId()
-                )
-                .ifPresent(oldSubmission ->
-                        oldSubmission.setLatest(false)
+                        round.getId(),
+                        "video"
                 );
-        Submission submission = new Submission();
-        submission.setTeam(team);
-        submission.setRound(round);
-        submission.setGithubUrl(githubUrl);
-        submission.setDemoUrl(demoUrl);
-        submission.setDocumentUrl(documentUrl);
-        submission.setSubmittedAt(LocalDateTime.now());
-        submission.setLatest(true);
-
-        return SubmissionResponse.from(
-                submissionRepository.save(submission),null);
     }
+    if (hasDocumentFile) {
+        validateDocumentFile(documentFile);
 
-    @Transactional
-    public SubmissionResponse updateSubmission(String email, Long roundId, UpdateSubmissionRequest request) {
-        validateSubmittionLinks(request);
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException(" ban chua dang ki tk"));
-
-        Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL).orElseThrow(() ->
-                new IllegalArgumentException(
-                        "Chỉ trưởng nhóm được phép nộp bài"
-                ));
-        // tim kiem co round nay khong
-        Team team = leader.getTeam();
-        Round round = roundRepository.findById(roundId).orElseThrow(() -> new RuntimeException("khong tìm thấy vòng thi này"));
-        validateTeamAndRound(team, round);
-        validateSumssion(round);
-
-        //khuc nay de tim bai nop cu de update
-        Submission oldSubmission = submissionRepository
-                .findFirstByTeamIdAndRoundIdAndLatestTrue(
+        documentUrl = cloudinaryStorageService
+                .uploadSubmissionFile(
+                        documentFile,
                         team.getId(),
-                        roundId
-                )
-                .orElseThrow(() ->
-                        new IllegalArgumentException(
-                                "Nhóm chưa có bài nộp để cập nhật"
-                        )
+                        round.getId(),
+                        "raw"
                 );
-        oldSubmission.setLatest(false);
-        submissionRepository.save(oldSubmission);
-        Submission newSubmission = new Submission();
-        newSubmission.setTeam(team);
-        newSubmission.setRound(round);
-        newSubmission.setGithubUrl(normalize(request.getGithubUrl()));
-        ;
-        ;
-        newSubmission.setDemoUrl(normalize(request.getDemoUrl()));
-        newSubmission.setDocumentUrl(normalize(request.getDocumentUrl()));
-        newSubmission.setSubmittedAt(LocalDateTime.now());
-        newSubmission.setLatest(true);
-
-        return SubmissionResponse.from(submissionRepository.save(newSubmission),null);
     }
 
+
+    submissionRepository
+            .findFirstByTeamIdAndRoundIdAndLatestTrue(
+                    team.getId(),
+                    round.getId()
+            )
+            .ifPresent(oldSubmission ->
+                    oldSubmission.setLatest(false)
+            );
+    Submission submission = new Submission();
+    submission.setTeam(team);
+    submission.setRound(round);
+    submission.setGithubUrl(githubUrl);
+    submission.setDemoUrl(demoUrl);
+    submission.setDocumentUrl(documentUrl);
+    submission.setSubmittedAt(LocalDateTime.now());
+    submission.setLatest(true);
+
+    return SubmissionResponse.from(
+            submissionRepository.save(submission));
+}
+
+@Transactional
+public SubmissionResponse updateSubmission(String email, Long submissionId, SubmissionRequest request, MultipartFile demoFile, MultipartFile documentFile) {
+    User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException(" ban chua dang ki tk"));
+
+    Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL).orElseThrow(() ->
+            new IllegalArgumentException(
+                    "Chi truong nhom duoc phep nop bai"
+            ));
+
+    Submission oldSubmission = submissionRepository.findById(submissionId)
+            .orElseThrow(() -> new RuntimeException("khong tim thay bai nop"));
+
+    if (!oldSubmission.isLatest()) {
+        throw new RuntimeException("Chi duoc cap nhat bai nop moi nhat");
+    }
+
+    Team team = oldSubmission.getTeam();
+    Round round = oldSubmission.getRound();
+
+    if (team.getId() != leader.getTeam().getId()) {
+        throw new RuntimeException("ban khong phai truong nhom cua bai nop nay");
+    }
+
+    validateTeamAndRound(team, round);
+    validateSumssion(round);
+
+    String githubUrl = normalize(request.getGithUrl());
+    String demoUrl = normalize(request.getDemoUrl());
+    String documentUrl = normalize(request.getDocumentUrl());
+
+    if (!hasText(githubUrl)) {
+        throw new RuntimeException("Link gihthub la bat buoc");
+    }
+    boolean hasDemoFile =
+            demoFile != null && !demoFile.isEmpty();
+
+    boolean hasDocumentFile =
+            documentFile != null && !documentFile.isEmpty();
+
+    if (!hasText(demoUrl) && !hasDemoFile) {
+        throw new RuntimeException("phai nop link hoac file video demo");
+    }
+    if (!hasText(documentUrl) && !hasDocumentFile) {
+        throw new RuntimeException("phai nop link hoac file slide demo");
+    }
+    if (hasDemoFile) {
+        validateDemoFile(demoFile);
+
+        demoUrl = cloudinaryStorageService
+                .uploadSubmissionFile(
+                        demoFile,
+                        team.getId(),
+                        round.getId(),
+                        "video"
+                );
+    }
+    if (hasDocumentFile) {
+        validateDocumentFile(documentFile);
+
+        documentUrl = cloudinaryStorageService
+                .uploadSubmissionFile(
+                        documentFile,
+                        team.getId(),
+                        round.getId(),
+                        "raw"
+                );
+    }
+
+    oldSubmission.setLatest(false);
+    submissionRepository.save(oldSubmission);
+
+    Submission newSubmission = new Submission();
+    newSubmission.setTeam(team);
+    newSubmission.setRound(round);
+    newSubmission.setGithubUrl(githubUrl);
+    newSubmission.setDemoUrl(demoUrl);
+    newSubmission.setDocumentUrl(documentUrl);
+    newSubmission.setSubmittedAt(LocalDateTime.now());
+    newSubmission.setLatest(true);
+
+    return SubmissionResponse.from(submissionRepository.save(newSubmission));
+}
+
+
+@Transactional
+public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
+    if(!roundRepository.existsById(roundId)){
+        throw  new RuntimeException("khong tim thay vong thi");
+    }
+    return  submissionRepository.findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(roundId).stream().map(this::mapToListResponse).toList();
+}
+
+
+@Transactional
+    public SubmissionDetailResponseid getSubmissionById(Long id){
+     Submission submission = submissionRepository.findById(id).orElseThrow(() -> new RuntimeException("khong tim thay bai nop ")) ;
+     if(!submission.isLatest()){
+         throw new RuntimeException("ban dang nhap id bai cu roi ");
+     }
+     return mapToDetailResponse(submission);
+    }
 
     @Transactional
-    public List<SubmissionListResponse> getSubmissionByRound(Long roundId) {
-        if (!roundRepository.existsById(roundId)) {
-            throw new RuntimeException("khong tim thay vong thi");
-        }
-        return submissionRepository.findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(roundId).stream().map(this::mapToListResponse).toList();
+    public List<ViewSubmissionTrackResponse> viewSubmissionTrackResponses(Long trackId){
+      if(!trackRepository.existsById(trackId)){
+            throw  new RuntimeException("khong tim thay track");
+
+      }
+      return  submissionRepository.findByTeamTrackIdAndLatestTrueOrderBySubmittedAtDesc(trackId).stream().map(this::responeviewTrack).toList();
     }
 
-
-    @Transactional
-    public SubmissionDetailResponseid getSubmissionById(Long id) {
-        Submission submission = submissionRepository.findById(id).orElseThrow(() -> new RuntimeException("khong tim thay bai nop "));
-        return mapToDetailResponse(submission);
-    }
-
-    @Transactional
-    public List<ViewSubmissionTrackResponse> viewSubmissionTrackResponses(Long trackId) {
-        if (!trackRepository.existsById(trackId)) {
-            throw new RuntimeException("khong tim thay track");
-
-        }
-        return submissionRepository.findByTeamTrackIdAndLatestTrueOrderBySubmittedAtDesc(trackId).stream().map(this::responeviewTrack).toList();
-    }
-
-    private ViewSubmissionTrackResponse responeviewTrack(Submission submission) {
-        Team team = submission.getTeam();
-        Track track = team.getTrack();
-        Round round = submission.getRound();
-        return ViewSubmissionTrackResponse.builder()
-                .submissionId(submission.getId())
-                .teamId(team.getId())
-                .teamName(team.getName())
-                .trackId(track.getId())
-                .roundId(round.getId())
-                .roundName(round.getName())
-                .submittedAt(submission.getSubmittedAt())
+    private ViewSubmissionTrackResponse responeviewTrack(Submission submission){
+     Team team = submission.getTeam() ;
+     Track track = team.getTrack() ;
+     Round round = submission.getRound() ;
+     return ViewSubmissionTrackResponse.builder()
+             .submissionId(submission.getId())
+             .teamId(team.getId())
+             .teamName(team.getName())
+             .trackId(track.getId())
+             .roundId(round.getId())
+             .roundName(round.getName())
+             .submittedAt(submission.getSubmittedAt())
 
 
-                .build();
+
+             .build() ;
     }
 
     private void validateSubmittionLinks(SubmissionRequest request) {
@@ -215,21 +259,12 @@ public class SubmissionService {
                 hasText(request.getDocumentUrl());
 
 
-        if (!hasGithub) {
-            throw new RuntimeException("bat buoc phai nop link git ");
-
-        }
-        if (!hasdemoUrl) {
-            throw new RuntimeException("bat buoc phai nop video ");
-
-        }
-        if (!hasdocument) {
-            throw new RuntimeException("bat buoc phai nop link slide ");
+        if (!hasGithub && !hasdocument && !hasdemoUrl) {
+            throw new RuntimeException("phai cung cap it nhat 1 duong link de nop bai ");
 
         }
 
     }
-
     private SubmissionListResponse mapToListResponse(
             Submission submission
     ) {
@@ -241,7 +276,6 @@ public class SubmissionService {
                 .sumbittedAt(submission.getSubmittedAt())
                 .build();
     }
-
     private SubmissionDetailResponseid mapToDetailResponse(
             Submission submission
     ) {
@@ -254,8 +288,8 @@ public class SubmissionService {
                 .scoringTemplateId(
                         submission.getRound().getScoringTemplate() != null
                                 ? submission.getRound()
-                                  .getScoringTemplate()
-                                  .getId()
+                                .getScoringTemplate()
+                                .getId()
                                 : null
                 )
                 .githubUrl(submission.getGithubUrl())
@@ -266,21 +300,6 @@ public class SubmissionService {
                 .build();
     }
 
-
-    private void validateSubmittionLinks(UpdateSubmissionRequest request) {
-        boolean hasGithub =
-                hasText(request.getGithubUrl());
-        boolean hasdemoUrl =
-                hasText(request.getDemoUrl());
-        boolean hasdocument =
-                hasText(request.getDocumentUrl());
-
-
-        if (!hasGithub && !hasdocument && !hasdemoUrl) {
-            throw new RuntimeException("phai cung cap it nhat 1 duong link de nop bai ");
-
-        }
-    }
 
     private boolean hasText(String value) {
         return value != null &&
@@ -316,7 +335,6 @@ public class SubmissionService {
             throw new RuntimeException("qua han nop bai roi  ");
         }
     }
-
     private String normalize(String value) {
         if (!hasText(value)) {
             return null;
@@ -324,14 +342,12 @@ public class SubmissionService {
 
         return value.trim();
     }
-
-
     private void validateDemoFile(MultipartFile file) {
 
 
         if (file.getSize() > maxDemoSize.toBytes()) {
             throw new IllegalArgumentException(
-                    "Video không được vượt quá 100MB"
+                    "Video không được vượt quá 50MB"
             );
         }
 
@@ -349,7 +365,7 @@ public class SubmissionService {
 
         if (file.getSize() > maxDocumentSize.toBytes()) {
             throw new IllegalArgumentException(
-                    "Slide không được vượt quá 20MB"
+                    "Slide không được vượt quá 10MB"
             );
         }
 
@@ -366,31 +382,4 @@ public class SubmissionService {
         }
     }
 
-    @Autowired
-    private JudgeScoreRepository judgeScoreRepository;
-
-    public SubmissionResponse getCurrentSubmission(String email, Long roundId) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
-
-        Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL)
-                .orElseThrow(() -> new IllegalArgumentException("Chỉ trưởng nhóm mới có quyền xem"));
-
-        Team team = leader.getTeam();
-
-        // 1. Tìm bài nộp mới nhất
-        Submission submission = submissionRepository
-                .findFirstByTeamIdAndRoundIdAndLatestTrue(team.getId(), roundId)
-                .orElse(null);
-
-        if (submission == null) {
-            return null; // Trả về null nếu chưa nộp bài bao giờ -> FE biết đường dùng POST
-        }
-
-        // 2. Tìm điểm số tương ứng của bài nộp này (nếu có)
-        JudgeScore judgeScore = judgeScoreRepository.findBySubmissionId(submission.getId()).orElse(null);
-
-        // 3. Trả về Response chứa đầy đủ cả thông tin bài nộp lẫn điểm số từ thực tế
-        return SubmissionResponse.from(submission, judgeScore);
-    }
 }

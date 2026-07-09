@@ -48,7 +48,6 @@ public class AuthService {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("email nay da ton tai ");
         }
-
         if(userRepository.existsByPhoneNumber(registerRequest.getPhone())){
             throw new RuntimeException(" số điện thoại này  đã tồn tại ");
         }
@@ -147,9 +146,12 @@ public class AuthService {
         user.setExpiredAt(null);
         userRepository.save(user);
 
-        return """
-            <script>window.location.href = "http://localhost:5173/verified-email";</script>
-            """;
+        return "\"\"\"\n" +
+                "            Link đã hết hạn.\n" +
+                "            <a href=\"http://localhost:5173/complete-profile\">\n" +
+                "                Bam Vao Day De Hoan Thien Thong tin\n" +
+                "            </a>\n" +
+                "            \"\"\"";
     }
 
     //Complete prfile
@@ -166,9 +168,7 @@ public class AuthService {
     //login
     public LoginResponse login(LoginRequest req) {
         User user = userRepository.findByEmail((req.getEmail())).orElse(null);
-        if(user==null){
-            throw new RuntimeException("User name or password is invalid");
-        }
+
         String teamRole = null;
         boolean hasTeam = false;
 
@@ -180,18 +180,18 @@ public class AuthService {
         }
 
         if (user == null) {
-            return new LoginResponse(false,null, null, null, "tai khoan khong ton tai ", null, false, null, 0, null);
+            return new LoginResponse(null, null, null, "tai khoan khong ton tai ", null, false, null, 0, null);
 
         }
         if (!user.isActive()) {
-            return new LoginResponse(false,null, null, null, "tai khoan chua duoc kich hoat email ", null, false, null, 0, null);
+            return new LoginResponse(null, null, null, "tai khoan chua duoc kich hoat email ", null, false, null, 0, null);
         }
         if (!req.getPassword().equals(user.getPassword())) {
             //passwordEncoder.encode(req.getPassword())
-            return new LoginResponse(false,null, null, null, "Mat khau khong chinh xac", null, false, null, 0, null);
+            return new LoginResponse(null, null, null, "Mat khau khong chinh xac", null, false, null, 0, null);
         }
         if (!req.getEmail().equals(user.getEmail())) {
-            return new LoginResponse(false,null, null, null, "tai khoan  khong chinh xac", null, false, null, 0, null);
+            return new LoginResponse(null, null, null, "tai khoan  khong chinh xac", null, false, null, 0, null);
         }
 
         if (user.getStatus() == UserStatus.BANNED) {
@@ -203,7 +203,6 @@ public class AuthService {
         String jwt = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
         long expiredTime = jwtUtil.getExpiredTime();
         return new LoginResponse(
-                user.isActive(),
                 jwt,
                 user.getRole().name(),
                 user.getEmail(),
