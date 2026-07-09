@@ -32,11 +32,7 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 2.4em;
-  height: 2.4em;
-  border-radius: var(--radius-circle);
-  background: var(--color-bg-blue);
-  color: var(--color-primary-blue);
+  color: var(--color-border-blue);
 }
 
 /* Tiêu đề section: chữ to nhưng dùng body font, KHÔNG dùng Exo */
@@ -46,7 +42,7 @@
   font-style: normal;
   font-size: 1.4rem;
   font-weight: 800;
-  color: var(--color-dark-blue);
+  color: var(--color-secondary-blue);
 }
 
 /* ── Tên repo ── */
@@ -59,37 +55,43 @@
   color: var(--color-primary-blue);
 }
 
+/* ── Thông tin nhỏ (trên cùng) ── */
+.topInfo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5em 1em;
+}
+
+.extraItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-secondary-blue);
+}
+
+.extraLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  text-decoration: none;
+}
+
+.extraLink:hover {
+  text-decoration: underline;
+  color: var(--color-primary-blue);
+}
+
 /* ── Chỉ số repo ── */
 .stats {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.6em;
-}
-
-.statChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.45em;
-  padding: 0.45em 0.85em;
-  border: 1.5px solid var(--color-border-blue);
-  background: var(--color-bg-white);
-  border-radius: var(--radius);
-}
-
-.statIcon {
-  flex-shrink: 0;
-  color: var(--color-primary-blue);
-}
-
-.statNum {
-  font-size: 0.95rem;
-  font-weight: 800;
-  color: var(--color-primary-blue);
-}
-
-.statLabel {
-  font-size: 0.85rem;
-  color: var(--color-secondary-blue);
+  gap: 0.5em;
 }
 
 /* ── Metadata phụ ── */
@@ -122,12 +124,14 @@
 
 .metaValue {
   font-size: 0.95rem;
-  color: var(--color-text-primary);
+  font-weight: 700;
+
+  color: var(--color-primary-blue);
 }
 
 .metaMuted {
   font-size: 0.95rem;
-  color: var(--color-text-muted);
+  color: var(--color-border-blue);
 }
 
 /* ── Commit (nổi bật) ── */
@@ -159,7 +163,7 @@
 /* Con số quan trọng: to, nhưng dùng body font (không Exo) */
 .bigNum {
   font-family: var(--body-font-main);
-  font-size: 1.9rem;
+  font-size: 1.3rem;
   font-weight: 800;
   line-height: 1.1;
   color: var(--color-primary-blue);
@@ -167,6 +171,7 @@
 
 .bigLabel {
   font-size: 0.85rem;
+  font-weight: 800;
   color: var(--color-secondary-blue);
 }
 
@@ -182,25 +187,26 @@
   display: flex;
   align-items: center;
   gap: 0.5em;
-  font-size: 1.2rem;
+  font-size: 1.3rem;
   font-weight: 800;
-  color: var(--color-dark-blue);
+  color: var(--color-primary-blue);
 }
 
 .commitIcon {
   flex-shrink: 0;
-  color: var(--color-primary-blue);
+  color: var(--color-border-blue);
 }
 
 .commitMsg {
   margin: 0;
   font-size: 1rem;
   font-style: italic;
-  color: var(--color-text-primary);
+  color: var(--color-dark-blue);
 }
 
 .commitMeta {
   font-size: 0.85rem;
+  font-weight: 800;
   color: var(--color-secondary-blue);
 }
 
@@ -308,16 +314,33 @@
   color: var(--color-secondary-blue);
 }
 
+/* Preview README: dùng body font, KHÔNG Exo */
 .readmeBody {
   max-height: 24em;
   overflow: auto;
+  font-family: var(--body-font-main);
   font-size: 0.9rem;
   line-height: 1.6;
   color: var(--color-text-primary);
 }
 
 .readmeBody :where(h1, h2, h3) {
-  color: var(--color-dark-blue);
+  font-family: var(--body-font-main);
+  font-style: normal;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.readmeBody h1 {
+  font-size: 1.6rem;
+}
+
+.readmeBody h2 {
+  font-size: 1.3rem;
+}
+
+.readmeBody h3 {
+  font-size: 1.1rem;
 }
 
 .readmeBody a {
@@ -337,41 +360,8 @@
   border-radius: var(--inner-radius);
 }
 
-/* ── Thông tin phụ (dưới cùng) ── */
-.footer {
-  display: flex;
-  flex-direction: column;
-  gap: 0.85em;
-}
-
-.extraRow {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5em 0.9em;
-}
-
-.extraItem {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35em;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--color-text-secondary);
-}
-
-.extraLink {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35em;
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--color-primary-blue);
-  text-decoration: none;
-}
-
-.extraLink:hover {
-  text-decoration: underline;
+.readmeBody a svg {
+  fill: var(--color-secondary-blue);
 }
 
 @media (max-width: 40em) {

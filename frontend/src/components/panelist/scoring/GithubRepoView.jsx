@@ -14,17 +14,21 @@ import {
   Globe,
 } from '@phosphor-icons/react'
 import Button from '../../shared/Button'
+import Badge from '../../shared/Badge'
 import TagList from '../../coordinator/TagList'
 import styles from './GithubRepoView.module.css'
 
-// Màu cho biểu đồ ngôn ngữ (dùng token của design system).
 const LANG_COLORS = [
-  'var(--color-primary-blue)',
-  'var(--color-secondary-blue)',
-  'var(--color-dark-blue)',
   'var(--color-primary-green)',
   'var(--color-primary-orange)',
+  'var(--color-primary-blue)',
+  'var(--color-secondary-blue)',
+  'var(--color-bg-blue)',
 ]
+
+function langColor(i) {
+  return i < LANG_COLORS.length ? LANG_COLORS[i] : LANG_COLORS[LANG_COLORS.length - 1]
+}
 
 function fmtDate(d) {
   if (!d) return '—'
@@ -40,7 +44,7 @@ function fmtDate(d) {
 
 /**
  * GithubRepoView — thông tin repo lấy từ GitHub API cho BGK tiện xem.
- * Trọng tâm: commit gần nhất. Metadata phụ + README + từ khóa xếp bên dưới.
+ * Trọng tâm: commit gần nhất. README xếp dưới cùng vì chiếm nhiều chỗ.
  *
  * @param {object}  [repo]
  * @param {boolean} [loading]
@@ -83,7 +87,7 @@ function GithubRepoView({ repo, loading = false, error = null }) {
       <div className={styles.header}>
         <div className={styles.headerLeft}>
           <span className={styles.infoCircle}>
-            <Info size={20} weight="fill" />
+            <Info size={32} weight="fill" />
           </span>
           <h2 className={styles.title}>Thông tin repository</h2>
         </div>
@@ -106,19 +110,45 @@ function GithubRepoView({ repo, loading = false, error = null }) {
         <span>{fullName}</span>
       </div>
 
-      {/* Chỉ số repo */}
+      
+
+      {/* Chỉ số repo — dùng Badge size sm */}
       <div className={styles.stats}>
         {statChips.map((c) => {
           const Icon = c.icon
           return (
-            <span key={c.key} className={styles.statChip}>
-              <Icon size={16} weight="fill" className={styles.statIcon} />
-              <span className={styles.statNum}>{c.value ?? 0}</span>
-              <span className={styles.statLabel}>{c.label}</span>
-            </span>
+            <Badge
+              key={c.key}
+              variant="blueWhiteBg"
+              size="md"
+              icon={<Icon size={18} weight="fill" />}
+              label={(c.value ?? 0) + ' ' + c.label}
+            />
           )
         })}
       </div>
+
+
+      {/* Thông tin nhỏ */}
+      <div className={styles.topInfo}>
+        <span className={styles.extraItem}>
+          <GitBranch size={18} weight="fill" /> {repo.defaultBranch || '—'}
+        </span>
+        <span className={styles.extraItem}>
+          <Scales size={18} weight="fill" /> {repo.license || '—'}
+        </span>
+        {repo.homepage ? (
+          <a className={styles.extraLink} href={repo.homepage} target="_blank" rel="noreferrer">
+            <Globe size={18} weight="fill" /> Trang demo
+          </a>
+        ) : (
+          <span className={styles.extraItem}>
+            <Globe size={18} weight="fill" /> —
+          </span>
+        )}
+        {repo.topics?.length > 0 && <TagList tags={repo.topics} maxVisible={6} />}
+      </div>
+
 
       {/* Metadata phụ: ngày tạo + mô tả */}
       <div className={styles.metaRow}>
@@ -177,14 +207,14 @@ function GithubRepoView({ repo, loading = false, error = null }) {
                 {langEntries.map((l, i) => {
                   const segStyle = {
                     width: (l.bytes / langTotal) * 100 + '%',
-                    background: LANG_COLORS[i % LANG_COLORS.length],
+                    background: langColor(i),
                   }
                   return <span key={l.name} className={styles.langSeg} style={segStyle} />
                 })}
               </div>
               <div className={styles.langLegend}>
                 {langEntries.map((l, i) => {
-                  const dotStyle = { background: LANG_COLORS[i % LANG_COLORS.length] }
+                  const dotStyle = { background: langColor(i) }
                   const pct = ((l.bytes / langTotal) * 100).toFixed(1)
                   return (
                     <span key={l.name} className={styles.langLegendItem}>
@@ -206,37 +236,15 @@ function GithubRepoView({ repo, loading = false, error = null }) {
         </div>
       )}
 
-      {/* README — để dưới vì chiếm nhiều chỗ */}
+      {/* README — để dưới cùng vì chiếm nhiều chỗ */}
       {readmeMarkup && (
-        <div className={styles.readmeBox}>
+        <div className={styles.readmeBox} data-lenis-prevent="true">
           <span className={styles.readmeHead}>
             <FileText size={17} weight="fill" /> README.md
           </span>
           <div className={styles.readmeBody} dangerouslySetInnerHTML={readmeMarkup} />
         </div>
       )}
-
-      {/* Thông tin phụ (đơn giản, dưới cùng) */}
-      <div className={styles.footer}>
-        <div className={styles.extraRow}>
-          {repo.defaultBranch && (
-            <span className={styles.extraItem}>
-              <GitBranch size={14} weight="fill" /> {repo.defaultBranch}
-            </span>
-          )}
-          {repo.license && (
-            <span className={styles.extraItem}>
-              <Scales size={14} weight="fill" /> {repo.license}
-            </span>
-          )}
-          {repo.homepage && (
-            <a className={styles.extraLink} href={repo.homepage} target="_blank" rel="noreferrer">
-              <Globe size={14} weight="fill" /> Trang demo
-            </a>
-          )}
-        </div>
-        {repo.topics?.length > 0 && <TagList tags={repo.topics} maxVisible={6} />}
-      </div>
     </div>
   )
 }
