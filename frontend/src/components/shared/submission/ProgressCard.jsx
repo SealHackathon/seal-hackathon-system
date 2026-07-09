@@ -1,14 +1,11 @@
 import { ChartPieSlice } from '@phosphor-icons/react'
+import ProgressRing from '../ProgressRing'
 import styles from './ProgressCard.module.css'
 
 function ProgressCard({ progress, activeRound }) {
   if (!progress) return null;
 
   const { currentRoundIndex, totalRounds, percentage, currentRoundName, rank, score } = progress;
-  
-  const circleStyle = {
-    background: `conic-gradient(var(--color-primary-blue) ${percentage}%, var(--color-bg-grey) 0)`
-  };
 
   return (
     <div className={styles.card}>
@@ -18,12 +15,15 @@ function ProgressCard({ progress, activeRound }) {
       </div>
       
       <div className={styles.progressRow}>
-        <div className={styles.circleContainer} style={circleStyle}>
-          <div className={styles.circleInner}>
-            <span className={styles.circleValue}>{currentRoundIndex}/{totalRounds}</span>
-            <span className={styles.circleLabel}>VÒNG</span>
-          </div>
-        </div>
+        <ProgressRing 
+          value={currentRoundIndex} 
+          total={totalRounds} 
+          size={140} 
+          stroke={14} 
+          label="Vòng" 
+          labelPosition="inner"
+          valueLayout="inline"
+        />
         
         <div className={styles.progressInfo}>
           <div className={styles.infoLabel}>Vòng hiện tại:</div>
