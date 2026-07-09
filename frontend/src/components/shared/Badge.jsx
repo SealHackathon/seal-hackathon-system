@@ -3,9 +3,7 @@ import styles from './Badge.module.css'
 /**
  * Badge — pill label chung
  *
- * @param {'green'|'blue'|'orange'|'red'|'gray'
- *        |'greenSolid'|'blueSolid'|'orangeSolid'|'redSolid'|'graySolid'
- *        |'dashedGreen'|'dashedBlue'|'dashedOrange'|'dashedRed'|'dashedGray'} [variant='gray']
+ * @param {'green'|'blue'|'orange'|'gray'|'red'|'dashed-orange'} [variant='gray']
  * @param {string}          label        — text hiển thị (bắt buộc)
  * @param {'sm'|'md'|'lg'}  [size='md']
  * @param {boolean}         [dot=true]   — hiển thị dot bên trái

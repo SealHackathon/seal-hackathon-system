@@ -53,7 +53,7 @@ public class TeamService {
         if (newTeam.getDescription().length() > 200) {
             throw new IllegalArgumentException("mo ta không thể lớn hơn 200 kí tự ");
         }
-        if (leader.getStatus() != UserStatus.ACCEPTED) {
+        if(leader.getStatus() !=UserStatus.ACCEPTED){
             throw new IllegalArgumentException("chua duoc admin duyet ");
         }
 
@@ -173,6 +173,8 @@ public class TeamService {
         return "tham gia đội " + team.getName() + " thành công";
 
     }
+
+
 
 
     //ham nay de gui join request
@@ -529,6 +531,9 @@ public class TeamService {
     }
 
 
+
+
+
     // day la ham dung de leader duyet viec leave_request trong team
     // memberId trong đây là primary key của bảng member á nha.
     @Transactional
@@ -554,6 +559,8 @@ public class TeamService {
         memberRepository.save(memberSender);
         return "Duyet yeu cau roi doi ko thanh cong";
     }
+
+
 
 
     //Admin duyet / tu choi team submisson
@@ -707,6 +714,7 @@ public class TeamService {
     public String getTeamRole(long userId) {
         Member member = memberRepository.findByMemberIdAndStatusIn(userId, List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE))
                 .orElseThrow(() -> new IllegalArgumentException("MEMBER_NOT_FOUND")); // Ném ra ngoại lệ rõ ràng
+
 
         return member.getRole().toString(); // Trả về "LEADER" hoặc "MEMBER"
     }
@@ -1041,6 +1049,8 @@ public class TeamService {
         TeamRequest teamRequest = new TeamRequest(RequestStatus.PENDING, team.getLeader(), admin, team, RequestType.TEAM_SUBMISSION, team.getName() + " gui yeu cau xin duyet doi");
         return "gui yeu cau duyet doi thanh cong";
     }
+
+
 
 
     // lấy tất cả team trong sự kiện

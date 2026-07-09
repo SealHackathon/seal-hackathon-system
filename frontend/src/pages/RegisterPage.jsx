@@ -1,25 +1,20 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { UserCircle, EnvelopeSimple, LockSimple, Eye, EyeSlash, Phone } from '@phosphor-icons/react'
+import { UserCircle, EnvelopeSimple, LockSimple, Eye, EyeSlash } from '@phosphor-icons/react'
 import AuthLayout from '../layouts/AuthLayout'
 import FormInput from '../components/shared/FormInput'
 import Dropdown from '../components/shared/Dropdown'
 import Button from '../components/shared/Button'
 import styles from './RegisterPage.module.css'
+
 const ROLE_OPTIONS = [
     { value: 'student_fpt', label: 'Sinh viên Đại học FPT' },
     { value: 'student_other', label: 'Sinh viên trường khác' },
 ]
 
-
-
 function RegisterPage() {
-    const navigate = useNavigate();
-
     const [form, setForm] = useState({
         role: 'student_fpt',
         studentId: '',
-        phone: '',
         email: '',
         password: '',
     })
@@ -34,12 +29,7 @@ function RegisterPage() {
 
     function validate() {
         const e = {}
-        if (form.role === 'student_fpt' && !form.studentId.trim()) {
-            e.studentId = 'Vui lòng nhập mã số sinh viên'
-        }
-        if (!form.phone.trim()) {
-            e.phone = 'Vui lòng nhập số điện thoại'
-        }
+        if (!form.studentId.trim()) e.studentId = 'Vui lòng nhập mã số sinh viên'
         if (!form.email.trim()) e.email = 'Vui lòng nhập email'
         else if (!/\S+@\S+\.\S+/.test(form.email)) e.email = 'Email không hợp lệ'
         if (!form.password.trim()) e.password = 'Vui lòng nhập mật khẩu'
@@ -59,10 +49,9 @@ function RegisterPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     schoolName: form.role === 'student_fpt' ? 'Đại học FPT' : 'Khác',
-                    studentId: form.role === 'student_fpt' ? form.studentId : '',
+                    studentId: form.studentId,
                     email: form.email,
                     password: form.password,
-                    phone: form.phone
                 }),
             })
             const data = await res.json()
@@ -74,7 +63,7 @@ function RegisterPage() {
 
             localStorage.setItem('verifyEmail', form.email)
             localStorage.setItem('registerData', JSON.stringify(form))
-            navigate('/verify-email', { state: { email: form.email } })
+            // navigate('/verify-email', { state: { email: form.email } })
 
         } catch {
             console.log('Lỗi kết nối server')
@@ -83,8 +72,7 @@ function RegisterPage() {
         }
     }
 
-    const isFormValid = form.phone && form.email && form.password.length >= 8 &&
-        (form.role === 'student_other' || form.studentId)
+    const isFormValid = form.studentId && form.email && form.password.length >= 8
 
     return (
         <AuthLayout>
@@ -103,19 +91,17 @@ function RegisterPage() {
                         options={ROLE_OPTIONS}
                     />
 
-                    {/* Mã số sinh viên (Chỉ hiện nếu là SV FPT) */}
-                    {form.role === 'student_fpt' && (
-                        <FormInput
-                            label="Mã số sinh viên"
-                            required
-                            iconLeft={UserCircle}
-                            placeholder="SE190346"
-                            value={form.studentId}
-                            onChange={e => setField('studentId', e.target.value)}
-                            status={errors.studentId ? 'error' : 'default'}
-                            message={errors.studentId}
-                        />
-                    )}
+                    {/* Mã số sinh viên */}
+                    <FormInput
+                        label="Mã số sinh viên"
+                        required
+                        iconLeft={UserCircle}
+                        placeholder="SE190346"
+                        value={form.studentId}
+                        onChange={e => setField('studentId', e.target.value)}
+                        status={errors.studentId ? 'error' : 'default'}
+                        message={errors.studentId}
+                    />
 
                     {/* Email */}
                     <FormInput
@@ -128,18 +114,6 @@ function RegisterPage() {
                         onChange={e => setField('email', e.target.value)}
                         status={errors.email ? 'error' : 'default'}
                         message={errors.email}
-                    />
-
-                    {/* Số điện thoại */}
-                    <FormInput
-                        label="Số điện thoại"
-                        required
-                        iconLeft={Phone}
-                        placeholder="0123456789"
-                        value={form.phone}
-                        onChange={e => setField('phone', e.target.value)}
-                        status={errors.phone ? 'error' : 'default'}
-                        message={errors.phone}
                     />
 
                     {/* Mật khẩu */}
@@ -161,7 +135,6 @@ function RegisterPage() {
                         label="Đăng kí"
                         variant="primary"
                         type="submit"
-                        onClick={()=>handleSubmit}
                     // disabled={!isFormValid || loading}
                     />
 
@@ -179,7 +152,6 @@ function RegisterPage() {
                         <button
                             type="button"
                             className={styles.loginLink}
-                            onClick={()=>navigate("/login")}
                         >
                             Đăng nhập ngay
                         </button>

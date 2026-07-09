@@ -185,7 +185,8 @@ public class TeamController {
         }
 
         try {
-            return ResponseEntity.ok(teamService.getTeamRole(uid));
+            String role = teamService.getTeamRole(uid);
+            return ResponseEntity.ok().body(role);
         } catch (IllegalArgumentException e) {
             // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
