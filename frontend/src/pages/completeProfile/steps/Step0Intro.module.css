@@ -1,0 +1,137 @@
+/* ============================
+   Card wrapper
+   ============================ */
+.card {
+    background: var(--color-bg-white);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border-blue);
+    padding: 40px 48px;
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+/* ============================
+   Header
+   ============================ */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.headerIcon {
+    color: var(--color-primary-blue);
+    flex-shrink: 0;
+}
+
+.title {
+    font-family: var(--title-font-main);
+    font-size: 1.9rem;
+    font-weight: 800;
+    font-style: italic;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--color-text-secondary);
+
+    font-size: 0.8em;
+    line-height: 1.6;
+
+    max-width: 25em;
+
+    margin: -1em auto 0; 
+}
+
+/* ============================
+   Section label
+   ============================ */
+.sectionLabel {
+    font-family: var(--title-font-main);
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: var(--color-primary-blue);
+}
+
+/* ============================
+   Step list
+   ============================ */
+.stepsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    width: 70%;
+    margin: 0 auto;
+}
+
+.stepList {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+
+.stepItem {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+/* Icon column: circle + connector line */
+.iconCol {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    width: 40px;
+}
+
+.iconCircle {
+    width: 40px;
+    height: 40px;
+    border-radius: var(--radius-circle);
+    background: var(--color-primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.connector {
+    width: 2px;
+    flex: 1;
+    min-height: 20px;
+    background: var(--color-border-blue);
+    margin: 4px 0;
+}
+
+/* Text column */
+.content {
+    padding: 8px 0 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stepTitle {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--color-primary-blue);
+}
+
+.prepare {
+    font-size: 0.9rem;
+    color: var(--color-text-secondary);
+}
+
+/* ============================
+   Footer
+   ============================ */
+.btn {
+    width: 100%;
+}
