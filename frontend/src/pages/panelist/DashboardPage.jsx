@@ -145,9 +145,11 @@ function DashboardPage() {
   }
   const handleAccept = (invitationId) => {
     axiosClient.post(`/mentor-judge/invitations/${invitationId}/accept`)
+    window.location.reload()
   }
   const handleDecline = (invitationId) => {
     axiosClient.post(`/mentor-judge/invitations/${invitationId}/reject`)
+    window.location.reload()
   }
 
   // ===== Adapter: chuyển response API (AssignedEventResponseDTO) =====
@@ -179,7 +181,7 @@ function DashboardPage() {
       },
       stats: {
         // API trả số nguyên, mock cũ dùng string "42/100" (đăng ký/giới hạn)
-        // -> tạm hiển thị số team hiện có, vì API chưa có "giới hạn tối đa"
+        // -> tạm hiển thị số team hiện có, vì API chưa có "giới hạn tối đa"  
         teams: `${stats?.teamCount ?? 0}`,
         participants: stats?.participantCount ?? 0,
         categories: stats?.categoryCount ?? 0,
