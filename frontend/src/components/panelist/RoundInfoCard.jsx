@@ -18,6 +18,51 @@ import styles from './RoundInfoCard.module.css'
  * @param {Array}    [round.schedule]        — [{ time, title, desc }]
  * @param {function} [onViewRubric]
  */
+function formatVNTime(dateStr) {
+  if (!dateStr) return 'Chưa cập nhật'
+  
+  let parseStr = String(dateStr)
+  // Nếu backend trả về ISO không có múi giờ, ép thành UTC bằng cách thêm 'Z'
+  if (!parseStr.endsWith('Z') && !parseStr.includes('+')) {
+    parseStr += 'Z'
+  }
+
+  const d = new Date(parseStr)
+  if (isNaN(d.getTime())) return dateStr
+
+  const options = { 
+    timeZone: 'Asia/Ho_Chi_Minh',
+    hour: '2-digit', 
+    minute: '2-digit',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour12: false
+  }
+  
+  try {
+    const formatter = new Intl.DateTimeFormat('en-GB', options)
+    const parts = formatter.formatToParts(d)
+    
+    let day, month, year, hour, minute;
+    for (const part of parts) {
+      if (part.type === 'day') day = part.value;
+      if (part.type === 'month') month = part.value;
+      if (part.type === 'year') year = part.value;
+      if (part.type === 'hour') hour = part.value;
+      if (part.type === 'minute') minute = part.value;
+    }
+    
+    if (day && month && year && hour && minute) {
+      return `${hour}:${minute} - ${day}/${month}/${year}`
+    }
+  } catch(e) {
+    console.error('Error formatting date', e)
+  }
+
+  return parseStr
+}
+
 function RoundInfoCard({ round, onViewRubric }) {
   if (!round?.name) return null
 
@@ -51,7 +96,7 @@ function RoundInfoCard({ round, onViewRubric }) {
         <div className={styles.facts}>
           <div className={styles.factRow}>
             <span className={styles.factLabel}>Hạn nộp bài</span>
-            <span className={styles.factValue}>{round.submitDeadline}</span>
+            <span className={styles.factValue}>{formatVNTime(round.submitDeadline)}</span>
           </div>
 
           {round.rubricName && (

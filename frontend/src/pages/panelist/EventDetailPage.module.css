@@ -29,7 +29,13 @@
 }
 
 /* Section 2: 80% nội dung + 20% sticky box */
-.layout {
+.layoutJudge {
+  display: flex;
+  gap: 1.5em;
+  align-items: flex-start;
+}
+
+.layoutMentor {
   display: flex;
   gap: 1.5em;
   align-items: flex-start;
@@ -40,8 +46,12 @@
   min-width: 0;
 }
 
-.sidebar {
+.layoutMentor .sidebar {
   flex: 0 0 16em;
+}
+
+.layoutJudge .sidebar {
+  flex: 0 0 20em;
 }
 
 .stickyWrap {

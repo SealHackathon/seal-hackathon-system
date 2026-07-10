@@ -1,0 +1,242 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding-top: 1rem;
+}
+
+.topSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem; /* Giảm gap giữa 3 box */
+    margin-bottom: 1.5rem; /* Tăng gap với section trọng số bên dưới */
+}
+
+/* Hàng 1: Thang điểm & Cách tính */
+.topRow {
+    display: flex;
+    gap: 0.75rem; /* Giảm gap giữa 2 box đầu */
+}
+
+.scaleBanner {
+    flex: 1.2;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background-color: var(--color-bg-blue);
+    padding: 1rem 1.5rem;
+    border-radius: var(--inner-radius);
+    border: 1px solid var(--color-border-blue);
+}
+
+.scaleNumber {
+    font-size: 2rem;
+    color: var(--color-primary-blue);
+    font-weight: 800;
+    line-height: 1;
+    font-family: var(--body-font-main);
+    font-style: normal;
+}
+
+.scaleText {
+    color: var(--color-secondary-blue);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.scaleText strong {
+    color: var(--color-primary-blue);
+    font-weight: 700;
+}
+
+.calcBox {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--color-border-blue);
+    background-color: var(--color-bg-white);
+    border-radius: var(--inner-radius);
+}
+
+.calcHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.calcTitle {
+    color: var(--color-secondary-blue);
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.formulaRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.multiplyIcon, .equalsIcon {
+    color: var(--color-text-secondary);
+    font-weight: 700;
+}
+
+/* Hàng 2: Banner chênh lệch điểm số ngang */
+.warningBox {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid var(--color-border-orange);
+    background-color: var(--color-bg-orange);
+    border-radius: var(--inner-radius);
+}
+
+.warningHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.warningBox {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    background-color: var(--color-bg-orange);
+    padding: 1rem 1.5rem;
+    border-radius: var(--inner-radius);
+    border: 1px solid var(--color-border-orange);
+}
+
+.warningNumber {
+    font-size: 2rem;
+    color: var(--color-primary-orange);
+    font-weight: 800;
+    line-height: 1;
+    font-family: var(--body-font-main);
+    font-style: normal;
+}
+
+.warningText {
+    color: var(--color-primary-orange);
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.warningText strong {
+    color: var(--color-primary-orange);
+    font-weight: 700;
+}
+
+/* Hàng 3: Tiêu đề Trọng số & Segment Bar */
+.weightSection {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0 0.5rem; /* Canh lề một xíu so với container */
+}
+
+.weightTitleRow {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-shrink: 0;
+}
+
+.weightTitle {
+    color: var(--color-secondary-blue);
+    font-size: 1.1rem;
+    font-weight: 800;
+}
+
+.weightBar {
+    flex-grow: 1;
+}
+
+/* Hàng 4: Danh sách các tiêu chí dạng dọc (Scrollable) */
+.listContainer {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.criteriaList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    max-height: 380px; /* Chiều cao cố định để kích hoạt scroll */
+    overflow-y: auto;
+    padding-bottom: 2rem; /* Dành chỗ cho overlay */
+    padding-right: 0.5rem; /* Tránh cấn thanh cuộn */
+}
+
+.criteriaBox {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    padding: 1.25rem 1.5rem;
+    background-color: var(--color-bg-white);
+    gap: 1.5rem;
+}
+
+.numberLeft {
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--color-border-blue); 
+    flex-shrink: 0;
+    line-height: 1;
+}
+
+.textGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    flex-grow: 1;
+}
+
+.criteriaName {
+    color: var(--color-primary-blue);
+    font-size: 1.1rem;
+    font-weight: 800;
+    line-height: 1.3;
+}
+
+.criteriaDesc {
+    color: var(--color-secondary-blue);
+    font-size: 0.875rem;
+    line-height: 1.4;
+}
+
+.percentBadge {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--color-primary-blue);
+    background-color: var(--color-bg-white);
+    border: 1px solid var(--color-border-blue);
+    padding: 0.4rem 1rem;
+    border-radius: 2rem;
+    font-weight: 800;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.colorIndicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+
+
+.footerContainer {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}

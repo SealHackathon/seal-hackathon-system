@@ -10,7 +10,8 @@ function ModalShell({
     disableScroll = false,
     title,
     subtitle,
-    icon
+    icon,
+    showBottomOverlay = false
 }) {
 
     useEffect(() => {
@@ -50,11 +51,14 @@ function ModalShell({
                     )
                 )}
 
-                <div
-                    className={`${styles.content} ${title ? styles.contentWithHeader : ''}`}
-                    style={disableScroll ? { overflow: 'hidden' } : {}}
-                >
-                    {children}
+                <div className={styles.contentWrapper}>
+                    <div
+                        className={`${styles.content} ${title ? styles.contentWithHeader : ''}`}
+                        style={disableScroll ? { overflow: 'hidden' } : {}}
+                    >
+                        {children}
+                    </div>
+                    {showBottomOverlay && <div className={styles.bottomOverlay}></div>}
                 </div>
 
                 {footer && (

@@ -69,7 +69,6 @@ function EventDetailPage() {
                 scoredCount: 0,
                 totalSubmissions: 0,
 
-                // 🎯 ĐÓN ĐÚNG KEY TỪ JSON MỚI CỦA BẠN:
                 // Chuyển chuỗi "2026-08-13T23:33:30..." thành Object Date cho hàm fmtDM() xử lý
                 timeStart: r.timeStart ? new Date(r.timeStart) : null,
                 timeEnd: r.timeEnd ? new Date(r.timeEnd) : null
@@ -184,7 +183,7 @@ function EventDetailPage() {
         {/* Tab Mentor */}
         {activeTab === 'mentor' &&
           (isMentor ? (
-            <div className={styles.layout}>
+            <div className={styles.layoutMentor}>
               <main className={styles.main}>
                 <MentorTab event={event} />
               </main>
@@ -205,7 +204,7 @@ function EventDetailPage() {
         {/* Tab Giám khảo */}
         {activeTab === 'judge' &&
           (isJudge ? (
-            <div className={styles.layout}>
+            <div className={styles.layoutJudge}>
               <main className={styles.main}>
                 <JudgeRoundsTab event={event} />
               </main>

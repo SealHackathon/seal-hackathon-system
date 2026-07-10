@@ -5,6 +5,7 @@ import ResizableSplit from '../../components/shared/ResizableSplit';
 import ScoringTeamHero from '../../components/panelist/scoring/ScoringTeamHero';
 import SubmissionPanel from '../../components/panelist/scoring/SubmissionPanel';
 import ScoringPanel from '../../components/panelist/scoring/ScoringPanel';
+import ScoringCriteriaModal from '../../components/panelist/event/judgeRoundDetail/ScoringCriteriaModal';
 import styles from './JudgeScoringPage.module.css';
 import axiosClient from '../../api/axiosClient';
 
@@ -12,6 +13,7 @@ function JudgeScoringPage() {
   const { eventId, roundId, submissionId } = useParams();
   const navigate = useNavigate();
 
+  const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState(false);
   const [team, setTeam] = useState(null);
   const [submission, setSubmission] = useState(null);
   const [rubric, setRubric] = useState(null);
@@ -262,7 +264,7 @@ function JudgeScoringPage() {
               criteria={rubric.criteria}
               status={team.status}
               existing={existing}
-              onOpenRubric={handleOpenRubric}
+              onOpenRubric={() => setIsCriteriaModalOpen(true)}
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSubmit}
               onRequestEdit={handleRequestEdit}
@@ -270,6 +272,12 @@ function JudgeScoringPage() {
           }
         />
       </div>
+
+      <ScoringCriteriaModal 
+        isOpen={isCriteriaModalOpen}
+        onClose={() => setIsCriteriaModalOpen(false)}
+        criteria={rubric?.criteria}
+      />
     </div>
   );
 }

@@ -4,6 +4,7 @@ import StickyHeader from '../../components/shared/StickyHeader'
 import JudgeRoundHero from '../../components/panelist/event/judgeRoundDetail/JudgeRoundHero'
 import JudgeScoringProgress from '../../components/panelist/event/judgeRoundDetail/JudgeScoringProgress'
 import JudgeSubmissionTable from '../../components/panelist/event/judgeRoundDetail/JudgeSubmissionTable'
+import ScoringCriteriaModal from '../../components/panelist/event/judgeRoundDetail/ScoringCriteriaModal'
 import styles from './JudgeRoundDetailPage.module.css'
 import axiosClient from '../../api/axiosClient'
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +19,7 @@ function JudgeRoundDetailPage({ backLink = '/panelist/events/1?tab=judge' }) {
     navigate(`/panelist/events/${eventId}/judge/rounds/${roundId}/submissions/${submissionId}`);
   };
 
+  const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState(false);
   const [round, setRound] = useState(null)
   const [submissions, setSubmissions] = useState([])
   const [loading, setLoading] = useState(true)
@@ -120,7 +122,7 @@ function JudgeRoundDetailPage({ backLink = '/panelist/events/1?tab=judge' }) {
 
       <div className={styles.body}>
         <div className={styles.heroRow}>
-          <JudgeRoundHero round={round} />
+          <JudgeRoundHero round={round} onOpenRubric={() => setIsCriteriaModalOpen(true)} />
           <JudgeScoringProgress done={stats.done} draft={stats.draft} unscored={stats.unscored} />
         </div>
 
@@ -128,6 +130,12 @@ function JudgeRoundDetailPage({ backLink = '/panelist/events/1?tab=judge' }) {
           <JudgeSubmissionTable submissions={submissions} onScore={handleScore} />
         </div>
       </div>
+
+      <ScoringCriteriaModal 
+        isOpen={isCriteriaModalOpen}
+        onClose={() => setIsCriteriaModalOpen(false)}
+        criteria={round?.criteria}
+      />
     </div>
   )
 }
