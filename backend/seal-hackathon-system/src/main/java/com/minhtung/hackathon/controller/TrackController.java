@@ -105,7 +105,7 @@ public class TrackController {
         return ResponseEntity.status(401).body("Token không hợp lệ hoặc đã hết hạn");
     }
 
-    @GetMapping("/{trackId}/teams")
+    @GetMapping("/{trackId}/viewTeaminTrack")
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<List<ViewTeamListRespone>>
     getTeamsByTrack(
