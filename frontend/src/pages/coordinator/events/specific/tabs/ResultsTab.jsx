@@ -9,13 +9,17 @@ import ResultsLeaderboard from '../../../../../components/coordinator/roundResul
 import TeamDetailModal from '../../../../../components/coordinator/roundResults/TeamDetailModal'
 import AssignAwardModal from '../../../../../components/coordinator/roundResults/AssignAwardModal'
 import AwardsSection from '../../../../../components/coordinator/roundResults/AwardsSection'
-import { ROUNDS, CATEGORIES, DATA } from './roundResultsMock'
+// TODO: CATEGORIES chưa có API -> vẫn mock. DATA (entries/judges/awards/review) chưa có API -> vẫn mock.
+import { CATEGORIES, DATA } from './roundResultsMock'
 import styles from './ResultsTab.module.css'
+import axiosClient from '../../../../../api/axiosClient'
 
 // -- Body cho tab "Điểm & Kết quả" trong trang quản lý sự kiện --
 
-const DEFAULT_STAGES = { soloai: 3, doidau: 3, semifinal: 1, final: 2 }
 const WINDOW_SEC = 30 * 60
+// TODO: xoá mapping này khi có API entries thật theo roundId.
+// Tạm thời map round thật -> key mock theo THỨ TỰ xuất hiện (index) để demo UI.
+const MOCK_KEYS = Object.keys(DATA) // ['soloai', 'doidau', 'semifinal', 'final']
 
 // ---- Helpers tinh toan xep hang ----
 const mean = (arr) => arr.reduce((s, n) => s + n, 0) / arr.length
@@ -111,10 +115,62 @@ function ResultsTab() {
   const params = useParams()
   const eventId = params.eventId || 'demo'
 
-  const [roundId, setRoundId] = useState('semifinal')
+  const [rounds, setRounds] = useState([])
+  const [criteria, setCriteria] = useState([])
+  const [roundId, setRoundId] = useState(null) // set sau khi fetch xong
+  const [loadingRounds, setLoadingRounds] = useState(true)
+
+  //-----------------fetch rounds va criterias tu API
+  useEffect(() => {
+    const fetchRounds = async () => {
+      try {
+        const { data } = await axiosClient.get(`/round?eventId=${eventId}`)
+
+        const mapped = data.map((round) => ({
+          id: round.roundId,
+          name: round.roundName,
+          lifecycle:
+            round.status === 'COMPLETED'
+              ? 'done'
+              : round.status === 'IN_PROGRESS'
+                ? 'active'
+                : 'upcoming',
+          timeStart: round.roundStartTime,
+          timeEnd: round.roundEndTime,
+          isFinal: round.roundOrdinalNumber === round.roundQuantity,
+        }))
+
+        setRounds(mapped)
+
+        if (mapped.length > 0) {
+          // Ưu tiên chọn round đang diễn ra, không có thì chọn round đầu tiên
+          const active = mapped.find((r) => r.lifecycle === 'active')
+          setRoundId((active || mapped[0]).id)
+
+          setCriteria(
+            data[0].criteria.map((item) => ({
+              id: item.id,
+              name: item.name,
+              weight: item.weight,
+            }))
+          )
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setLoadingRounds(false)
+      }
+    }
+
+    if (eventId) {
+      fetchRounds()
+    }
+  }, [eventId])
+  //-----------------------------------------------------------------------------------------------------
+
   const [categoryId, setCategoryId] = useState('all')
   const [forcedRounds, setForcedRounds] = useState({})
-  const [stageByRound, setStageByRound] = useState(DEFAULT_STAGES)
+  const [stageByRound, setStageByRound] = useState({})
   const [reviews, setReviews] = useState(() => {
     const init = {}
     Object.keys(DATA).forEach((k) => { if (DATA[k].review) init[k] = { ...DATA[k].review } })
@@ -126,39 +182,48 @@ function ResultsTab() {
   const [awardToAssign, setAwardToAssign] = useState(null)
 
   const isAll = roundId === 'all'
-  const round = isAll ? null : DATA[roundId]
-  const roundMeta = ROUNDS.find((r) => r.id === roundId)
+
+  // TODO: thay bằng roundId thật khi có API GET /round/{roundId}/results
+  const mockKey = useMemo(() => {
+    if (isAll || !roundId) return null
+    const idx = rounds.findIndex((r) => r.id === roundId)
+    return idx !== -1 ? MOCK_KEYS[idx % MOCK_KEYS.length] : MOCK_KEYS[0]
+  }, [isAll, roundId, rounds])
+
+  const round = isAll ? null : DATA[mockKey]
+  const roundMeta = rounds.find((r) => r.id === roundId)
   const isFinal = roundMeta ? roundMeta.isFinal : false
   const stage = stageByRound[roundId] || 1
 
   // -- Dem nguoc cua so phan hoi 30 phut khi dang o giai doan 2 --
   useEffect(() => {
-    if (isAll || stage !== 2 || !reviews[roundId]) return
+    if (isAll || stage !== 2 || !reviews[mockKey]) return
     const id = setInterval(() => {
       setReviews((prev) => {
-        const cur = prev[roundId]
+        const cur = prev[mockKey]
         if (!cur || cur.remainingSec <= 0) return prev
-        return { ...prev, [roundId]: { ...cur, remainingSec: cur.remainingSec - 1 } }
+        return { ...prev, [mockKey]: { ...cur, remainingSec: cur.remainingSec - 1 } }
       })
     }, 1000)
     return () => clearInterval(id)
-  }, [isAll, stage, roundId, reviews])
+  }, [isAll, stage, mockKey, reviews])
 
   // -- Xep hang --
   const standings = useMemo(() => {
     if (isAll) return computeOverall()
+    if (!round) return []
     return computeStandings(round.entries, forcedRounds[roundId])
   }, [isAll, round, roundId, forcedRounds])
 
-  const allResultsReady = standings.every((r) => r.status !== 'pending')
+  const allResultsReady = standings.length > 0 && standings.every((r) => r.status !== 'pending')
   const blockers = standings.filter((r) => r.status === 'pending').map((r) => r.team.name)
-  
-  const unassignedAwardsCount = isFinal && round.awards ? (
+
+  const unassignedAwardsCount = isFinal && round?.awards ? (
     (round.awards.main?.filter(a => !a.team).length || 0) +
     (round.awards.extended?.filter(a => !a.team).length || 0)
   ) : 0
 
-  const canForce = !isAll && !allResultsReady
+  const canForce = !isAll && !!round && !allResultsReady
   const allOfficial = standings.length > 0 && standings.every((r) => ['official', 'eliminated', 'withdrawn'].includes(r.status))
 
   // -- Bo loc theo hanh dong BGK (chip) --
@@ -177,7 +242,7 @@ function ResultsTab() {
   ]
 
   const judges = isAll || !round ? [] : (round.judges || [])
-  const review = isAll ? null : reviews[roundId]
+  const review = isAll ? null : reviews[mockKey]
 
   // -- Handlers --
   const handleForce = () => setForcedRounds((p) => ({ ...p, [roundId]: true }))
@@ -187,8 +252,8 @@ function ResultsTab() {
       if ((p[roundId] || 1) === 1) {
         setReviews((rp) => ({
           ...rp,
-          [roundId]: rp[roundId]
-            ? { ...rp[roundId], remainingSec: WINDOW_SEC }
+          [mockKey]: rp[mockKey]
+            ? { ...rp[mockKey], remainingSec: WINDOW_SEC }
             : { remainingSec: WINDOW_SEC, pendingRequests: 0, judgesAgreed: judges.length, judgesTotal: judges.length },
         }))
       }
@@ -200,6 +265,10 @@ function ResultsTab() {
   const openScoring = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId)
   const openAudit = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId + '&tab=audit')
 
+  if (loadingRounds) {
+    return <div className={styles.tab}>Đang tải dữ liệu vòng thi...</div>
+  }
+
   return (
     <div className={styles.tab}>
       <header className={styles.header}>
@@ -210,12 +279,12 @@ function ResultsTab() {
       </header>
 
       <div className={styles.filterBar}>
-        <RoundStepper rounds={ROUNDS} currentRoundId={roundId} onChange={(id) => { setRoundId(id); setStatusFilter('all') }} />
+        <RoundStepper rounds={rounds} currentRoundId={roundId} onChange={(id) => { setRoundId(id); setStatusFilter('all') }} />
         <div className={styles.divider} />
         <CategoryFilter categories={CATEGORIES} currentCategoryId={categoryId} onChange={setCategoryId} />
       </div>
 
-      {isFinal && !isAll && (
+      {isFinal && !isAll && round && (
         <AwardsSection
           main={round.awards ? round.awards.main : []}
           extended={round.awards ? round.awards.extended : []}
@@ -256,7 +325,7 @@ function ResultsTab() {
           <ScoringOverview
             judges={judges}
             roundIsAll={isAll}
-            allRoundsData={DATA} /* Pass full DATA for grouping */
+            allRoundsData={DATA} /* TODO: thay bằng data thật khi có API tổng hợp theo round */
             onOpenAudit={openAudit}
             onOpenScoring={openScoring}
           />
@@ -265,7 +334,7 @@ function ResultsTab() {
 
       <TeamDetailModal open={!!detail} team={detail} onClose={() => setDetail(null)} />
 
-      {awardToAssign && (
+      {awardToAssign && round && (
         <AssignAwardModal
           open={true}
           award={awardToAssign}
@@ -274,7 +343,7 @@ function ResultsTab() {
           onAssign={(awardId, team) => {
             const aw = round.awards.extended.find(a => a.id === awardId)
             if (aw) aw.team = team
-            setAwardToAssign(null) // trigger re-render
+            setAwardToAssign(null)
           }}
         />
       )}

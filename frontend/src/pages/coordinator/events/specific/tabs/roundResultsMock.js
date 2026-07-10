@@ -1,4 +1,6 @@
 
+
+// TODO: add api lay CRITERIA by eventID
 export const CRITERIA = [
   { id: 'c1', name: 'Tính đổi mới', weight: 30 },
   { id: 'c2', name: 'Kỹ thuật & hoàn thiện', weight: 30 },
@@ -6,6 +8,7 @@ export const CRITERIA = [
   { id: 'c4', name: 'Thuyết trình', weight: 15 },
 ]
 
+// TODO: add api lay Rounds
 export const ROUNDS = [
   { id: 'soloai', name: 'Vòng sơ loại', lifecycle: 'done', timeStart: '2026-06-20', timeEnd: '2026-06-25', isFinal: false },
   { id: 'doidau', name: 'Vòng đối đầu', lifecycle: 'done', timeStart: '2026-07-01', timeEnd: '2026-07-10', isFinal: false },
@@ -13,6 +16,7 @@ export const ROUNDS = [
   { id: 'final', name: 'Vòng chung kết', lifecycle: 'active', timeStart: '2026-07-20', timeEnd: '2026-07-25', isFinal: true },
 ]
 
+// TODO: add api lay Rounds
 export const CATEGORIES = [
   { id: 'ai', name: 'AI Agents for Innovation' },
   { id: 'fintech', name: 'FinTech Sandbox' },

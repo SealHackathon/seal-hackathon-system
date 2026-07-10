@@ -29,4 +29,8 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
     findByTeamId(
             Long teamId
     );
+
+
+    List<Submission> findByRound_IdAndLatestTrue(long roundId);
+
 }
