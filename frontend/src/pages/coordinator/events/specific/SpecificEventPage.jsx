@@ -13,7 +13,8 @@ import styles from './SpecificEventPage.module.css'
 const TABS = [
   { value: 'overview',   label: 'Tổng quan',     icon: Info },
   { value: 'rounds',     label: 'Vòng thi',      icon: Path },
-  { value: 'scoring',    label: 'Chấm điểm & Trao thưởng', icon: Scales },
+  { value: 'scoring',    label: 'Chấm điểm',     icon: PencilSimple },
+  { value: 'ranking',    label: 'Xếp hạng và Trao thưởng', icon: Trophy },
   { value: 'violations', label: 'Xử lí vi phạm', icon: ShieldWarning },
 ]
 const TAB_VALUES = TABS.map((t) => t.value)
@@ -49,6 +50,8 @@ function SpecificEventPage({ event = MOCK_EVENT }) {
   const renderBody = () => {
     switch (activeTab) {
       case 'scoring':
+        return <TabPlaceholder label="Chấm điểm" />
+      case 'ranking':
         return <ResultsTab />
       case 'violations':
         return <TabPlaceholder label="Xử lí vi phạm" />
