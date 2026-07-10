@@ -87,11 +87,11 @@ public class SubmissionController {
     @GetMapping
 //    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<List<SubmissionListResponse>>
-    getSubmissionsByRound(
+    getSubmissionsByRound(Authentication authentication,
             @RequestParam Long roundId
     ) {
         return ResponseEntity.ok(
-                submissionService.getSubmissionByRound(roundId)
+                submissionService.getSubmissionByRound(authentication.getName(),roundId)
         );
     }
 

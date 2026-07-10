@@ -137,17 +137,35 @@ function DashboardPage() {
   const mentorInvites = invitations.filter((i) => i.roleType === 'mentor')
 
   const handleOpenScoring = (eventId) => {
-    // TODO: điều hướng sang giao diện chấm thi của sự kiện
-    const roundId = assignedEvent?.currentRound?.id
-    if (eventId && roundId) {
-      // Điều hướng tới: /panelist/events/:eventId/judge/rounds/:roundId
-      navigate(`/panelist/events/${eventId}/judge/rounds/${roundId}`)
-    } else {
-      // Fallback nếu chưa có thông tin vòng đấu hoặc API chưa trả về roundId
-      console.warn("Không tìm thấy thông tin vòng đấu hiện tại (roundId).")
-      navigate(`/panelist/dashboard`)
+    // 1. Trích xuất danh sách các vòng đấu mà Giám khảo này ĐƯỢC PHÂN CÔNG (ASSIGN)
+    const assignedRounds = assignedEvent?.assignment?.judge?.rounds || [];
+
+    // 2. Tìm roundId phù hợp để điều hướng
+    let targetRoundId = null;
+
+    if (assignedRounds.length > 0) {
+      // Chiến lược 1: Ưu tiên tìm vòng được assign trùng với vòng hiện tại của sự kiện (nếu có)
+      const currentEventRoundId = assignedEvent?.currentRound?.id;
+      const matchingRound = assignedRounds.find(r => String(r.roundId) === String(currentEventRoundId));
+
+      if (matchingRound) {
+        targetRoundId = matchingRound.roundId;
+      } else {
+        // Chiến lược 2: Nếu vòng hiện tại họ không được chấm, lấy luôn Vòng đầu tiên họ được giao (Trong JSON của bạn sẽ ăn vào roundId: 3)
+        targetRoundId = assignedRounds[0].roundId;
+      }
     }
-  }
+
+    // 3. Thực hiện điều hướng chuẩn xác theo Vòng được giao quyền
+    if (eventId && targetRoundId) {
+      // Điều hướng tới: /panelist/events/:eventId/judge/rounds/:roundId
+      navigate(`/panelist/events/${eventId}/judge/rounds/${targetRoundId}`);
+    } else {
+      // Fallback nếu vị giám khảo này hoàn toàn không được phân công vòng nào trong sự kiện
+      console.warn("Tài khoản giám khảo này chưa được phân công (assign) vào bất kỳ vòng đấu nào.");
+      navigate(`/panelist/dashboard`);
+    }
+  };
   const handleManageTeams = (eventId) => {
     // TODO: điều hướng sang trang quản lý đội thi
     navigate(`/panelist/events/${eventId}`)

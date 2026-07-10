@@ -15,7 +15,10 @@ public interface JudgeScoreRepository extends JpaRepository<JudgeScore,Long> {
     );
 
     // Lấy điểm số của bản ghi bài nộp cụ thể
-    Optional<JudgeScore> findBySubmissionId(Long submissionId);
+
+    List<JudgeScore> findBySubmissionId(Long submissionId);
 
     Optional<JudgeScore> findByJudgeAssignmentIdAndSubmissionId(Long assignmentId, Long submissionId);
+
+
 }
