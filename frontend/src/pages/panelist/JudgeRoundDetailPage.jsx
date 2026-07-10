@@ -70,6 +70,7 @@ function JudgeRoundDetailPage({ backLink = '/panelist/events/1?tab=judge' }) {
       } catch (err) {
         console.error('Error binding data to UI:', err)
         setError(err.response?.data?.message || 'Không thể tải dữ liệu vòng chấm từ hệ thống.')
+        navigate('/panelist/dashboard');
       } finally {
         setLoading(false)
       }

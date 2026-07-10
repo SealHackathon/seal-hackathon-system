@@ -176,6 +176,12 @@ public class SubmissionService {
         User judge = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản giám khảo"));
 
+        boolean hasAssignmentInRound = judgeAssignmentRepository.existsByUser_IdAndRoundId(judge.getId(), roundId);
+
+        if (!hasAssignmentInRound) {
+            throw new RuntimeException("Bạn không được phân công nhiệm vụ chấm điểm tại vòng thi này.");
+        }
+
         // 2. Lấy danh sách các bài nộp mới nhất của vòng
         List<Submission> submissions = submissionRepository
                 .findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(roundId);

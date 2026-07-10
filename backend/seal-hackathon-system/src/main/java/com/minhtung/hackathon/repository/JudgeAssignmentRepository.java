@@ -24,6 +24,7 @@ public interface JudgeAssignmentRepository extends JpaRepository<JudgeAssignment
 
     Optional<JudgeAssignment> findByUser_IdAndRoundId(Long userId, Long roundId);
 
+    boolean existsByUser_IdAndRoundId(Long userId, long roundId);
 
     List<JudgeAssignment> findByUserId(Long userId);
 
