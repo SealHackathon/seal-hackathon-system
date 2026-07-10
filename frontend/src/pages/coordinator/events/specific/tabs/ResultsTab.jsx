@@ -4,11 +4,12 @@ import { ListChecks, Gavel, SealCheck, Scales, Flag, Clock } from '@phosphor-ico
 import RoundStepper from '../../../../../components/coordinator/roundResults/RoundStepper'
 import CategoryFilter from '../../../../../components/coordinator/roundResults/CategoryFilter'
 import PublishFlow from '../../../../../components/coordinator/roundResults/PublishFlow'
-import ScoringOverview from '../../../../../components/coordinator/roundResults/ScoringOverview'
+import RequestsSection from '../../../../../components/coordinator/roundResults/RequestsSection'
 import ResultsLeaderboard from '../../../../../components/coordinator/roundResults/ResultsLeaderboard'
 import TeamDetailModal from '../../../../../components/coordinator/roundResults/TeamDetailModal'
 import AssignAwardModal from '../../../../../components/coordinator/roundResults/AssignAwardModal'
 import AwardsSection from '../../../../../components/coordinator/roundResults/AwardsSection'
+import SubmissionModal from '../../../../../components/panelist/event/mentorTeamDetail/SubmissionModal'
 import { ROUNDS, CATEGORIES, DATA } from './roundResultsMock'
 import styles from './ResultsTab.module.css'
 
@@ -123,6 +124,7 @@ function ResultsTab() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState(null)
+  const [submissionDetail, setSubmissionDetail] = useState(null)
   const [awardToAssign, setAwardToAssign] = useState(null)
 
   const isAll = roundId === 'all'
@@ -253,12 +255,25 @@ function ResultsTab() {
           />
         </div>
         <div className={styles.overviewCol}>
-          <ScoringOverview
-            judges={judges}
-            roundIsAll={isAll}
-            allRoundsData={DATA} /* Pass full DATA for grouping */
-            onOpenAudit={openAudit}
-            onOpenScoring={openScoring}
+          <RequestsSection 
+            onOpenTeam={(teamId) => {
+               // Mock finding team
+               const team = standings.find(s => s.team.id === teamId)?.team || { id: teamId, name: 'FPT.O-H' }
+               setDetail(team)
+            }}
+            onOpenSubmission={(teamId) => {
+               // Mock submission data
+               setSubmissionDetail({
+                 name: 'Vòng sơ loại',
+                 submittedAt: '14:00 10/07/2026',
+                 late: false,
+                 submission: {
+                   github: 'https://github.com/fpt-oh',
+                   demo: 'https://demo.fpt-oh.com',
+                   slide: 'https://docs.google.com/presentation/d/1'
+                 }
+               })
+            }}
           />
         </div>
       </div>
@@ -276,6 +291,14 @@ function ResultsTab() {
             if (aw) aw.team = team
             setAwardToAssign(null) // trigger re-render
           }}
+        />
+      )}
+
+      {submissionDetail && (
+        <SubmissionModal 
+           open={!!submissionDetail}
+           round={submissionDetail}
+           onClose={() => setSubmissionDetail(null)}
         />
       )}
     </div>

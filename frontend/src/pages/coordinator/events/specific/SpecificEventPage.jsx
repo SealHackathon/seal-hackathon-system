@@ -5,7 +5,7 @@ import Button from '../../../../components/shared/Button'
 import ResultsTab from './tabs/ResultsTab'
 import {
   ArrowLeft, FlagBanner, Eye, LinkSimple, PencilSimple, Export,
-  Info, Path, SquaresFour, Gear, Scales, Trophy, ShieldWarning,
+  Info, Path, SquaresFour, Gear, Scales, Trophy,
 } from '@phosphor-icons/react'
 import styles from './SpecificEventPage.module.css'
 
@@ -15,7 +15,6 @@ const TABS = [
   { value: 'rounds',     label: 'Vòng thi',      icon: Path },
   { value: 'scoring',    label: 'Chấm điểm',     icon: PencilSimple },
   { value: 'ranking',    label: 'Xếp hạng và Trao thưởng', icon: Trophy },
-  { value: 'violations', label: 'Xử lí vi phạm', icon: ShieldWarning },
 ]
 const TAB_VALUES = TABS.map((t) => t.value)
 const DEFAULT_TAB = 'overview'
@@ -53,8 +52,6 @@ function SpecificEventPage({ event = MOCK_EVENT }) {
         return <TabPlaceholder label="Chấm điểm" />
       case 'ranking':
         return <ResultsTab />
-      case 'violations':
-        return <TabPlaceholder label="Xử lí vi phạm" />
       case 'overview':
         return <TabPlaceholder label="Tổng quan" />
       case 'rounds':

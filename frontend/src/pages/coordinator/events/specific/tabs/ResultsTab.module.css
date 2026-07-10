@@ -48,11 +48,11 @@
 }
 
 .leaderboardCol {
-  flex: 3; /* Chiếm ~75% */
+  flex: 3;
   min-width: 0;
 }
 
 .overviewCol {
-  flex: 1; /* Chiếm ~25% */
+  flex: 1; 
   min-width: 0;
 }

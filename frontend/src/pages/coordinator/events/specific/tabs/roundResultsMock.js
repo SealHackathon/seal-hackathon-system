@@ -193,11 +193,12 @@ const FINAL = {
     },
     {
       team: { id: 'neopay', name: 'NeoPay' },
-      assignedCount: 3,
+      assignedCount: 4,
       perJudge: [
-        j('GK. Minh', true, 8.7, 8.7, 8.7, 8.7, 8.7),
-        j('GK. Lan', true, 8.6, 8.7, 8.8, 8.7, 8.7),
-        j('GK. Huy', true, 8.7, 8.7, 8.7, 8.7, 8.7),
+        j('GK. Tuấn', true, 8, 9, 8, 7, 8.1),
+        j('GK. Lan', true, 9, 8, 8, 8, 8.4),
+        j('GK. Khoa', true, 7, 7, 8, 7, 7.3),
+        j('GK. Thảo', false, null, null, null, null, null),
       ],
     },
     {

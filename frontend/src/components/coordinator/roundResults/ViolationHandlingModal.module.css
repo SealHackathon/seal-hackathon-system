@@ -1,0 +1,247 @@
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75em;
+  padding-top: 1em;
+}
+
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-dark-blue);
+  margin-left: 1em;
+}
+
+/* =============================================
+   INFO BOX — wrapper gộp chung tất cả thông tin
+   ============================================= */
+.infoBox {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  overflow: hidden;
+}
+
+/* Divider ngang bên trong box */
+.infoBoxDivider {
+  height: 1px;
+  background-color: var(--color-border-blue);
+}
+
+/* =============================================
+   META ROW — người cắm cờ + thời gian (trên cùng)
+   ============================================= */
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  padding: 1em 1.5em;
+  background-color: var(--color-primary-blue);
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+/* Icon trắng thường, không nền */
+.metaIconWrap {
+  color: #ffffff;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metaLabel {
+  font-size: 0.8rem;
+  color: #ffffff;
+}
+
+.metaValue {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+/* Dấu chấm phân cách giữa meta items */
+.metaDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  flex-shrink: 0;
+}
+
+/* =============================================
+   LINK LIST — đội thi + bài nộp (dạng row ngang)
+   ============================================= */
+.linkList {
+  display: flex;
+  flex-direction: column;
+  margin: 0.5em 0;
+}
+
+/* Mỗi row nút bấm */
+.linkItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75em 1.1em; margin: 0 1em;
+  background: none;
+  border: none;
+  border-radius: var(--inner-radius);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+  gap: 0.75em;
+}
+
+/* Row cuối cùng bỏ border-bottom */
+.linkItem:last-child {
+  border-bottom: none;
+}
+
+.linkItem:hover {
+  background-color: var(--color-bg-blue);
+}
+
+/* Phần trái: icon + label */
+.linkItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.linkItemIcon {
+  color: var(--color-border-blue);
+  flex-shrink: 0;
+}
+
+.linkItemLabel {
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+  font-weight: bold;
+}
+
+/* Phần phải: giá trị + caret */
+.linkItemRight {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  flex-shrink: 0;
+}
+
+.linkItemValue {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  white-space: nowrap;
+}
+
+.linkItemArrow {
+  color: var(--color-secondary-blue);
+  flex-shrink: 0;
+}
+
+/* =============================================
+   NOTE SECTION
+   ============================================= */
+.noteSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65em;
+  padding: 1.5em;
+  background-color: var(--color-bg-blue);
+  margin: 1em;
+  border-radius: var(--inner-radius);
+}
+
+/* Header: icon chat to + label */
+.noteIconWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.noteIcon {
+  color: var(--color-primary-blue);
+  flex-shrink: 0;
+}
+
+.noteLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+}
+
+/* Nội dung ghi chú  */
+.noteText {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.7;
+  margin: 0;
+  padding-left: 0.2em;
+}
+
+/* =============================================
+   ALERT DISQUALIFY
+   ============================================= */
+.alertBox {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75em;
+  padding: 1em 1.25em;
+  background-color: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-orange);
+  border-radius: var(--inner-radius);
+}
+
+.alertIcon {
+  flex-shrink: 0;
+  margin-top: 0.1em;
+}
+
+.alertText {
+  color: var(--color-primary-orange);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.alertText strong {
+  font-weight: 800;
+}
+
+/* =============================================
+   LÝ DO XỬ LÍ
+   ============================================= */
+.reasonBox {
+  margin-top: 0.25em;
+}
+
+.reasonBox textarea {
+  min-height: 5em;
+  resize: none;
+}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+.footerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1em;
+  width: 100%;
+}

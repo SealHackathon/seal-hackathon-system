@@ -125,7 +125,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 40px;
+    height: 90px;
     background: linear-gradient(to bottom, transparent, var(--color-bg-white));
     pointer-events: none;
 }
