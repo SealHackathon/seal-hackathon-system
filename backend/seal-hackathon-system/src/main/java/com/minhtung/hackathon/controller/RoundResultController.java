@@ -19,4 +19,14 @@ public class RoundResultController {
         return roundResultService.getRoundResults(roundId, trackId);
 
     }
+
+
+    @PostMapping("/{roundId}/track/{trackId}/publish/stage/{stage}")
+    public RoundResultResponse publicResult(
+            @PathVariable Long roundId,
+            @PathVariable Long trackId,
+            @PathVariable Integer stage) { // Đổi từ Long sang Integer
+
+        return roundResultService.updatePublishStage(roundId, trackId, stage);
+    }
 }

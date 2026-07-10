@@ -22,7 +22,6 @@ public class RoundResultServiceImpl implements RoundResultService {
     private final JudgeAssignmentRepository judgeAssignmentRepository;
     private final JudgeScoreRepository judgeScoreRepository;
     private final TrackRepository trackRepository;
-
     @Override
     public RoundResultResponse getRoundResults(Long roundId,Long trackId) {
         Round round = roundRepository.findById(roundId)
@@ -230,6 +229,7 @@ public class RoundResultServiceImpl implements RoundResultService {
 
 
     //public award
+    //service trả về bảng xếp hạng của 1 track khi publistResult trong entity Track được map về True
 
     public PublicRoundResultResponse getPublicRoundResultsByTrack(Long roundId, Long trackId) {
         if (trackId == null) {
@@ -244,7 +244,8 @@ public class RoundResultServiceImpl implements RoundResultService {
         PublicRoundResultResponse response = new PublicRoundResultResponse();
 
         // Kiểm tra trực tiếp trên thực thể Track
-        if (!track.isPublishedResult()) {
+        // TODO kiểm tra lại chỗ này
+        if (track.getPublishedResult() ==1) {
             response.setPublished(false);
             response.setEntries(new ArrayList<>());
             response.setAwards(null);
@@ -319,5 +320,27 @@ public class RoundResultServiceImpl implements RoundResultService {
         response.setAwards(awardsDTO);
 
         return response;
+    }
+
+    @Override
+    public RoundResultResponse updatePublishStage(Long roundId, Long trackId, Integer stage) {
+        // 1. Kiểm tra giá trị stage hợp lệ truyền từ Frontend (Chỉ chấp nhận từ 1 đến 3)
+        if (stage < 1 || stage > 3) {
+            throw new IllegalArgumentException("Cấp độ công bố không hợp lệ: " + stage);
+        }
+
+        // 2. Tìm thông tin Track cần cập nhật trong DB
+        Track track = trackRepository.findById(trackId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Track với ID: " + trackId));
+
+        // 3. Cập nhật cấp độ Stage mới mà Frontend vừa gửi lên
+        track.setPublishedResult(stage); // Giả sử thuộc tính trong file Track.java tên là publishStage
+        trackRepository.save(track);  // Lưu lại vào Database
+
+        // Log ra để dễ dàng debug hệ thống
+        System.out.println("Đã cập nhật Track ID " + trackId + " sang Publish Stage: " + stage);
+
+        // 4. Trả về kết quả chấm giải hiện tại của Round và Track này cho Frontend đồng bộ UI luôn
+        return getRoundResults(roundId, trackId);
     }
 }
