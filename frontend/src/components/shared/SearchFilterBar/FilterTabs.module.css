@@ -1,8 +1,24 @@
+.scrollWrapper {
+    width: 100%;
+    /* Dùng mask-image để làm mờ cạnh phải, tạo cảm giác có thể cuộn tiếp */
+    -webkit-mask-image: linear-gradient(to left, transparent 0, black 30px);
+    mask-image: linear-gradient(to left, transparent 0, black 30px);
+}
+
 .row {
     display: flex;
     align-items: center;
     gap: 0.4em;
-    flex-wrap: wrap;
+    overflow-x: auto;
+    padding-right: 30px; /* Bù lại khoảng bị mờ của mask-image để item cuối không bị mờ khi cuộn hết */
+    padding-bottom: 0.2em; /* Khoảng cách cho focus ring nếu có */
+    
+    /* Ẩn thanh cuộn cho đẹp */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+.row::-webkit-scrollbar {
+    display: none;
 }
 
 .tab {

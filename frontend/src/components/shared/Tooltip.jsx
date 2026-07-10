@@ -74,7 +74,7 @@ function Tooltip({
             {children}
 
             {visible && createPortal(
-                <div className={`${styles.tooltip} ${styles[position]} ${styles[bgColor]} `}
+                <div className={`${styles.tooltip} ${styles[position]} ${styles[bgColor] || ''}`}
                     style={{
                         position: 'fixed',
                         top: coords.top,
@@ -83,7 +83,7 @@ function Tooltip({
                         zIndex: 9999,
                     }}
                 >
-                    <div className={styles[textColor]} style={{ fontSize: `${contentSize}px` }}>{content}</div>
+                    <div className={styles[textColor] || ''} style={{ fontSize: `${contentSize}px` }}>{content}</div>
                     <span className={styles.arrow} />
                 </div>,
 

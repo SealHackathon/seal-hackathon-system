@@ -1,11 +1,11 @@
 .page {
   min-height: 100vh;
   background: var(--color-bg-white);
+    padding: 0.25em 1.5em 1.5em;
 }
 
 /* Full-width — không giới hạn max-width */
 .body {
-  padding: 1.5em 2em 3em;
   display: flex;
   flex-direction: column;
   gap: 1.25em;
