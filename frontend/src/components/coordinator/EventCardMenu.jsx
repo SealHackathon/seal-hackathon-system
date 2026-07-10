@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   DotsThreeVertical, Eye, Link, DownloadSimple,
-  CopySimple, Archive, XCircle, Trash,
+  CopySimple, Archive, XCircle, Trash, PencilSimple
 } from '@phosphor-icons/react'
 import styles from './EventCardMenu.module.css'
 
@@ -24,7 +24,7 @@ function getDestructiveConfig(status) {
   return null // ẩn hoàn toàn
 }
 
-function EventCardMenu({ status, onView, onCopyLink, onExport, onDuplicate, onArchive, onCancel, onDelete }) {
+function EventCardMenu({ status, onEdit, onView, onCopyLink, onExport, onDuplicate, onArchive, onCancel, onDelete }) {
   const [open, setOpen] = useState(false)
   const ref = useRef(null)
 
@@ -54,6 +54,9 @@ function EventCardMenu({ status, onView, onCopyLink, onExport, onDuplicate, onAr
         <div className={styles.menu} role="menu">
           {/* === Hộp chính === */}
           <div className={styles.box}>
+            <button className={styles.item} onClick={() => { onEdit?.();      setOpen(false) }}>
+              <PencilSimple size={24} color="var(--color-primary-blue)" /> Chỉnh sửa
+            </button>
             <button className={styles.item} onClick={() => { onView?.();      setOpen(false) }}>
               <Eye size={24} color="var(--color-primary-blue)" /> Xem trang sự kiện
             </button>

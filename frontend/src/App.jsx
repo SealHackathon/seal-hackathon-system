@@ -115,6 +115,7 @@ import EventDetailPage from './pages/panelist/EventDetailPage';
 import JudgeRoundDetailPage from './pages/panelist/JudgeRoundDetailPage';
 import JudgeScoringPage from './pages/panelist/JudgeScoringPage';
 import MentorTeamDetailPage from './pages/panelist/MentorTeamDetailPage';
+import SpecificEventPage from './pages/coordinator/events/specific/SpecificEventPage'
 
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
@@ -167,6 +168,8 @@ function AppRoutes() {
                             <Route path="/admin/coordinator/rubrics" element={<RubricLibraryPage />} />
                             <Route path="/admin/coordinator/rubrics/create" element={<CreateRubricPage />} />
                             <Route path="/admin/coordinator/rubrics/:id/edit" element={<CreateRubricPage />} />
+                            <Route path="/admin/coordinator/events/:eventId" element={<SpecificEventPage />} />
+                            <Route path="/admin/coordinator/events/:eventId/:tab" element={<SpecificEventPage />} />
 
                         </>
                     )}

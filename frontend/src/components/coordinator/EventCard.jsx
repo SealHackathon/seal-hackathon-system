@@ -34,8 +34,9 @@ import styles from './EventCard.module.css'
  * @param {function} [onArchive]
  * @param {function} [onCancel]
  * @param {function} [onDelete]
+ * @param {function} [onEdit]
  */
-function EventCard({ event, onManage, onView, onCopyLink, onExport, onDuplicate, onArchive, onCancel, onDelete }) {
+function EventCard({ event, onManage, onEdit, onView, onCopyLink, onExport, onDuplicate, onArchive, onCancel, onDelete }) {
   const {
     title, theme, status, thumbnail,
     teamSize, venues = [], prize, tags = [],
@@ -129,6 +130,7 @@ function EventCard({ event, onManage, onView, onCopyLink, onExport, onDuplicate,
                 <Button label="Quản lí sự kiện" labelSize={16} variant="outline" onClick={onManage} />
                 <EventCardMenu
                   status={status}
+                  onEdit={onEdit}
                   onView={onView}
                   onCopyLink={onCopyLink}
                   onExport={onExport}
