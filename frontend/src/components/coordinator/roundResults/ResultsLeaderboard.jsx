@@ -161,11 +161,18 @@ function ResultsLeaderboard({ rows, totalCount, search, onSearch, filter, onFilt
                 </span>
 
                 <span className={styles.cJudges}>
-                  {(row.perJudge || []).filter(j => j.submitted && j.total != null).map((j, idx) => (
-                    <Tooltip key={idx} content={j.judge} bgColor="blue" textColor="white">
-                      <span className={styles.judgeBadge}>{fmtScore(j.total)}</span>
-                    </Tooltip>
-                  ))}
+                  {(row.perJudge || []).map((j, idx) => {
+                    const hasSubmitted = j.submitted && j.total != null
+                    return (
+                      <Tooltip key={idx} content={j.judge} bgColor="blue" textColor="white">
+                        {hasSubmitted ? (
+                          <span className={styles.judgeBadge}>{fmtScore(j.total)}</span>
+                        ) : (
+                          <Badge variant="dashedBlue" label="—" size="sm" dot={false} />
+                        )}
+                      </Tooltip>
+                    )
+                  })}
                 </span>
 
                 <span className={styles.cScore}>

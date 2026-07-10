@@ -1,0 +1,494 @@
+/* Tái sử dụng pattern từ ViolationHandlingModal */
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 1.75em;
+  padding-top: 1em;
+}
+
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.sectionTitle {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-dark-blue);
+  margin-left: 1em;
+}
+
+/* =============================================
+   INFO BOX
+   ============================================= */
+.infoBox {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  overflow: hidden;
+}
+
+.infoBoxDivider {
+  height: 1px;
+  background-color: var(--color-border-blue);
+}
+
+/* =============================================
+   META ROW — nền primary blue
+   ============================================= */
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+  padding: 1em 1.5em;
+  background-color: var(--color-primary-blue);
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.metaIconWrap {
+  color: #ffffff;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.metaLabel {
+  font-size: 0.8rem;
+  color: #ffffff;
+}
+
+.metaValue {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.metaDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  flex-shrink: 0;
+}
+
+.metaDot:last-of-type {
+  display: none;
+}
+
+/* Badge trạng thái "Đang chờ xử lí" */
+.statusBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  background-color: #ffffff;
+  border-radius: 99px;
+  padding: 0.2em 0.7em;
+  margin-left: auto;
+}
+
+/* =============================================
+   LINK LIST — đội thi + bài nộp
+   ============================================= */
+.linkList {
+  display: flex;
+  flex-direction: column;
+  margin: 0.5em 0;
+}
+
+.linkItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75em 1.1em;
+  margin: 0 1em;
+  background: none;
+  border: none;
+  border-radius: var(--inner-radius);
+  cursor: pointer;
+  text-align: left;
+  transition: background-color 0.15s ease;
+  gap: 0.75em;
+}
+
+.linkItem:hover {
+  background-color: var(--color-bg-blue);
+}
+
+.linkItemLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.linkItemIcon {
+  color: var(--color-border-blue);
+  flex-shrink: 0;
+}
+
+.linkItemLabel {
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+  font-weight: bold;
+}
+
+.linkItemRight {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  flex-shrink: 0;
+}
+
+.linkItemValue {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  white-space: nowrap;
+}
+
+.linkItemArrow {
+  color: var(--color-secondary-blue);
+  flex-shrink: 0;
+}
+
+/* =============================================
+   NOTE SECTION — lý do BGK
+   ============================================= */
+.noteSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65em;
+  padding: 1.5em;
+  background-color: var(--color-bg-blue);
+  margin: 1em;
+  border-radius: var(--inner-radius);
+}
+
+.noteIconWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.noteIcon {
+  color: var(--color-primary-blue);
+  flex-shrink: 0;
+}
+
+.noteLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+}
+
+.noteText {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.7;
+  margin: 0;
+  padding-left: 0.2em;
+}
+
+/* =============================================
+   BẢNG TIÊU CHÍ
+   ============================================= */
+.criteriaTable {
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  overflow: hidden;
+}
+
+.tableHead {
+  display: grid;
+  grid-template-columns: 2fr 0.6fr 0.8fr 0.8fr 0.8fr 0.8fr;
+  gap: 0;
+  padding: 0.6em 1em;
+  background-color: var(--color-bg-blue);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: 2fr 0.6fr 0.8fr 0.8fr 0.8fr 0.8fr;
+  gap: 0;
+  padding: 0.65em 1em;
+  border-top: 1px solid var(--color-border-blue);
+  align-items: center;
+  transition: background-color 0.12s ease;
+}
+
+.tableRow:hover {
+  background-color: var(--color-bg-blue);
+}
+
+/* Dòng tiêu chí bị chỉnh — nổi bật */
+.tableRowHighlight {
+  background-color: var(--color-bg-blue);
+  border-left: 3px solid var(--color-primary-blue);
+}
+
+.tableRowHighlight:hover {
+  background-color: var(--color-bg-blue);
+}
+
+/* Dấu chấm nhỏ trước tên tiêu chí bị chỉnh */
+.criteriaName {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.85rem;
+  color: var(--color-primary-blue);
+  font-weight: 500;
+}
+
+.affectedDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: var(--color-primary-blue);
+  flex-shrink: 0;
+}
+
+.weightBadge {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.cellMean {
+  font-size: 0.85rem;
+  color: var(--color-secondary-blue);
+}
+
+.cellCurrent {
+  font-size: 0.85rem;
+  color: var(--color-primary-blue);
+  font-weight: 600;
+}
+
+.cellProposed {
+  font-size: 0.85rem;
+  color: var(--color-primary-blue);
+}
+
+.cellProposed strong {
+  font-weight: 800;
+}
+
+.cellNA {
+  color: var(--color-text-muted);
+}
+
+/* Delta chênh lệch */
+.cellDelta {
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: var(--inner-radius);
+  padding: 0.2em 0.5em;
+  display: inline-block;
+}
+
+.deltaNone {
+  color: var(--color-text-muted);
+}
+
+.deltaPos {
+  color: var(--color-primary-green);
+  background-color: var(--color-bg-white);
+}
+
+.deltaNeg {
+  color: var(--color-primary-orange);
+  background-color: var(--color-bg-white);
+}
+
+/* =============================================
+   CHART BLOCK
+   ============================================= */
+.chartBlock {
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  overflow: hidden;
+  background-color: var(--color-bg-white);
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75em 1em;
+  border-bottom: 1px solid var(--color-border-blue);
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.chartTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.chartLegend {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.legendItem {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+  font-size: 0.75rem;
+  color: var(--color-secondary-blue);
+}
+
+/* Các dot/symbol trong legend */
+.legendDotNormal {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-border-blue);
+  flex-shrink: 0;
+}
+
+.legendDotSender {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-primary-blue);
+  flex-shrink: 0;
+}
+
+.legendDotProposed {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius);
+  border: 1.5px dashed var(--color-primary-blue);
+  background-color: transparent;
+  flex-shrink: 0;
+  transform: rotate(45deg);
+}
+
+.legendBand {
+  width: 18px;
+  height: 8px;
+  border-radius: 3px;
+  background-color: rgba(8, 76, 221, 0.1);
+  border: 1px solid rgba(8, 76, 221, 0.2);
+  flex-shrink: 0;
+}
+
+/* =============================================
+   IMPACT BEFORE / AFTER
+   ============================================= */
+.impactRow {
+  display: flex;
+  align-items: center;
+  gap: 0.75em;
+}
+
+.impactCard {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  padding: 1em 1.1em;
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  background-color: var(--color-bg-blue);
+}
+
+.impactCardAfter {
+  background-color: var(--color-bg-white);
+}
+
+.impactCardLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.impactScores {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.impactScore {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2em;
+}
+
+.impactScoreNum {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  display: flex;
+  align-items: center;
+}
+
+.impactScoreDesc {
+  font-size: 0.72rem;
+  color: var(--color-secondary-blue);
+}
+
+.impactNumGreen {
+  color: var(--color-primary-green);
+}
+
+.impactNumOrange {
+  color: var(--color-primary-orange);
+}
+
+.impactDivider {
+  width: 1px;
+  height: 2em;
+  background-color: var(--color-border-blue);
+  flex-shrink: 0;
+}
+
+/* Mũi tên giữa 2 impact card */
+.impactArrow {
+  color: var(--color-border-blue);
+  flex-shrink: 0;
+}
+
+/* =============================================
+   QUYẾT ĐỊNH
+   ============================================= */
+.reasonBox {
+  margin-top: 0.25em;
+}
+
+.reasonBox textarea {
+  min-height: 5em;
+  resize: none;
+}
+
+/* =============================================
+   FOOTER
+   ============================================= */
+.footerContainer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1em;
+  width: 100%;
+}
