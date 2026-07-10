@@ -35,20 +35,28 @@ const EMPTY_FORM = {
 
 /**
  * Parse chuỗi ngày từ API → Date object cho DateTimePicker.
- * API có thể trả về nhiều định dạng: "dd/MM/yyyy", ISO string, v.v.
+ * API có thể trả về nhiều định dạng: "dd/MM/yyyy", "dd-MM-yyyy", ISO string, v.v.
  */
 function parseApiDate(str) {
     if (!str) return null
-    // Thử parse ISO trước (VD: "2005-10-19T00:00:00.000Z")
+    // Check định dạng DD/MM/YYYY hoặc DD-MM-YYYY
+    const dmyMatch = /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/.exec(str)
+    if (dmyMatch) {
+        const [_, d, m, y] = dmyMatch
+        return new Date(Number(y), Number(m) - 1, Number(d))
+    }
+    // parse ISO (VD: "2005-10-19T00:00:00.000Z")
     const iso = new Date(str)
     if (!isNaN(iso)) return iso
-    // Parse "dd/MM/yyyy"
-    const parts = str.split('/')
-    if (parts.length === 3) {
-        const [d, m, y] = parts.map(Number)
-        return new Date(y, m - 1, d)
-    }
     return null
+}
+
+function parseGender(str) {
+    if (!str) return ''
+    const upper = String(str).toUpperCase()
+    if (upper === 'M' || upper === 'NAM') return 'NAM'
+    if (upper === 'F' || upper === 'NỮ' || upper === 'NU') return 'NỮ'
+    return 'Khác'
 }
 
 function formatCountdown(seconds) {
@@ -117,7 +125,7 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
                 fullName: res.data.fullName || '',
                 cmnd: res.data.cmnd || '',
                 dateOfBirth: parseApiDate(res.data.dateOfBirth),
-                gender: res.data.gender || '',
+                gender: parseGender(res.data.gender),
                 hometown: res.data.hometown || '',
                 thuongtru: res.data.thuongtru || '',
             })
