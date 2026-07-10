@@ -13,7 +13,10 @@ public class RoundResultController {
     private final RoundResultService roundResultService;
 
     @GetMapping("/{roundId}/results")
-    public RoundResultResponse getRoundResults(@PathVariable Long roundId) {
-        return roundResultService.getRoundResults(roundId);
+    public RoundResultResponse getRoundResults(@PathVariable Long roundId,
+                                               @RequestParam(required = false) Long trackId) {
+
+        return roundResultService.getRoundResults(roundId, trackId);
+
     }
 }

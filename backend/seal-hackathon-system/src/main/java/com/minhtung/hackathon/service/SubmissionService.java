@@ -120,7 +120,7 @@ public class SubmissionService {
         submission.setLatest(true);
 
         return SubmissionResponse.from(
-                submissionRepository.save(submission),null);
+                submissionRepository.save(submission), null);
     }
 
     @Transactional
@@ -162,7 +162,7 @@ public class SubmissionService {
         newSubmission.setSubmittedAt(LocalDateTime.now());
         newSubmission.setLatest(true);
 
-        return SubmissionResponse.from(submissionRepository.save(newSubmission),null);
+        return SubmissionResponse.from(submissionRepository.save(newSubmission), null);
     }
 
 
@@ -183,8 +183,8 @@ public class SubmissionService {
         }
 
         // 2. Lấy danh sách các bài nộp mới nhất của vòng
-        List<Submission> submissions = submissionRepository
-                .findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(roundId);
+        List<Submission> submissions =
+                submissionRepository.findSubmissionForJudge(judge.getId(), roundId);
 
         // 3. Map từng bài nộp kèm theo bộ lọc điểm số của riêng giám khảo này
         return submissions.stream().map(submission -> {
@@ -193,7 +193,7 @@ public class SubmissionService {
 
             // Tìm đúng bảng điểm (Draft hoặc Submitted) của Giám khảo này cho Bài nộp này
             if (trackId != null) {
-                Optional<JudgeAssignment> assignmentOpt = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId,roundId);
+                Optional<JudgeAssignment> assignmentOpt = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId, roundId);
                 if (assignmentOpt.isPresent()) {
                     // Sử dụng hàm findByJudgeAssignmentIdAndSubmissionId có sẵn trong Repository của bạn
                     judgeScoreOpt = judgeScoreRepository.findByJudgeAssignmentIdAndSubmissionId(
@@ -218,12 +218,12 @@ public class SubmissionService {
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Judge"));
 
         Long trackId = submission.getTeam().getTrack() != null ? submission.getTeam().getTrack().getId() : null;
-        Long roundId=submission.getRound().getId();
+        Long roundId = submission.getRound().getId();
 
         // Tìm kiếm thông tin chấm điểm cũ
         Optional<JudgeScore> judgeScoreOpt = Optional.empty();
         if (trackId != null) {
-            Optional<JudgeAssignment> assignmentOpt = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId,roundId);
+            Optional<JudgeAssignment> assignmentOpt = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId, roundId);
             if (assignmentOpt.isPresent()) {
                 judgeScoreOpt = judgeScoreRepository.findByJudgeAssignmentIdAndSubmissionId(assignmentOpt.get().getId(), submission.getId());
             }
@@ -481,6 +481,7 @@ public class SubmissionService {
             );
         }
     }
+
     private void validateDocumentFile(MultipartFile file) {
 
 

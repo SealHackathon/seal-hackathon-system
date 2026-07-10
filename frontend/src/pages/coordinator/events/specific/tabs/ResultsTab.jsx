@@ -9,17 +9,12 @@ import ResultsLeaderboard from '../../../../../components/coordinator/roundResul
 import TeamDetailModal from '../../../../../components/coordinator/roundResults/TeamDetailModal'
 import AssignAwardModal from '../../../../../components/coordinator/roundResults/AssignAwardModal'
 import AwardsSection from '../../../../../components/coordinator/roundResults/AwardsSection'
-// TODO: CATEGORIES chưa có API -> vẫn mock. DATA (entries/judges/awards/review) chưa có API -> vẫn mock.
-import { CATEGORIES, DATA } from './roundResultsMock'
 import styles from './ResultsTab.module.css'
 import axiosClient from '../../../../../api/axiosClient'
 
 // -- Body cho tab "Điểm & Kết quả" trong trang quản lý sự kiện --
 
 const WINDOW_SEC = 30 * 60
-// TODO: xoá mapping này khi có API entries thật theo roundId.
-// Tạm thời map round thật -> key mock theo THỨ TỰ xuất hiện (index) để demo UI.
-const MOCK_KEYS = Object.keys(DATA) // ['soloai', 'doidau', 'semifinal', 'final']
 
 // ---- Helpers tinh toan xep hang ----
 const mean = (arr) => arr.reduce((s, n) => s + n, 0) / arr.length
@@ -84,41 +79,34 @@ function computeStandings(entries, forced) {
   return [...rankable, ...pending, ...ended]
 }
 
-// Tong hop diem trung binh official across rounds (cho option "Tat ca")
-function computeOverall() {
-  const acc = {}
-  Object.keys(DATA).forEach((rk) => {
-    const round = DATA[rk]
-    if (!round.official) return
-    round.official.forEach((o) => {
-      if (!acc[o.id]) acc[o.id] = { id: o.id, name: o.name, totals: [] }
-      acc[o.id].totals.push(o.total)
-    })
-  })
-  const rows = Object.values(acc).map((t) => ({
-    team: { id: t.id, name: t.name },
-    status: 'official',
-    score: round2(mean(t.totals)),
-    rank: null,
-    tie: false,
-    tieBreakNote: null,
-    discrepancy: null,
-    violation: null,
-  }))
-  rows.sort((a, b) => b.score - a.score)
-  rows.forEach((r, i) => { r.rank = i + 1 })
-  return rows
-}
-
 function ResultsTab() {
   const navigate = useNavigate()
   const params = useParams()
   const eventId = params.eventId || 'demo'
 
+  // ---- TẤT CẢ state khai báo ở đây ----
   const [rounds, setRounds] = useState([])
   const [criteria, setCriteria] = useState([])
-  const [roundId, setRoundId] = useState(null) // set sau khi fetch xong
+  const [categories, setCategories] = useState([])
+  const [roundId, setRoundId] = useState(null)
   const [loadingRounds, setLoadingRounds] = useState(true)
+  const [roundResult, setRoundResult] = useState(null)
+  const [loadingResult, setLoadingResult] = useState(false)
+  const [categoryId, setCategoryId] = useState('all')
+  const [forcedRounds, setForcedRounds] = useState({})
+  const [stageByRound, setStageByRound] = useState({})
+  const [reviewOverride, setReviewOverride] = useState({})
+  const [statusFilter, setStatusFilter] = useState('all')
+  const [search, setSearch] = useState('')
+  const [detail, setDetail] = useState(null)
+  const [awardToAssign, setAwardToAssign] = useState(null)
+
+  // ---- Biến derive từ state ----
+  const isAll = roundId === 'all'
+  const roundMeta = rounds.find((r) => r.id === roundId)
+  const isFinal = roundMeta ? roundMeta.isFinal : false
+  const stage = stageByRound[roundId] || 1
+  const review = reviewOverride[roundId] || roundResult?.review || null
 
   //-----------------fetch rounds va criterias tu API
   useEffect(() => {
@@ -143,7 +131,6 @@ function ResultsTab() {
         setRounds(mapped)
 
         if (mapped.length > 0) {
-          // Ưu tiên chọn round đang diễn ra, không có thì chọn round đầu tiên
           const active = mapped.find((r) => r.lifecycle === 'active')
           setRoundId((active || mapped[0]).id)
 
@@ -166,64 +153,74 @@ function ResultsTab() {
       fetchRounds()
     }
   }, [eventId])
-  //-----------------------------------------------------------------------------------------------------
 
-  const [categoryId, setCategoryId] = useState('all')
-  const [forcedRounds, setForcedRounds] = useState({})
-  const [stageByRound, setStageByRound] = useState({})
-  const [reviews, setReviews] = useState(() => {
-    const init = {}
-    Object.keys(DATA).forEach((k) => { if (DATA[k].review) init[k] = { ...DATA[k].review } })
-    return init
-  })
-  const [statusFilter, setStatusFilter] = useState('all')
-  const [search, setSearch] = useState('')
-  const [detail, setDetail] = useState(null)
-  const [awardToAssign, setAwardToAssign] = useState(null)
+  //-----------------fetch entries/judges/review/awards cua round dang chon (theo track neu co)
+  useEffect(() => {
+    if (!roundId || isAll) {
+      setRoundResult(null)
+      return
+    }
+    const fetchResult = async () => {
+      setLoadingResult(true)
+      try {
+        const trackParam = categoryId && categoryId !== 'all' ? `&trackId=${categoryId}` : ''
+        const { data } = await axiosClient.get(`/round/${roundId}/results?${trackParam.slice(1)}`)
+        setRoundResult(data)
+      } catch (error) {
+        console.error(error)
+        setRoundResult(null)
+      } finally {
+        setLoadingResult(false)
+      }
+    }
+    fetchResult()
+  }, [roundId, isAll, categoryId])
 
-  const isAll = roundId === 'all'
-
-  // TODO: thay bằng roundId thật khi có API GET /round/{roundId}/results
-  const mockKey = useMemo(() => {
-    if (isAll || !roundId) return null
-    const idx = rounds.findIndex((r) => r.id === roundId)
-    return idx !== -1 ? MOCK_KEYS[idx % MOCK_KEYS.length] : MOCK_KEYS[0]
-  }, [isAll, roundId, rounds])
-
-  const round = isAll ? null : DATA[mockKey]
-  const roundMeta = rounds.find((r) => r.id === roundId)
-  const isFinal = roundMeta ? roundMeta.isFinal : false
-  const stage = stageByRound[roundId] || 1
+  //-----------------fetch tracks/categories tu API
+  useEffect(() => {
+    const fetchTracks = async () => {
+      try {
+        const { data } = await axiosClient.get(`/track?eventId=${eventId}`)
+        setCategories([
+          { id: 'all', name: 'Tất cả' },
+          ...data.map((t) => ({ id: String(t.id), name: t.name })),
+        ])
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    if (eventId) fetchTracks()
+  }, [eventId])
 
   // -- Dem nguoc cua so phan hoi 30 phut khi dang o giai doan 2 --
   useEffect(() => {
-    if (isAll || stage !== 2 || !reviews[mockKey]) return
+    if (isAll || stage !== 2 || !review) return
     const id = setInterval(() => {
-      setReviews((prev) => {
-        const cur = prev[mockKey]
+      setReviewOverride((prev) => {
+        const cur = prev[roundId] || review
         if (!cur || cur.remainingSec <= 0) return prev
-        return { ...prev, [mockKey]: { ...cur, remainingSec: cur.remainingSec - 1 } }
+        return { ...prev, [roundId]: { ...cur, remainingSec: cur.remainingSec - 1 } }
       })
     }, 1000)
     return () => clearInterval(id)
-  }, [isAll, stage, mockKey, reviews])
+  }, [isAll, stage, roundId, review])
 
   // -- Xep hang --
   const standings = useMemo(() => {
-    if (isAll) return computeOverall()
-    if (!round) return []
-    return computeStandings(round.entries, forcedRounds[roundId])
-  }, [isAll, round, roundId, forcedRounds])
+    if (isAll) return [] // TODO: chưa có API tổng hợp toàn giải
+    if (!roundResult) return []
+    return computeStandings(roundResult.entries, forcedRounds[roundId])
+  }, [isAll, roundResult, roundId, forcedRounds])
 
   const allResultsReady = standings.length > 0 && standings.every((r) => r.status !== 'pending')
   const blockers = standings.filter((r) => r.status === 'pending').map((r) => r.team.name)
 
-  const unassignedAwardsCount = isFinal && round?.awards ? (
-    (round.awards.main?.filter(a => !a.team).length || 0) +
-    (round.awards.extended?.filter(a => !a.team).length || 0)
+  const unassignedAwardsCount = isFinal && roundResult?.awards ? (
+    (roundResult.awards.main?.filter(a => !a.team).length || 0) +
+    (roundResult.awards.extended?.filter(a => !a.team).length || 0)
   ) : 0
 
-  const canForce = !isAll && !!round && !allResultsReady
+  const canForce = !isAll && !!roundResult && !allResultsReady
   const allOfficial = standings.length > 0 && standings.every((r) => ['official', 'eliminated', 'withdrawn'].includes(r.status))
 
   // -- Bo loc theo hanh dong BGK (chip) --
@@ -241,8 +238,7 @@ function ResultsTab() {
     { key: 'violation', label: 'Vi phạm', count: counts.violation, tone: 'orange', icon: Flag },
   ]
 
-  const judges = isAll || !round ? [] : (round.judges || [])
-  const review = isAll ? null : reviews[mockKey]
+  const judges = isAll || !roundResult ? [] : (roundResult.judges || [])
 
   // -- Handlers --
   const handleForce = () => setForcedRounds((p) => ({ ...p, [roundId]: true }))
@@ -250,17 +246,17 @@ function ResultsTab() {
     setStageByRound((p) => {
       const next = (p[roundId] || 1) + 1
       if ((p[roundId] || 1) === 1) {
-        setReviews((rp) => ({
+        setReviewOverride((rp) => ({
           ...rp,
-          [mockKey]: rp[mockKey]
-            ? { ...rp[mockKey], remainingSec: WINDOW_SEC }
-            : { remainingSec: WINDOW_SEC, pendingRequests: 0, judgesAgreed: judges.length, judgesTotal: judges.length },
+          [roundId]: { remainingSec: WINDOW_SEC, durationMin: 30, pendingRequests: 0, judgesAgreed: judges.length, judgesTotal: judges.length },
         }))
+        // TODO: gọi API POST /round/{roundId}/publish/advance để lưu trạng thái ở BE khi có endpoint
       }
       return { ...p, [roundId]: Math.min(3, next) }
     })
   }
   const handleRollback = () => setStageByRound((p) => ({ ...p, [roundId]: Math.max(1, (p[roundId] || 1) - 1) }))
+  // TODO: gọi API POST /round/{roundId}/publish/rollback khi có endpoint
   const gotoViolation = (team) => navigate('/admin/coordinator/events/' + eventId + '/violations?team=' + team.id)
   const openScoring = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId)
   const openAudit = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId + '&tab=audit')
@@ -281,13 +277,15 @@ function ResultsTab() {
       <div className={styles.filterBar}>
         <RoundStepper rounds={rounds} currentRoundId={roundId} onChange={(id) => { setRoundId(id); setStatusFilter('all') }} />
         <div className={styles.divider} />
-        <CategoryFilter categories={CATEGORIES} currentCategoryId={categoryId} onChange={setCategoryId} />
+        <CategoryFilter categories={categories} currentCategoryId={categoryId} onChange={setCategoryId} />
       </div>
 
-      {isFinal && !isAll && round && (
+      {loadingResult && <div className={styles.pageDesc}>Đang tải điểm...</div>}
+
+      {isFinal && !isAll && roundResult && (
         <AwardsSection
-          main={round.awards ? round.awards.main : []}
-          extended={round.awards ? round.awards.extended : []}
+          main={roundResult.awards ? roundResult.awards.main : []}
+          extended={roundResult.awards ? roundResult.awards.extended : []}
           onAssignExtended={(award) => setAwardToAssign(award)}
         />
       )}
@@ -325,7 +323,7 @@ function ResultsTab() {
           <ScoringOverview
             judges={judges}
             roundIsAll={isAll}
-            allRoundsData={DATA} /* TODO: thay bằng data thật khi có API tổng hợp theo round */
+            allRoundsData={{}} /* TODO: cần API tổng hợp theo round nếu ScoringOverview dùng cho view "Tất cả" */
             onOpenAudit={openAudit}
             onOpenScoring={openScoring}
           />
@@ -334,14 +332,15 @@ function ResultsTab() {
 
       <TeamDetailModal open={!!detail} team={detail} onClose={() => setDetail(null)} />
 
-      {awardToAssign && round && (
+      {awardToAssign && roundResult && (
         <AssignAwardModal
           open={true}
           award={awardToAssign}
           teams={standings.map(s => s.team)}
           onClose={() => setAwardToAssign(null)}
           onAssign={(awardId, team) => {
-            const aw = round.awards.extended.find(a => a.id === awardId)
+            // TODO: gọi API POST /round/{roundId}/awards/{awardId}/assign khi có endpoint
+            const aw = roundResult.awards.extended.find(a => a.id === awardId)
             if (aw) aw.team = team
             setAwardToAssign(null)
           }}

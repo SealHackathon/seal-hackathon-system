@@ -23,13 +23,25 @@ public class RoundResultServiceImpl implements RoundResultService {
     private final JudgeScoreRepository judgeScoreRepository;
 
     @Override
-    public RoundResultResponse getRoundResults(Long roundId) {
+    public RoundResultResponse getRoundResults(Long roundId,Long trackId) {
         Round round = roundRepository.findById(roundId)
                 .orElseThrow(() -> new EntityNotFoundException("Round not found: " + roundId));
 
         List<Submission> submissions = submissionRepository.findByRound_IdAndLatestTrue(roundId);
         List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(roundId);
         List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(roundId);
+
+        // Lọc theo trackId nếu FE truyền category cụ thể (khác "all")
+        if (trackId != null) {
+            submissions = submissions.stream()
+                    .filter(s -> s.getTeam().getTrack() != null && s.getTeam().getTrack().getId() == trackId)
+                    .toList();
+            assignments = assignments.stream()
+                    .filter(a -> a.getTrack() != null && a.getTrack().getId() == trackId)
+                    .toList();
+        }
+
+
 
         Map<String, JudgeScore> scoreIndex = new HashMap<>();
         for (JudgeScore s : scores) {
@@ -47,7 +59,6 @@ public class RoundResultServiceImpl implements RoundResultService {
         List<EntryDTO> entries = new ArrayList<>();
         for (Submission submission : submissions) {
             Team team = submission.getTeam();
-            Long trackId = team.getTrack() != null ? team.getTrack().getId() : null;
             List<JudgeAssignment> teamJudges = trackId != null
                     ? assignmentsByTrack.getOrDefault(trackId, List.of())
                     : List.of();
@@ -86,7 +97,6 @@ public class RoundResultServiceImpl implements RoundResultService {
             distinctJudgeByUser.putIfAbsent(ja.getUser().getId(), ja);
         }
         for (JudgeAssignment ja : distinctJudgeByUser.values()) {
-            Long trackId = ja.getTrack() != null ? ja.getTrack().getId() : null;
             List<Submission> teamSubs = trackId != null
                     ? submissionsByTrack.getOrDefault(trackId, List.of())
                     : List.of();

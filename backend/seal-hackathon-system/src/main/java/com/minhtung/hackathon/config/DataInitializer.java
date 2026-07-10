@@ -527,7 +527,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // --- BẢNG MOBILE APP (Round 1, 2, 3) ---
         inviteJudge(sender, event, "tran.quoc.bao@momo.vn", List.of(
-                new JudgeAssignment(trackMobile.getId(), round1.getId()),
+                new JudgeAssignment(trackAI.getId(), round1.getId()),
                 new JudgeAssignment(trackMobile.getId(), round2.getId())
         ));
         inviteJudge(sender, event, "hoang.van.minh@hcmut.edu.vn", List.of(
