@@ -1,0 +1,196 @@
+.section {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.5em 1.75em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1em;
+  width: 100%;
+  background-color: var(--color-primary-blue);
+  padding: 1.5em;
+  border-radius: var(--inner-radius);
+}
+
+.headTitle {
+  display: flex;
+  gap: 0.75em;
+  color: var(--color-bg-blue);
+}
+
+.title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-bg-blue);
+}
+
+.subtitle {
+  font-size: 0.85rem;
+  color: var(--color-border-blue);
+}
+
+.warn {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-orange);
+  border-radius: var(--inner-radius);
+  padding: 0.8em 1.1em;
+  color: var(--color-dark-orange);
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1em;
+  margin-top: 1em;
+}
+
+.podCard {
+  background: var(--color-bg-white);
+  border-radius: var(--inner-radius);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1.5px solid var(--color-border-blue);
+  flex: 1;
+  max-width: 14em;
+}
+
+.podTop {
+  padding: 1.25em 1em 1.5em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35em;
+  text-align: center;
+}
+
+.pod_first {
+  border: 1.5px solid var(--color-primary-orange);
+}
+
+.pod_first .podIcon { color: var(--color-primary-orange); }
+.pod_second .podIcon { color: var(--color-primary-blue); }
+.pod_third .podIcon { color: var(--color-primary-green); }
+
+.podLabel {
+  display: none;
+}
+
+.podTeam {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+  margin-top: 0.25em;
+}
+
+.podScore {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.podEmpty {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  margin-top: 0.25em;
+}
+
+.podBottom {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-bg-white);
+  font-weight: 800;
+  font-size: 1.75rem;
+}
+
+.pod_first .podBottom {
+  background: var(--color-primary-orange);
+  height: 4.5em;
+  font-size: 2rem;
+}
+
+.pod_second .podBottom {
+  background: var(--color-primary-blue);
+  height: 3.5em;
+}
+
+.pod_third .podBottom {
+  background: var(--color-primary-green);
+  height: 2.5em;
+}
+
+.extWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.extTitle {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.extGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(15em, 1fr));
+  gap: 0.75em;
+}
+
+.extCard {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  padding: 0.9em 1.1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.extLabel {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.extTeam {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.assignBtn {
+  border: 1.5px dashed var(--color-border-blue);
+  background: transparent;
+  color: var(--color-primary-blue);
+  padding: 0.6em;
+  border-radius: 99px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5em;
+  font-weight: 700;
+  font-size: 0.85rem;
+  transition: all 0.2s ease;
+}
+
+.assignBtn:hover {
+  background: var(--color-bg-blue);
+}
