@@ -137,35 +137,56 @@ function DashboardPage() {
   const mentorInvites = invitations.filter((i) => i.roleType === 'mentor')
 
   const handleOpenScoring = (eventId) => {
-    // 1. Trích xuất danh sách các vòng đấu mà Giám khảo này ĐƯỢC PHÂN CÔNG (ASSIGN)
     const assignedRounds = assignedEvent?.assignment?.judge?.rounds || [];
-
-    // 2. Tìm roundId phù hợp để điều hướng
     let targetRoundId = null;
 
     if (assignedRounds.length > 0) {
-      // Chiến lược 1: Ưu tiên tìm vòng được assign trùng với vòng hiện tại của sự kiện (nếu có)
-      const currentEventRoundId = assignedEvent?.currentRound?.id;
-      const matchingRound = assignedRounds.find(r => String(r.roundId) === String(currentEventRoundId));
+      const now = new Date();
 
-      if (matchingRound) {
-        targetRoundId = matchingRound.roundId;
+      // 🎯 CHIẾN LƯỢC 1: Tìm vòng đang diễn ra ngay tại thời điểm này
+      const activeRound = assignedRounds.find(r => {
+        const start = new Date(r.timeStart);
+        const end = new Date(r.timeEnd);
+        return now >= start && now <= end;
+      });
+
+      if (activeRound) {
+        targetRoundId = activeRound.roundId;
       } else {
-        // Chiến lược 2: Nếu vòng hiện tại họ không được chấm, lấy luôn Vòng đầu tiên họ được giao (Trong JSON của bạn sẽ ăn vào roundId: 3)
-        targetRoundId = assignedRounds[0].roundId;
+        // 🎯 CHIẾN LƯỢC 2: Không có vòng nào chạy -> Tìm vòng có thời gian diễn ra GẦN NHẤT
+        let minDistance = Infinity;
+
+        assignedRounds.forEach(r => {
+          const start = new Date(r.timeStart);
+          // Tính độ lệch thời gian (trị tuyệt đối) tính bằng mili-giây
+          const distance = Math.abs(now.getTime() - start.getTime());
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            targetRoundId = r.roundId;
+          }
+        });
       }
     }
 
-    // 3. Thực hiện điều hướng chuẩn xác theo Vòng được giao quyền
+    // 3. Tiến hành điều hướng
     if (eventId && targetRoundId) {
-      // Điều hướng tới: /panelist/events/:eventId/judge/rounds/:roundId
       navigate(`/panelist/events/${eventId}/judge/rounds/${targetRoundId}`);
     } else {
-      // Fallback nếu vị giám khảo này hoàn toàn không được phân công vòng nào trong sự kiện
-      console.warn("Tài khoản giám khảo này chưa được phân công (assign) vào bất kỳ vòng đấu nào.");
+      console.warn("Không xác định được vòng chấm phù hợp.");
+      navigate(`/panelist/dashboard`);
+    }
+
+
+    // 3. Tiến hành điều hướng
+    if (eventId && targetRoundId) {
+      navigate(`/panelist/events/${eventId}/judge/rounds/${targetRoundId}`);
+    } else {
+      console.warn("Không xác định được vòng chấm phù hợp.");
       navigate(`/panelist/dashboard`);
     }
   };
+
   const handleManageTeams = (eventId) => {
     // TODO: điều hướng sang trang quản lý đội thi
     navigate(`/panelist/events/${eventId}`)

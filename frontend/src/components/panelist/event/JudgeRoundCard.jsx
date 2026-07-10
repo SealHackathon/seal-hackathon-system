@@ -3,6 +3,7 @@ import Badge from '../../shared/Badge';
 import TagList from '../../coordinator/TagList';
 import Button from '../../shared/Button';
 import styles from './JudgeRoundCard.module.css';
+import { useNavigate } from 'react-router-dom'
 
 // Số hạng mục tối đa hiển thị trước khi gộp phần dư thành "+N".
 const MAX_TAGS = 2;
@@ -20,7 +21,10 @@ function fmtDM(d) {
   return `${String(x.getDate()).padStart(2, '0')}/${String(x.getMonth() + 1).padStart(2, '0')}`;
 }
 
-function JudgeRoundCard({ round, isLast, onOpenRubric }) {
+function JudgeRoundCard({ round, isLast, onOpenRubric,event }) {
+
+  const navigate = useNavigate()
+
   const cfg = LIFECYCLE_CFG[round.lifecycle] ?? LIFECYCLE_CFG.upcoming;
   const { Icon } = cfg;
   const assigned = round.assigned !== false;
@@ -38,18 +42,18 @@ function JudgeRoundCard({ round, isLast, onOpenRubric }) {
   else if (round.lifecycle === 'ended') cardTone = styles.cardEnded;
 
   // Nút hành động
-let action;
-if (round.lifecycle === 'ended') {
-  // Vòng đã kết thúc: luôn cho xem kết quả, kể cả không phụ trách.
-  action = <Button className={styles.btn} label="Xem kết quả" variant="outline" color="blue" />;
-} else if (!assigned) {
-  // Chỉ còn active/upcoming mà không phụ trách mới báo "Không phụ trách".
-  action = <Button className={styles.btn} label="Không phụ trách" variant="outline" color="blue" disabled />;
-} else if (round.lifecycle === 'active') {
-  action = <Button className={styles.btn} label="Chấm điểm" icon={Pen} iconWeight="fill" variant="primary" color="blue" />;
-} else {
-  action = <Button className={styles.btn} label="Chưa tới lượt chấm" variant="outline" color="blue" disabled />;
-}
+  let action;
+  if (round.lifecycle === 'ended') {
+    // Vòng đã kết thúc: luôn cho xem kết quả, kể cả không phụ trách.
+    action = <Button className={styles.btn} label="Xem kết quả" variant="outline" color="blue" />;
+  } else if (!assigned) {
+    // Chỉ còn active/upcoming mà không phụ trách mới báo "Không phụ trách".
+    action = <Button className={styles.btn} label="Không phụ trách" variant="outline" color="blue" disabled />;
+  } else if (round.lifecycle === 'active') {
+    action = <Button className={styles.btn} label="Chấm điểm" icon={Pen} iconWeight="fill" variant="primary" color="blue" onClick={()=>{navigate(`/panelist/events/${event.id}/judge/rounds/${round.id}`)}} />;
+  } else {
+    action = <Button className={styles.btn} label="Chưa tới lượt chấm" variant="outline" color="blue" disabled />;
+  }
 
   return (
     <div className={styles.item}>
@@ -65,7 +69,7 @@ if (round.lifecycle === 'ended') {
         {/* Cột 1: vòng, thời gian (badge dưới), tên vòng */}
         <div className={styles.colMain}>
           <span className={styles.kicker}>Vòng {round.ordinal}</span>
-          
+
           <p className={styles.name}>{round.name}</p>
           <Badge
             variant={round.lifecycle === 'active' ? "blueSolid" : "dashedBlue"}
