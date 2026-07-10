@@ -77,6 +77,8 @@ public class RoundResultServiceImpl implements RoundResultService {
                         scoreMap.put(String.valueOf(d.getCriterion().getId()), d.getScore());
                     }
                     dto.setScores(scoreMap);
+                    // total score
+
                     dto.setTotal(score.getTotalScore());
                 }
                 perJudge.add(dto);
@@ -160,7 +162,7 @@ public class RoundResultServiceImpl implements RoundResultService {
 
     private TeamDTO toTeamDTO(Team team) {
         TeamDTO dto = new TeamDTO();
-        dto.setId(String.valueOf(team.getId()));
+        dto.setId(team.getId());
         dto.setName(team.getName());
         return dto;
     }

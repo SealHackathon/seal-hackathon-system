@@ -257,6 +257,7 @@ function ResultsTab() {
   }
   const handleRollback = () => setStageByRound((p) => ({ ...p, [roundId]: Math.max(1, (p[roundId] || 1) - 1) }))
   // TODO: gọi API POST /round/{roundId}/publish/rollback khi có endpoint
+  
   const gotoViolation = (team) => navigate('/admin/coordinator/events/' + eventId + '/violations?team=' + team.id)
   const openScoring = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId)
   const openAudit = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId + '&tab=audit')
