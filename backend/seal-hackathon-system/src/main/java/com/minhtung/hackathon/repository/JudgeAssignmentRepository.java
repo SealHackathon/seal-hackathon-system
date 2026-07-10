@@ -26,6 +26,8 @@ public interface JudgeAssignmentRepository extends JpaRepository<JudgeAssignment
 
     boolean existsByUser_IdAndRoundId(Long userId, long roundId);
 
+    List<JudgeAssignment> findByRound_Id(long roundId);
+
     List<JudgeAssignment> findByUserId(Long userId);
 
     // Fetch join Round + Track + Event để tránh N+1 khi build JudgeRoundDTO

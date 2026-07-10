@@ -502,7 +502,7 @@ public class DataInitializer implements CommandLineRunner {
         inviteMentor(sender, event, "pham.thi.lan@vinai.io", trackAI.getId());
 
         inviteMentor(sender, event, "nguyen.van.a@fpt.edu.vn", trackBlockchain.getId());
-        inviteMentor(sender, event, "vũ.hoang.c@fpt.edu.vn", trackBlockchain.getId());
+        inviteMentor(sender, event, "vu.hoang.c@fpt.edu.vn", trackBlockchain.getId());
 
         inviteMentor(sender, event, "tran.thi.b@fpt.edu.vn", trackMobile.getId());
 
@@ -527,7 +527,7 @@ public class DataInitializer implements CommandLineRunner {
 
         // --- BẢNG MOBILE APP (Round 1, 2, 3) ---
         inviteJudge(sender, event, "tran.quoc.bao@momo.vn", List.of(
-                new JudgeAssignment(trackMobile.getId(), round1.getId()),
+                new JudgeAssignment(trackAI.getId(), round1.getId()),
                 new JudgeAssignment(trackMobile.getId(), round2.getId())
         ));
         inviteJudge(sender, event, "hoang.van.minh@hcmut.edu.vn", List.of(

@@ -48,6 +48,11 @@ public class JudgeScoreService {
         Long roundId=submission.getRound().getId();
 
         Long trackId = submission.getTeam().getTrack().getId();
+
+        System.out.println("judgeId = " + judge.getId());
+        System.out.println("trackId = " + trackId);
+        System.out.println("roundId = " + roundId);
+
         JudgeAssignment assignment = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId,roundId)
                 .orElseThrow(() -> new RuntimeException("Bạn không được phân công để chấm"));
 
@@ -303,7 +308,7 @@ public class JudgeScoreService {
         return details;
     }
 
-    
+
 }
 
 

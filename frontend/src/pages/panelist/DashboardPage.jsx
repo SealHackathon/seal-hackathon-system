@@ -191,6 +191,9 @@ function DashboardPage() {
     // TODO: điều hướng sang trang quản lý đội thi
     navigate(`/panelist/events/${eventId}`)
   }
+
+
+  
   const handleViewRubric = (eventId) => {
     // TODO: mở rubric / tiêu chí chấm điểm
     navigate(`/panelist/events/${eventId}?tab=rubric`)

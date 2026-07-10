@@ -21,6 +21,9 @@ public class Track {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(name = "is_published", nullable = false)
+    private boolean publishedResult = false; //TODO về sau có thể là 3 status CHUA CONG BO - CONG BO CHO JUDGE - CONG BO CHO SINH VIEN
+
     @Column(length = 255)
     private String des;
 

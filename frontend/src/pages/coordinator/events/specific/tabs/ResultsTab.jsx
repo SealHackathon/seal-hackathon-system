@@ -12,10 +12,10 @@ import AwardsSection from '../../../../../components/coordinator/roundResults/Aw
 import SubmissionModal from '../../../../../components/panelist/event/mentorTeamDetail/SubmissionModal'
 import { ROUNDS, CATEGORIES, DATA } from './roundResultsMock'
 import styles from './ResultsTab.module.css'
+import axiosClient from '../../../../../api/axiosClient'
 
 // -- Body cho tab "Điểm & Kết quả" trong trang quản lý sự kiện --
 
-const DEFAULT_STAGES = { soloai: 3, doidau: 3, semifinal: 1, final: 2 }
 const WINDOW_SEC = 30 * 60
 
 // ---- Helpers tinh toan xep hang ----
@@ -81,86 +81,149 @@ function computeStandings(entries, forced) {
   return [...rankable, ...pending, ...ended]
 }
 
-// Tong hop diem trung binh official across rounds (cho option "Tat ca")
-function computeOverall() {
-  const acc = {}
-  Object.keys(DATA).forEach((rk) => {
-    const round = DATA[rk]
-    if (!round.official) return
-    round.official.forEach((o) => {
-      if (!acc[o.id]) acc[o.id] = { id: o.id, name: o.name, totals: [] }
-      acc[o.id].totals.push(o.total)
-    })
-  })
-  const rows = Object.values(acc).map((t) => ({
-    team: { id: t.id, name: t.name },
-    status: 'official',
-    score: round2(mean(t.totals)),
-    rank: null,
-    tie: false,
-    tieBreakNote: null,
-    discrepancy: null,
-    violation: null,
-  }))
-  rows.sort((a, b) => b.score - a.score)
-  rows.forEach((r, i) => { r.rank = i + 1 })
-  return rows
-}
-
 function ResultsTab() {
   const navigate = useNavigate()
   const params = useParams()
   const eventId = params.eventId || 'demo'
 
-  const [roundId, setRoundId] = useState('semifinal')
+  // ---- TẤT CẢ state khai báo ở đây ----
+  const [rounds, setRounds] = useState([])
+  const [criteria, setCriteria] = useState([])
+  const [categories, setCategories] = useState([])
+  const [roundId, setRoundId] = useState(null)
+  const [loadingRounds, setLoadingRounds] = useState(true)
+  const [roundResult, setRoundResult] = useState(null)
+  const [loadingResult, setLoadingResult] = useState(false)
   const [categoryId, setCategoryId] = useState('all')
   const [forcedRounds, setForcedRounds] = useState({})
-  const [stageByRound, setStageByRound] = useState(DEFAULT_STAGES)
-  const [reviews, setReviews] = useState(() => {
-    const init = {}
-    Object.keys(DATA).forEach((k) => { if (DATA[k].review) init[k] = { ...DATA[k].review } })
-    return init
-  })
+  const [stageByRound, setStageByRound] = useState({})
+  const [reviewOverride, setReviewOverride] = useState({})
   const [statusFilter, setStatusFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState(null)
   const [submissionDetail, setSubmissionDetail] = useState(null)
   const [awardToAssign, setAwardToAssign] = useState(null)
 
+  // ---- Biến derive từ state ----
   const isAll = roundId === 'all'
-  const round = isAll ? null : DATA[roundId]
-  const roundMeta = ROUNDS.find((r) => r.id === roundId)
+  const roundMeta = rounds.find((r) => r.id === roundId)
   const isFinal = roundMeta ? roundMeta.isFinal : false
   const stage = stageByRound[roundId] || 1
+  const review = reviewOverride[roundId] || roundResult?.review || null
+
+  //-----------------fetch rounds va criterias tu API
+  useEffect(() => {
+    const fetchRounds = async () => {
+      try {
+        const { data } = await axiosClient.get(`/round?eventId=${eventId}`)
+
+        const mapped = data.map((round) => ({
+          id: round.roundId,
+          name: round.roundName,
+          lifecycle:
+            round.status === 'COMPLETED'
+              ? 'done'
+              : round.status === 'IN_PROGRESS'
+                ? 'active'
+                : 'upcoming',
+          timeStart: round.roundStartTime,
+          timeEnd: round.roundEndTime,
+          isFinal: round.roundOrdinalNumber === round.roundQuantity,
+        }))
+
+        setRounds(mapped)
+
+        if (mapped.length > 0) {
+          const active = mapped.find((r) => r.lifecycle === 'active')
+          setRoundId((active || mapped[0]).id)
+
+          setCriteria(
+            data[0].criteria.map((item) => ({
+              id: item.id,
+              name: item.name,
+              weight: item.weight,
+            }))
+          )
+        }
+      } catch (error) {
+        console.error(error)
+      } finally {
+        setLoadingRounds(false)
+      }
+    }
+
+    if (eventId) {
+      fetchRounds()
+    }
+  }, [eventId])
+
+  //-----------------fetch entries/judges/review/awards cua round dang chon (theo track neu co)
+  useEffect(() => {
+    if (!roundId || isAll) {
+      setRoundResult(null)
+      return
+    }
+    const fetchResult = async () => {
+      setLoadingResult(true)
+      try {
+        const trackParam = categoryId && categoryId !== 'all' ? `&trackId=${categoryId}` : ''
+        const { data } = await axiosClient.get(`/round/${roundId}/results?${trackParam.slice(1)}`)
+        setRoundResult(data)
+      } catch (error) {
+        console.error(error)
+        setRoundResult(null)
+      } finally {
+        setLoadingResult(false)
+      }
+    }
+    fetchResult()
+  }, [roundId, isAll, categoryId])
+
+  //-----------------fetch tracks/categories tu API
+  useEffect(() => {
+    const fetchTracks = async () => {
+      try {
+        const { data } = await axiosClient.get(`/track?eventId=${eventId}`)
+        setCategories([
+          { id: 'all', name: 'Tất cả' },
+          ...data.map((t) => ({ id: String(t.id), name: t.name })),
+        ])
+      } catch (error) {
+        console.error(error)
+      }
+    }
+    if (eventId) fetchTracks()
+  }, [eventId])
 
   // -- Dem nguoc cua so phan hoi 30 phut khi dang o giai doan 2 --
   useEffect(() => {
-    if (isAll || stage !== 2 || !reviews[roundId]) return
+    if (isAll || stage !== 2 || !review) return
     const id = setInterval(() => {
-      setReviews((prev) => {
-        const cur = prev[roundId]
+      setReviewOverride((prev) => {
+        const cur = prev[roundId] || review
         if (!cur || cur.remainingSec <= 0) return prev
         return { ...prev, [roundId]: { ...cur, remainingSec: cur.remainingSec - 1 } }
       })
     }, 1000)
     return () => clearInterval(id)
-  }, [isAll, stage, roundId, reviews])
+  }, [isAll, stage, roundId, review])
 
   // -- Xep hang --
   const standings = useMemo(() => {
-    if (isAll) return computeOverall()
-    return computeStandings(round.entries, forcedRounds[roundId])
-  }, [isAll, round, roundId, forcedRounds])
+    if (isAll) return [] // TODO: chưa có API tổng hợp toàn giải
+    if (!roundResult) return []
+    return computeStandings(roundResult.entries, forcedRounds[roundId])
+  }, [isAll, roundResult, roundId, forcedRounds])
 
-  const allResultsReady = standings.every((r) => r.status !== 'pending')
+  const allResultsReady = standings.length > 0 && standings.every((r) => r.status !== 'pending')
   const blockers = standings.filter((r) => r.status === 'pending').map((r) => r.team.name)
-  
-  const unassignedAwardsCount = isFinal && round.awards ? (
-    (round.awards.main?.filter(a => !a.team).length || 0) +
-    (round.awards.extended?.filter(a => !a.team).length || 0)
+
+  const unassignedAwardsCount = isFinal && roundResult?.awards ? (
+    (roundResult.awards.main?.filter(a => !a.team).length || 0) +
+    (roundResult.awards.extended?.filter(a => !a.team).length || 0)
   ) : 0
 
-  const canForce = !isAll && !allResultsReady
+  const canForce = !isAll && !!roundResult && !allResultsReady
   const allOfficial = standings.length > 0 && standings.every((r) => ['official', 'eliminated', 'withdrawn'].includes(r.status))
 
   // -- Bo loc theo hanh dong BGK (chip) --
@@ -178,8 +241,7 @@ function ResultsTab() {
     { key: 'violation', label: 'Vi phạm', count: counts.violation, tone: 'orange', icon: Flag },
   ]
 
-  const judges = isAll || !round ? [] : (round.judges || [])
-  const review = isAll ? null : reviews[roundId]
+  const judges = isAll || !roundResult ? [] : (roundResult.judges || [])
 
   // -- Handlers --
   const handleForce = () => setForcedRounds((p) => ({ ...p, [roundId]: true }))
@@ -187,20 +249,25 @@ function ResultsTab() {
     setStageByRound((p) => {
       const next = (p[roundId] || 1) + 1
       if ((p[roundId] || 1) === 1) {
-        setReviews((rp) => ({
+        setReviewOverride((rp) => ({
           ...rp,
-          [roundId]: rp[roundId]
-            ? { ...rp[roundId], remainingSec: WINDOW_SEC }
-            : { remainingSec: WINDOW_SEC, pendingRequests: 0, judgesAgreed: judges.length, judgesTotal: judges.length },
+          [roundId]: { remainingSec: WINDOW_SEC, durationMin: 30, pendingRequests: 0, judgesAgreed: judges.length, judgesTotal: judges.length },
         }))
+        // TODO: gọi API POST /round/{roundId}/publish/advance để lưu trạng thái ở BE khi có endpoint
       }
       return { ...p, [roundId]: Math.min(3, next) }
     })
   }
   const handleRollback = () => setStageByRound((p) => ({ ...p, [roundId]: Math.max(1, (p[roundId] || 1) - 1) }))
+  // TODO: gọi API POST /round/{roundId}/publish/rollback khi có endpoint
+  
   const gotoViolation = (team) => navigate('/admin/coordinator/events/' + eventId + '/violations?team=' + team.id)
   const openScoring = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId)
   const openAudit = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId + '&tab=audit')
+
+  if (loadingRounds) {
+    return <div className={styles.tab}>Đang tải dữ liệu vòng thi...</div>
+  }
 
   return (
     <div className={styles.tab}>
@@ -212,15 +279,17 @@ function ResultsTab() {
       </header>
 
       <div className={styles.filterBar}>
-        <RoundStepper rounds={ROUNDS} currentRoundId={roundId} onChange={(id) => { setRoundId(id); setStatusFilter('all') }} />
+        <RoundStepper rounds={rounds} currentRoundId={roundId} onChange={(id) => { setRoundId(id); setStatusFilter('all') }} />
         <div className={styles.divider} />
-        <CategoryFilter categories={CATEGORIES} currentCategoryId={categoryId} onChange={setCategoryId} />
+        <CategoryFilter categories={categories} currentCategoryId={categoryId} onChange={setCategoryId} />
       </div>
 
-      {isFinal && !isAll && (
+      {loadingResult && <div className={styles.pageDesc}>Đang tải điểm...</div>}
+
+      {isFinal && !isAll && roundResult && (
         <AwardsSection
-          main={round.awards ? round.awards.main : []}
-          extended={round.awards ? round.awards.extended : []}
+          main={roundResult.awards ? roundResult.awards.main : []}
+          extended={roundResult.awards ? roundResult.awards.extended : []}
           onAssignExtended={(award) => setAwardToAssign(award)}
         />
       )}
@@ -275,21 +344,29 @@ function ResultsTab() {
                })
             }}
           />
+          {/* <ScoringOverview
+            judges={judges}
+            roundIsAll={isAll}
+            allRoundsData={{}} 
+            onOpenAudit={openAudit}
+            onOpenScoring={openScoring}
+          /> */}
         </div>
       </div>
 
       <TeamDetailModal open={!!detail} team={detail} onClose={() => setDetail(null)} />
 
-      {awardToAssign && (
+      {awardToAssign && roundResult && (
         <AssignAwardModal
           open={true}
           award={awardToAssign}
           teams={standings.map(s => s.team)}
           onClose={() => setAwardToAssign(null)}
           onAssign={(awardId, team) => {
-            const aw = round.awards.extended.find(a => a.id === awardId)
+            // TODO: gọi API POST /round/{roundId}/awards/{awardId}/assign khi có endpoint
+            const aw = roundResult.awards.extended.find(a => a.id === awardId)
             if (aw) aw.team = team
-            setAwardToAssign(null) // trigger re-render
+            setAwardToAssign(null)
           }}
         />
       )}
