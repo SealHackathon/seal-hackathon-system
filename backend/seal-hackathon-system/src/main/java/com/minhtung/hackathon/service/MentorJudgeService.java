@@ -448,8 +448,6 @@ public class MentorJudgeService {
                     .name(round.getName())
                     .allCategories(allCategories)
                     .categories(categories)
-                    .timeEnd(round.getTimeEnd())
-                    .timeStart(round.getTimeStart())
                     .build();
         }).collect(Collectors.toList());
 
