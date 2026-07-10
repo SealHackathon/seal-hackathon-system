@@ -1,6 +1,6 @@
 package com.minhtung.hackathon.dto.round;
 
-import com.minhtung.hackathon.dto.response.TeamMembersResponse;
+import com.minhtung.hackathon.dto.response.TeamMembersResponseDetail;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -23,5 +23,5 @@ public class RoundTeamResponse {
 
 
     // Danh sách thành viên đi kèm theo mẫu DTO của bạn
-    private List<TeamMembersResponse> members;
+    private List<TeamMembersResponseDetail> members;
 }

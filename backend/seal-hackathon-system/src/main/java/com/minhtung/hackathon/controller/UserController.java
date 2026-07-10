@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
 import com.minhtung.hackathon.dto.response.LecturerResponse;
 import com.minhtung.hackathon.dto.response.SearchMemberResponse;
@@ -12,6 +13,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -33,7 +35,7 @@ public class UserController {
     private final JwtUtil jwtUtil;
     private final UserRepository userRepository;
     private final UserService userService;
-    private final KycService kycService ;
+    private final KycService kycService;
 
     //get user chua co team
     @GetMapping("/free-users")
@@ -69,14 +71,45 @@ public class UserController {
 
 
 
-@PutMapping("/student-profile")
-public ResponseEntity<?> updateStudentProfile(
-        Authentication authentication,
-        @RequestBody UpdateStudentProfileRequest req
-) {
-    return ResponseEntity.ok(
-            kycService.updatesStudentProfile(authentication.getName(),req) );
-}
+    // UserStatus
+    @GetMapping("/user-status")
+    public ResponseEntity<?> getUserStatus(@RequestHeader("Authorization") String auth) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+        }
+
+        try {
+            return ResponseEntity.ok(userService.getUserStatus(uid));
+        } catch (IllegalArgumentException e) {
+            // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
+
+
+
+    //
+    @PutMapping(value = "/student-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateStudentProfile(
+            Authentication authentication,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatarFile,
+            @RequestPart(value = "data") String profileDataJson
+    ) {
+        try {
+            // 1. Chuyển đổi chuỗi JSON 'data' thành Object DTO
+            ObjectMapper objectMapper = new ObjectMapper();
+            UpdateStudentProfileRequest req = objectMapper.readValue(profileDataJson, UpdateStudentProfileRequest.class);
+
+            // 2. Truyền cả dữ liệu và file xuống Service để xử lý (Up Cloudinary nếu có file)
+            return ResponseEntity.ok(
+                    kycService.updatesStudentProfile(authentication.getName(), req, avatarFile)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Dữ liệu không hợp lệ: " + e.getMessage());
+        }
+    }
+
     @Operation(
             summary = "upanh",
             description = "cv_img avatar."
@@ -98,7 +131,7 @@ public ResponseEntity<?> updateStudentProfile(
         return ResponseEntity.ok(userService.getLecturers(q));
     }
 
-private ResponseEntity<String> unauthorized() {
-    return ResponseEntity.status(401).body("Token không hợp lệ");
-}
+    private ResponseEntity<String> unauthorized() {
+        return ResponseEntity.status(401).body("Token không hợp lệ");
+    }
 }

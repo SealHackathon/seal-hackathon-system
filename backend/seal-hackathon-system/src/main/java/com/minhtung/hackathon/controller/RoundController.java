@@ -147,7 +147,7 @@ public class RoundController {
         return ResponseEntity.status(401).body("Token không hợp lệ");
     }
  // nay de lay danh sach teambyround ;
-    @GetMapping("/{roundId}/viewTeamById")
+    @GetMapping("/{roundId}/teams")
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<List<ViewTeamListRespone>>
     getTeamsByRound(
