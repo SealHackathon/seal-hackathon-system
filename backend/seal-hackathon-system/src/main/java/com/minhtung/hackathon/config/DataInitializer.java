@@ -502,7 +502,7 @@ public class DataInitializer implements CommandLineRunner {
         inviteMentor(sender, event, "pham.thi.lan@vinai.io", trackAI.getId());
 
         inviteMentor(sender, event, "nguyen.van.a@fpt.edu.vn", trackBlockchain.getId());
-        inviteMentor(sender, event, "vũ.hoang.c@fpt.edu.vn", trackBlockchain.getId());
+        inviteMentor(sender, event, "vu.hoang.c@fpt.edu.vn", trackBlockchain.getId());
 
         inviteMentor(sender, event, "tran.thi.b@fpt.edu.vn", trackMobile.getId());
 

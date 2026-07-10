@@ -24,115 +24,122 @@ function EventDetailPage() {
   const initialTab = searchParams.get('tab') === 'judge' ? 'judge' : 'mentor';
   const [activeTab, setActiveTab] = useState(initialTab);
 
-  useEffect(() => {
-    async function fetchEventDetail() {
-      try {
-        setLoading(true);
-        setError(null);
+ useEffect(() => {
+  async function fetchEventDetail() {
+    try {
+      setLoading(true);
+      setError(null);
 
-        const response = await axiosClient.get(`/mentor-judge/assigned-event`);
-        const data = response.data;
+      const response = await axiosClient.get(`/mentor-judge/assigned-event`);
+      const data = response.data;
 
-        const formattedEvent = {
-          id: data.id,
-          name: data.name,
-          theme: data.theme,
-          description: data.description,
-          roles: data.roles || [],
+      // 1. LẤY DANH SÁCH ROUNDS THÔNG MINH:
+      // Nếu có data của judge thì lấy ở judge, nếu không thì lấy danh sách chặng ở milestones (đều biểu diễn số vòng thi của event)
+      const rawRounds = data.assignment?.judge?.rounds || data.assignment?.mentor?.milestones || [];
+      const mappedRounds = rawRounds.map(r => ({
+        id: String(r.roundId || r.id),
+        name: r.name || r.title,
+        ordinal: r.roundId || r.id
+      }));
 
-          // 1. SỬA LỖI SỐ VÒNG THI: 
-          // Map mảng rounds gốc từ API sang để `event.rounds?.length` hoạt động chuẩn xác
-          rounds: data.assignment?.judge?.rounds?.map(r => ({
-            id: String(r.roundId),
-            name: r.name,
-            ordinal: r.roundId
-          })) || [],
+      const formattedEvent = {
+        id: data.id,
+        name: data.name,
+        theme: data.theme,
+        description: data.description,
+        roles: data.roles || [],
+        rounds: mappedRounds, // Hết lỗi hiển thị 0 vòng thi
 
-          teamCount: data.stats?.teamCount || 0,
-          trackCount: data.stats?.categoryCount || 0,
-          roundCount: data.stats?.roundCount || 0,
+        teamCount: data.stats?.teamCount || 0,
+        trackCount: data.stats?.categoryCount || 0,
+        roundCount: data.stats?.roundCount || 0,
 
-          // 2. SỬA LỖI HIỂN THỊ THỜI GIAN TRONG TAB GIÁM KHẢO:
-          // Đảm bảo ép kiểu new Date() để hàm fmtDM() ở các component con xử lý được
-          assignment: {
-            judge: {
-              rounds: data.assignment?.judge?.rounds?.map(r => ({
-                id: String(r.roundId),
-                name: r.name,
-                ordinal: r.roundId,
-                // Cấu hình vòng chấm dựa trên trạng thái (nếu backend chưa trả về status ở mảng này, mặc định 'active')
-                lifecycle: r.status?.toLowerCase() === 'in_progress' ? 'active' : (r.status?.toLowerCase() || 'active'),
-                assigned: true,
-                allCategories: r.allCategories,
-                categories: r.categories || [],
-                rubricName: 'Tiêu chí chấm thi',
-                scoredCount: 0,
-                totalSubmissions: 0,
-
-                // 🎯 ĐÓN ĐÚNG KEY TỪ JSON MỚI CỦA BẠN:
-                // Chuyển chuỗi "2026-08-13T23:33:30..." thành Object Date cho hàm fmtDM() xử lý
-                timeStart: r.timeStart ? new Date(r.timeStart) : null,
-                timeEnd: r.timeEnd ? new Date(r.timeEnd) : null
-              })) || []
-            },
-            mentor: data.assignment?.mentor || null
-          },
-
-          // Dữ liệu vòng thi hiện tại (Dùng cho sidebar hoặc header nếu cần)
-          currentRound: data.currentRound ? {
-            id: String(data.currentRound.id),
-            index: data.currentRound.index,
-            total: data.currentRound.total,
-            name: data.currentRound.name,
-
-            // Dự phòng nếu có component nào gọi trực tiếp text chữ
-            startTimeText: data.currentRound.startTime ? new Date(data.currentRound.startTime).toLocaleDateString('vi-VN') : '',
-            endTimeText: data.currentRound.endTime ? new Date(data.currentRound.endTime).toLocaleDateString('vi-VN') : '',
-
-            timeStart: new Date(data.currentRound.startTime),
-            timeEnd: new Date(data.currentRound.endTime),
-            submissionDeadline: data.currentRound.submissionDeadline ? new Date(data.currentRound.submissionDeadline) : null,
-
-            schedule: data.currentRound.schedule || [],
-            timelines: data.currentRound.schedule?.map((s, idx) => ({
-              id: idx,
-              name: s.title,
-              description: s.desc,
-              timeStart: s.time.split(' - ')[0],
-              timeEnd: s.time.split(' - ')[1]
+        assignment: {
+          judge: data.assignment?.judge ? {
+            rounds: data.assignment.judge.rounds?.map(r => ({
+              id: String(r.roundId),
+              name: r.name,
+              ordinal: r.roundId,
+              lifecycle: r.status?.toLowerCase() === 'in_progress' ? 'active' : (r.status?.toLowerCase() || 'active'),
+              assigned: true,
+              allCategories: r.allCategories,
+              categories: r.categories || [],
+              rubricName: 'Tiêu chí chấm thi',
+              scoredCount: 0,
+              totalSubmissions: 0,
+              timeStart: r.timeStart ? new Date(r.timeStart) : null,
+              timeEnd: r.timeEnd ? new Date(r.timeEnd) : null
             })) || []
-          } : null
-        };
+          } : null, // Trả về đúng null nếu không phải Judge
+          
+          mentor: data.assignment?.mentor || null
+        },
 
-        setEvent(formattedEvent);
-      } catch (err) {
-        console.error('Error synchronizing event components:', err);
-        setError(err.response?.data?.message || 'Không thể đồng bộ cấu trúc dữ liệu vòng thi.');
-      } finally {
-        setLoading(false);
-      }
+        currentRound: data.currentRound ? {
+          id: String(data.currentRound.id),
+          index: data.currentRound.index,
+          total: data.currentRound.total,
+          name: data.currentRound.name,
+
+          startTimeText: data.currentRound.startTime ? new Date(data.currentRound.startTime).toLocaleDateString('vi-VN') : '',
+          endTimeText: data.currentRound.endTime ? new Date(data.currentRound.endTime).toLocaleDateString('vi-VN') : '',
+
+          timeStart: new Date(data.currentRound.startTime),
+          timeEnd: new Date(data.currentRound.endTime),
+          submissionDeadline: data.currentRound.submissionDeadline ? new Date(data.currentRound.submissionDeadline) : null,
+
+          schedule: data.currentRound.schedule || [],
+          timelines: data.currentRound.schedule?.map((s, idx) => ({
+            id: idx,
+            name: s.title,
+            description: s.desc,
+            timeStart: s.time.split(' - ')[0] || '00:00',
+            timeEnd: s.time.split(' - ')[1] || '00:00'
+          })) || []
+        } : null
+      };
+
+      setEvent(formattedEvent);
+    } catch (err) {
+      console.error('Error synchronizing event components:', err);
+      setError(err.response?.data?.message || 'Không thể đồng bộ cấu trúc dữ liệu vòng thi.');
+    } finally {
+      setLoading(false);
     }
+  }
 
-    if (eventId) {
-      fetchEventDetail();
-    }
-  }, [eventId]);
+  if (eventId) {
+    fetchEventDetail();
+  }
+}, [eventId]);
 
-  const isMentor = event?.roles?.includes('mentor');
-  const isJudge = event?.roles?.includes('judge');
+const isMentor = event?.roles?.includes('mentor');
+const isJudge = event?.roles?.includes('judge');
 
-  const tabs = useMemo(() => {
-    if (!event) return [];
+// 3. ẨN/HIỆN TAB THEO ĐÚNG ROLE THỰC TẾ
+const tabs = useMemo(() => {
+  if (!event) return [];
+  const listTabs = [];
+
+  if (isMentor) {
     const mentorCategory = event.assignment?.mentor?.category;
-    return [
-      {
-        value: 'mentor',
-        label: isMentor && mentorCategory ? `Mentor (${mentorCategory})` : 'Mentor',
-        icon: Users,
-      },
-      { value: 'judge', label: 'Giám khảo', icon: Pen },
-    ];
-  }, [event, isMentor]);
+    listTabs.push({
+      value: 'mentor',
+      label: mentorCategory ? `Mentor (${mentorCategory})` : 'Mentor',
+      icon: Users,
+    });
+  }
+
+  if (isJudge) {
+    listTabs.push({ 
+      value: 'judge', 
+      label: 'Giám khảo', 
+      icon: Pen 
+    });
+  }
+
+  return listTabs;
+}, [event, isMentor, isJudge]);
 
   const handleTabChange = (value) => {
     setActiveTab(value);
