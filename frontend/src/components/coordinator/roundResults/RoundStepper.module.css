@@ -1,0 +1,166 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+/* ── Nhãn tiêu đề ngang hàng ── */
+.rowLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  min-width: 7em;
+  flex-shrink: 0;
+}
+
+.labelIcon {
+  color: var(--color-border-blue);
+}
+
+.labelText {
+  font-family: var(--body-font-main);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+/* ── Thanh liền, bo tròn 2 đầu, viền border-blue ── */
+.track {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: 1.9em;
+}
+
+/* ── Mỗi mảnh mũi tên ── */
+.seg {
+  --h: 3.4em;
+  --arrow: 2.4em;
+  /* cạnh hình thoi tạo đầu nhọn */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.1em;
+  height: var(--h);
+  box-sizing: border-box;
+  min-width: 9.5em;
+  flex: 1;
+  padding: 0 1.3em 0 2.3em;
+  /* chừa chỗ cho mũi tên của mảnh trước cắm vào */
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  white-space: nowrap;
+  font-family: var(--body-font-main);
+  flex-shrink: 0;
+  transition: all 0.25s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+
+.seg:first-child {
+  padding-left: 1.6em;
+}
+
+/* Đầu mũi tên = hình vuông xoay 45°, BO GÓC ở đỉnh nhọn, cùng màu với mảnh */
+.seg:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  width: var(--arrow);
+  height: var(--arrow);
+  transform: translate(-50%, -50%) rotate(45deg);
+  background: inherit;
+  border-top: 1.5px solid var(--color-border-blue);
+  border-right: 1.5px solid var(--color-border-blue);
+  border-radius: 0 0.55em 0 0;
+  /* bo tròn đúng đỉnh nhọn */
+}
+
+/* Xếp lớp: mảnh trước nằm trên → mũi tên cắm đè lên mảnh sau */
+.seg:nth-child(1) {
+  z-index: 20;
+}
+
+.seg:nth-child(2) {
+  z-index: 19;
+}
+
+.seg:nth-child(3) {
+  z-index: 18;
+}
+
+.seg:nth-child(4) {
+  z-index: 17;
+}
+
+.seg:nth-child(5) {
+  z-index: 16;
+}
+
+.seg:nth-child(6) {
+  z-index: 15;
+}
+
+.seg:nth-child(7) {
+  z-index: 14;
+}
+
+/* ── Nền theo trạng thái ── */
+.segIdle {
+  background: var(--color-bg-white);
+}
+
+/* đã / chưa diễn ra */
+.segRunning {
+  background: var(--color-bg-white);
+}
+
+/* đang diễn ra */
+.segSelected {
+  /* đang chọn → rộng hơn */
+  background: var(--color-primary-blue);
+  min-width: 16em;
+  flex: 1.5;
+}
+
+/* ── Chữ ── */
+.segName {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.segDate {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--color-secondary-blue);
+}
+
+.segIdle .segName,
+.segIdle .segDate {
+  color: var(--color-border-blue);
+}
+
+.segRunning .segName {
+  color: var(--color-primary-blue);
+}
+
+.segRunning .segDate {
+  color: var(--color-secondary-blue);
+}
+
+.segSelected .segName {
+  color: var(--color-bg-white);
+}
+
+.segSelected .segDate {
+  color: var(--color-bg-blue);
+}

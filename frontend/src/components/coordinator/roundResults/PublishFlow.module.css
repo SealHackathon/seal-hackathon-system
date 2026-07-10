@@ -1,0 +1,147 @@
+.section {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.35em 1.6em;
+  display: flex;
+  flex-direction: row; /* Cùng một hàng */
+  align-items: flex-start; /* Căn giữa theo chiều dọc */
+  justify-content: space-between;
+  gap: 1.5em;
+  flex-wrap: wrap;
+}
+
+/* ── Cột 1: Header (Title) ── */
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  flex-shrink: 0;
+  width: 14em;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.titleIcon { color: var(--color-border-blue); }
+
+.title {
+  margin: 0;
+  font-family: var(--body-font-main);
+  font-style: normal;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.subtitle {
+  font-size: 0.88rem;
+  color: var(--color-secondary-blue);
+}
+
+/* ── Cột 2: Timeline ── */
+.timeline {
+  flex: 1 1 20em;
+  max-width: 40em; /* Thu ngắn lại -2em */
+  display: flex;
+  align-items: flex-start;
+}
+
+.stageItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  flex: 1;
+}
+.stageItem:last-child { flex: 0 0 auto; }
+
+.stageTop {
+  display: flex;
+  align-items: center;
+}
+
+.node {
+  width: 2.6em;
+  height: 2.6em;
+  border-radius: var(--radius-circle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.nodeDone   { background: var(--color-primary-green); color: var(--color-bg-white); }
+.nodeActive { background: var(--color-primary-blue); color: var(--color-bg-white); }
+.nodeTodo   { background: var(--color-bg-grey); color: var(--color-secondary-blue); }
+
+.line {
+  flex: 1;
+  height: 3px;
+  margin: 0 0.6em;
+  background: var(--color-bg-grey);
+  border-radius: var(--radius);
+}
+.lineDone { background: var(--color-primary-green); }
+
+.stageLabel {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+}
+
+.stageName {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.15;
+  color: var(--color-secondary-blue);
+}
+.stageNameActive { color: var(--color-primary-blue); }
+
+.stageSub {
+  font-size: 0.78rem;
+  color: var(--color-secondary-blue);
+}
+
+/* ── Cột 3: Action Area ── */
+.actionArea {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1em;
+  flex-shrink: 0;
+}
+
+.controls {
+  display: flex;
+  flex-direction: row; /* Nút nằm ngang */
+  gap: 0.5em;
+}
+
+.ctrlBtn {
+  justify-content: center;
+}
+
+/* Status Text dưới nút */
+.statusWrapper {
+  font-size: 0.85rem;
+  max-width: 32em;
+  text-align: left;
+  display: flex;
+  justify-content: flex-start;
+}
+
+.msgSuccess {
+  color: var(--color-primary-blue);
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.msgWarning {
+  color: var(--color-primary-orange);
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+}
