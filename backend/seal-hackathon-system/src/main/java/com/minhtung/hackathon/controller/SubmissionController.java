@@ -87,11 +87,11 @@ public class SubmissionController {
     @GetMapping
 //    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<List<SubmissionListResponse>>
-    getSubmissionsByRound(
+    getSubmissionsByRound(Authentication authentication,
             @RequestParam Long roundId
     ) {
         return ResponseEntity.ok(
-                submissionService.getSubmissionByRound(roundId)
+                submissionService.getSubmissionByRound(authentication.getName(),roundId)
         );
     }
 
@@ -101,10 +101,10 @@ public class SubmissionController {
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<SubmissionDetailResponseid>
     getSubmissionById(
-            @PathVariable Long id
+            Authentication authentication,@PathVariable Long id
     ) {
         return ResponseEntity.ok(
-                submissionService.getSubmissionById(id)
+                submissionService.getSubmissionDetail(authentication.getName(),id)
         );
     }
 

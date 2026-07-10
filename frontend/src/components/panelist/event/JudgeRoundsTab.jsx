@@ -14,7 +14,7 @@ function JudgeRoundsTab({ event }) {
       </div>
       <div className={styles.list}>
         {rounds.map((r, i) => (
-          <JudgeRoundCard key={r.id ?? i} round={r} isLast={i === rounds.length - 1} />
+          <JudgeRoundCard key={r.id ?? i} round={r} isLast={i === rounds.length - 1} event={event}/>
         ))}
       </div>
     </div>

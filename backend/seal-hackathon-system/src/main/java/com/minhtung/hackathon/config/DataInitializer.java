@@ -606,18 +606,22 @@ public class DataInitializer implements CommandLineRunner {
         crit1.setName("Tính Sáng Tạo & Đột Phá");
         crit1.setDescription("Ý tưởng có mới lạ, độc đáo và giải quyết triệt để nỗi đau của thị trường không?");
         crit1.setWeight(30);
+        crit1.setMaxRange(10);
         officialTemplate.addCriterion(crit1);
 
         Criterion crit2 = new Criterion();
         crit2.setName("Kiến Trúc & Hoàn Thiện Kỹ Thuật");
         crit2.setDescription("Mức độ hoàn thiện của mã nguồn, độ ổn định của bản demo sản phẩm thực tế.");
         crit2.setWeight(40);
+        crit2.setMaxRange(10);
         officialTemplate.addCriterion(crit2);
 
         Criterion crit3 = new Criterion();
         crit3.setName("Kỹ Năng Thuyết Trình (Pitching)");
         crit3.setDescription("Khả năng trình bày mạch lạc, trả lời câu hỏi phản biện từ Hội đồng Giám khảo.");
         crit3.setWeight(30);
+        crit3.setMaxRange(10);
+
         officialTemplate.addCriterion(crit3);
 
         officialTemplate = templateRepository.save(officialTemplate);

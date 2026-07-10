@@ -16,6 +16,8 @@ public class JudgeScoreRequest {
 
     private String comment ;
 
+    private String status;
+
     @NotEmpty(message = "Phải nhập điểm tiêu chí")
     private List<JudgeScoreDetailRequest> details;
 }

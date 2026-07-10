@@ -20,7 +20,11 @@ public interface JudgeAssignmentRepository extends JpaRepository<JudgeAssignment
     void deleteByEventId(Long eventId);
 
 
-    Optional<JudgeAssignment> findByUser_IdAndTrackId(Long userId, Long trackId);
+    Optional<JudgeAssignment> findByUser_IdAndTrackIdAndRoundId(Long userId, Long trackId, Long roundId);
+
+    Optional<JudgeAssignment> findByUser_IdAndRoundId(Long userId, Long roundId);
+
+    boolean existsByUser_IdAndRoundId(Long userId, long roundId);
 
     List<JudgeAssignment> findByUserId(Long userId);
 

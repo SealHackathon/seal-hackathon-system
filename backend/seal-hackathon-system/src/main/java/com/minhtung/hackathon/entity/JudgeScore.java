@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.entity;
 
+import com.minhtung.hackathon.enums.JudgeScoreStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -35,6 +36,9 @@ public class JudgeScore {
 
     @Column (columnDefinition = "TEXT")
     private String comment;
+
+    @Enumerated(EnumType.STRING)
+    private JudgeScoreStatus status = JudgeScoreStatus.DRAFT;
 
     @OneToMany(
             mappedBy = "judgeScore",

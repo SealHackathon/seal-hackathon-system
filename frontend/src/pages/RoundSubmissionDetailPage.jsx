@@ -135,26 +135,41 @@ function RoundSubmissionDetailPage() {
 
           // Nếu status là 200 và có data trả về (đã từng nộp)
           if (subRes.status === 200 && subRes.data) {
-            activeSubmission = subRes.data
-            setSubmissionId(activeSubmission.id) // Lưu lại ID để phục vụ lệnh PUT
-            setIsUpdate(true)                    // Đánh dấu chuyển form sang trạng thái cập nhật (PUT)
+            activeSubmission = subRes.data;
+            setSubmissionId(activeSubmission.id); // Lưu lại ID để phục vụ lệnh PUT
+            setIsUpdate(true);                    // Đánh dấu chuyển form sang trạng thái cập nhật (PUT)
 
-            // ĐƯA DỮ LIỆU THẬT VÀO STATE (Mới thêm)
-            // Map các trường từ API về đúng định dạng mà component `<SummaryCard />` yêu cầu
+            // ĐƯA DỮ LIỆU THẬT VÀO STATE
             setRealSubmission({
               github: { mode: 'link', value: activeSubmission.githubUrl },
-              video: { mode: activeSubmission.demoUrl?.startsWith('http') ? 'link' : 'file', value: activeSubmission.demoUrl },
-              slide: { mode: activeSubmission.documentUrl?.startsWith('http') ? 'link' : 'file', value: activeSubmission.documentUrl },
+              video: {
+                mode: activeSubmission.demoUrl?.startsWith('http') ? 'link' : 'file',
+                value: activeSubmission.demoUrl
+              },
+              slide: {
+                mode: activeSubmission.documentUrl?.startsWith('http') ? 'link' : 'file',
+                value: activeSubmission.documentUrl
+              },
               submittedAt: formatDateLabel(activeSubmission.submittedAt),
               lastEditedAt: formatDateLabel(activeSubmission.lastEditedAt || activeSubmission.submittedAt),
               late: activeSubmission.isLate || false,
-              score: activeSubmission.score || null,
-              comment: activeSubmission.comment || null,
-              judge: activeSubmission.score ? 'Hội đồng giám khảo' : null,
-            })
+
+              // Điểm trung bình cộng hệ 10 của toàn bộ hội đồng giám khảo
+              score: activeSubmission.score !== null ? activeSubmission.score : null,
+
+              // Duyệt mảng ghép chuỗi có đánh số thứ tự cho đẹp UI
+              comment: activeSubmission.comments && activeSubmission.comments.length > 0
+                ? activeSubmission.comments.map((c, index) => `• Giám khảo ${index + 1}: ${c}`).join('\n')
+                : 'Chưa có nhận xét tổng quan từ hội đồng giám khảo.',
+
+              //  Hiển thị động số lượng người đã nộp điểm
+              judge: activeSubmission.judgesCount > 0
+                ? `Hội đồng giám khảo (${activeSubmission.judgesCount} người đã chấm)`
+                : 'Chưa có kết quả chấm điểm',
+            });
           } else {
-            setIsUpdate(false)                   // Nhận diện HTTP 204 No Content -> Dùng POST
-            setRealSubmission(null) // Chưa nộp bài
+            setIsUpdate(false);                  // Nhận diện HTTP 204 No Content -> Dùng POST để tạo mới
+            setRealSubmission(null);             // Chưa nộp bài
           }
         } catch (e) {
           console.log('Chưa có bài nộp nào cho vòng này hoặc phát sinh lỗi, mặc định dùng POST.', e)

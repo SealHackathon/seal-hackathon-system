@@ -120,6 +120,8 @@ import SpecificEventPage from './pages/coordinator/events/specific/SpecificEvent
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
 
+
+
     useEffect(() => {
         fetchTeamRole();
     }, []);

@@ -22,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -33,7 +34,7 @@ public class SubmissionService {
     private final RoundRepository roundRepository;
     private final TrackRepository trackRepository;
     private final CloudinaryStorageService cloudinaryStorageService;
-
+    private final JudgeAssignmentRepository judgeAssignmentRepository;
     @Value("${submission.demo.max-size}")
     private DataSize maxDemoSize;
 
@@ -165,19 +166,71 @@ public class SubmissionService {
     }
 
 
-    @Transactional
-    public List<SubmissionListResponse> getSubmissionByRound(Long roundId) {
+    @Transactional(readOnly = true)
+    public List<SubmissionListResponse> getSubmissionByRound(String email, Long roundId) {
         if (!roundRepository.existsById(roundId)) {
-            throw new RuntimeException("khong tim thay vong thi");
+            throw new RuntimeException("Không tìm thấy vòng thi");
         }
-        return submissionRepository.findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(roundId).stream().map(this::mapToListResponse).toList();
+
+        // 1. Tìm thông tin Giám khảo đang đăng nhập
+        User judge = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản giám khảo"));
+
+        boolean hasAssignmentInRound = judgeAssignmentRepository.existsByUser_IdAndRoundId(judge.getId(), roundId);
+
+        if (!hasAssignmentInRound) {
+            throw new RuntimeException("Bạn không được phân công nhiệm vụ chấm điểm tại vòng thi này.");
+        }
+
+        // 2. Lấy danh sách các bài nộp mới nhất của vòng
+        List<Submission> submissions = submissionRepository
+                .findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(roundId);
+
+        // 3. Map từng bài nộp kèm theo bộ lọc điểm số của riêng giám khảo này
+        return submissions.stream().map(submission -> {
+            Long trackId = submission.getTeam().getTrack() != null ? submission.getTeam().getTrack().getId() : null;
+            Optional<JudgeScore> judgeScoreOpt = Optional.empty();
+
+            // Tìm đúng bảng điểm (Draft hoặc Submitted) của Giám khảo này cho Bài nộp này
+            if (trackId != null) {
+                Optional<JudgeAssignment> assignmentOpt = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId,roundId);
+                if (assignmentOpt.isPresent()) {
+                    // Sử dụng hàm findByJudgeAssignmentIdAndSubmissionId có sẵn trong Repository của bạn
+                    judgeScoreOpt = judgeScoreRepository.findByJudgeAssignmentIdAndSubmissionId(
+                            assignmentOpt.get().getId(),
+                            submission.getId()
+                    );
+                }
+            }
+
+            // Truyền cả bài nộp lẫn Optional điểm của giám khảo vào hàm map
+            return mapToListResponse(submission, judgeScoreOpt);
+        }).toList();
     }
 
 
     @Transactional
-    public SubmissionDetailResponseid getSubmissionById(Long id) {
-        Submission submission = submissionRepository.findById(id).orElseThrow(() -> new RuntimeException("khong tim thay bai nop "));
-        return mapToDetailResponse(submission);
+    public SubmissionDetailResponseid getSubmissionDetail(String email, Long submissionId) {
+        Submission submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài nộp"));
+
+        User judge = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Judge"));
+
+        Long trackId = submission.getTeam().getTrack() != null ? submission.getTeam().getTrack().getId() : null;
+        Long roundId=submission.getRound().getId();
+
+        // Tìm kiếm thông tin chấm điểm cũ
+        Optional<JudgeScore> judgeScoreOpt = Optional.empty();
+        if (trackId != null) {
+            Optional<JudgeAssignment> assignmentOpt = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId,roundId);
+            if (assignmentOpt.isPresent()) {
+                judgeScoreOpt = judgeScoreRepository.findByJudgeAssignmentIdAndSubmissionId(assignmentOpt.get().getId(), submission.getId());
+            }
+        }
+
+        // Truyền cả 2 vào hàm mapper đã cập nhật ở trên
+        return mapToDetailResponse(submission, judgeScoreOpt);
     }
 
     @Transactional
@@ -230,28 +283,29 @@ public class SubmissionService {
 
     }
 
-    private SubmissionListResponse mapToListResponse(Submission submission) {
+    private SubmissionListResponse mapToListResponse(Submission submission, Optional<JudgeScore> judgeScoreOpt) {
         Team team = submission.getTeam();
 
-        // 1. Tìm thông tin chấm điểm của bài nộp này (nếu có)
-        // Bạn có thể tìm theo submissionId và nếu cần thì filter thêm theo Judge đang đăng nhập
-        Optional<JudgeScore> judgeScoreOpt = judgeScoreRepository.findBySubmissionId(submission.getId());
-
+        // 1. Mặc định ban đầu là chưa chấm
         String scoringStatus = "unscored";
         Double finalScore = null;
         LocalDateTime scoredAt = null;
 
-        if (judgeScoreOpt.isPresent()) {
+        // Nếu giám khảo này đã từng bấm Lưu nháp hoặc Nộp điểm bài này
+        if (judgeScoreOpt != null && judgeScoreOpt.isPresent()) {
             JudgeScore score = judgeScoreOpt.get();
             finalScore = score.getTotalScore();
             scoredAt = score.getUpdatedAt() != null ? score.getUpdatedAt() : score.getSubmitAt();
 
-            // Bạn có thể quy ước: Nếu có bản ghi nhưng chưa bấm submit chính thức (hoặc tùy logic business của bạn)
-            // Ở đây giả định nếu đã lưu vào DB tức là đã chấm (done hoặc draft tùy thuộc một trường status bạn có thể thêm sau)
-            scoringStatus = "done";
+            // Đồng bộ chuỗi chữ thường khớp với CSS Trạng thái hiển thị ở Frontend
+            if (score.getStatus() == com.minhtung.hackathon.enums.JudgeScoreStatus.SUBMITTED) {
+                scoringStatus = "done";  // Badge màu xanh/xám: Đã chấm xong
+            } else {
+                scoringStatus = "draft"; // Badge màu vàng: Đang chấm dở
+            }
         }
 
-        // 2. Map thông tin file đính kèm từ entity Submission
+        // 2. Map thông tin file đính kèm
         SubmissionListResponse.AttachmentStatus attachmentStatus = SubmissionListResponse.AttachmentStatus.builder()
                 .github(submission.getGithubUrl() != null && !submission.getGithubUrl().isBlank())
                 .video(submission.getDemoUrl() != null && !submission.getDemoUrl().isBlank())
@@ -266,14 +320,15 @@ public class SubmissionService {
                 .roundId(submission.getRound().getId())
                 .sumbittedAt(submission.getSubmittedAt())
 
-                // Thông tin Team (Giả định entity Team của bạn đã có các trường này)
-                // Nếu bảng Team chưa có, bạn tạm thời để Hardcode hoặc chuỗi rỗng để tránh lỗi
-                .leaderName(team.getLeader().getFullName() != null ? team.getLeader().getFullName() : "Chưa cập nhật")
-                .leaderPosition(team.getLeader().getRole().toString() != null ? team.getLeader().getRole().toString(): "MEMBER")
+                // Thông tin Đội thi & Trưởng nhóm
+                .leaderName(team.getLeader() != null && team.getLeader().getFullName() != null
+                        ? team.getLeader().getFullName() : "Chưa cập nhật")
+                .leaderPosition(team.getLeader() != null && team.getLeader().getRole() != null
+                        ? team.getLeader().getRole().toString() : "MEMBER")
                 .memberCount(team.getMembers() != null ? team.getMembers().size() : 1)
                 .categoryName(team.getTrack() != null ? team.getTrack().getName() : "Chung")
 
-                // Dữ liệu chấm điểm và đính kèm
+                // Trạng thái chấm cá nhân của Giám khảo này
                 .scoringStatus(scoringStatus)
                 .finalScore(finalScore)
                 .scoredAt(scoredAt)
@@ -281,8 +336,7 @@ public class SubmissionService {
                 .build();
     }
 
-
-    private SubmissionDetailResponseid mapToDetailResponse(Submission submission) {
+    private SubmissionDetailResponseid mapToDetailResponse(Submission submission, Optional<JudgeScore> judgeScoreOpt) {
         // 1. Chuyển đổi danh sách Entity thành viên của Team sang MemberResponse DTO
         List<SubmissionDetailResponseid.MemberResponse> memberDTOs = null;
 
@@ -290,15 +344,15 @@ public class SubmissionService {
             memberDTOs = submission.getTeam().getMembers().stream()
                     .map(member -> SubmissionDetailResponseid.MemberResponse.builder()
                             .id(member.getId())
-                            .fullName(member.getMember().getFullName()) // Hoặc member.getName() tùy thuộc vào Entity của bạn
-                            .roleInTeam(member.getRole().toString() != null ? member.getRole().toString() : "Thành viên")
-                            .isLeader(member.getRole().equals(MemberRole.LEADER)) // Trả về true/false để FE highlight icon Trưởng nhóm
+                            .fullName(member.getMember().getFullName())
+                            .roleInTeam(member.getRole() != null ? member.getRole().toString() : "Thành viên")
+                            .isLeader(member.getRole() == MemberRole.LEADER)
                             .build())
-                    .toList(); // Hoặc .collect(Collectors.toList()) nếu dùng Java dưới 16
+                    .toList();
         }
 
-        // 2. Build Object phản hồi chính
-        return SubmissionDetailResponseid.builder()
+        // 2. Khởi tạo Builder cho Object phản hồi chính
+        SubmissionDetailResponseid.SubmissionDetailResponseidBuilder responseBuilder = SubmissionDetailResponseid.builder()
                 .id(submission.getId())
                 .teamId(submission.getTeam().getId())
                 .teamName(submission.getTeam().getName())
@@ -314,10 +368,40 @@ public class SubmissionService {
                 .documentUrl(submission.getDocumentUrl())
                 .submittedAt(submission.getSubmittedAt())
                 .latest(submission.isLatest())
+                .members(memberDTOs);
 
+        // 🎯 3. THỰC HIỆN BÓC TÁCH ĐIỂM CŨ (Nếu giám khảo đã từng Lưu nháp hoặc Chấm điểm bài này)
+        if (judgeScoreOpt != null && judgeScoreOpt.isPresent()) {
+            JudgeScore judgeScore = judgeScoreOpt.get();
 
-                .members(memberDTOs)
-                .build();
+            // Map mảng danh sách điểm chi tiết: Key = String(criterionId), Value = Double(score)
+            java.util.Map<String, Double> scoresMap = judgeScore.getDetails().stream()
+                    .collect(Collectors.toMap(
+                            detail -> String.valueOf(detail.getCriterion().getId()),
+                            detail -> detail.getScore()
+                    ));
+
+            // Map mảng danh sách nhận xét chi tiết: Key = String(criterionId), Value = String(comment)
+            java.util.Map<String, String> notesMap = judgeScore.getDetails().stream()
+                    .filter(detail -> detail.getComment() != null)
+                    .collect(Collectors.toMap(
+                            detail -> String.valueOf(detail.getCriterion().getId()),
+                            detail -> detail.getComment()
+                    ));
+
+            // Gán các thông tin điểm số vào Builder
+            responseBuilder.scoringStatus(judgeScore.getStatus().name()) // DRAFT hoặc SUBMITTED
+                    .finalScore(judgeScore.getTotalScore())
+                    .overallComment(judgeScore.getComment())
+                    .scoredAt(judgeScore.getUpdatedAt())
+                    .scores(scoresMap)
+                    .notes(notesMap);
+        } else {
+            // Nếu chưa từng chấm, gán trạng thái mặc định để FE biết đường xử lý giao diện trống
+            responseBuilder.scoringStatus("UNSCORED");
+        }
+
+        return responseBuilder.build();
     }
 
     private void validateSubmittionLinks(UpdateSubmissionRequest request) {
@@ -431,19 +515,19 @@ public class SubmissionService {
 
         Team team = leader.getTeam();
 
-        // 1. Tìm bài nộp mới nhất
+        // 1. Tìm bài nộp mới nhất của đội trong vòng thi hiện tại
         Submission submission = submissionRepository
                 .findFirstByTeamIdAndRoundIdAndLatestTrue(team.getId(), roundId)
                 .orElse(null);
 
         if (submission == null) {
-            return null; // Trả về null nếu chưa nộp bài bao giờ -> FE biết đường dùng POST
+            return null; // Trả về null nếu chưa nộp bài bao giờ -> FE nhận biết dùng POST để tạo mới
         }
 
-        // 2. Tìm điểm số tương ứng của bài nộp này (nếu có)
-        JudgeScore judgeScore = judgeScoreRepository.findBySubmissionId(submission.getId()).orElse(null);
+        //ĐÃ SỬA: Tìm TẤT CẢ các bảng điểm của Hội đồng Giám khảo chấm cho bài nộp này
+        List<JudgeScore> judgeScores = judgeScoreRepository.findBySubmissionId(submission.getId());
 
-        // 3. Trả về Response chứa đầy đủ cả thông tin bài nộp lẫn điểm số từ thực tế
-        return SubmissionResponse.from(submission, judgeScore);
+        // 3. Trả về Response chứa đầy đủ thông tin bài nộp và danh sách điểm tổng hợp (Average)
+        return SubmissionResponse.from(submission, judgeScores);
     }
 }

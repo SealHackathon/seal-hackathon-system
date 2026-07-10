@@ -7,6 +7,7 @@ import com.minhtung.hackathon.dto.request.UpdateJudgeScoreRequest;
 import com.minhtung.hackathon.dto.response.JudgeScoreDetailResponse;
 import com.minhtung.hackathon.dto.response.JudgeScoreResponse;
 import com.minhtung.hackathon.entity.*;
+import com.minhtung.hackathon.enums.JudgeScoreStatus;
 import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -29,84 +31,121 @@ public class JudgeScoreService {
 
     @Transactional
     public JudgeScoreResponse createScore(String email, JudgeScoreRequest request) {
-        User judge = userRepository.findByEmail(email).orElseThrow(() ->
-                new RuntimeException(
-                        "Không tìm thấy Judge"));
-        Submission submission = submissionRepository.findById(request.getSubmissionId()).orElseThrow((() -> new RuntimeException("không tìm thấy bài nộp ")));
+        User judge = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy Judge"));
+
+        Submission submission = submissionRepository.findById(request.getSubmissionId())
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài nộp"));
 
         if (!submission.isLatest()) {
-            throw new RuntimeException("không thể chấm phiên bản nộp cũ ");
-
-
+            throw new RuntimeException("Không thể chấm phiên bản nộp cũ");
         }
+
         if (submission.getTeam().getTrack() == null) {
             throw new RuntimeException("Team chưa thuộc track");
         }
+
+        Long roundId=submission.getRound().getId();
+
         Long trackId = submission.getTeam().getTrack().getId();
-        JudgeAssignment assignment = judgeAssignmentRepository.findByUser_IdAndTrackId(judge.getId(), trackId).orElseThrow(() -> new RuntimeException("bạn không được phân công trong track này "));
+        JudgeAssignment assignment = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId,roundId)
+                .orElseThrow(() -> new RuntimeException("Bạn không được phân công để chấm"));
 
-        boolean alreadyScored = judgeScoreRepository.existsByJudgeAssignmentIdAndSubmissionId(assignment.getId(), submission.getId());
 
-        if (alreadyScored) {
-            throw new RuntimeException("bạn đã chấm bài này rồi ");
+
+
+        Optional<JudgeScore> existingScoreOpt = judgeScoreRepository
+                .findByJudgeAssignmentIdAndSubmissionId(assignment.getId(), submission.getId());
+
+        JudgeScore judgeScore;
+
+        if (existingScoreOpt.isPresent()) {
+            judgeScore = existingScoreOpt.get();
+
+            // Nếu trạng thái hiện tại trong DB đã là SUBMITTED thì chặn đứng
+            if (judgeScore.getStatus() == JudgeScoreStatus.SUBMITTED) {
+                throw new RuntimeException("Điểm số đã được nộp chính thức trước đó, không thể thay đổi nữa.");
+            }
+
+            judgeScore.setUpdatedAt(LocalDateTime.now());
+
+            //   Xóa phần tử cũ thông qua .clear() nếu đã tồn tại bản nháp
+            if (judgeScore.getDetails() != null) {
+                judgeScore.getDetails().clear();
+                judgeScoreRepository.saveAndFlush(judgeScore); // Đẩy lệnh DELETE xuống DB ngay
+            }
+        } else {
+            judgeScore = new JudgeScore();
+            judgeScore.setJudgeAssignment(assignment);
+            judgeScore.setSubmission(submission);
+            judgeScore.setSubmitAt(LocalDateTime.now());
+            judgeScore.setUpdatedAt(LocalDateTime.now());
         }
-        JudgeScore judgeScore = new JudgeScore();
-        judgeScore.setJudgeAssignment(assignment);
-        judgeScore.setSubmission(submission);
+
+        judgeScore.setStatus(JudgeScoreStatus.valueOf(request.getStatus()));
         judgeScore.setComment(request.getComment());
-        judgeScore.setSubmitAt(LocalDateTime.now());
-        judgeScore.setUpdatedAt(LocalDateTime.now());
-        List<JudgeScoreDetail> details =
-                createDetails(
-                        judgeScore,
-                        submission,
-                        request.getDetails()
-                );
-        judgeScore.setDetails(details);
-        judgeScore.setTotalScore(calculateTotalScore(details));
+
+        // Sinh list các chi tiết điểm mới từ request
+        List<JudgeScoreDetail> newDetails = createDetails(
+                judgeScore,
+                submission,
+                request.getDetails()
+        );
+
+        //   2: THAY ĐỔI QUAN TRỌNG TẠI ĐÂY - Không dùng setDetails() bừa bãi
+        if (judgeScore.getDetails() == null) {
+            judgeScore.setDetails(newDetails);
+        } else {
+            // Dùng addAll để Hibernate nhận biết được tiến trình cập nhật phần tử vào mảng cũ
+            judgeScore.getDetails().addAll(newDetails);
+        }
+
+        // Tính toán lại tổng điểm dựa trên danh sách chi tiết hiện tại trong thực thể
+        judgeScore.setTotalScore(calculateTotalScore(judgeScore.getDetails()));
+
         return mapToResponse(judgeScoreRepository.save(judgeScore));
     }
 
 
     @Transactional
-    public JudgeScoreResponse updateScore(String email , Long judgeScoreId, UpdateJudgeScoreRequest request){
-        User judge = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("không có email xác nhận "));
-         JudgeScore judgeScore = getownedJudgeScore(
-                 judgeScoreId,judge.getId()
-         );
-         judgeScore.setComment(request.getCommet());
-         judgeScore.setUpdatedAt(LocalDateTime.now());
-         judgeScore.getDetails().clear();
-         List<JudgeScoreDetail> newDetails = createDetails(
-                 judgeScore , judgeScore.getSubmission(),
-                 request.getDetails()
-         );
-         judgeScore.getDetails().addAll(newDetails);
+    public JudgeScoreResponse updateScore(String email, Long judgeScoreId, UpdateJudgeScoreRequest request) {
+        User judge = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("không có email xác nhận "));
+        JudgeScore judgeScore = getownedJudgeScore(
+                judgeScoreId, judge.getId()
+        );
+        judgeScore.setComment(request.getCommet());
+        judgeScore.setUpdatedAt(LocalDateTime.now());
+        judgeScore.getDetails().clear();
+        List<JudgeScoreDetail> newDetails = createDetails(
+                judgeScore, judgeScore.getSubmission(),
+                request.getDetails()
+        );
+        judgeScore.getDetails().addAll(newDetails);
 
-         return  mapToResponse(judgeScoreRepository.save(judgeScore));
+        return mapToResponse(judgeScoreRepository.save(judgeScore));
     }
 
     @Transactional
-    public void deleteScore(String email , Long judgeScoreId){
-        User judge = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("không có email xác nhận "));
-        JudgeScore judgeScore = getownedJudgeScore(judgeScoreId,judge.getId()) ;
+    public void deleteScore(String email, Long judgeScoreId) {
+        User judge = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("không có email xác nhận "));
+        JudgeScore judgeScore = getownedJudgeScore(judgeScoreId, judge.getId());
         judgeScoreRepository.delete(judgeScore);
     }
 
     @Transactional
-    public List<JudgeScoreResponse> getMyScores(String email ){
-        User judge = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("không có email xác nhận "));
-        return judgeScoreRepository.findByJudgeAssignmentUserIdOrderBySubmitAtDesc(judge.getId()).stream().map(this::mapToResponse).toList() ;
+    public List<JudgeScoreResponse> getMyScores(String email) {
+        User judge = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("không có email xác nhận "));
+        return judgeScoreRepository.findByJudgeAssignmentUserIdOrderBySubmitAtDesc(judge.getId()).stream().map(this::mapToResponse).toList();
 
     }
 
-    private JudgeScore getownedJudgeScore(Long judgeScoreId , Long userId){
-        JudgeScore judgeScore = judgeScoreRepository.findById(judgeScoreId).orElseThrow(()-> new RuntimeException("khong tim thay diem cham cu"));
-        Long ownerId = judgeScore.getJudgeAssignment().getUser().getId() ;
-        if(!ownerId.equals(userId)){
-            throw  new RuntimeException("ban khong co quyen thay doi diem cua bai nay ") ;
+    private JudgeScore getownedJudgeScore(Long judgeScoreId, Long userId) {
+        JudgeScore judgeScore = judgeScoreRepository.findById(judgeScoreId).orElseThrow(() -> new RuntimeException("khong tim thay diem cham cu"));
+        Long ownerId = judgeScore.getJudgeAssignment().getUser().getId();
+        if (!ownerId.equals(userId)) {
+            throw new RuntimeException("ban khong co quyen thay doi diem cua bai nay ");
         }
-        return judgeScore ;
+        return judgeScore;
     }
 
 
@@ -177,33 +216,44 @@ public class JudgeScoreService {
     }
 
 
+    private double calculateTotalScore(List<JudgeScoreDetail> details) {
+        if (details == null || details.isEmpty()) {
+            return 0.0;
+        }
 
-
-    private double calculateTotalScore(
-            List<JudgeScoreDetail> details
-    ) {
-        double total = details.stream()
+        // 1. Tính tổng tử số: Tổng của (Điểm tiêu chí * Trọng số tiêu chí)
+        double weightedScoreSum = details.stream()
                 .mapToDouble(detail -> {
-                    Criterion criterion =
-                            detail.getCriterion();
-
-                    return (
-                            detail.getScore()
-                                    / criterion.getMaxRange()
-                    ) * criterion.getWeight();
+                    double score = detail.getScore();
+                    // Đi xuyên qua Object Criterion để lấy weight cấu hình trong DB
+                    double weight = (detail.getCriterion() != null) ? detail.getCriterion().getWeight() : 0.0;
+                    return score * weight;
                 })
                 .sum();
 
-        return Math.round(total * 100.0) / 100.0;
+        // 2. Tính tổng mẫu số: Tổng tất cả trọng số của các tiêu chí con thuộc vòng thi này
+        double totalWeight = details.stream()
+                .mapToDouble(detail -> (detail.getCriterion() != null) ? detail.getCriterion().getWeight() : 0.0)
+                .sum();
+
+        if (totalWeight == 0.0) {
+            return 0.0;
+        }
+
+        // 3. Quy đổi ra điểm số hệ thang 10 chuẩn hóa theo trọng số
+        double finalScore = weightedScoreSum / totalWeight;
+
+        // 4. Làm tròn toán học lấy đúng 2 chữ số thập phân (Ví dụ: 8.562 -> 8.56)
+        return Math.round(finalScore * 100.0) / 100.0;
     }
 
-    private List<JudgeScoreDetail>createDetails(JudgeScore judgeScore , Submission submission , List<JudgeScoreDetailRequest> requests
-    ){
+    private List<JudgeScoreDetail> createDetails(JudgeScore judgeScore, Submission submission, List<JudgeScoreDetailRequest> requests
+    ) {
         ScoringTemplate template = submission.getRound().getScoringTemplate();
-        if(template == null){
-            throw  new RuntimeException("Round chưa có mẫu chấm điểm ") ;
+        if (template == null) {
+            throw new RuntimeException("Round chưa có mẫu chấm điểm ");
         }
-        Set <Long> allowedCriterionIds = template.getCriteria()
+        Set<Long> allowedCriterionIds = template.getCriteria()
                 .stream()
                 .map(Criterion::getId)
                 .collect(Collectors.toSet());
@@ -216,17 +266,17 @@ public class JudgeScoreService {
                         )
                         .collect(Collectors.toSet());
 
-        if(requestCriterionIds.size()!= requests.size()){
-            throw new RuntimeException("Danh sách có tiêu chi bị trùng") ;
+        if (requestCriterionIds.size() != requests.size()) {
+            throw new RuntimeException("Danh sách có tiêu chi bị trùng");
 
 
         }
-        if(!requestCriterionIds.equals(allowedCriterionIds)){
-            throw  new RuntimeException("phải chấm điểm đầy đủ và đúng tiêu chí của round ");
+        if (!requestCriterionIds.equals(allowedCriterionIds)) {
+            throw new RuntimeException("phải chấm điểm đầy đủ và đúng tiêu chí của round ");
         }
-        List<JudgeScoreDetail>details = new ArrayList<>();
-        for(JudgeScoreDetailRequest request : requests){
-            Criterion criterion = criterionRepository.findById(request.getCriterionId()).orElseThrow(()-> new RuntimeException("không tìm thấy tiêu chí chấm thi")) ;
+        List<JudgeScoreDetail> details = new ArrayList<>();
+        for (JudgeScoreDetailRequest request : requests) {
+            Criterion criterion = criterionRepository.findById(request.getCriterionId()).orElseThrow(() -> new RuntimeException("không tìm thấy tiêu chí chấm thi"));
             if (request.getScore() < 0 ||
                     request.getScore()
                             > criterion.getMaxRange()) {
@@ -252,7 +302,9 @@ public class JudgeScoreService {
 
         return details;
     }
-        }
+
+    
+}
 
 
 

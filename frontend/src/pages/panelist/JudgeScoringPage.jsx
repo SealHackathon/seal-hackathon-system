@@ -35,7 +35,7 @@ function JudgeScoringPage() {
         setLoading(true);
         setError(null);
 
-        // 🎯 1. GỌI SONG SONG 2 API: Chi tiết bài nộp và Danh sách vòng thi của Sự kiện
+        //  1. GỌI SONG SONG 2 API: Chi tiết bài nộp và Danh sách vòng thi của Sự kiện
         const [submissionRes, eventRoundsRes] = await Promise.all([
           axiosClient.get(`submission/${submissionId}`),
           axiosClient.get(`/round/rounds/${roundId}`)
@@ -44,52 +44,54 @@ function JudgeScoringPage() {
         const subListData = submissionRes.data;
         const roundsList = eventRoundsRes.data;
 
-        // 🛠️ Xử lý lấy phần tử nếu API bài nộp trả về dạng mảng
+        //  Xử lý lấy phần tử nếu API bài nộp trả về dạng mảng (Phòng thủ dữ liệu)
         const subData = Array.isArray(subListData) ? subListData[0] : subListData;
 
         if (!subData) {
           throw new Error('Không tìm thấy thông tin bài nộp của đội thi này.');
         }
 
-        // 🛠️ Phòng thủ lỗi "find is not a function": Kiểm tra nếu roundsList là mảng hoặc object đơn lẻ
+        //  Phòng thủ lỗi "find is not a function": Kiểm tra cấu trúc roundsList trả về
         let currentRoundData = null;
         if (Array.isArray(roundsList)) {
           currentRoundData = roundsList.find(r => String(r.roundId) === String(roundId));
         } else if (roundsList && String(roundsList.roundId) === String(roundId)) {
           currentRoundData = roundsList;
         } else {
-          currentRoundData = roundsList; // Fallback gán thẳng nếu API trả về duy nhất 1 vòng hiện tại
+          currentRoundData = roundsList; // Fallback gán thẳng nếu API chỉ trả về duy nhất 1 vòng hiện tại
         }
 
         if (!currentRoundData) {
           throw new Error('Không tìm thấy cấu hình tiêu chí cho vòng thi này.');
         }
 
-        // 🎯 2. MAPPING THÔNG TIN ĐỘI THI (Khớp chuẩn dữ liệu thật)
+        // 2. MAPPING THÔNG TIN ĐỘI THI & DANH SÁCH THÀNH VIÊN (Khớp chuẩn dữ liệu thật)
         setTeam({
-          name: subData.teamName,
-          status: subData.scoringStatus?.toLowerCase() || 'unscored',
-          category: subData.roundName,
-          code: `TEAM-${subData.teamId}`,
+          name: subData.teamName || 'SEAL INNOVATORS',
+          // Đổi trạng thái UI thành 'done' nếu backend báo đã SUBMITTED
+          status: subData.scoringStatus?.toLowerCase() === 'submitted' ? 'done' : (subData.scoringStatus?.toLowerCase() || 'unscored'),
+          category: subData.roundName || currentRoundData.roundName || 'Vòng sơ loại',
+          code: `SEAL-A${String(subData.teamId || 1).padStart(2, '0')}`, // Ví dụ: SEAL-A01
           submittedAt: subData.submittedAt,
-          flaggedViolation: false,
+          flaggedViolation: subData.isViolation || false,
 
-          members: subData.members.map(member => ({
-            id: String(member.id),
-            name: member.fullName,
-            position: member.roleInTeam,
-            isLeader: member.leader
-          }))
+          // Map mảng thành viên thực tế từ API sang cấu trúc hiển thị của Component Hero
+          members: subData.members?.map(m => ({
+            id: String(m.id),
+            name: m.fullName,
+            position: m.roleInTeam === 'LEADER' ? 'Đội trưởng / Leader' : 'Thành viên',
+            isLeader: m.leader // Sử dụng thuộc tính "leader": true/false từ JSON thực tế
+          })) || []
         });
 
-        // 🎯 3. MAPPING CÁC ĐƯỜNG LINK NỘP BÀI THỰC TẾ (Đổ trực tiếp vào ô xem nội dung bên trái)
+        //  3. MAPPING CÁC ĐƯỜNG LINK NỘP BÀI (Đổ trực tiếp vào ô xem nội dung bên trái)
         setSubmission({
           github: { url: subData.githubUrl || '' },
-          slide: { url: subData.documentUrl || '', fileUrl: null }, // Đưa tài liệu vào khung Slide
+          slide: { url: subData.documentUrl || '', fileUrl: null }, // Đưa tài liệu vào khung Slide/Tài liệu
           video: { url: subData.demoUrl || '', fileUrl: null }       // Link video / demo sản phẩm
         });
 
-        // 🎯 4. MAPPING CRITERIA (Đổ vào bảng chấm điểm bên phải)
+        //  4. MAPPING CRITERIA (Đổ tiêu chí gốc từ cấu hình vòng thi vào bảng chấm điểm bên phải)
         if (currentRoundData.criteria) {
           setRubric({
             name: currentRoundData.roundName || 'Tiêu chí chấm thi',
@@ -97,23 +99,26 @@ function JudgeScoringPage() {
               id: String(c.id),
               name: c.name,
               description: c.description,
-              points: 10,                 // Hệ điểm tối đa mặc định cho UI kéo thanh điểm
-              percent: c.weight           // Backend trả về thẳng 30.0, 40.0 -> Khớp luôn hiển thị %
+              points: 10,                 // Hệ điểm tối đa 10 cho thanh kéo điểm (Slider) tương thích cấu hình maxRange=10
+              percent: c.weight           // Trọng số tiêu chí (Ví dụ: 30, 40)
             }))
           });
         }
 
-        // 🎯 5. MAPPING ĐIỂM SỐ ĐÃ CHẤM (Nếu có điểm cũ thì khôi phục, chưa có thì tạo Object rỗng an toàn)
-        if (subData.finalScore !== null && subData.finalScore !== undefined) {
+        //  5. KHÔI PHỤC ĐIỂM CŨ VÀ KHÓA CHỈNH SỬA (Nếu bài đã chấm hoặc lưu nháp)
+        if (subData.scoringStatus && subData.scoringStatus !== 'UNSCORED') {
           setExisting({
-            scores: subData.scores || {}, // { "1": 8.5, "2": 9 }
-            notes: subData.notes || {},
-            overall: subData.overallComment || '',
-            audit: { savedAt: subData.scoredAt, submittedAt: subData.scoredAt },
+            scores: subData.scores || {}, // Tự động map Object { "1": 3.6, "2": 4.1, "3": 3.7 } vào UI thanh kéo
+            notes: subData.notes || {},   // Nhận xét chi tiết của từng tiêu chí
+            overall: subData.overallComment || '', // Nhận xét tổng quan toàn bài
+            audit: {
+              savedAt: subData.scoredAt,
+              submittedAt: subData.scoringStatus === 'SUBMITTED' ? subData.scoredAt : null
+            },
             hasDiscrepancy: false
           });
         } else {
-          // Fallback object rỗng phòng thủ lỗi "Cannot read properties of null (reading 'audit')" ở ScoringPanel
+          // Fallback object trống an toàn phòng thủ lỗi undefined properties ở ScoringPanel khi đội thi chưa được chấm
           setExisting({
             scores: {},
             notes: {},
@@ -131,27 +136,60 @@ function JudgeScoringPage() {
       }
     }
 
-    // Chạy useEffect khi có đủ 3 tham số định tuyến động từ URL
+    // Khởi chạy useEffect khi có đủ 3 tham số định tuyến động trên URL thanh địa chỉ
     if (submissionId && roundId && eventId) {
       fetchScoringData();
     }
   }, [submissionId, roundId, eventId]);
 
-  // ══ Xử lý các nút bấm tương tác API (giữ nguyên logic nghiệp vụ) ══
-  const handleSaveDraft = async (payload) => {
+
+
+  //  1. XỬ LÝ LƯU NHÁP (status: 'DRAFT')
+  const handleSaveDraft = async (scoringPanelPayload) => {
     try {
-      await axiosClient.post(`/api/v1/panelist/submissions/${submissionId}/draft`, payload);
-      setTeam(prev => ({ ...prev, status: 'draft' }));
+      const backendPayload = {
+        submissionId: Number(submissionId),
+        comment: scoringPanelPayload.overall || "",
+        status: "DRAFT", //  Đánh dấu đây là bản nháp
+        details: Object.keys(scoringPanelPayload.scores || {}).map((criterionId) => ({
+          criterionId: Number(criterionId),
+          score: Number(scoringPanelPayload.scores[criterionId]),
+          comment: scoringPanelPayload.notes?.[criterionId] || ""
+        }))
+      };
+
+      await axiosClient.post('/judge-scores', backendPayload);
+      setTeam(prev => ({ ...prev, status: 'draft' })); // Đổi trạng thái UI thành nháp
+      alert("Đã lưu bản nháp thành công!");
     } catch (err) {
       alert(err.response?.data?.message || 'Lưu bản nháp thất bại.');
     }
   };
 
-  const handleSubmit = async (payload) => {
+  //  2. XỬ LÝ NỘP ĐIỂM CHÍNH THỨC (status: 'SUBMITTED' hoặc 'DONE')
+  const handleSubmit = async (scoringPanelPayload) => {
     try {
       if (window.confirm('Bạn có chắc chắn muốn nộp điểm số này? Điểm sau khi nộp sẽ không thể tự chỉnh sửa.')) {
-        await axiosClient.post(`/api/v1/panelist/submissions/${submissionId}/submit`, payload);
+
+        const backendPayload = {
+          submissionId: Number(submissionId),
+          comment: scoringPanelPayload.overall || "",
+          status: "SUBMITTED", //  Đánh dấu nộp chính thức để khóa chỉnh sửa
+          details: Object.keys(scoringPanelPayload.scores || {}).map((criterionId) => ({
+            criterionId: Number(criterionId),
+            score: Number(scoringPanelPayload.scores[criterionId]),
+            comment: scoringPanelPayload.notes?.[criterionId] || ""
+          }))
+        };
+
+        if (!backendPayload.details || backendPayload.details.length === 0) {
+          alert("Vui lòng nhập đầy đủ điểm cho các tiêu chí trước khi nộp.");
+          return;
+        }
+
+        await axiosClient.post('/judge-scores', backendPayload);
         setTeam(prev => ({ ...prev, status: 'done' }));
+        alert("Nộp điểm chấm thi thành công!");
         navigate(dynamicBackLink);
       }
     } catch (err) {

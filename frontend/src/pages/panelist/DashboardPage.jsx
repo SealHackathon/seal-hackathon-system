@@ -137,17 +137,56 @@ function DashboardPage() {
   const mentorInvites = invitations.filter((i) => i.roleType === 'mentor')
 
   const handleOpenScoring = (eventId) => {
-    // TODO: điều hướng sang giao diện chấm thi của sự kiện
-    const roundId = assignedEvent?.currentRound?.id
-    if (eventId && roundId) {
-      // Điều hướng tới: /panelist/events/:eventId/judge/rounds/:roundId
-      navigate(`/panelist/events/${eventId}/judge/rounds/${roundId}`)
-    } else {
-      // Fallback nếu chưa có thông tin vòng đấu hoặc API chưa trả về roundId
-      console.warn("Không tìm thấy thông tin vòng đấu hiện tại (roundId).")
-      navigate(`/panelist/dashboard`)
+    const assignedRounds = assignedEvent?.assignment?.judge?.rounds || [];
+    let targetRoundId = null;
+
+    if (assignedRounds.length > 0) {
+      const now = new Date();
+
+      // 🎯 CHIẾN LƯỢC 1: Tìm vòng đang diễn ra ngay tại thời điểm này
+      const activeRound = assignedRounds.find(r => {
+        const start = new Date(r.timeStart);
+        const end = new Date(r.timeEnd);
+        return now >= start && now <= end;
+      });
+
+      if (activeRound) {
+        targetRoundId = activeRound.roundId;
+      } else {
+        // 🎯 CHIẾN LƯỢC 2: Không có vòng nào chạy -> Tìm vòng có thời gian diễn ra GẦN NHẤT
+        let minDistance = Infinity;
+
+        assignedRounds.forEach(r => {
+          const start = new Date(r.timeStart);
+          // Tính độ lệch thời gian (trị tuyệt đối) tính bằng mili-giây
+          const distance = Math.abs(now.getTime() - start.getTime());
+
+          if (distance < minDistance) {
+            minDistance = distance;
+            targetRoundId = r.roundId;
+          }
+        });
+      }
     }
-  }
+
+    // 3. Tiến hành điều hướng
+    if (eventId && targetRoundId) {
+      navigate(`/panelist/events/${eventId}/judge/rounds/${targetRoundId}`);
+    } else {
+      console.warn("Không xác định được vòng chấm phù hợp.");
+      navigate(`/panelist/dashboard`);
+    }
+
+
+    // 3. Tiến hành điều hướng
+    if (eventId && targetRoundId) {
+      navigate(`/panelist/events/${eventId}/judge/rounds/${targetRoundId}`);
+    } else {
+      console.warn("Không xác định được vòng chấm phù hợp.");
+      navigate(`/panelist/dashboard`);
+    }
+  };
+
   const handleManageTeams = (eventId) => {
     // TODO: điều hướng sang trang quản lý đội thi
     navigate(`/panelist/events/${eventId}`)
