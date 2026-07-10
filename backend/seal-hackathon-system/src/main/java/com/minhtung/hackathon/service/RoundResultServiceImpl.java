@@ -31,6 +31,8 @@ public class RoundResultServiceImpl implements RoundResultService {
         List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(roundId);
         List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(roundId);
 
+
+
         // Lọc theo trackId nếu FE truyền category cụ thể (khác "all")
         if (trackId != null) {
             submissions = submissions.stream()
@@ -126,12 +128,30 @@ public class RoundResultServiceImpl implements RoundResultService {
             judgeSummaries.add(summary);
         }
 
+
+
         RoundResultResponse response = new RoundResultResponse();
         response.setJudges(judgeSummaries);
         response.setEntries(entries);
         response.setUpdatedAt(computeLatestUpdate(scores));
         response.setReview(null); // TODO: chưa có bảng lưu trạng thái publish flow
         response.setAwards(computeAwardsAutomatically(entries)); // TODO: chưa có bảng Award
+
+        // TRẢ về thêm getPublishedResult cho FRONTEND
+        if (trackId != null) {
+            Track track = trackRepository.findById(trackId).orElse(null);
+            if (track != null) {
+                // Lấy giá trị publishStage đang lưu trong DB gán vào DTO
+                response.setPublishStage(track.getPublishedResult());
+            } else {
+                response.setPublishStage(1); // Phòng hờ nếu không tìm thấy track
+            }
+        } else {
+            response.setPublishStage(1); // Nếu trackId bằng null (chế độ 'all')
+        }
+
+
+
         return response;
     }
 

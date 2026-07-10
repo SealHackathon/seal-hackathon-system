@@ -4,13 +4,11 @@ import { ListChecks, Gavel, SealCheck, Scales, Flag, Clock } from '@phosphor-ico
 import RoundStepper from '../../../../../components/coordinator/roundResults/RoundStepper'
 import CategoryFilter from '../../../../../components/coordinator/roundResults/CategoryFilter'
 import PublishFlow from '../../../../../components/coordinator/roundResults/PublishFlow'
-import RequestsSection from '../../../../../components/coordinator/roundResults/RequestsSection'
+import ScoringOverview from '../../../../../components/coordinator/roundResults/ScoringOverview'
 import ResultsLeaderboard from '../../../../../components/coordinator/roundResults/ResultsLeaderboard'
 import TeamDetailModal from '../../../../../components/coordinator/roundResults/TeamDetailModal'
 import AssignAwardModal from '../../../../../components/coordinator/roundResults/AssignAwardModal'
 import AwardsSection from '../../../../../components/coordinator/roundResults/AwardsSection'
-import SubmissionModal from '../../../../../components/panelist/event/mentorTeamDetail/SubmissionModal'
-import { ROUNDS, CATEGORIES, DATA } from './roundResultsMock'
 import styles from './ResultsTab.module.css'
 import axiosClient from '../../../../../api/axiosClient'
 
@@ -101,7 +99,6 @@ function ResultsTab() {
   const [statusFilter, setStatusFilter] = useState('all')
   const [search, setSearch] = useState('')
   const [detail, setDetail] = useState(null)
-  const [submissionDetail, setSubmissionDetail] = useState(null)
   const [awardToAssign, setAwardToAssign] = useState(null)
 
   // ---- Biến derive từ state ----
@@ -159,25 +156,62 @@ function ResultsTab() {
 
   //-----------------fetch entries/judges/review/awards cua round dang chon (theo track neu co)
   useEffect(() => {
-    if (!roundId || isAll) {
-      setRoundResult(null)
-      return
-    }
-    const fetchResult = async () => {
-      setLoadingResult(true)
-      try {
-        const trackParam = categoryId && categoryId !== 'all' ? `&trackId=${categoryId}` : ''
-        const { data } = await axiosClient.get(`/round/${roundId}/results?${trackParam.slice(1)}`)
-        setRoundResult(data)
-      } catch (error) {
-        console.error(error)
-        setRoundResult(null)
-      } finally {
-        setLoadingResult(false)
+  if (!roundId || isAll) {
+    setRoundResult(null)
+    return
+  }
+  const fetchResult = async () => {
+    setLoadingResult(true)
+    try {
+      const trackParam = categoryId && categoryId !== 'all' ? `&trackId=${categoryId}` : ''
+      // Giữ nguyên API gốc của bạn
+      const { data } = await axiosClient.get(`/round/${roundId}/results?${trackParam.slice(1)}`)
+      
+      // 1. [GIỮ NGUYÊN] Đổ toàn bộ data JSON vào state độc nhất của bạn để SHOW danh sách
+      setRoundResult(data)
+
+      // 2. [BỔ SUNG] Khôi phục Stage từ trường data.publishStage trong JSON vừa nhận
+      if (data) {
+        const backendStage = data.publishStage || 1;
+
+        // Khôi phục Stage hiển thị nút bấm (Dùng Key [roundId] theo hàm gốc của bạn)
+        setStageByRound((p) => ({
+          ...p,
+          [roundId]: backendStage
+        }));
+
+        // Khôi phục lại hộp đếm ngược thời gian nếu đang ở Stage 2
+        if (backendStage === 2) {
+          setReviewOverride((rp) => ({
+            ...rp,
+            [roundId]: { 
+              remainingSec: WINDOW_SEC, 
+              durationMin: 30, 
+              pendingRequests: 0, 
+              // Đếm số lượng giám khảo từ mảng data.judges có trong JSON
+              judgesAgreed: data.judges ? data.judges.length : 0, 
+              judgesTotal: data.judges ? data.judges.length : 0 
+            },
+          }));
+        } else {
+          // Nếu ở Stage 1 hoặc 3 thì xóa đi để ẩn đồng hồ đếm ngược
+          setReviewOverride((rp) => {
+            const updated = { ...rp };
+            delete updated[roundId];
+            return updated;
+          });
+        }
       }
+
+    } catch (error) {
+      console.error(error)
+      setRoundResult(null)
+    } finally {
+      setLoadingResult(false)
     }
-    fetchResult()
-  }, [roundId, isAll, categoryId])
+  }
+  fetchResult()
+}, [roundId, isAll, categoryId])
 
   //-----------------fetch tracks/categories tu API
   useEffect(() => {
@@ -289,38 +323,38 @@ function ResultsTab() {
   };
 
   const handleRollback = async () => {
-  const trackId = categoryId === 'all' ? 'all' : categoryId;
+    const trackId = categoryId === 'all' ? 'all' : categoryId;
 
-  const currentStage = stageByRound[roundId] || 1;
-  const prevStage = Math.max(1, currentStage - 1);
+    const currentStage = stageByRound[roundId] || 1;
+    const prevStage = Math.max(1, currentStage - 1);
 
-  if (currentStage === 1) return;
+    if (currentStage === 1) return;
 
-  try {
-    // 1. Gọi API báo giảm cấp độ xuống Backend
-    await axiosClient.post(`/round/${roundId}/track/${trackId}/publish/stage/${prevStage}`);
-    console.log(`Backend rollback thành công về Stage ${prevStage} cho Track ${trackId}`);
+    try {
+      // 1. Gọi API báo giảm cấp độ xuống Backend
+      await axiosClient.post(`/round/${roundId}/track/${trackId}/publish/stage/${prevStage}`);
+      console.log(`Backend rollback thành công về Stage ${prevStage} cho Track ${trackId}`);
 
-    // 2. Cập nhật state quay lùi lại y hệt cấu trúc gốc của bạn
-    setStageByRound((p) => {
-      const prev = (p[roundId] || 1) - 1;
-      return { ...p, [roundId]: Math.max(1, prev) };
-    });
-
-    // Reset lại màn hình đếm ngược review nếu quay ngược hẳn về Stage 1
-    if (prevStage === 1) {
-      setReviewOverride((rp) => {
-        const updated = { ...rp };
-        delete updated[roundId];
-        return updated;
+      // 2. Cập nhật state quay lùi lại y hệt cấu trúc gốc của bạn
+      setStageByRound((p) => {
+        const prev = (p[roundId] || 1) - 1;
+        return { ...p, [roundId]: Math.max(1, prev) };
       });
-    }
 
-  } catch (error) {
-    console.error("Lỗi khi gọi API rollback:", error);
-    alert("Không thể lùi trạng thái công bố, vui lòng thử lại!");
-  }
-};
+      // Reset lại màn hình đếm ngược review nếu quay ngược hẳn về Stage 1
+      if (prevStage === 1) {
+        setReviewOverride((rp) => {
+          const updated = { ...rp };
+          delete updated[roundId];
+          return updated;
+        });
+      }
+
+    } catch (error) {
+      console.error("Lỗi khi gọi API rollback:", error);
+      alert("Không thể lùi trạng thái công bố, vui lòng thử lại!");
+    }
+  };
 
 
   const gotoViolation = (team) => navigate('/admin/coordinator/events/' + eventId + '/violations?team=' + team.id)
@@ -386,33 +420,13 @@ function ResultsTab() {
           />
         </div>
         <div className={styles.overviewCol}>
-          <RequestsSection 
-            onOpenTeam={(teamId) => {
-               // Mock finding team
-               const team = standings.find(s => s.team.id === teamId)?.team || { id: teamId, name: 'FPT.O-H' }
-               setDetail(team)
-            }}
-            onOpenSubmission={(teamId) => {
-               // Mock submission data
-               setSubmissionDetail({
-                 name: 'Vòng sơ loại',
-                 submittedAt: '14:00 10/07/2026',
-                 late: false,
-                 submission: {
-                   github: 'https://github.com/fpt-oh',
-                   demo: 'https://demo.fpt-oh.com',
-                   slide: 'https://docs.google.com/presentation/d/1'
-                 }
-               })
-            }}
-          />
-          {/* <ScoringOverview
+          <ScoringOverview
             judges={judges}
             roundIsAll={isAll}
-            allRoundsData={{}} 
+            allRoundsData={{}} /* TODO: cần API tổng hợp theo round nếu ScoringOverview dùng cho view "Tất cả" */
             onOpenAudit={openAudit}
             onOpenScoring={openScoring}
-          /> */}
+          />
         </div>
       </div>
 
@@ -430,14 +444,6 @@ function ResultsTab() {
             if (aw) aw.team = team
             setAwardToAssign(null)
           }}
-        />
-      )}
-
-      {submissionDetail && (
-        <SubmissionModal 
-           open={!!submissionDetail}
-           round={submissionDetail}
-           onClose={() => setSubmissionDetail(null)}
         />
       )}
     </div>

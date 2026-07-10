@@ -12,4 +12,5 @@ public class RoundResultResponse {
     private List<JudgeSummaryDTO> judges;
     private List<EntryDTO> entries;
     private AwardsDTO awards;
+    private int publishStage = 1; // Mặc định là 1 nếu chưa cấu hình
 }
