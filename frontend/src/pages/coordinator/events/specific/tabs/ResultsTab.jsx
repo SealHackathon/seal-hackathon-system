@@ -245,22 +245,84 @@ function ResultsTab() {
 
   // -- Handlers --
   const handleForce = () => setForcedRounds((p) => ({ ...p, [roundId]: true }))
-  const handleAdvance = () => {
+
+
+  const handleAdvance = async () => {
+    // Xác định trackId hiện tại để gửi lên Backend, nếu chọn "Tất cả" thì truyền chuỗi 'all' hoặc xử lý tùy BE
+    const trackId = categoryId === 'all' ? 'all' : categoryId;
+
+    // Lấy stage hiện tại từ state dựa theo Key roundId gốc của bạn
+    const currentStage = stageByRound[roundId] || 1;
+    const nextStage = Math.min(3, currentStage + 1);
+
+    if (currentStage === 3) return;
+
+    try {
+      // 1. Gọi API lưu trạng thái ở Backend trước
+      await axiosClient.post(`/round/${roundId}/track/${trackId}/publish/stage/${nextStage}`);
+      console.log(`Backend cập nhật thành công Stage ${nextStage} cho Track ${trackId}`);
+
+      // 2. Khi API thành công, chạy đúng logic set state đồng bộ ban đầu của bạn
+      setStageByRound((p) => {
+        const next = (p[roundId] || 1) + 1;
+
+        if ((p[roundId] || 1) === 1) {
+          setReviewOverride((rp) => ({
+            ...rp,
+            [roundId]: {
+              remainingSec: WINDOW_SEC,
+              durationMin: 30,
+              pendingRequests: 0,
+              judgesAgreed: judges.length,
+              judgesTotal: judges.length
+            },
+          }));
+        }
+
+        return { ...p, [roundId]: Math.min(3, next) };
+      });
+
+    } catch (error) {
+      console.error("Lỗi khi gọi API advance:", error);
+      alert("Không thể cập nhật trạng thái lên hệ thống, vui lòng thử lại!");
+    }
+  };
+
+  const handleRollback = async () => {
+  const trackId = categoryId === 'all' ? 'all' : categoryId;
+
+  const currentStage = stageByRound[roundId] || 1;
+  const prevStage = Math.max(1, currentStage - 1);
+
+  if (currentStage === 1) return;
+
+  try {
+    // 1. Gọi API báo giảm cấp độ xuống Backend
+    await axiosClient.post(`/round/${roundId}/track/${trackId}/publish/stage/${prevStage}`);
+    console.log(`Backend rollback thành công về Stage ${prevStage} cho Track ${trackId}`);
+
+    // 2. Cập nhật state quay lùi lại y hệt cấu trúc gốc của bạn
     setStageByRound((p) => {
-      const next = (p[roundId] || 1) + 1
-      if ((p[roundId] || 1) === 1) {
-        setReviewOverride((rp) => ({
-          ...rp,
-          [roundId]: { remainingSec: WINDOW_SEC, durationMin: 30, pendingRequests: 0, judgesAgreed: judges.length, judgesTotal: judges.length },
-        }))
-        // TODO: gọi API POST /round/{roundId}/publish/advance để lưu trạng thái ở BE khi có endpoint
-      }
-      return { ...p, [roundId]: Math.min(3, next) }
-    })
+      const prev = (p[roundId] || 1) - 1;
+      return { ...p, [roundId]: Math.max(1, prev) };
+    });
+
+    // Reset lại màn hình đếm ngược review nếu quay ngược hẳn về Stage 1
+    if (prevStage === 1) {
+      setReviewOverride((rp) => {
+        const updated = { ...rp };
+        delete updated[roundId];
+        return updated;
+      });
+    }
+
+  } catch (error) {
+    console.error("Lỗi khi gọi API rollback:", error);
+    alert("Không thể lùi trạng thái công bố, vui lòng thử lại!");
   }
-  const handleRollback = () => setStageByRound((p) => ({ ...p, [roundId]: Math.max(1, (p[roundId] || 1) - 1) }))
-  // TODO: gọi API POST /round/{roundId}/publish/rollback khi có endpoint
-  
+};
+
+
   const gotoViolation = (team) => navigate('/admin/coordinator/events/' + eventId + '/violations?team=' + team.id)
   const openScoring = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId)
   const openAudit = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId + '&tab=audit')
