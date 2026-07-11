@@ -375,9 +375,9 @@ public class KycService {
         }
 
         // Validate tổng số lượng công nghệ trong Map techTags
-        if (req.getTags() != null) {
+        if (req.getTechTags() != null) {
             // Gom tất cả các phần tử trong các mảng con lại để đếm tổng số tag thực tế
-            long totalTags = req.getTags().values().stream()
+            long totalTags = req.getTechTags().values().stream()
                     .mapToLong(List::size)
                     .sum();
             if (totalTags > 10) {
@@ -392,7 +392,7 @@ public class KycService {
         // --- 3. Map dữ liệu vào Entity ---
         profile.setBio(req.getBio());
         profile.setPositions(req.getPositons());
-        profile.setTechTags(req.getTags());
+        profile.setTechTags(req.getTechTags());
         profile.setTopics(req.getTopics());
         user.setStatus(UserStatus.PENDING_APPROVAL);
         studentprofileRepository.save(profile);
