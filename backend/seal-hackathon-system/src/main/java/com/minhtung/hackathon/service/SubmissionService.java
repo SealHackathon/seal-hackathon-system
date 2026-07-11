@@ -70,12 +70,11 @@ public SubmissionResponse sumbit(String email , SubmissionRequest request , Mult
     boolean hasDocumentFile =
             documentFile != null && !documentFile.isEmpty();
 
-    if(!hasText(demoUrl) && !hasDemoFile){
-        throw  new RuntimeException( "phai nop link hoac file video demo") ;
-    }
-    if(!hasText(documentUrl) && !hasDocumentFile){
-        throw  new RuntimeException( "phai nop link hoac file slide demo") ;
-    }
+    Validdate(demoUrl , hasDemoFile , "Video demo") ;
+    Validdate(
+            documentUrl,
+            hasDocumentFile,
+            "Tài liệu/slide") ;
     if (hasDemoFile) {
         validateDemoFile(demoFile);
 
@@ -160,12 +159,12 @@ public SubmissionResponse updateSubmission(String email, Long submissionId, Subm
     boolean hasDocumentFile =
             documentFile != null && !documentFile.isEmpty();
 
-    if (!hasText(demoUrl) && !hasDemoFile) {
-        throw new RuntimeException("phai nop link hoac file video demo");
-    }
-    if (!hasText(documentUrl) && !hasDocumentFile) {
-        throw new RuntimeException("phai nop link hoac file slide demo");
-    }
+    Validdate(demoUrl , hasDemoFile , "Video demo") ;
+    Validdate(
+            documentUrl,
+            hasDocumentFile,
+            "Tài liệu/slide") ;
+
     if (hasDemoFile) {
         validateDemoFile(demoFile);
 
@@ -380,6 +379,16 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
                     "Slide chỉ hỗ trợ PDF, PPT hoặc PPTX"
             );
         }
+    }
+    private void Validdate(String url , boolean hasFile , String fielName){
+    boolean hasUrl = hasText(url) ;
+    if(!hasUrl && !hasFile){
+        throw new RuntimeException("phải cung cấp file hoặc link ") ;
+    }
+
+    if(hasUrl&& hasFile){
+        throw new RuntimeException("chỉ được cung cấp file hoặc link , không được nộp cả 2 ") ;
+    }
     }
 
 }
