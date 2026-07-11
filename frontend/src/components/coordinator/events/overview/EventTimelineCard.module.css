@@ -1,0 +1,26 @@
+/* ─── EventTimelineCard ─── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  /* Chỉ bo góc trên — góc dưới sẽ kết nối với roundBox */
+  border-radius: var(--radius) var(--radius) 0 0;
+  overflow: hidden;
+}
+
+/* Khi không có roundBox bên dưới — bo đủ 4 góc */
+.cardStandalone {
+  border-radius: var(--radius);
+}
+
+.body {
+  padding: 2em;
+}

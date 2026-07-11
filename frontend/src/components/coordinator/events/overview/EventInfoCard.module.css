@@ -1,0 +1,222 @@
+/* ─── EventInfoCard ─── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+  width: 100%;
+}
+
+/* ── Box tổng hợp — 3 cột ── */
+.infoBox {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+/* Divider dọc giữa các cột */
+.colDivider {
+  width: 1px;
+  background: var(--color-border-blue);
+  flex-shrink: 0;
+  align-self: stretch;
+  margin: 1em 0;
+}
+
+/* ── Cột trái: MetaChip + Tags ── */
+.leftCol {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  padding: 1em 1.75em;
+  gap: 0.75em;
+  min-width: 0; /* tránh overflow */
+}
+
+/* MetaChip xếp ngang */
+.metaRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 2em;
+  flex-wrap: wrap;
+}
+
+/* Tags ngay dưới MetaChip, cùng nhóm, phân tách bằng border */
+.tagsRow {
+  border-top: 1.5px solid var(--color-border-blue);
+  padding-top: 0.65em;
+}
+
+/* ── Cột giữa: Ngày đăng ký — ngang, mũi tên phải ── */
+.datesCol {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1em;
+  padding: 1.25em 1.75em;
+}
+
+.dateItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+}
+
+/* Icon envelope — màu border-blue */
+.dateIconWrap {
+  color: var(--color-border-blue);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.dateText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.08em;
+}
+
+/* Label nhỏ */
+.dateLabel {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--color-secondary-blue);
+  font-family: var(--body-font-main);
+  line-height: 1;
+}
+
+/* Ngày — to, đậm */
+.dateValue {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  font-family: var(--body-font-main);
+  line-height: 1.3;
+}
+
+/* Mũi tên — inline, màu secondary */
+.dateArrow {
+  color: var(--color-secondary-blue);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Cột phải: Thống kê nổi bật ── */
+.statsCol {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25em 1.5em;
+  gap: 0;
+}
+
+.statItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2em;
+  flex: 1;
+}
+
+/* Icon stat — màu border-blue, to hơn */
+.statIcon {
+  color: var(--color-border-blue);
+}
+
+/* Số to — điểm nhấn chính */
+.statNumber {
+  font-size: 1.9rem;
+  font-weight: 900;
+  color: var(--color-primary-blue);
+  font-family: var(--body-font-main);
+  line-height: 1;
+}
+
+/* / 100 — nhỏ hơn, phụ */
+.statLimit {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.statLabel {
+  font-size: 0.72rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  font-family: var(--body-font-main);
+  text-align: center;
+}
+
+/* Divider dọc giữa 2 stat */
+.statDivider {
+  width: 1.5px;
+  height: 3em;
+  background: var(--color-border-blue);
+  flex-shrink: 0;
+  align-self: center;
+  margin: 0 1.25em;
+}
+
+/* ── Box nội dung (Chủ đề, Giới thiệu, Mô tả) ── */
+.mainBox {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.5em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+}
+
+.topicRow {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6em;
+  flex-wrap: wrap;
+}
+
+.topicLabel {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  font-family: var(--body-font-main);
+  flex-shrink: 0;
+}
+
+.topicValue {
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  font-family: var(--body-font-main);
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.fieldLabel {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  font-family: var(--body-font-main);
+}
+
+.tiptapContent {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text-primary);
+  font-family: var(--body-font-main);
+}
+.tiptapContent p { margin: 0 0 0.5em; }
+.tiptapContent p:last-child { margin-bottom: 0; }
+.tiptapContent strong { font-weight: 700; color: var(--color-text-primary); }
