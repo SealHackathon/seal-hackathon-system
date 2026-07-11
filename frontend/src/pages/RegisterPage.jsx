@@ -137,6 +137,7 @@ function RegisterPage() {
                     <FormInput
                         label="Số điện thoại"
                         required
+                        type="phone"
                         iconLeft={Phone}
                         placeholder="0123456789"
                         value={form.phone}

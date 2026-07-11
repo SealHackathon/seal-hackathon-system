@@ -6,7 +6,7 @@ import FindMemberModal from './FindMemberModal'
 import EditTeamInformationModal from './EditTeamInformationModal';
 import Tooltip from '../shared/Tooltip';
 
-function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, emptyCount, isLeader, onEdit, onRefresh }) {
+function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, emptyCount, isLeader, onEdit, onRefresh, onSuccessToast }) {
     const [showModal, setShowModal] = useState(false)
     const [showEditModal, setShowEditModal] = useState(false)
     const [isCopied, setIsCopied] = useState(false)
@@ -62,9 +62,13 @@ function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, e
                         teamId={teamId}
                         teamName={teamName}
                         description={description}
-                        onClose={(isSuccess) => {
+                        teamStatus={teamStatus}
+                        onClose={(isSuccess, msg) => {
                             setShowEditModal(false);
-                            if (isSuccess && onRefresh) onRefresh();
+                            if (isSuccess) {
+                                if (onRefresh) onRefresh();
+                                if (onSuccessToast) onSuccessToast(msg || 'Cập nhật thông tin đội thành công!');
+                            }
                         }}
                     // onEdit={onEdit}
                     />

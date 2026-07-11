@@ -8,6 +8,7 @@ import ConfirmModal from '../components/shared/ConfirmModal'
 import styles from './MemberView.module.css'
 import axiosClient from '../api/axiosClient'
 import { useAuth } from '../AuthContext'
+import ToastContainer from '../components/shared/ToastContainer'
 
 // const MOCK_MEMBERS = [
 //   {
@@ -118,6 +119,15 @@ function MemberView() {
   const { updateTeamRole } = useAuth();
   const eventId = localStorage.getItem('eventId') || null;
 
+  const [toasts, setToasts] = useState([])
+  const addToast = (toast) => {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, ...toast }])
+  }
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(t => t.id !== id))
+  }
+
   useEffect(() => {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
   }, []);
@@ -180,17 +190,11 @@ function MemberView() {
         console.log(response.data);
         if (currentUser?.memberStatus === 'RESERVE') {
           // Reserve members are removed instantly, so just clear state and reload
-          setConfirmModal({
-            title: 'Thành công',
-            message: 'Bạn đã rời nhóm thành công!',
-            confirmLabel: 'Xác nhận',
-            isNotification: true,
-            variant: 'success',
-            onConfirm: () => {
-              localStorage.removeItem('lastKnownTeamRole');
-              updateTeamRole('NO_TEAM');
-            }
-          })
+          addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã rời nhóm thành công!' })
+          setTimeout(() => {
+            localStorage.removeItem('lastKnownTeamRole');
+            updateTeamRole('NO_TEAM');
+          }, 1500);
           return;
         }
 
@@ -199,18 +203,11 @@ function MemberView() {
         }
         setLeaveRequest([responseData])
         localStorage.setItem('pendingLeaveRequest', 'true');
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'success',
-          onConfirm: () => setConfirmModal(null)
-        })
+        addToast({ variant: 'success', title: 'Thành công', message: 'Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.' })
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra, không thể rời nhóm lúc này.' });
       });
   };
 
@@ -233,18 +230,12 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         localStorage.removeItem('pendingLeaveRequest');
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Bạn đã hủy yêu cầu rời nhóm thành công!',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'success',
-          onConfirm: () => window.location.reload()
-        })
+        addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã hủy yêu cầu rời nhóm thành công!' })
+        setTimeout(() => window.location.reload(), 1500)
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra, không thể hủy rời nhóm lúc này.");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra, không thể hủy rời nhóm lúc này.' });
       });
   }
 
@@ -259,18 +250,12 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Đã chấp nhận lời mời thành công!',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'success',
-          onConfirm: () => window.location.reload()
-        })
+        addToast({ variant: 'success', title: 'Thành công', message: 'Đã chấp nhận lời mời thành công!' })
+        setTimeout(() => window.location.reload(), 1500)
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra khi chấp nhận lời mời!");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi chấp nhận lời mời!' });
       });
   }
 
@@ -289,18 +274,12 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Đã từ chối lời mời thành công!',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'success',
-          onConfirm: () => window.location.reload()
-        })
+        addToast({ variant: 'success', title: 'Thành công', message: 'Đã từ chối lời mời thành công!' })
+        setTimeout(() => window.location.reload(), 1500)
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra khi Từ Chối lời mời!");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi Từ Chối lời mời!' });
       });
   }
 
@@ -365,6 +344,8 @@ function MemberView() {
         isNotification={confirmModal?.isNotification}
         variant={confirmModal?.variant}
       />
+      
+      <ToastContainer toasts={toasts} onClose={removeToast} bottom="2em" />
     </EventLayout>
   )
 }

@@ -114,6 +114,4 @@
     align-items: center;
     justify-content: flex-end;
     gap: 1rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--color-border-blue);
 }

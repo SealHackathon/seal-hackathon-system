@@ -2,7 +2,7 @@ import { useState } from "react";
 import ModalShell from "../shared/ModalShell";
 import Button from "../shared/Button";
 import FormTextarea from "../shared/FormTextarea";
-import { Textbox, TextAlignLeft } from '@phosphor-icons/react'
+import { Textbox, TextAlignLeft, Pen } from '@phosphor-icons/react'
 import styles from "./RequestDetailModal.module.css"
 import FormInput from "../shared/FormInput";
 import axios from 'axios'
@@ -11,6 +11,7 @@ function EditTeamInformationModal({
     teamId,
     teamName,
     description,
+    teamStatus,
     onClose,
     onEdit }) {
 
@@ -51,8 +52,7 @@ function EditTeamInformationModal({
           })
           .then((response) => {
             console.log(response.data);
-            alert("Bạn đã edit nhóm thành công!");
-            onClose(true);
+            onClose(true, "Cập nhật thông tin đội thành công!");
           })
           .catch((error) => {
             console.log(error);
@@ -70,7 +70,9 @@ function EditTeamInformationModal({
         <ModalShell
             size={'sm'}
             onClose={() => { onClose() }}
-
+            title='Điều chỉnh thông tin đội'
+            titleColor='var(--color-primary-blue)'
+            icon={<Pen weight='fill' size='32' />}
             footer={
                 <div className={styles.actions}>
                     <Button
@@ -88,7 +90,6 @@ function EditTeamInformationModal({
                 </div>
             }
         >
-            <h1 className={styles.name} style={{color: 'var(--color-primary-blue)'}}>Điều chỉnh thông tin đội</h1>
             <br/>
             <FormInput
                 label="Tên đội"
@@ -101,6 +102,7 @@ function EditTeamInformationModal({
                 maxLength={30}
                 status={nameStatus}
                 message={nameMessage}
+                disabled={teamStatus === 'APPROVED'}
             />
             <br/>
             <FormTextarea
