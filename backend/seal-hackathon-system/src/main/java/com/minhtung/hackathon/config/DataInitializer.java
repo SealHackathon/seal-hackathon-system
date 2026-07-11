@@ -6,6 +6,7 @@ import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -21,6 +22,7 @@ public class DataInitializer implements CommandLineRunner {
     private final SystemRequestRepository systemRequestRepository;
     private final ScoringTemplateRepository templateRepository;
     private final MemberRepository memberRepository;
+    private final JudgeAssignmentRepository judgeAssignmentRepository;
 
     // Bộ nhớ tạm lưu trữ: Email của Mentor -> Tập hợp các TrackId được giao làm Mentor
     private final Map<String, Set<Long>> mentorTrackMapping = new HashMap<>();
@@ -30,6 +32,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     @Override
+    @Transactional
     public void run(String... args) {
         // ==================== KHỞI TẠO TÀI KHOẢN HỆ THỐNG ====================
         if (userRepository.count() == 0) {
@@ -248,6 +251,59 @@ public class DataInitializer implements CommandLineRunner {
             User u5 = userRepository.findByEmail("user5@gmail.com").orElse(null);
 
             initSampleEvent(u1, u2, u3, u4, u5, officialTemplate);
+        }
+
+        initScoringAndRankingTestAccounts();
+    }
+
+    /**
+     * Creates stable test accounts and assigns the lecturer to the first track/round.
+     * This is intentionally idempotent so it also works with an existing local database.
+     */
+    private void initScoringAndRankingTestAccounts() {
+        User lecturer = userRepository.findByEmail("lecturer.score@test.com")
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setEmail("lecturer.score@test.com");
+                    user.setPassword("12345678");
+                    user.setFullName("Lecturer Scoring Test");
+                    user.setTitle("Hackathon Judge");
+                    user.setOrg("FPT University");
+                    user.setRole(Role.LECTURER);
+                    user.setActive(true);
+                    user.setStatus(UserStatus.ACCEPTED);
+                    return userRepository.save(user);
+                });
+
+        userRepository.findByEmail("admin.rank@test.com")
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setEmail("admin.rank@test.com");
+                    user.setPassword("12345678");
+                    user.setFullName("Admin Ranking Test");
+                    user.setRole(Role.ADMIN);
+                    user.setActive(true);
+                    user.setStatus(UserStatus.ACCEPTED);
+                    return userRepository.save(user);
+                });
+
+        Event event = eventRepository.findAll().stream().findFirst().orElse(null);
+        if (event == null || event.getTracks().isEmpty() || event.getRounds().isEmpty()) {
+            return;
+        }
+
+        Track track = event.getTracks().get(0);
+        Round round = event.getRounds().get(0);
+        if (judgeAssignmentRepository
+                .findByUser_IdAndTrackIdAndRoundId(lecturer.getId(), track.getId(), round.getId())
+                .isEmpty()) {
+            com.minhtung.hackathon.entity.JudgeAssignment assignment =
+                    new com.minhtung.hackathon.entity.JudgeAssignment();
+            assignment.setUser(lecturer);
+            assignment.setEvent(event);
+            assignment.setTrack(track);
+            assignment.setRound(round);
+            judgeAssignmentRepository.save(assignment);
         }
     }
 
