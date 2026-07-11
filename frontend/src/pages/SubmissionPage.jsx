@@ -6,7 +6,7 @@ import SubmissionList from '../components/shared/submission/SubmissionList'
 import ProgressCard from '../components/shared/submission/ProgressCard'
 import UsefulInfoBox from '../components/shared/submission/UsefulInfoBox'
 import SectionHeader from '../components/shared/SectionHeader'
-import { Star, LineSegments } from '@phosphor-icons/react'
+import { Star, LineSegments, LockKey } from '@phosphor-icons/react'
 import styles from './SubmissionPage.module.css'
 import { useAuth } from '../AuthContext'
 import axiosClient from '../api/axiosClient'
@@ -212,6 +212,7 @@ function SubmissionPage() {
   const [progress, setProgress] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [teamStatus, setTeamStatus] = useState(null)
 
   useEffect(() => {
     let isMounted = true
@@ -229,12 +230,25 @@ function SubmissionPage() {
           return
         }
 
-        const { rounds: backendRounds } = await fetchRoundDetails(eventId)
+        const [roundsResult, teamInfoResult] = await Promise.allSettled([
+          fetchRoundDetails(eventId),
+          axiosClient.get('/team/team-info')
+        ])
+
         if (!isMounted) return
 
-        const normalizedRounds = (backendRounds || []).map(mapBackendRoundToUi)
-        setRounds(normalizedRounds)
-        setProgress(buildProgress(normalizedRounds))
+        if (teamInfoResult.status === 'fulfilled') {
+          setTeamStatus(teamInfoResult.value.data?.teamStatus)
+        }
+
+        if (roundsResult.status === 'fulfilled') {
+          const { rounds: backendRounds } = roundsResult.value
+          const normalizedRounds = (backendRounds || []).map(mapBackendRoundToUi)
+          setRounds(normalizedRounds)
+          setProgress(buildProgress(normalizedRounds))
+        } else {
+          throw roundsResult.reason
+        }
       } catch (err) {
         console.error('Failed to load submission rounds:', err)
         if (!isMounted) return
@@ -267,29 +281,46 @@ function SubmissionPage() {
         {loading && <p>Đang tải dữ liệu vòng thi...</p>}
         {error && <p>{error}</p>}
 
-        <div className={styles.topSection}>
-          <div className={styles.timelineContainer}>
-            <RoundTimelineHorizontal rounds={rounds} />
+        {!loading && !error && teamStatus !== 'APPROVED' ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyIcon}>
+              <LockKey size={48} weight="fill" color="var(--color-primary-blue)" />
+            </div>
+            <h2>Chưa thể nộp bài</h2>
+            <p>
+              Đội của bạn cần được Ban tổ chức phê duyệt danh sách thành viên trước khi tham gia các vòng thi.<br/>
+              Vui lòng quay lại sau khi đội đã được duyệt nhé.
+            </p>
           </div>
-        </div>
-
-        <div className={styles.content}>
-          <div className={styles.mainColumn}>
-            <SectionHeader icon={LineSegments} title="Chi tiết các vòng thi" level="h1" />
-            <div className={styles.mainContainer}>
-              <div>
-                <SubmissionList rounds={rounds} role={teamRole} />
+        ) : (
+          !loading && !error && (
+            <>
+              <div className={styles.topSection}>
+                <div className={styles.timelineContainer}>
+                  <RoundTimelineHorizontal rounds={rounds} />
+                </div>
               </div>
-            </div>
-          </div>
 
-          <div className={styles.sideColumn}>
-            <div className={styles.stickyWrapper}>
-              <ProgressCard progress={progress} activeRound={activeRound} />
-              <UsefulInfoBox />
-            </div>
-          </div>
-        </div>
+              <div className={styles.content}>
+                <div className={styles.mainColumn}>
+                  <SectionHeader icon={LineSegments} title="Chi tiết các vòng thi" level="h1" />
+                  <div className={styles.mainContainer}>
+                    <div>
+                      <SubmissionList rounds={rounds} role={teamRole} />
+                    </div>
+                  </div>
+                </div>
+
+                <div className={styles.sideColumn}>
+                  <div className={styles.stickyWrapper}>
+                    <ProgressCard progress={progress} activeRound={activeRound} />
+                    <UsefulInfoBox />
+                  </div>
+                </div>
+              </div>
+            </>
+          )
+        )}
       </div>
     </EventLayout>
   )

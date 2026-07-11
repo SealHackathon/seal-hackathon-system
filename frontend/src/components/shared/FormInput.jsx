@@ -62,15 +62,18 @@ function FormInput({
             </span>
           )}
 
+          {/* Validate các input dạng số */}
           <input
             className={styles.input}
             id={inputId}
-            type={type === 'number' ? 'text' : type}
-            inputMode={type === 'number' ? 'numeric' : undefined}
+            type={type === 'number' || type === 'phone' ? 'text' : type}
+            inputMode={type === 'number' || type === 'phone' ? 'numeric' : undefined}
             name={name}
             value={value}
             onChange={(e) => {
-              if (type === 'number') { // ! === VALIDATION cho số (number) ===
+              if (type === 'phone') {
+                e.target.value = e.target.value.replace(/[^0-9+]/g, '')
+              } else if (type === 'number') { // ! === VALIDATION cho số (number) ===
                 let val = e.target.value.replace(/[^0-9]/g, '')
                 if (val !== '') {
                   let num = parseInt(val, 10)
@@ -96,8 +99,8 @@ function FormInput({
               onBlur?.(e)
             }}
             onKeyDown={(e) => {
-              if (type === 'number') {
-                if (['-', '+', 'e', 'E', '.', ','].includes(e.key)) {
+              if (type === 'number' || type === 'phone') {
+                if (['-', 'e', 'E', '.', ','].includes(e.key)) {
                   e.preventDefault()
                 }
               }

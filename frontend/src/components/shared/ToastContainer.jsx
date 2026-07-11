@@ -9,11 +9,11 @@ import styles from './ToastContainer.module.css'
  * @param {{ id, variant, title, message, duration }[]} toasts
  * @param {Function} onClose – called with (id) when a toast is dismissed
  */
-function ToastContainer({ toasts = [], onClose }) {
+function ToastContainer({ toasts = [], onClose, bottom = '6.5rem' }) {
   if (!toasts.length) return null
 
   return createPortal(
-    <div className={styles.container} aria-live="polite" aria-atomic="false">
+    <div className={styles.container} style={{ bottom }} aria-live="polite" aria-atomic="false">
       {toasts.map(t => (
         <Toast
           key={t.id}

@@ -35,6 +35,7 @@ function mapApiEventToUi(apiEvent) {
         maxTeamMember: apiEvent.maxTeamMember || apiEvent.maxMemberPerTeam || 5,
         teamCount: apiEvent.teamQuantity || 0,
         participantCount: apiEvent.candidateQuantity || 0,
+        trackCount: apiEvent.trackQuantity || 0,
         roundCount: apiEvent.roundQuantity || 0,
         timeline,
     }

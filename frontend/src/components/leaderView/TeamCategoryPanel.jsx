@@ -7,6 +7,7 @@ function TeamCategoryPanel({
     categories = [],
     selectedCategoryId = null,
     isLeader = false,
+    teamStatus = 'OPEN',
     onCategoryChange
 }) {
     const [showModal, setShowModal] = useState(false)
@@ -32,9 +33,9 @@ function TeamCategoryPanel({
                 {selectedCategory ? (
                 <div className={styles.rubricSelected}>
                     <div className={styles.rubricInfo}>
-                        <span className={styles.rubricLabel}>{selectedCategory.name}</span>
+                        <span className={styles.rubricLabel}>{selectedCategory.name || selectedCategory.trackName}</span>
                     </div>
-                    {isLeader && (
+                    {isLeader && teamStatus === 'OPEN' && (
                         <div className={styles.rubricActions}>
                             <button className={styles.rubricChangeBtn} onClick={() => setShowModal(true)}>
                                 Thay đổi
@@ -46,7 +47,7 @@ function TeamCategoryPanel({
                     )}
                 </div>
             ) : (
-                isLeader ? (
+                (isLeader && teamStatus === 'OPEN') ? (
                     <div className={styles.rubricPlaceholder} onClick={() => setShowModal(true)}>
                         <Plus size={20} />
                         <span>Chọn hạng mục</span>
