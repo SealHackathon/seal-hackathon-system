@@ -75,7 +75,7 @@ public class RoundService {
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Event với ID: " + request.getEventId()));
 
-        // 2. XỬ LÝ XÓA CÁC ROUND BỊ FRONTEND LOẠI BỎ (Nút Xóa trên giao diện)
+        // 2Ỏ . XỬ LÝ XÓA CÁC ROUND BỊ FRONTEND LOẠI B(Nút Xóa trên giao diện)
         if (request.getRounds() == null) {
             request.setRounds(new ArrayList<>());
         }
@@ -112,7 +112,11 @@ public class RoundService {
             } else {
                 round = new Round(); // Nếu không có id hoặc id sai -> Tạo mới tinh
             }
-
+            //  Lưu scoringTempalte mới
+            ScoringTemplate scoringTemplate=scoringTemplateRepository.findById(item.getRubricId()).orElse(null);
+            if(scoringTemplate!=null){
+                round.setScoringTemplate(scoringTemplate);
+            }
             round.setEvent(event);
             round.setName(item.getName());
             round.setTimeStart(item.getTimeStart());
@@ -183,6 +187,8 @@ public class RoundService {
                         .toList();
             }
 
+
+
             // 6. XÁC ĐỊNH TRẠNG THÁI VÒNG THI
             LocalDateTime now = LocalDateTime.now();
             String status = "UPCOMING";
@@ -204,6 +210,7 @@ public class RoundService {
             roundRes.setRoundStartTime(savedRound.getTimeStart());
             roundRes.setRoundEndTime(savedRound.getTimeEnd());
             roundRes.setRoundSubmissionDeadline(savedRound.getSubmissionDeadline());
+            roundRes.setRubricId(item.getRubricId());
             roundRes.setScroringTemplateUrl(null);
             roundRes.setTopTeamPass(savedRound.getTopTeamPass());
             roundRes.setSubmissionQuantity(0); // Đoạn này nếu muốn chuẩn xác khi UPDATE, bạn cần query đếm số lượng submission thật trong DB thay vì gán cứng bằng 0 nhé.

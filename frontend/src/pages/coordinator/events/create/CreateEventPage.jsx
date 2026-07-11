@@ -341,7 +341,7 @@ function CreateEventPage() {
           : [],
         meetingLink: r.meetingLink ?? '',
         topTeamPass: r.topTeamPass ?? 0,
-        rubricId: (r.criteria && r.criteria.length > 0) ? 'saved' : null,
+        rrubricId: r.rubricId ? Number(r.rubricId) : null,
         rubricName: (r.criteria && r.criteria.length > 0) ? 'Bộ tiêu chí đã lưu' : null,
         criteria: r.criteria || [],
       }

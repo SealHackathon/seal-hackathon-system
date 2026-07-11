@@ -208,8 +208,11 @@ public class EventService {
         event.setCloseRegisterTime(request.getCloseRegisterTime());
         event.setCofirmTeamTime(request.getCofirmTeamTime());
 
-        String[] keywords=request.getKeywords().split(",");
-        event.setKeywords(keywords);
+        if(request.getKeywords() != null) {
+            String[] keywords=request.getKeywords().split(",");
+            event.setKeywords(keywords);
+        }
+
 
         Event savedEvent = eventRepository.save(event);
         return mapToEventDetailsResponse(savedEvent);

@@ -26,6 +26,8 @@ public class RoundDetailsResponse {
     
     private String status;             // Trạng thái vòng thi (UPCOMING, IN_PROGRESS, COMPLETED)
 
+    private Long rubricId;
+
     private SubmissionConfigResponse submissionConfig;
 
     // --- THÊM: Mảng lịch trình chi tiết của vòng thi này ---
