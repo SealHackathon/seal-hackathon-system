@@ -223,7 +223,7 @@ public List<SubmissionListResponse> getSubmissionByRound(Long roundId){
     }
 
     @Transactional
-    public List<ViewSubmissionTrackResponse> viewSubmissionTrackResponses(Long trackId){
+    public List<ViewSubmissionTrackResponse>    viewSubmissionTrackResponses(Long trackId){
       if(!trackRepository.existsById(trackId)){
             throw  new RuntimeException("khong tim thay track");
 

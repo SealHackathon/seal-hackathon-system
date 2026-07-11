@@ -45,7 +45,7 @@ public class ScoringTemplateController {
 //    }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
-    @GetMapping("/{id}")
+    @GetMapping("/tieuchicham/{id}")
     public ResponseEntity<?> getById(
             @PathVariable Long id
     ) {
