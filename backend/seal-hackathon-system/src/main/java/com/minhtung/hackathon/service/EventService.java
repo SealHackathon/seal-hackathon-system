@@ -136,7 +136,11 @@ public class EventService {
         eventResponse.setEventLocation(event.getEventLocation());
         eventResponse.setTrackQuantity(eventResponse.getTrackQuantity() + event.getTracks().size());
         // dang hard code set prize
-        eventResponse.setPrize(10000000);
+        List<Prize> prizes = event.getPrizes();
+        long totalprize=0;
+        for (Prize prize : prizes) {
+            totalprize+=prize.getMoney()*prize.getQuantity();
+        }
 
         int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
         eventResponse.setTeamQuantity(teamQuantity);
