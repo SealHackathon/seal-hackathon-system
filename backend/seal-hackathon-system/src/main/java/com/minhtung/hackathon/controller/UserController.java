@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
 import com.minhtung.hackathon.dto.response.LecturerResponse;
 import com.minhtung.hackathon.dto.response.SearchMemberResponse;
@@ -69,14 +70,23 @@ public class UserController {
 
 
 
-@PutMapping("/student-profile")
-public ResponseEntity<?> updateStudentProfile(
-        Authentication authentication,
-        @RequestBody UpdateStudentProfileRequest req
-) {
-    return ResponseEntity.ok(
-            kycService.updatesStudentProfile(authentication.getName(),req) );
-}
+    @PutMapping(value = "/student-profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateStudentProfile(
+            Authentication authentication,
+            @RequestPart(value = "avatar", required = false) MultipartFile avatarFile,
+            @RequestPart(value = "data") String profileDataJson
+    ) {
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            UpdateStudentProfileRequest req = objectMapper.readValue(profileDataJson, UpdateStudentProfileRequest.class);
+
+            return ResponseEntity.ok(
+                    kycService.updatesStudentProfile(authentication.getName(), req, avatarFile)
+            );
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Dữ liệu không hợp lệ: " + e.getMessage());
+        }
+    }
     @Operation(
             summary = "upanh",
             description = "cv_img avatar."

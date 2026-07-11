@@ -37,7 +37,7 @@ public class JudgeScoreController {
                 );
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/update/{id}")
     @PreAuthorize("hasRole('LECTURER')")
     public ResponseEntity<JudgeScoreResponse> update(
             Authentication authentication,
@@ -54,7 +54,7 @@ public class JudgeScoreController {
         );
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/delete/{id}")
     @PreAuthorize("hasRole('LECTURER')")
     public ResponseEntity<Void> delete(
             Authentication authentication,

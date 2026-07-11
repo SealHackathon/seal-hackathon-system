@@ -4,6 +4,11 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
+
+import java.util.List;
+import java.util.Map;
 
 @Entity
 @Data
@@ -19,12 +24,23 @@ public class Student_profile {
     @Column(columnDefinition = "TEXT")
     private String  img_studentcard ;
 
+    @Column(columnDefinition = "TEXT")
     private String bio ;
 
+    @Column(columnDefinition = "TEXT")
+    private String avatar;
 
-    private String positions ;
-    private String tags ;
-    private String topics ;
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(columnDefinition = "text[]")
+    private List<String> positions;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private Map<String, List<String>> techTags;
+
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(columnDefinition = "text[]")
+    private List<String> topics;
 
 
 }
