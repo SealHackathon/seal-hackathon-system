@@ -72,8 +72,11 @@ function RegisterPage() {
                 return
             }
 
+            const dataToSave = { ...form }
+            delete dataToSave.password
+
             localStorage.setItem('verifyEmail', form.email)
-            localStorage.setItem('registerData', JSON.stringify(form))
+            localStorage.setItem('registerData', JSON.stringify(dataToSave))
             navigate('/verify-email', { state: { email: form.email } })
 
         } catch {

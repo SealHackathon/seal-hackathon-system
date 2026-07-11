@@ -10,7 +10,8 @@ axiosClient.interceptors.request.use((config) => {
   const expiredTime = localStorage.getItem("expiredTime");
   // Check hết hạn trước
   if (expiredTime && Date.now() >= Number(expiredTime)) {
-    ["accessToken", "role", "teamRole", "userInfo", "expiredTime"].forEach(
+    ["accessToken", "role", "teamRole", "userInfo", "expiredTime", "activeAccount", "userStatus",
+      "completeProfileStep", "completeProfileStep1", "completeProfileStep2", "completeProfileStep3", "completeProfileStep4"].forEach(
       (key) => localStorage.removeItem(key)
     );
     window.location.href = "/login";
@@ -31,7 +32,8 @@ axiosClient.interceptors.response.use(
   (error) => {
     // Server trả 401 → token bị revoke hoặc invalid phía server
     if (error.response?.status === 401) {
-      ["accessToken", "role", "teamRole", "userInfo", "expiredTime"].forEach(
+      ["accessToken", "role", "teamRole", "userInfo", "expiredTime", "activeAccount", "userStatus",
+        "completeProfileStep", "completeProfileStep1", "completeProfileStep2", "completeProfileStep3", "completeProfileStep4"].forEach(
         (key) => localStorage.removeItem(key)
       );
       window.location.href = "/login";

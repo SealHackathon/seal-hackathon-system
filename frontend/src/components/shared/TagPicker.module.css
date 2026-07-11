@@ -17,9 +17,8 @@
 }
 
 .label {
-    font-family: var(--title-font-main);
+    font-family: var(--body-font-main);
     font-weight: 700;
-    font-style: italic;
     font-size: 1rem;
     color: var(--color-primary-blue);
 }
@@ -157,8 +156,9 @@
    Pill active (đã chọn)
    ============================ */
 .pillActive {
-    background: var(--color-border-blue);
+    background: var(--color-primary-blue);
     border-color: var(--color-primary-blue);
+    color: var(--color-bg-blue);
     border-width: 2px;
     font-weight: 700;
     padding: 0.22rem 0.79rem;
@@ -166,7 +166,8 @@
 }
 
 .pillActive:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--color-bg-blue) 70%, var(--color-secondary-blue));
+    background: var(--color-border-blue);
+    color: var(--color-primary-blue);
 }
 
 /* ============================

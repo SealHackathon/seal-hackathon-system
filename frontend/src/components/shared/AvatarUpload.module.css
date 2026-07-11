@@ -121,7 +121,9 @@
    ============================ */
 .dropzone {
     width: 100%;
-    max-width: 22rem;
+    height:100%;
+    max-width: 30em;
+    max-height: 30em;
     border: 1.5px dashed var(--color-border-blue);
     border-radius: var(--inner-radius);
     background: var(--color-bg-blue);
@@ -190,7 +192,8 @@
 .cropArea {
     position: relative;
     width: 100%;
-    max-width: 22rem;
+    max-width: 30em;
+    max-height: 30em;
     aspect-ratio: 1;
     border-radius: var(--inner-radius);
     overflow: hidden;
@@ -216,7 +219,7 @@
     align-items: center;
     gap: 0.65rem;
     width: 100%;
-    max-width: 22rem;
+    max-width: 30rem;
 }
 
 .zoomBtn {
@@ -282,6 +285,6 @@
     display: flex;
     gap: 0.75rem;
     width: 100%;
-    max-width: 22rem;
+    max-width: 30em;
     justify-content: flex-end;
 }
