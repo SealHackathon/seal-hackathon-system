@@ -42,5 +42,7 @@ public class Student_profile {
     @Column(columnDefinition = "text[]")
     private List<String> topics;
 
+    private String cv_link ;
+
 
 }
