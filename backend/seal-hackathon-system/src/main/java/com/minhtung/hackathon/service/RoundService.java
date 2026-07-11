@@ -75,7 +75,7 @@ public class RoundService {
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Event với ID: " + request.getEventId()));
 
-        // 2Ỏ . XỬ LÝ XÓA CÁC ROUND BỊ FRONTEND LOẠI B(Nút Xóa trên giao diện)
+        // 2. XỬ LÝ XÓA CÁC ROUND BỊ FRONTEND LOẠI BỎ
         if (request.getRounds() == null) {
             request.setRounds(new ArrayList<>());
         }
@@ -90,7 +90,6 @@ public class RoundService {
         if (!activeRoundIds.isEmpty()) {
             roundRepository.deleteByEventIdAndIdNotIn(event.getId(), activeRoundIds);
         } else {
-            // Nếu FE gửi lên mảng rounds rỗng hoặc toàn bộ roundId đều là tạo mới -> Xóa sạch các round cũ của Event
             roundRepository.deleteByEventId(event.getId());
         }
         roundRepository.flush(); // Đồng bộ lệnh xóa xuống DB trước khi làm việc tiếp
@@ -112,9 +111,10 @@ public class RoundService {
             } else {
                 round = new Round(); // Nếu không có id hoặc id sai -> Tạo mới tinh
             }
-            //  Lưu scoringTempalte mới
-            ScoringTemplate scoringTemplate=scoringTemplateRepository.findById(item.getRubricId()).orElse(null);
-            if(scoringTemplate!=null){
+
+            // Lưu scoringTemplate mới
+            ScoringTemplate scoringTemplate = scoringTemplateRepository.findById(item.getRubricId()).orElse(null);
+            if (scoringTemplate != null) {
                 round.setScoringTemplate(scoringTemplate);
             }
             round.setEvent(event);
@@ -129,25 +129,33 @@ public class RoundService {
             round.setMeetingLink(item.getMeetingLink());
             round.setLocationName(item.getLocationName());
             round.setDetailLocation(item.getDetailLocation());
-            // Lưu Round (Hàm save tự động hiểu: có Id thì là UPDATE, không có Id thì là INSERT)
+
+            // Lưu hoặc Cập nhật Round
             Round savedRound = roundRepository.save(round);
 
-            // 4. Xử lý SubmissionConfig (Xóa cấu hình cũ của Round này nếu có, rồi tạo mới theo FE)
-            submissionConfigRepository.deleteByRoundId(savedRound.getId());
-
+            // ==========================================
+            // 4. XỬ LÝ SUBMISSION CONFIG (SỬA LỖI TRÙNG UNIQUE KEY)
+            // ==========================================
             SubmissionConfigResponse resConfig = null;
             if (item.getSubmissionConfig() != null) {
                 RoundRequest.SubmissionConfigInfo configInfo = item.getSubmissionConfig();
 
-                SubmissionConfig config = new SubmissionConfig(
-                        savedRound,
-                        configInfo.getTitle(),
-                        configInfo.getOpeningTime(),
-                        configInfo.getSubmissionDeadline(),
-                        configInfo.getSubmissionInstructions(),
-                        configInfo.isHasSubmission()
-                );
+                // Tìm cấu hình cũ dựa trên round_id (Thay vì xóa đi tạo mới)
+                // Lưu ý: Nhớ khai báo Optional<SubmissionConfig> findByRoundId(Long roundId) trong Repository
+                SubmissionConfig config = submissionConfigRepository.findByRoundId(savedRound.getId())
+                        .orElseGet(() -> {
+                            SubmissionConfig newConfig = new SubmissionConfig();
+                            newConfig.setRound(savedRound);
+                            return newConfig;
+                        });
+
+                // Gán đè dữ liệu mới (Hibernate sẽ giữ nguyên Id bản ghi cũ để thực hiện lệnh UPDATE)
+                config.setTitle(configInfo.getTitle());
+                config.setOpeningTime(configInfo.getOpeningTime());
+                config.setSubmissionDeadline(configInfo.getSubmissionDeadline());
+                config.setSubmissionInstructions(configInfo.getSubmissionInstructions());
                 config.setHasSubmission(configInfo.isHasSubmission());
+
                 SubmissionConfig savedConfig = submissionConfigRepository.save(config);
 
                 resConfig = new SubmissionConfigResponse(
@@ -158,10 +166,18 @@ public class RoundService {
                         savedConfig.getSubmissionInstructions(),
                         savedConfig.isHasSubmission()
                 );
+            } else {
+                // Nếu FE gửi submissionConfig = null, chứng tỏ vòng này không có cấu hình nộp bài bài -> Tiến hành xóa bản ghi cũ
+                submissionConfigRepository.deleteByRoundId(savedRound.getId());
+                submissionConfigRepository.flush(); // Ép thực hiện xóa ngay lập tức
             }
 
-            // 5. Xử lý RoundTimeline (Xóa hết timeline cũ của Round này đi rồi nạp lại mảng mới từ FE)
+            // ==========================================
+            // 5. XỬ LÝ ROUND TIMELINE (TỐI ƯU HIỆU NĂNG)
+            // ==========================================
+            // Xóa hết timeline cũ của Round này đi rồi nạp lại mảng mới từ FE
             roundTimelineRepository.deleteByRoundId(savedRound.getId());
+            roundTimelineRepository.flush(); // Ép thực hiện xóa hết trước khi chèn mới để tránh lộn xộn câu lệnh
 
             List<RoundDetailsResponse.TimelineResponse> resTimelines = new ArrayList<>();
             if (item.getTimelines() != null && !item.getTimelines().isEmpty()) {
@@ -187,8 +203,6 @@ public class RoundService {
                         ))
                         .toList();
             }
-
-
 
             // 6. XÁC ĐỊNH TRẠNG THÁI VÒNG THI
             LocalDateTime now = LocalDateTime.now();
@@ -216,7 +230,7 @@ public class RoundService {
             roundRes.setRubricId(item.getRubricId());
             roundRes.setScroringTemplateUrl(null);
             roundRes.setTopTeamPass(savedRound.getTopTeamPass());
-            roundRes.setSubmissionQuantity(0); // Đoạn này nếu muốn chuẩn xác khi UPDATE, bạn cần query đếm số lượng submission thật trong DB thay vì gán cứng bằng 0 nhé.
+            roundRes.setSubmissionQuantity(0);
             roundRes.setRoundQuantity(totalRounds);
             roundRes.setStatus(status);
             roundRes.setSubmissionConfig(resConfig);
