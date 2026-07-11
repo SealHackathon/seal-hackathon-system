@@ -446,7 +446,7 @@ public class DataInitializer implements CommandLineRunner {
         teamMembers.add(new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, finalTeam, user2, JoinMethod.JOINBYCODE));
         teamMembers.add(new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, finalTeam, user3, JoinMethod.JOINBYCODE));
         teamMembers.add(new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, finalTeam, user4, JoinMethod.JOINBYCODE));
-        teamMembers.add(new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, finalTeam, user5, JoinMethod.JOINBYCODE)); // Mở comment user5
+//        teamMembers.add(new Member(MemberRole.MEMBER, MemberStatus.OFFICAL, finalTeam, user5, JoinMethod.JOINBYCODE));
 
         // C. Lưu hàng loạt Member xuống Database trước để đảm bảo khóa ngoại không lỗi
         memberRepository.saveAll(teamMembers);
@@ -455,7 +455,7 @@ public class DataInitializer implements CommandLineRunner {
         finalTeam.setMembers(teamMembers);
         teamRepository.save(finalTeam);
 
-        System.out.println("✅ Khởi tạo thành công 1 Đội thi mẫu: SEAL INNOVATORS (5 thành viên)!");
+        System.out.println("✅ Khởi tạo thành công 1 Đội thi mẫu: SEAL INNOVATORS (4 thành viên)!");
     }
 
     private void initMentorJudgeInvites(Event event) {
