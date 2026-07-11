@@ -10,7 +10,7 @@ public class UpdateStudentProfileRequest {
 
     private String bio ;
     private List<String> positons ;
-    private Map<String, List<String>> tags;
+    private Map<String, List<String>> techTags;
     private List<String> topics ;
-
+    private String cvLink;
 }

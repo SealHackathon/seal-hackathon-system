@@ -29,6 +29,7 @@ import java.util.Map;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -375,9 +376,9 @@ public class KycService {
         }
 
         // Validate tổng số lượng công nghệ trong Map techTags
-        if (req.getTags() != null) {
+        if (req.getTechTags() != null) {
             // Gom tất cả các phần tử trong các mảng con lại để đếm tổng số tag thực tế
-            long totalTags = req.getTags().values().stream()
+            long totalTags = req.getTechTags().values().stream()
                     .mapToLong(List::size)
                     .sum();
             if (totalTags > 10) {
@@ -388,11 +389,23 @@ public class KycService {
         if (req.getTopics() != null && req.getTopics().size() > 10) {
             throw new RuntimeException("Chỉ được chọn tối đa 10 chủ đề");
         }
+        //kiem tra cv link
+        if (req.getCvLink() != null) {
+            String cvLink = req.getCvLink().trim();
+
+            if (!cvLink.isEmpty()
+                    && !cvLink.startsWith("http://")
+                    && !cvLink.startsWith("https://")) {
+                throw new RuntimeException("CV link không hợp lệ");
+            }
+
+            profile.setCvLink(cvLink.isEmpty() ? null : cvLink);
+        }
 
         // --- 3. Map dữ liệu vào Entity ---
         profile.setBio(req.getBio());
         profile.setPositions(req.getPositons());
-        profile.setTechTags(req.getTags());
+        profile.setTechTags(req.getTechTags());
         profile.setTopics(req.getTopics());
         user.setStatus(UserStatus.PENDING_APPROVAL);
         studentprofileRepository.save(profile);
