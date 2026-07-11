@@ -66,7 +66,13 @@ public class EventService {
             eventResponse.setRoundQuantity(totalRounds);
 
             // dang hard code set prize
-            eventResponse.setPrize(10000000);
+            List<Prize> prizes = event.getPrizes();
+            long totalprize=0;
+            for (Prize prize : prizes) {
+                totalprize+=prize.getMoney()*prize.getQuantity();
+            }
+
+            eventResponse.setPrize(totalprize);
 
             int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
             eventResponse.setTeamQuantity(teamQuantity);
