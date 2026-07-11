@@ -127,7 +127,8 @@ public class RoundService {
             round.setSubmissionDeadline(item.getSubmissionDeadline());
             round.setPosition(item.getPosition());
             round.setMeetingLink(item.getMeetingLink());
-
+            round.setLocationName(item.getLocationName());
+            round.setDetailLocation(item.getDetailLocation());
             // Lưu Round (Hàm save tự động hiểu: có Id thì là UPDATE, không có Id thì là INSERT)
             Round savedRound = roundRepository.save(round);
 
@@ -206,6 +207,8 @@ public class RoundService {
             RoundDetailsResponse roundRes = new RoundDetailsResponse();
             roundRes.setRoundId(savedRound.getId());
             roundRes.setRoundName(savedRound.getName());
+            roundRes.setLocationName(savedRound.getLocationName());
+            roundRes.setDetailLocation(savedRound.getDetailLocation());
             roundRes.setRoundOrdinalNumber(savedRound.getOrdinal_number());
             roundRes.setRoundStartTime(savedRound.getTimeStart());
             roundRes.setRoundEndTime(savedRound.getTimeEnd());
