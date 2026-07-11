@@ -12,6 +12,7 @@ import FormInput from '../../../components/shared/FormInput'
 import Dropdown from '../../../components/shared/Dropdown'
 import DateTimePicker from '../../../components/shared/DateTimePicker'
 import ProfileStepper from '../../../components/shared/ProfileStepper'
+import ConfirmModal from '../../../components/shared/ConfirmModal'
 import styles from './Step1CCCD.module.css'
 
 // ── Constants ────────────────────────────
@@ -72,6 +73,7 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
     const [frontFile, setFrontFile] = useState(initialData?.frontFile || initialData?.frontcmnd_img || null)
     const [backFile, setBackFile] = useState(initialData?.backFile || null)
     const [fileResetKey, setFileResetKey] = useState(0)
+    const [confirmModal, setConfirmModal] = useState(null)
 
     // ─ Extraction state
     //   'idle' | 'loading' | 'success' | 'error_retry' | 'error_exhausted'
@@ -131,10 +133,23 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
             })
             // Lưu link Cloudinary để không bị mất khi refresh trang (localStorage không lưu được File object)
             if (res.data.frontcmnd_img) setFrontFile(res.data.frontcmnd_img)
-            if (res.data.CmndBack_img) setBackFile(res.data.CmndBack_img)
+            if (res.data.cmndBack_img) setBackFile(res.data.cmndBack_img)
             
             setExtractionState('success')
-        } catch {
+        } catch (err) {
+            if (err.response?.data?.message === "Maximum upload size exceeded") {
+                setConfirmModal({
+                    title: "Lỗi lưu ảnh tải lên",
+                    message: "Ảnh tải lên có kích thước quá lớn. Vui lòng chọn ảnh có kích thước nhỏ hơn!",
+                    variant: "warning",
+                    isNotification: true,
+                    onConfirm: () => {
+                        setConfirmModal(null)
+                        setExtractionState('idle')
+                    }
+                })
+                return;
+            }
             const next = retriesLeft - 1
             setRetriesLeft(next)
             setExtractionState(next > 0 ? 'error_retry' : 'error_exhausted')
@@ -230,7 +245,7 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
                             key={`front-${fileResetKey}`}
                             label="Mặt trước CCCD" required
                             accept={['image/png', 'image/jpeg', 'image/jpg']}
-                            maxSizeMB={5}
+                            maxSizeMB={3}
                             aspectRatio={3 / 2}
                             value={frontFile}
                             onFileChange={handleFrontChange}
@@ -239,7 +254,7 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
                             key={`back-${fileResetKey}`}
                             label="Mặt sau CCCD" required
                             accept={['image/png', 'image/jpeg', 'image/jpg']}
-                            maxSizeMB={5}
+                            maxSizeMB={3}
                             aspectRatio={3 / 2}
                             value={backFile}
                             onFileChange={handleBackChange}
@@ -428,6 +443,16 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
                     />
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={!!confirmModal}
+                title={confirmModal?.title}
+                message={confirmModal?.message}
+                variant={confirmModal?.variant}
+                isNotification={confirmModal?.isNotification}
+                onConfirm={confirmModal?.onConfirm}
+                onCancel={() => setConfirmModal(null)}
+            />
         </div>
     )
 }

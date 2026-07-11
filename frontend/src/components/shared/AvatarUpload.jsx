@@ -108,7 +108,7 @@ function AvatarUpload({ label = 'Ảnh hồ sơ', value, onChange }) {
 
             {/* ── Modal ── */}
             {modalOpen && (
-                <ModalShell onClose={closeModal} size="md">
+                <ModalShell onClose={closeModal} size="lg">
                     <AvatarModal onSave={handleCropSave} onClose={closeModal} />
                 </ModalShell>
             )}
