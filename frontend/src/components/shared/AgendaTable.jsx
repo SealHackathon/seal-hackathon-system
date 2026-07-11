@@ -13,7 +13,7 @@ import DateTimePicker from "./DateTimePicker"
 import FormInput from "./FormInput"
 import styles from "./AgendaTable.module.css"
 
-function AgendaRow({ item, onChange, onDelete, isOnly, rowErrors, index }) {
+function AgendaRow({ item, onChange, onDelete, isOnly, rowErrors, index, roundStartDate, highlightRanges }) {
     const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
         useSortable({ id: item.id })
     const [timeTouched, setTimeTouched] = useState(false)
@@ -54,13 +54,14 @@ function AgendaRow({ item, onChange, onDelete, isOnly, rowErrors, index }) {
                 }
             }}>
                 <DateTimePicker
-                    timeOnly
                     value={item.startTime}
                     onChange={date => {
                         update("startTime", date)
                         setTimeTouched(true)
                     }}
-                    placeholder="Giờ"
+                    placeholder="Chọn ngày giờ"
+                    customDateFormat="dd/MM, HH:mm"
+                    highlightRanges={highlightRanges}
                     error={(timeTouched && rowErrors?.time) ? rowErrors.time : (rowErrors?.order ? rowErrors.order : null)}
                 />
             </div>
@@ -94,13 +95,20 @@ function AgendaRow({ item, onChange, onDelete, isOnly, rowErrors, index }) {
     )
 }
 
-function validateAgenda(items) {
+function validateAgenda(items, roundStartDate, roundEndDate) {
     const errors = {}
     items.forEach((item, i) => {
         const errs = {}
         if (!item.startTime) {
             errs.time = "Vui lòng chọn giờ bắt đầu"
-        } 
+        } else {
+            const time = new Date(item.startTime).getTime();
+            if (roundStartDate && time < new Date(roundStartDate).getTime()) {
+                errs.time = "Phải nằm trong thời gian vòng thi";
+            } else if (roundEndDate && time > new Date(roundEndDate).getTime()) {
+                errs.time = "Phải nằm trong thời gian vòng thi";
+            }
+        }
         if (!item.name || item.name.trim() === "") {
             errs.name = "Vui lòng nhập tên hoạt động"
         }
@@ -117,13 +125,13 @@ function validateAgenda(items) {
     return errors
 }
 
-function AgendaTable({ items = [], onChange }) {
+function AgendaTable({ items = [], onChange, roundStartDate, roundEndDate, highlightRanges }) {
     const sensors = useSensors(
         useSensor(PointerSensor),
         useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
     )
 
-    const errors = validateAgenda(items)
+    const errors = validateAgenda(items, roundStartDate, roundEndDate)
 
     function handleDragEnd({ active, over }) {
         if (!over || active.id === over.id) return
@@ -141,11 +149,15 @@ function AgendaTable({ items = [], onChange }) {
 
     function addItem() {
         const last = items[items.length - 1]
+        let defaultTime = addMinutes(last?.startTime, 15)
+        if (!defaultTime && roundStartDate) {
+            defaultTime = new Date(roundStartDate)
+        }
         onChange([
             ...items,
             {
                 id: Date.now(),
-                startTime: addMinutes(last?.startTime, 15),
+                startTime: defaultTime,
                 name: "",
                 desc: "",
             },
@@ -157,7 +169,7 @@ function AgendaTable({ items = [], onChange }) {
             <div className={styles.header}>
                 <span />
                 <span />
-                <span className={styles.headerCell}>Bắt đầu <span style={{ color: 'var(--color-primary-orange)' }}>*</span></span>
+                <span className={styles.headerCell}>Ngày giờ bắt đầu <span style={{ color: 'var(--color-primary-orange)' }}>*</span></span>
                 <span className={styles.headerCell}>Tên hoạt động <span style={{ color: 'var(--color-primary-orange)' }}>*</span></span>
                 <span className={styles.headerCell}>Mô tả</span>
                 <span />
@@ -175,6 +187,8 @@ function AgendaTable({ items = [], onChange }) {
                                 onChange={updated => onChange(items.map(i => i.id === item.id ? updated : i))}
                                 onDelete={() => onChange(items.filter(i => i.id !== item.id))}
                                 isOnly={items.length === 1}
+                                roundStartDate={roundStartDate}
+                                highlightRanges={highlightRanges}
                             />
                         ))}
                     </div>

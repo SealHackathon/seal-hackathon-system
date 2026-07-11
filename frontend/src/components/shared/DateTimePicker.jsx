@@ -36,9 +36,10 @@ function DateTimePicker({
     yearsPast   = 5,        // số năm ngược trong dropdown năm
     yearsFuture = 14,       // số năm tiếp trong dropdown năm
     highlightRanges = [],   // mảng { start, end, colorType: 'registration' | 'round', label }
+    customDateFormat,       // định dạng hiển thị tùy chỉnh
 }) {
     const resolvedPlaceholder = placeholder ?? (timeOnly ? 'Chọn giờ' : (showTime ? 'Chọn ngày và giờ' : 'Chọn ngày'))
-    const resolvedDateFormat   = timeOnly ? 'HH:mm' : (showTime ? 'EEEE, dd/MM/yyyy, HH:mm' : 'dd/MM/yyyy')
+    const resolvedDateFormat   = customDateFormat ? customDateFormat : (timeOnly ? 'HH:mm' : (showTime ? 'EEEE, dd/MM/yyyy, HH:mm' : 'dd/MM/yyyy'))
     const totalYears           = yearsPast + yearsFuture
 
     // ── Xử lý Highlight Dates ──

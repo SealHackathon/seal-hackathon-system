@@ -171,7 +171,7 @@
   background: var(--color-bg-white);
   border: 1.5px solid var(--color-border-blue);
   border-radius: var(--radius);
-  padding: 1.5em;
+  padding: 2.5em 5em;
   display: flex;
   flex-direction: column;
   gap: 0.8em;
@@ -201,6 +201,7 @@
 .fieldGroup {
   display: flex;
   flex-direction: column;
+  max-width: 900px;
   gap: 0.3em;
 }
 

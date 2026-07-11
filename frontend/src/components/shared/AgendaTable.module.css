@@ -9,7 +9,7 @@
 
 .header {
     display: grid;
-    grid-template-columns: 0.5fr 0.5fr 2.5fr 7fr 7fr 1fr;
+    grid-template-columns: 0.5fr 0.5fr 3fr 6.5fr 6.5fr 1fr;
     gap: 1.5rem;
     padding: 0.5rem 1.75rem;
     background: var(--color-bg-blue);
@@ -33,7 +33,7 @@
 
 .row {
     display: grid;
-    grid-template-columns: 0.5fr 0.5fr 2.5fr 7fr 7fr 1fr;
+    grid-template-columns: 0.5fr 0.5fr 3fr 6.5fr 6.5fr 1fr;
     align-items: start;
     gap: 0.5em 1.5rem;
     padding: 0.5rem 0.75rem;
