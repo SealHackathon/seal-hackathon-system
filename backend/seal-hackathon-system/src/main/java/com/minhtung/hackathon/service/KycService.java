@@ -389,9 +389,22 @@ public class KycService {
             throw new RuntimeException("Chỉ được chọn tối đa 10 chủ đề");
         }
 
+        if (req.getCvLink() != null) {
+            String cvLink = req.getCvLink().trim();
+
+            if (!cvLink.isEmpty()
+                    && !cvLink.startsWith("http://")
+                    && !cvLink.startsWith("https://")) {
+                throw new RuntimeException("CV link không hợp lệ");
+            }
+
+            profile.setCvLink(cvLink.isEmpty() ? null : cvLink);
+        }
+
         // --- 3. Map dữ liệu vào Entity ---
         profile.setBio(req.getBio());
         profile.setPositions(req.getPositons());
+        profile.setCvLink(req.getCvLink());
         profile.setTechTags(req.getTechTags());
         profile.setTopics(req.getTopics());
         user.setStatus(UserStatus.PENDING_APPROVAL);
