@@ -3,6 +3,8 @@ import SegmentedControl from '../../../../components/shared/SegmentedControl'
 import StatusBadge from '../../../../components/coordinator/StatusBadge'
 import Button from '../../../../components/shared/Button'
 import ResultsTab from './tabs/ResultsTab'
+import ScoringTab from './tabs/ScoringTab'
+import OverviewTab from './tabs/OverviewTab'
 import {
   ArrowLeft, FlagBanner, Eye, LinkSimple, PencilSimple, Export,
   Info, Path, SquaresFour, Gear, Scales, Trophy,
@@ -49,11 +51,11 @@ function SpecificEventPage({ event = MOCK_EVENT }) {
   const renderBody = () => {
     switch (activeTab) {
       case 'scoring':
-        return <TabPlaceholder label="Chấm điểm" />
+        return <ScoringTab />
       case 'ranking':
         return <ResultsTab />
       case 'overview':
-        return <TabPlaceholder label="Tổng quan" />
+        return <OverviewTab />
       case 'rounds':
         return <TabPlaceholder label="Vòng thi" />
       default:

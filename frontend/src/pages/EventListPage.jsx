@@ -182,6 +182,12 @@ function EventListPage({ onManageEvent }) {
 
 
 
+            // Tính tổng giải thưởng từ mảng prizes
+            const totalCash = (apiEvent.prizes || []).reduce((sum, p) => sum + ((p.prizeValue || 0) * (p.quantity || 1)), 0);
+
+            // Tính tổng số đội thi từ mảng tracks (nếu teamQuantity = 0)
+            const totalTeams = (apiEvent.tracks || []).reduce((sum, t) => sum + (t.currentTeams || 0), 0);
+
             return {
               id: apiEvent.eventId,
               status: (apiEvent.eventStatus || 'draft').toLowerCase(),
@@ -190,10 +196,10 @@ function EventListPage({ onManageEvent }) {
               thumbnail: apiEvent.thumbnail,
               teamSize: `Tối đa ${apiEvent.maxTeamMember || 5} người / đội`,
               venues: [apiEvent.eventLocation || 'Trực tuyến'],
-              prize: apiEvent.prize ? `${apiEvent.prize.toLocaleString('vi-VN')} VNĐ` : 'Chưa cập nhật',
+              prize: totalCash > 0 ? `${totalCash.toLocaleString('vi-VN')} VNĐ` : 'Chưa cập nhật',
               tags: apiEvent.eventTopic ? [apiEvent.eventTopic] : [],
               timeline: timeline,
-              teamCount: apiEvent.teamQuantity || 0,
+              teamCount: apiEvent.teamQuantity || totalTeams || 0,
               participantCount: apiEvent.candidateQuantity || 0,
               categoryCount: apiEvent.trackQuantity || 0,
               roundCount: apiEvent.roundQuantity || 0,

@@ -23,13 +23,13 @@ const getSegmentColor = (index, length) => {
 }
 
 // Modal hiển thị tiêu chí chấm điểm cho giám khảo
-function ScoringCriteriaModal({ isOpen, onClose, criteria = [] }) {
+function ScoringCriteriaModal({ isOpen, onClose, criteria = [], showFooter = true }) {
     if (!isOpen) return null
 
     // Sắp xếp tiêu chí theo trọng số giảm dần
     const sortedCriteria = [...criteria].sort((a, b) => (b.weight || 0) - (a.weight || 0))
 
-    const footer = (
+    const footer = showFooter ? (
         <div className={styles.footerContainer}>
             <Button 
                 label="Đã hiểu, bắt đầu chấm" 
@@ -37,7 +37,7 @@ function ScoringCriteriaModal({ isOpen, onClose, criteria = [] }) {
                 onClick={onClose} 
             />
         </div>
-    )
+    ) : null
 
     return (
         <ModalShell 
@@ -51,7 +51,7 @@ function ScoringCriteriaModal({ isOpen, onClose, criteria = [] }) {
             }
             icon={<BookOpen weight="fill" size={24} />} 
             size="xl"
-            showBottomOverlay={true}
+            showBottomOverlay={showFooter}
             footer={footer}
         >
             <div className={styles.container}>

@@ -74,7 +74,7 @@
 }
 .nodeDone   { background: var(--color-primary-green); color: var(--color-bg-white); }
 .nodeActive { background: var(--color-primary-blue); color: var(--color-bg-white); }
-.nodeTodo   { background: var(--color-bg-grey); color: var(--color-secondary-blue); }
+.nodeTodo   { background: var(--color-bg-blue); color: var(--color-secondary-blue); }
 
 .line {
   flex: 1;
