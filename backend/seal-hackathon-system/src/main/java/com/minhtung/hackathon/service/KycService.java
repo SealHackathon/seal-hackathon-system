@@ -376,6 +376,17 @@ public class KycService {
                 throw new RuntimeException("Chỉ được chọn tối đa 10 công nghệ");
             }
         }
+        if (req.getCv_link() != null) {
+            String cvLink = req.getCv_link().trim();
+
+            if (!cvLink.isEmpty()
+                    && !cvLink.startsWith("http://")
+                    && !cvLink.startsWith("https://")) {
+                throw new RuntimeException("CV link không hợp lệ");
+            }
+
+            profile.setCv_link(cvLink.isEmpty() ? null : cvLink);
+        }
 
         if (req.getTopics() != null && req.getTopics().size() > 10) {
             throw new RuntimeException("Chỉ được chọn tối đa 10 chủ đề");

@@ -12,5 +12,6 @@ public class UpdateStudentProfileRequest {
     private List<String> positons ;
     private Map<String, List<String>> tags ;
     private List<String> topics ;
+    private  String cv_link ;
 
 }
