@@ -47,13 +47,8 @@ public class ScoringTemplateController {
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     @GetMapping("/{id}")
     public ResponseEntity<?> getById(
-            @RequestHeader("Authorization") String auth,
             @PathVariable Long id
     ) {
-        if (getUid(auth) == null) {
-            return unauthorized();
-        }
-
         return ResponseEntity.ok(
                 templateService.getTemplateById(id)
         );

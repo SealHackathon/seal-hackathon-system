@@ -54,11 +54,24 @@ public class AuthService {
         if(userRepository.existsByStudentId(registerRequest.getStudentId())){
             throw new RuntimeException("MSSV đã  tồn tại " );
         }
+        if(registerRequest.getPassword() == null ||registerRequest.getPassword().length() <  6 ){
+            throw new RuntimeException("passsword phai tren 6 ki tu ");
+        }
+        if(registerRequest.getEmail() == null){
+            throw new RuntimeException("khong duoc de trong") ;
+        }
+
+        if(registerRequest.getEmail()== null){
+            throw new RuntimeException("khong duoc de trong") ;
+        }
+        if(registerRequest.getStudentId() == null){
+            throw new RuntimeException("khong duoc de trong") ;
+        }
 
         // check xem truong co ton tai trong DB khong
-//        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
-//        validateMssv(university, registerRequest.getStudentId());
-        //xoa pending cu neu co (Dang ki lai)
+        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
+        validateMssv(university, registerRequest.getStudentId());
+        // xoa pending cu neu co (Dang ki lai)
         User user = new User();
         user.setEmail(registerRequest.getEmail());
         user.setPassword(registerRequest.getPassword());

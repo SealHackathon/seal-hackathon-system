@@ -3,10 +3,12 @@ package com.minhtung.hackathon.service;
 
 
 import com.cloudinary.Cloudinary;
+import com.cloudinary.utils.ObjectUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.minhtung.hackathon.dto.request.UpdateStudentProfileRequest;
 import com.minhtung.hackathon.dto.response.AdminParticipantReviewResponse;
 import com.minhtung.hackathon.dto.response.FaceMatchResponse;
+import com.minhtung.hackathon.dto.response.StudentProfileResponse;
 import com.minhtung.hackathon.dto.response.UserIdentityProfileResponse;
 import com.minhtung.hackathon.entity.Student_profile;
 import com.minhtung.hackathon.entity.User;
@@ -18,6 +20,7 @@ import com.minhtung.hackathon.repository.UserIdentityProfileRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -347,32 +350,55 @@ public class KycService {
         );
     }
 
-    public Student_profile updatesStudentProfile(String email , UpdateStudentProfileRequest req){
+    public StudentProfileResponse updatesStudentProfile(String email, UpdateStudentProfileRequest req, MultipartFile avatarFile) {
         User user = userRepository.findByEmail(email).orElseThrow(()->
                 new RuntimeException("khong tim thay user")) ;
         Student_profile profile = studentprofileRepository.findByUserId(user.getId()).orElse(new Student_profile());
        profile.setUser(user);
 
+        if (avatarFile != null && !avatarFile.isEmpty()) {
+            String avatarUrl = uploadToCloudinary(avatarFile);
+            profile.setAvatar(avatarUrl);
+        }
 
         if (req.getBio() != null && req.getBio().length() > 300) {
             throw new RuntimeException("Tiểu sử tối đa 300 ký tự");
         }
 
-        if(req.getPositons().size() > 3){
+        if(req.getPositons() != null && req.getPositons().size() > 3){
             throw  new RuntimeException("chi duoc chon 3 vi tri ");
         }
-        if (req.getTags() != null && req.getTags().size() > 10) {
-            throw new RuntimeException("Chỉ được chọn tối đa 10 công nghệ");
+        if (req.getTags() != null) {
+            long totalTags = req.getTags().values().stream()
+                    .mapToLong(List::size)
+                    .sum();
+            if (totalTags > 10) {
+                throw new RuntimeException("Chỉ được chọn tối đa 10 công nghệ");
+            }
         }
 
         if (req.getTopics() != null && req.getTopics().size() > 10) {
             throw new RuntimeException("Chỉ được chọn tối đa 10 chủ đề");
         }
         profile.setBio(req.getBio());
-        profile.setPositions(joinList(req.getPositons()));
-        profile.setTags(joinList(req.getTags()));
-        profile.setTopics(joinList(req.getTopics()));
-        return studentprofileRepository.save(profile);
+        profile.setPositions(req.getPositons());
+        profile.setTechTags(req.getTags());
+        profile.setTopics(req.getTopics());
+        user.setStatus(UserStatus.PENDING_APPROVAL);
+        Student_profile savedProfile = studentprofileRepository.save(profile);
+        userRepository.save(user);
+
+        StudentProfileResponse res = new StudentProfileResponse();
+        res.setId(savedProfile.getId());
+        res.setImg_studentcard(savedProfile.getImg_studentcard());
+        res.setBio(savedProfile.getBio());
+        res.setPositions(savedProfile.getPositions());
+        res.setTechTags(savedProfile.getTechTags());
+        res.setTopics(savedProfile.getTopics());
+        res.setAvatar(savedProfile.getAvatar());
+        res.setStatus(UserStatus.PENDING_APPROVAL.toString());
+
+        return res;
     }
 
 
@@ -412,6 +438,15 @@ public class KycService {
         response.put("avatarUrl", img);
 
         return response;
+    }
+
+    private String uploadToCloudinary(MultipartFile file) {
+        try {
+            Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            return uploadResult.get("secure_url").toString();
+        } catch (IOException e) {
+            throw new RuntimeException("Lỗi upload ảnh hệ thống: " + e.getMessage());
+        }
     }
 
     public List<AdminParticipantReviewResponse> getAllinformationUser(){

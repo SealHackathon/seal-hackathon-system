@@ -185,40 +185,49 @@ public class DataInitializer implements CommandLineRunner {
             Student_profile profile1 = new Student_profile();
             profile1.setUser(user1);
             profile1.setBio("Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình có kinh nghiệm làm việc với các công nghệ Frontend như React và Vue, luôn thích tối ưu hóa UI/UX để mang lại trải nghiệm tốt nhất.");
-            profile1.setPositions("Frontend Developer");
-            profile1.setTags("React, Vue, Tailwind CSS");
-            profile1.setTopics("Web Development, Frontend Architecture");
+            profile1.setPositions(List.of("Frontend Developer"));
+            profile1.setTechTags(Map.of("Frontend", List.of("React", "Vue", "Tailwind CSS")));
+            profile1.setTopics(List.of("Web Development", "Frontend Architecture"));
             studentprofileRepository.save(profile1);
 
             Student_profile profile2 = new Student_profile();
             profile2.setUser(user2);
-            profile2.setPositions("Backend Developer");
-            profile2.setTags("Java, Spring Boot, MySQL, Redis");
-            profile2.setTopics("System Design, Cloud Computing");
+            profile2.setPositions(List.of("Backend Developer"));
+            profile2.setTechTags(Map.of("Backend", List.of("Java", "Spring Boot", "MySQL", "Redis")));
+            profile2.setTopics(List.of("System Design", "Cloud Computing"));
             studentprofileRepository.save(profile2);
 
             Student_profile profile3 = new Student_profile();
             profile3.setUser(user3);
             profile3.setBio("Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình đam mê học hỏi các công nghệ web mới, chuyên phát triển Frontend với React và luôn sẵn sàng hỗ trợ team.");
-            profile3.setPositions("Frontend Developer, UI/UX Designer");
-            profile3.setTags("React, Tailwind CSS, Figma, Adobe XD");
-            profile3.setTopics("UI/UX Design, Web Development");
+            profile3.setPositions(List.of("Frontend Developer", "UI/UX Designer"));
+            profile3.setTechTags(Map.of(
+                    "Frontend", List.of("React", "Tailwind CSS"),
+                    "Design", List.of("Figma", "Adobe XD")
+            ));
+            profile3.setTopics(List.of("UI/UX Design", "Web Development"));
             studentprofileRepository.save(profile3);
 
             Student_profile profile4 = new Student_profile();
             profile4.setUser(user4);
             profile4.setBio("Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình có kinh nghiệm làm việc với React và Spring Boot, từng tham gia dự án nhóm và đảm nhận vai trò Frontend và hỗ trợ Backend.");
-            profile4.setPositions("Frontend Developer");
-            profile4.setTags("React, Next.js, Tailwind CSS, Spring Boot");
-            profile4.setTopics("Web Development");
+            profile4.setPositions(List.of("Frontend Developer"));
+            profile4.setTechTags(Map.of(
+                    "Frontend", List.of("React", "Next.js", "Tailwind CSS"),
+                    "Backend", List.of("Spring Boot")
+            ));
+            profile4.setTopics(List.of("Web Development"));
             studentprofileRepository.save(profile4);
 
             Student_profile profile5 = new Student_profile();
             profile5.setUser(user5);
             profile5.setBio("Mình là sinh viên năm 3 ngành Kỹ thuật phần mềm tại FPT University. Mình yêu thích sự kết hợp giữa thiết kế và công nghệ, đảm nhận tốt cả hai vai trò Frontend Developer và UI/UX Designer.");
-            profile5.setPositions("Frontend Developer, UI/UX Designer");
-            profile5.setTags("React, Tailwind CSS, Figma, Adobe XD");
-            profile5.setTopics("UI/UX Design, Web Development");
+            profile5.setPositions(List.of("Frontend Developer", "UI/UX Designer"));
+            profile5.setTechTags(Map.of(
+                    "Frontend", List.of("React", "Tailwind CSS"),
+                    "Design", List.of("Figma", "Adobe XD")
+            ));
+            profile5.setTopics(List.of("UI/UX Design", "Web Development"));
             studentprofileRepository.save(profile5);
 
             User user12 = new User();
