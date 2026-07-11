@@ -64,9 +64,9 @@ public class KycService {
         if (file.getSize() > 2 * 1024 * 1024) {
             throw new RuntimeException("Ảnh hồ sơ tối đa 2MB");
         }
-        Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
-                .orElse(new Student_profile() {
-                });
+        Student_profile studentProfile =
+                studentprofileRepository.findByUserId(user.getId())
+                        .orElse(new Student_profile());
 
         studentProfile.setUser(user);
         String imageUrl = cloudinaryStorageService.uploadStudentCard(file, user.getId());
@@ -125,6 +125,9 @@ public class KycService {
         if (!scanResult.path("success").asBoolean(false)) {
             throw new RuntimeException("ID Analyzer khong nhan dien duoc CCCD");
         }
+
+        // TODO CHECK CCCD ID đã trùng chưa
+
 
         String documentNumber = getIdAnalyzerValue(scanResult, "documentNumber");
 //        String fullName = getIdAnalyzerValue(scanResult, "fullName");

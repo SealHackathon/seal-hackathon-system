@@ -3,7 +3,7 @@ import SegmentedControl from '../../../../components/shared/SegmentedControl'
 import StatusBadge from '../../../../components/coordinator/StatusBadge'
 import Button from '../../../../components/shared/Button'
 import ResultsTab from './tabs/ResultsTab'
-import ScoringTab from './tabs/ScoringTab'
+// import ScoringTab from './tabs/ScoringTab'
 import OverviewTab from './tabs/OverviewTab'
 import {
   ArrowLeft, FlagBanner, Eye, LinkSimple, PencilSimple, Export,
