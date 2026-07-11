@@ -21,6 +21,7 @@ public class EventDetailsResponse {
     private String participationBenefits;
     private int minTeamMember;
     private int maxTeamMember;
+    private int maxTeam;
     private String eventStatus;
     private LocalDateTime createAt;
     private LocalDateTime openRegisterTime;

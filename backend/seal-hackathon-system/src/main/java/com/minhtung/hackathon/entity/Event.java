@@ -89,6 +89,7 @@ public class Event {
             orphanRemoval = true)
     private List<Round> rounds = new ArrayList<>();
 
+    private int maxTeam;
 
     @OneToMany(mappedBy = "event",
             cascade = CascadeType.ALL,
@@ -115,5 +116,19 @@ public class Event {
         this.rules = rules;
         this.participationBenefits = participationBenefits;
         this.eventLocation = eventLocation;
+    }
+
+
+    public void setMaxTeam(int maxTeam) {
+        this.maxTeam = maxTeam;
+    }
+
+    public int getMaxTeam() {
+        int maxTeam=0;
+        for(Track item : tracks){
+            maxTeam+=item.getMaxTeamPerTrack();
+        }
+
+        return maxTeam;
     }
 }

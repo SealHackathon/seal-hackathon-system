@@ -57,6 +57,7 @@ public class EventService {
             eventResponse.setEventId(event.getId());
             eventResponse.setEventName(event.getName());
             eventResponse.setEventTopic(event.getTopic());
+            eventResponse.setMaxTeam(event.getMaxTeam());
             eventResponse.setMaxTeamMember(event.getMaxTeamMember());
             eventResponse.setEventLocation(event.getEventLocation());
             eventResponse.setThumbnail(event.getThumbnail_image());
@@ -130,6 +131,7 @@ public class EventService {
         eventResponse.setEventId(event.getId());
         eventResponse.setEventName(event.getName());
         eventResponse.setEventTopic(event.getTopic());
+        eventResponse.setMaxTeam(event.getMaxTeam());
         eventResponse.setMaxTeamMember(event.getMaxTeamMember());
         eventResponse.setEventLocation(event.getEventLocation());
         eventResponse.setTrackQuantity(eventResponse.getTrackQuantity() + event.getTracks().size());
@@ -570,6 +572,7 @@ public class EventService {
         response.setBannerImg(event.getBannerImg());
         response.setThumbnailImage(event.getThumbnail_image());
         response.setRules(event.getRules());
+        response.setMaxTeam(event.getMaxTeam());
         response.setParticipationBenefits(event.getParticipationBenefits());
         response.setMinTeamMember(event.getMinTeamMember());
         response.setMaxTeamMember(event.getMaxTeamMember());
