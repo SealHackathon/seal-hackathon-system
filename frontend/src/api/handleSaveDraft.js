@@ -34,11 +34,12 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       sendData.append('description', formData.shortDesc || '');
       sendData.append('minTeamMember', formData.minMembers || 1);
       sendData.append('maxTeamMember', formData.maxMembers || 5);
+     
 
       if (formData.openDate) sendData.append('openRegisterTime', toLocalISOString(formData.openDate));
       if (formData.closeDate) sendData.append('closeRegisterTime', toLocalISOString(formData.closeDate));
       if (formData.teamDeadline) sendData.append('cofirmTeamTime', toLocalISOString(formData.teamDeadline));
-
+      if (formData.keywords) sendData.append('keywords', formData.keywords);
       if (formData.avatarFile instanceof File) {
         sendData.append("thumbnailFile", formData.avatarFile);
       }
