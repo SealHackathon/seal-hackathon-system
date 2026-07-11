@@ -33,4 +33,7 @@ public interface JudgeAssignmentRepository extends JpaRepository<JudgeAssignment
             "WHERE ja.user.id = :userId")
     List<JudgeAssignment> findAllByUserIdWithDetails(@Param("userId") long userId);
 
+
+
+    Optional<JudgeAssignment> findByUser_IdAndTrackIdAndRoundId(Long id ,Long TrackID , Long roundId) ;
 }
