@@ -130,7 +130,10 @@ function MemberView() {
 
   useEffect(() => {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
-  }, []);
+    if (eventId) {
+      localStorage.setItem('lastKnownTeamRoleEventId', String(eventId));
+    }
+  }, [eventId]);
 
 
   // api sinh vien xem những invitation gui toi minh
@@ -167,7 +170,7 @@ function MemberView() {
     axiosClient.get(`/track?eventId=${eventId}`)
       .then(res => setCategories(res.data))
       .catch(err => console.log(err))
-  }, [])
+  }, [eventId])
 
 
 
@@ -203,6 +206,9 @@ function MemberView() {
         }
         setLeaveRequest([responseData])
         localStorage.setItem('pendingLeaveRequest', 'true');
+        if (eventId) {
+          localStorage.setItem('pendingLeaveRequestEventId', String(eventId));
+        }
         addToast({ variant: 'success', title: 'Thành công', message: 'Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.' })
       })
       .catch((error) => {
@@ -230,6 +236,7 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         localStorage.removeItem('pendingLeaveRequest');
+        localStorage.removeItem('pendingLeaveRequestEventId');
         addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã hủy yêu cầu rời nhóm thành công!' })
         setTimeout(() => window.location.reload(), 1500)
       })

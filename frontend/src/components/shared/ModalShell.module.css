@@ -121,6 +121,10 @@
     overflow-y: auto;
 }
 
+.contentWithoutHeader {
+    padding-top: 2em;
+}
+
 .bottomOverlay {
     position: absolute;
     bottom: 0;

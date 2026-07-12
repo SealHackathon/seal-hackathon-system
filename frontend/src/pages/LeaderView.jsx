@@ -153,7 +153,10 @@ function LeaderView() {
 
   useEffect(() => {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
-  }, []);
+    if (eventId) {
+      localStorage.setItem('lastKnownTeamRoleEventId', String(eventId));
+    }
+  }, [eventId]);
 
   // ↓ Để test UI: dùng MOCK_MEMBERS. Khi dùng API thật: đổi lại thành useState([])
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
@@ -201,7 +204,7 @@ function LeaderView() {
     axiosClient.get(`/track?eventId=${eventId}`)
       .then(res => setCategories(res.data))
       .catch(err => console.log(err))
-  }, [])
+  }, [eventId])
 
   // TODO: Gọi API PUT /api/team/category để cập nhật/xóa hạng mục
   const handleCategoryChange = (categoryId) => {
@@ -398,6 +401,7 @@ function LeaderView() {
             addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã rời nhóm thành công!' })
             setTimeout(() => {
               localStorage.removeItem('lastKnownTeamRole');
+              localStorage.removeItem('lastKnownTeamRoleEventId');
               updateTeamRole('NO_TEAM');
             }, 1500);
             setConfirmModal(null)
