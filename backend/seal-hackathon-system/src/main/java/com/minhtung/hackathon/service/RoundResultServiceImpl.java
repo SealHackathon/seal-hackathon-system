@@ -23,7 +23,7 @@ public class RoundResultServiceImpl implements RoundResultService {
     private final JudgeScoreRepository judgeScoreRepository;
     private final TrackRepository trackRepository;
     @Override
-    public RoundResultResponse getRoundResults(Long roundId,Long trackId) {
+    public RoundResultResponse getRoundResults(Long roundId, Long trackId) {
         Round round = roundRepository.findById(roundId)
                 .orElseThrow(() -> new EntityNotFoundException("Round not found: " + roundId));
 
@@ -31,39 +31,43 @@ public class RoundResultServiceImpl implements RoundResultService {
         List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(roundId);
         List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(roundId);
 
-
-
-        // Lọc theo trackId nếu FE truyền category cụ thể (khác "all")
+        // 1. Lọc dữ liệu theo trackId nếu FE truyền lên cụ thể
         if (trackId != null) {
             submissions = submissions.stream()
-                    .filter(s -> s.getTeam().getTrack() != null && s.getTeam().getTrack().getId() == trackId)
+                    .filter(s -> s.getTeam().getTrack() != null && trackId.equals(s.getTeam().getTrack().getId()))
                     .toList();
             assignments = assignments.stream()
-                    .filter(a -> a.getTrack() != null && a.getTrack().getId() == trackId)
+                    .filter(a -> a.getTrack() != null && trackId.equals(a.getTrack().getId()))
                     .toList();
         }
 
-
-
+        // Index hóa điểm số để tìm kiếm nhanh: "judgeAssignmentId-submissionId" -> JudgeScore
         Map<String, JudgeScore> scoreIndex = new HashMap<>();
         for (JudgeScore s : scores) {
             scoreIndex.put(s.getJudgeAssignment().getId() + "-" + s.getSubmission().getId(), s);
         }
 
-        Map<Long, List<Submission>> submissionsByTrack = submissions.stream()
-                .filter(s -> s.getTeam().getTrack() != null)
-                .collect(Collectors.groupingBy(s -> s.getTeam().getTrack().getId()));
-
+        // Nhóm các JudgeAssignment theo Track để map chuẩn cho từng Đội thi
         Map<Long, List<JudgeAssignment>> assignmentsByTrack = assignments.stream()
                 .filter(a -> a.getTrack() != null)
                 .collect(Collectors.groupingBy(a -> a.getTrack().getId()));
 
+        // Nhóm các Bài nộp theo Track phục vụ việc đếm tiến độ của Giám khảo
+        Map<Long, List<Submission>> submissionsByTrack = submissions.stream()
+                .filter(s -> s.getTeam().getTrack() != null)
+                .collect(Collectors.groupingBy(s -> s.getTeam().getTrack().getId()));
+
+        // =========================================================================
+        // XỬ LÝ DANH SÁCH BẢNG ĐIỂM CỦA CÁC ĐỘI THI (ENTRIES)
+        // =========================================================================
         List<EntryDTO> entries = new ArrayList<>();
         for (Submission submission : submissions) {
             Team team = submission.getTeam();
-            List<JudgeAssignment> teamJudges = trackId != null
-                    ? assignmentsByTrack.getOrDefault(trackId, List.of())
-                    : List.of();
+            if (team.getTrack() == null) continue;
+
+            // SỬA LỖI: Lấy danh sách Giám khảo thuộc đúng Track của Đội thi này
+            Long teamTrackId = team.getTrack().getId();
+            List<JudgeAssignment> teamJudges = assignmentsByTrack.getOrDefault(teamTrackId, List.of());
 
             List<JudgeScoreDTO> perJudge = new ArrayList<>();
             for (JudgeAssignment ja : teamJudges) {
@@ -71,7 +75,7 @@ public class RoundResultServiceImpl implements RoundResultService {
                 boolean submitted = score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED;
 
                 JudgeScoreDTO dto = new JudgeScoreDTO();
-                dto.setJudge(ja.getUser().getFullName()); // TODO: đổi đúng field tên hiển thị của User
+                dto.setJudge(ja.getUser().getFullName());
                 dto.setSubmitted(submitted);
                 if (submitted) {
                     Map<String, Double> scoreMap = new LinkedHashMap<>();
@@ -79,8 +83,6 @@ public class RoundResultServiceImpl implements RoundResultService {
                         scoreMap.put(String.valueOf(d.getCriterion().getId()), d.getScore());
                     }
                     dto.setScores(scoreMap);
-                    // total score
-
                     dto.setTotal(score.getTotalScore());
                 }
                 perJudge.add(dto);
@@ -91,66 +93,75 @@ public class RoundResultServiceImpl implements RoundResultService {
             entry.setAssignedCount(teamJudges.size());
             entry.setPerJudge(perJudge);
             entry.setDiscrepancy(computeDiscrepancy(perJudge));
-            // TODO: ended / violation / tieBreakNote -> chưa có bảng lưu, xem ghi chú trước đó
             entries.add(entry);
         }
 
+        // =========================================================================
+        // XỬ LÝ TIẾN ĐỘ CHẤM CỦA BAN GIÁM KHẢO (JUDGE SUMMARIES)
+        // =========================================================================
         List<JudgeSummaryDTO> judgeSummaries = new ArrayList<>();
-        Map<Long, JudgeAssignment> distinctJudgeByUser = new LinkedHashMap<>();
-        for (JudgeAssignment ja : assignments) {
-            distinctJudgeByUser.putIfAbsent(ja.getUser().getId(), ja);
-        }
-        for (JudgeAssignment ja : distinctJudgeByUser.values()) {
-            List<Submission> teamSubs = trackId != null
-                    ? submissionsByTrack.getOrDefault(trackId, List.of())
-                    : List.of();
 
-            int assignedCount = teamSubs.size();
-            int scoredCount = 0;
+        // Gom nhóm phân công theo User ID để tránh lặp Giám khảo khi họ chấm nhiều Track
+        Map<Long, List<JudgeAssignment>> assignmentsByJudgeUser = assignments.stream()
+                .filter(a -> a.getTrack() != null)
+                .collect(Collectors.groupingBy(a -> a.getUser().getId()));
+
+        for (Map.Entry<Long, List<JudgeAssignment>> judgeEntry : assignmentsByJudgeUser.entrySet()) {
+            List<JudgeAssignment> judgeTrackAssignments = judgeEntry.getValue();
+            if (judgeTrackAssignments.isEmpty()) continue;
+
+            // Lấy thông tin user đại diện của Giám khảo
+            User judgeUser = judgeTrackAssignments.get(0).getUser();
+
+            int totalAssignedCount = 0;
+            int totalScoredCount = 0;
             LocalDateTime lastUpdate = null;
-            for (Submission s : teamSubs) {
-                JudgeScore score = scoreIndex.get(ja.getId() + "-" + s.getId());
-                if (score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED) {
-                    scoredCount++;
-                    LocalDateTime updated = score.getUpdatedAt() != null ? score.getUpdatedAt() : score.getSubmitAt();
-                    if (lastUpdate == null || (updated != null && updated.isAfter(lastUpdate))) {
-                        lastUpdate = updated;
+
+            // Lặp qua tất cả các Phân công Track của Giám khảo này trong Vòng thi
+            for (JudgeAssignment ja : judgeTrackAssignments) {
+                Long currentTrackId = ja.getTrack().getId();
+                List<Submission> trackSubs = submissionsByTrack.getOrDefault(currentTrackId, List.of());
+
+                totalAssignedCount += trackSubs.size();
+
+                for (Submission s : trackSubs) {
+                    JudgeScore score = scoreIndex.get(ja.getId() + "-" + s.getId());
+                    if (score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED) {
+                        totalScoredCount++;
+                        LocalDateTime updated = score.getUpdatedAt() != null ? score.getUpdatedAt() : score.getSubmitAt();
+                        if (lastUpdate == null || (updated != null && updated.isAfter(lastUpdate))) {
+                            lastUpdate = updated;
+                        }
                     }
                 }
             }
 
             JudgeSummaryDTO summary = new JudgeSummaryDTO();
-            summary.setId(String.valueOf(ja.getUser().getId()));
-            summary.setName(ja.getUser().getFullName()); // TODO: đổi đúng field tên hiển thị của User
-            summary.setAssigned(assignedCount);
-            summary.setScored(scoredCount);
+            summary.setId(String.valueOf(judgeUser.getId()));
+            summary.setName(judgeUser.getFullName());
+            summary.setAssigned(totalAssignedCount);
+            summary.setScored(totalScoredCount);
             summary.setLastUpdate(lastUpdate);
             judgeSummaries.add(summary);
         }
 
-
-
+        // =========================================================================
+        // THIẾT LẬP ĐẦU RA RESPONSE
+        // =========================================================================
         RoundResultResponse response = new RoundResultResponse();
         response.setJudges(judgeSummaries);
         response.setEntries(entries);
         response.setUpdatedAt(computeLatestUpdate(scores));
-        response.setReview(null); // TODO: chưa có bảng lưu trạng thái publish flow
-        response.setAwards(computeAwardsAutomatically(entries)); // TODO: chưa có bảng Award
+        response.setReview(null);
+        response.setAwards(computeAwardsAutomatically(entries));
 
-        // TRẢ về thêm getPublishedResult cho FRONTEND
+        // Trả về PublishStage tương ứng
         if (trackId != null) {
             Track track = trackRepository.findById(trackId).orElse(null);
-            if (track != null) {
-                // Lấy giá trị publishStage đang lưu trong DB gán vào DTO
-                response.setPublishStage(track.getPublishedResult());
-            } else {
-                response.setPublishStage(1); // Phòng hờ nếu không tìm thấy track
-            }
+            response.setPublishStage(track != null ? track.getPublishedResult() : 1);
         } else {
-            response.setPublishStage(1); // Nếu trackId bằng null (chế độ 'all')
+            response.setPublishStage(1); // Mặc định ở chế độ view 'all' track
         }
-
-
 
         return response;
     }

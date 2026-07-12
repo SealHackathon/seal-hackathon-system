@@ -33,7 +33,6 @@ public class EventDetailsResponse {
     private int trackQuantity;
     private int roundQuantity;
     private int teamQuantity;
-    private int candidateQuantity;
 
 
     private List<PrizeResponse> prizes;                  // Thay thế biến long prize cũ
