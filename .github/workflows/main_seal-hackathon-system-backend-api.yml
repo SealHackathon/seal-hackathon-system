@@ -57,15 +57,20 @@ jobs:
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B3D3E0852E8D482194F509685162465F }}
 
       - name: Optimize App Service for Deployment
-        # Bước này cấu hình Azure App Service để giới hạn lưu trữ Kudu cache.
+        # cấu hình Azure App Service để giới hạn lưu trữ Kudu cache.
         # SCM_MAX_ZIP_PACKAGE_COUNT=1 giúp tự động xóa các file ZIP deploy cũ, tránh lỗi đầy bộ nhớ (ZIP Deploy failed).
         run: |
           $RG = az webapp list --query "[?name=='seal-hackathon-system-backend-api'].resourceGroup" -o tsv
           if ($RG) {
             az webapp config appsettings set -g $RG -n seal-hackathon-system-backend-api --settings SCM_MAX_ZIP_PACKAGE_COUNT=1
           } else {
-            Write-Host "Could not find resource group for the web app."
           }
+
+      - name: Stop App Service (Prevent File Lock)
+        # Dừng app trước khi deploy để hệ điều hành Windows nhả file .jar ra, tránh lỗi "Deployment Failed" ngay lập tức do không ghi đè được file đang chạy.
+        run: |
+          $RG = az webapp list --query "[?name=='seal-hackathon-system-backend-api'].resourceGroup" -o tsv
+          if ($RG) { az webapp stop -g $RG -n seal-hackathon-system-backend-api }
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -77,9 +82,16 @@ jobs:
           # Giúp OneDeploy trên Azure nhận diện đây là file Java chạy trực tiếp
           package: '*.jar'
 
+      - name: Start App Service
+        # Bật lại app sau khi deploy xong (chạy luôn kể cả khi deploy lỗi hoặc thành công)
+        if: always()
+        run: |
+          $RG = az webapp list --query "[?name=='seal-hackathon-system-backend-api'].resourceGroup" -o tsv
+          if ($RG) { az webapp start -g $RG -n seal-hackathon-system-backend-api }
+
       - name: Print deployment logs on failure
-        # Bước này chỉ chạy khi quá trình deploy (bước trên) thất bại.
-        # Nhiệm vụ là lấy chi tiết log lỗi thực sự từ hệ thống của Azure để dễ dàng debug.
+        # chỉ chạy khi quá trình deploy (bước trên) thất bại.
+        # lấy chi tiết log lỗi thực sự từ hệ thống của Azure để dễ dàng debug.
         if: failure()
         run: |
           $RG = az webapp list --query "[?name=='seal-hackathon-system-backend-api'].resourceGroup" -o tsv
