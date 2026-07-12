@@ -46,6 +46,9 @@ jobs:
         with:
           name: java-app
       
+      - name: List files in the current directory
+        run: dir /s  # chạy trên windows-latest
+
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -59,5 +62,5 @@ jobs:
         with:
           app-name: 'seal-hackathon-system-backend-api'
           slot-name: 'Production'
-          package: '*.jar'
+          package: .
           
