@@ -1,6 +1,3 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
-
 name: Build and deploy JAR app to Azure Web App - seal-hackathon-system-backend-api
 
 on:
@@ -9,11 +6,16 @@ on:
       - main
   workflow_dispatch:
 
+# Tránh 2 lần deploy chồng lên nhau khi push nhiều commit liên tiếp
+concurrency:
+  group: deploy-backend
+  cancel-in-progress: false
+
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     permissions:
-      contents: read #This is required for actions/checkout
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
@@ -25,52 +27,33 @@ jobs:
           distribution: 'microsoft'
 
       - name: Build with Maven
-        run: mvn -f backend/seal-hackathon-system/pom.xml clean install
+        run: mvn -f backend/seal-hackathon-system/pom.xml clean package -DskipTests
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: java-app
-          path: '${{ github.workspace }}/backend/seal-hackathon-system/target/*.jar'
+          path: 'backend/seal-hackathon-system/target/*.jar'
 
   deploy:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write #This is required for requesting the JWT
-      contents: read #This is required for actions/checkout
+      id-token: write
+      contents: read
 
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: java-app
-      
-      - name: List files in the current directory
-        run: Get-ChildItem -Recurse  # chạy trên windows-latest
 
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_99A06487DB554B06B938AC17F27D0EBE }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7E530C6D438241C2A2D928A259C1F4F8 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B3D3E0852E8D482194F509685162465F }}
-
-      - name: Optimize App Service for Deployment
-        # cấu hình Azure App Service để giới hạn lưu trữ Kudu cache.
-        # SCM_MAX_ZIP_PACKAGE_COUNT=1 giúp tự động xóa các file ZIP deploy cũ, tránh lỗi đầy bộ nhớ (ZIP Deploy failed).
-        run: |
-          $RG = az webapp list --query "[?name=='seal-hackathon-system-backend-api'].resourceGroup" -o tsv
-          if ($RG) {
-            az webapp config appsettings set -g $RG -n seal-hackathon-system-backend-api --settings SCM_MAX_ZIP_PACKAGE_COUNT=1
-          } else {
-          }
-
-      - name: Stop App Service (Prevent File Lock)
-        # Dừng app trước khi deploy để hệ điều hành Windows nhả file .jar ra, tránh lỗi "Deployment Failed" ngay lập tức do không ghi đè được file đang chạy.
-        run: |
-          $RG = az webapp list --query "[?name=='seal-hackathon-system-backend-api'].resourceGroup" -o tsv
-          if ($RG) { az webapp stop -g $RG -n seal-hackathon-system-backend-api }
+          client-id: $ secrets.AZUREAPPSERVICE_CLIENTID_XXX         # giữ tên secret cũ của bạn
+          tenant-id: $ secrets.AZUREAPPSERVICE_TENANTID_XXX         # giữ tên secret cũ của bạn
+          subscription-id: $ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_XXX   # giữ tên secret cũ của bạn
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
@@ -78,24 +61,4 @@ jobs:
         with:
           app-name: 'seal-hackathon-system-backend-api'
           slot-name: 'Production'
-          # Chỉ định tải lên đích danh file *.jar thay vì "." (cả thư mục hiện tại)
-          # Giúp OneDeploy trên Azure nhận diện đây là file Java chạy trực tiếp
           package: '*.jar'
-
-      - name: Start App Service
-        # Bật lại app sau khi deploy xong (chạy luôn kể cả khi deploy lỗi hoặc thành công)
-        if: always()
-        run: |
-          $RG = az webapp list --query "[?name=='seal-hackathon-system-backend-api'].resourceGroup" -o tsv
-          if ($RG) { az webapp start -g $RG -n seal-hackathon-system-backend-api }
-
-      - name: Print deployment logs on failure
-        # chỉ chạy khi quá trình deploy (bước trên) thất bại.
-        # lấy chi tiết log lỗi thực sự từ hệ thống của Azure để dễ dàng debug.
-        if: failure()
-        run: |
-          $RG = az webapp list --query "[?name=='seal-hackathon-system-backend-api'].resourceGroup" -o tsv
-          if ($RG) {
-            az webapp log deployment show -n seal-hackathon-system-backend-api -g $RG
-          }
-          
