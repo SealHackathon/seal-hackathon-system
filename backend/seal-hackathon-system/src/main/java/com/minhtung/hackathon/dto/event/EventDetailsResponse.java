@@ -19,6 +19,7 @@ public class EventDetailsResponse {
     private String thumbnailImage;
     private String rules;
     private String participationBenefits;
+    private int candidateQuantity=0;
     private int minTeamMember;
     private int maxTeamMember;
     private int maxTeam;
