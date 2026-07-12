@@ -1,0 +1,79 @@
+/* ─── EventBenefitsSection ─── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.body {
+  padding: 1.4em 1.6em;
+}
+
+/* HTML từ tiptap */
+.tiptapContent {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-text-primary);
+  font-family: var(--body-font-main);
+}
+
+.tiptapContent p { margin: 0 0 0.5em; }
+.tiptapContent p:last-child { margin-bottom: 0; }
+.tiptapContent strong { font-weight: 700; color: var(--color-text-primary); }
+.tiptapContent em { font-style: italic; }
+.tiptapContent ul, .tiptapContent ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.4em 0;
+}
+
+/* Bullet point — icon SealCheck của Phosphor */
+.tiptapContent ul li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5em;
+  margin-bottom: 0.4em;
+  line-height: 1.6;
+}
+
+/* Chèn SealCheck SVG vào trước mỗi li của ul — màu #09b04a, size 2em */
+.tiptapContent ul li::before {
+  content: '';
+  display: inline-block;
+  flex-shrink: 0;
+  width: 1.25em;
+  height: 1.25em;
+  margin-top: 0.15em;
+  /* Màu xanh lá #09b04a theo yêu cầu */
+  background-color: #09b04a;
+  /* SealCheck fill — Phosphor SVG inline, properly URL-encoded */
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M225.86%2C102.82c-3.77-3.94-7.67-8-9.14-11.57-1.36-3.27-1.44-8.69-1.52-13.94-.15-9.76-.31-20.82-8-28.51s-18.75-7.85-28.51-8c-5.25-.08-10.67-.16-13.94-1.52-3.56-1.47-7.63-5.37-11.57-9.14C146.28%2C23.51%2C138.44%2C16%2C128%2C16s-18.27%2C7.51-25.18%2C14.14c-3.94%2C3.77-8%2C7.67-11.57%2C9.14C88%2C40.64%2C82.56%2C40.72%2C77.31%2C40.8c-9.76.15-20.82.31-28.51%2C8S40.95%2C67.55%2C40.8%2C77.31c-.08%2C5.25-.16%2C10.67-1.52%2C13.94-1.47%2C3.56-5.37%2C7.63-9.14%2C11.57C23.51%2C109.72%2C16%2C117.56%2C16%2C128s7.51%2C18.27%2C14.14%2C25.18c3.77%2C3.94%2C7.67%2C8%2C9.14%2C11.57%2C1.36%2C3.27%2C1.44%2C8.69%2C1.52%2C13.94.15%2C9.76.31%2C20.82%2C8%2C28.51s18.75%2C7.85%2C28.51%2C8c5.25.08%2C10.67.16%2C13.94%2C1.52%2C3.56%2C1.47%2C7.63%2C5.37%2C11.57%2C9.14C109.72%2C232.49%2C117.56%2C240%2C128%2C240s18.27-7.51%2C25.18-14.14c3.94-3.77%2C8-7.67%2C11.57-9.14%2C3.27-1.36%2C8.69-1.44%2C13.94-1.52%2C9.76-.15%2C20.82-.31%2C28.51-8s7.85-18.75%2C8-28.51c.08-5.25.16-10.67%2C1.52-13.94%2C1.47-3.56%2C5.37-7.63%2C9.14-11.57C232.49%2C146.28%2C240%2C138.44%2C240%2C128S232.49%2C109.73%2C225.86%2C102.82Zm-52.2%2C6.84-56%2C56a8%2C8%2C0%2C0%2C1-11.32%2C0l-24-24a8%2C8%2C0%2C0%2C1%2C11.32-11.32L112%2C148.69l50.34-50.35a8%2C8%2C0%2C0%2C1%2C11.32%2C11.32Z'%2F%3E%3C%2Fsvg%3E");
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M225.86%2C102.82c-3.77-3.94-7.67-8-9.14-11.57-1.36-3.27-1.44-8.69-1.52-13.94-.15-9.76-.31-20.82-8-28.51s-18.75-7.85-28.51-8c-5.25-.08-10.67-.16-13.94-1.52-3.56-1.47-7.63-5.37-11.57-9.14C146.28%2C23.51%2C138.44%2C16%2C128%2C16s-18.27%2C7.51-25.18%2C14.14c-3.94%2C3.77-8%2C7.67-11.57%2C9.14C88%2C40.64%2C82.56%2C40.72%2C77.31%2C40.8c-9.76.15-20.82.31-28.51%2C8S40.95%2C67.55%2C40.8%2C77.31c-.08%2C5.25-.16%2C10.67-1.52%2C13.94-1.47%2C3.56-5.37%2C7.63-9.14%2C11.57C23.51%2C109.72%2C16%2C117.56%2C16%2C128s7.51%2C18.27%2C14.14%2C25.18c3.77%2C3.94%2C7.67%2C8%2C9.14%2C11.57%2C1.36%2C3.27%2C1.44%2C8.69%2C1.52%2C13.94.15%2C9.76.31%2C20.82%2C8%2C28.51s18.75%2C7.85%2C28.51%2C8c5.25.08%2C10.67.16%2C13.94%2C1.52%2C3.56%2C1.47%2C7.63%2C5.37%2C11.57%2C9.14C109.72%2C232.49%2C117.56%2C240%2C128%2C240s18.27-7.51%2C25.18-14.14c3.94-3.77%2C8-7.67%2C11.57-9.14%2C3.27-1.36%2C8.69-1.44%2C13.94-1.52%2C9.76-.15%2C20.82-.31%2C28.51-8s7.85-18.75%2C8-28.51c.08-5.25.16-10.67%2C1.52-13.94%2C1.47-3.56%2C5.37-7.63%2C9.14-11.57C232.49%2C146.28%2C240%2C138.44%2C240%2C128S232.49%2C109.73%2C225.86%2C102.82Zm-52.2%2C6.84-56%2C56a8%2C8%2C0%2C0%2C1-11.32%2C0l-24-24a8%2C8%2C0%2C0%2C1%2C11.32-11.32L112%2C148.69l50.34-50.35a8%2C8%2C0%2C0%2C1%2C11.32%2C11.32Z'%2F%3E%3C%2Fsvg%3E");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+}
+
+/* ol giữ lại numbered list bình thường */
+.tiptapContent ol {
+  list-style: decimal;
+  padding-left: 1.5em;
+}
+.tiptapContent ol li { margin-bottom: 0.35em; }
+.tiptapContent h1, .tiptapContent h2, .tiptapContent h3 {
+  font-family: var(--title-font-main);
+  font-weight: 800;
+  margin: 0.6em 0 0.3em;
+  color: var(--color-primary-blue);
+}

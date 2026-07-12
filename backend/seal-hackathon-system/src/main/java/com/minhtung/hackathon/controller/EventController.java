@@ -56,7 +56,7 @@ public class EventController {
             return unauthorized();
         }
         try {
-            return ResponseEntity.ok(eventService.getLiveEvent());
+            return ResponseEntity.ok(eventService.getLiveEvent(Integer.toUnsignedLong(uid)));
         } catch (Exception e) {
 
             return ResponseEntity.notFound().build();
@@ -134,6 +134,27 @@ public class EventController {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+
+    // API phục vụ hành động click Đăng ký của Sinh viên
+    @PostMapping("/{eventId}/register")
+    public ResponseEntity<String> registerToEvent(
+            @PathVariable Long eventId,
+            @RequestHeader("Authorization") String auth // Truyền userId lên để test, sau này thay bằng lấy từ SecurityContext (JWT)
+    ) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+
+            return unauthorized();
+        }
+        try {
+            String message = eventService.registerEvent(Integer.toUnsignedLong(uid), eventId);
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+            // Trả về lỗi 400 Bad Request nếu user/event không tồn tại hoặc đã đăng ký rồi
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 

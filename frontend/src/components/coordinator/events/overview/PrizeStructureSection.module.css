@@ -1,0 +1,152 @@
+/* ─── PrizeStructureSection ─── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.6em;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.5em 1.7em;
+}
+
+/* ── Tổng giá trị ── */
+.totalBox {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.8em;
+  padding: 0.9em 1.3em;
+  background: var(--color-bg-blue);
+  border-radius: var(--inner-radius);
+}
+
+.totalValue {
+  font-family: var(--title-font-main);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 1.6rem;
+  color: var(--color-primary-blue);
+  line-height: 1;
+}
+
+.totalLabel {
+  font-family: var(--body-font-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+/* ── Lưới 2 cột ── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  column-gap: 2.2em;
+  row-gap: 1.5em;
+  margin: 0 1em;
+}
+
+/* Mỗi mục giải */
+.prizeItem {
+  display: flex;
+  align-items: center;
+  gap: 1.3em;
+}
+
+/* ── Trái ── */
+.left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.12em;
+  flex: 0 0 auto;
+  min-width: 11em;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+}
+
+.name {
+  font-family: var(--body-font-main);
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.amount {
+  font-family: var(--body-font-main);
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-dark-blue);
+  line-height: 1.2;
+}
+
+.count {
+  font-family: var(--body-font-main);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+/* ── Gạch chéo ngăn ── */
+.slash {
+  flex: 0 0 auto;
+  width: 2px;
+  height: 3.4em;
+  background: var(--color-text-muted);
+  border-radius: var(--radius);
+  transform: rotate(20deg);
+}
+
+/* ── Phải ── */
+.right {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+  flex: 1;
+  min-width: 0;
+}
+
+.detailCash {
+  font-family: var(--body-font-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+  line-height: 1.35;
+}
+
+.detailLine {
+  font-family: var(--body-font-main);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.35;
+}
+
+/* ── Màu theo hạng (sao + tên) ── */
+.tierGold .star,
+.tierGold .name { color: var(--color-primary-orange); }
+
+.tierSilver .star,
+.tierSilver .name { color: var(--color-primary-blue); }
+
+.tierBronze .star,
+.tierBronze .name { color: var(--color-primary-green); }
+
+.tierDefault .name { color: var(--color-secondary-blue); }
+.tierDefault .star { color: var(--color-border-blue); }
+
+/* ── Responsive: 1 cột khi hẹp ── */
+@media (max-width: 720px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

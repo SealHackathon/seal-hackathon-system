@@ -1,0 +1,69 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.rowLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  min-width: 7em;
+  flex-shrink: 0;
+}
+
+.labelIcon { color: var(--color-border-blue); }
+
+.labelText {
+  font-family: var(--body-font-main);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  flex-wrap: wrap;
+  flex: 1;
+}
+
+/* pill bo tròn giống Vòng thi */
+.seg {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.45em;
+  padding: 0.6em 1.4em;
+  min-width: 8.5em;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--color-border-blue);
+  background: var(--color-bg-white);
+  font-family: var(--body-font-main);
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+  cursor: pointer;
+  transition: min-width 0.25s ease, background 0.2s ease, border-color 0.2s ease, font-size 0.25s ease;
+}
+
+.segIdle { background: var(--color-bg-white); color: var(--color-secondary-blue); }
+
+.seg:hover { border-color: var(--color-secondary-blue); font-size: 0.95rem;;}
+
+.segSelected {
+  background: var(--color-primary-blue);
+  border-color: var(--color-primary-blue);
+  color: var(--color-bg-white);
+  min-width: 10em;
+  font-size: 1rem;
+}
+.segSelected:hover{
+  font-size: 1rem;
+}
+
+
+.segIcon { flex-shrink: 0; }
+.segName { line-height: 1; }

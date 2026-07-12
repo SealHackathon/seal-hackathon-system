@@ -1,0 +1,24 @@
+.page {
+  min-height: 100vh;
+  background: var(--color-bg-white);
+  padding: 0.25em 1.5em 1.5em;
+}
+
+.body {
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+.heroRow {
+  display: flex;
+  gap: 1.25em;
+  align-items: stretch;
+}
+
+@media (max-width: 60em) {
+  .heroRow {
+    flex-direction: column;
+  }
+}

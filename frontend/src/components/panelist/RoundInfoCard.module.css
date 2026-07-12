@@ -1,0 +1,171 @@
+.wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1em;
+}
+
+/* ===== Tiêu đề vòng ===== */
+.head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+}
+
+.topRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.6em;
+    flex-wrap: wrap;
+}
+
+.kicker {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-primary-orange);
+}
+
+.title {
+    margin: 0;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: var(--color-primary-blue);
+}
+
+/* ===== Nhóm (Bài nộp / Lịch trình) ===== */
+.group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7em;
+}
+
+/* Nhãn nhóm + đường kẻ kéo dài sang phải */
+.groupLabel {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+    margin: 0;
+
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-border-blue);
+}
+
+.groupLabel::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background-color: var(--color-border-blue);
+}
+
+/* ===== Facts (nhãn trái – giá trị phải) ===== */
+.facts {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+}
+
+.factRow {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1em;
+}
+
+.factLabel {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-secondary-blue);
+}
+
+.factValue {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--color-primary-blue);
+    text-align: right;
+}
+
+/* Chip rubric */
+.rubricChip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+
+    padding: 0.3em 0.8em;
+
+    background-color: var(--color-bg-white);
+    border: 1.5px solid var(--color-border-blue);
+    border-radius: 999px;
+    cursor: pointer;
+}
+
+.rubricChip:hover {
+    background-color: var(--color-bg-blue);
+}
+
+.rubricIcon {
+    color: var(--color-border-blue);
+    flex-shrink: 0;
+}
+
+.rubricName {
+    font-family: var(--title-font-main);
+    font-style: italic;
+    font-weight: 800;
+    font-size: 0.9rem;
+    color: var(--color-primary-blue);
+}
+
+/* Thanh tiến độ nộp bài */
+.submitBar {
+    height: 0.5em;
+    background-color: var(--color-bg-blue);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.submitFill {
+    height: 100%;
+    background-color: var(--color-primary-blue);
+    border-radius: 999px;
+}
+
+/* ===== Lịch trình ===== */
+.scheduleList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+}
+
+.scheduleRow {
+    display: flex;
+    align-items: baseline;
+    gap: 2em;
+}
+
+.scheduleTime {
+    flex-shrink: 0;
+    width: 6.5em;
+
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-secondary-blue);
+}
+
+.scheduleInfo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1em;
+    min-width: 0;
+}
+
+.scheduleName {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.scheduleDesc {
+    font-size: 0.82rem;
+    color: var(--color-secondary-blue);
+}

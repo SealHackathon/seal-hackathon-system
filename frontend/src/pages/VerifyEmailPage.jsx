@@ -47,13 +47,13 @@ function VerifyEmailPage() {
 
     function handleConfirmChangeEmail() {
         console.log('Gọi API đổi email pending thành:', newEmail)
-        
+
         // TODO: Call API PUT /api/auth/change-pending-email here.
-        // Assuming API call is successful:
-        
+
+
         // 1. Update localStorage
         localStorage.setItem('verifyEmail', newEmail)
-        
+
         // Also update registerData if it exists
         const registerDataStr = localStorage.getItem('registerData')
         if (registerDataStr) {

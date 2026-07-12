@@ -1,0 +1,37 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+  padding: 1em;
+}
+
+/* Chia 2 cột: timeline | side box */
+.split {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 24em;
+  gap: 1.25em;
+  align-items: start;
+}
+
+.main {
+  min-width: 0;
+}
+
+.sidebar {
+  min-width: 0;
+}
+
+.stickyWrap {
+  position: sticky;
+  top: 1.5em;
+}
+
+@media (max-width: 60em) {
+  .split {
+    grid-template-columns: 1fr;
+  }
+
+  .stickyWrap {
+    position: static;
+  }
+}

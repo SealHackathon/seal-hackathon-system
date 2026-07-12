@@ -4,7 +4,7 @@
 
 .wrapper {
     display: grid;
-    grid-template-columns: 50fr 1fr 20fr;
+    grid-template-columns: 50fr 1fr 25fr;
     gap: 5em;
 
     position: relative;
@@ -53,7 +53,7 @@
 
 .codeBox {
     display: grid;
-    grid-template-columns: 3fr 8fr;
+    grid-template-columns: 3fr 9fr;
     gap: 0.5em;
     place-items: center;
 

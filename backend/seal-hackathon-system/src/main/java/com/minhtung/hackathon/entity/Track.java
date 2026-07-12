@@ -21,6 +21,10 @@ public class Track {
     @Column(nullable = false, length = 100)
     private String name;
 
+    @Column(name = "is_published", nullable = false)
+    // stage 1 là chưa công bố - 2 là mo cho judge mentor - 3 là công bố
+    private int publishedResult = 1; //TODO về sau có thể là 3 status CHUA CONG BO - CONG BO CHO JUDGE - CONG BO CHO SINH VIEN
+
     @Column(length = 255)
     private String des;
 

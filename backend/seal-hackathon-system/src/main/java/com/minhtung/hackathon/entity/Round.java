@@ -18,7 +18,7 @@ public class Round {
 
     @Column(nullable = false, columnDefinition = "TEXT")
     private String name;
-
+    private boolean isPublishedResult = false; //TODO về sau có thể là 3 status CHUA CONG BO - CONG BO CHO JUDGE - CONG BO CHO SINH VIEN
     private LocalDateTime timeStart;
     @Column(columnDefinition = "TEXT")
     private String meetingLink;
@@ -34,6 +34,12 @@ public class Round {
 
     @Column(columnDefinition = "TEXT")
     private String position;
+
+    @Column(columnDefinition = "TEXT")
+    private String locationName;
+
+    @Column(columnDefinition = "TEXT")
+    private String detailLocation;
 
     @OneToMany(mappedBy = "round",
             cascade = CascadeType.ALL,

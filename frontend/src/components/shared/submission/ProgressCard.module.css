@@ -1,0 +1,169 @@
+.card {
+  background-color: var(--color-bg-white);
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border-blue);
+  padding: 2.5rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.5em;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-bg-grey);
+}
+
+.title {
+  font-size: 0.9rem;
+  color: var(--color-secondary-blue);
+  font-family: var(--body-font-main);
+  font-weight: 700;
+  font-style: normal;
+}
+
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+
+.progressInfo {
+  display: flex;
+  flex-direction: column;
+}
+
+.infoLabel {
+  font-size: 0.85rem;
+  color: var(--color-text-primary);
+  font-weight: bold;
+  margin-bottom: 0.25rem;
+}
+
+.infoName {
+  font-family: var(--body-font-main);
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.deadlineWrapper {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.5rem;
+  background-color: var(--color-bg-orange);
+  border-radius: var(--inner-radius);
+  border: 1px solid var(--color-border-orange);
+  width: fit-content;
+}
+
+.deadlineLabel {
+  font-family: var(--body-font-main);
+  font-size: 0.75rem;
+  color: var(--color-primary-orange);
+}
+
+.deadlineValue {
+  font-family: var(--body-font-main);
+  font-size: 0.8rem;
+  color: var(--color-primary-orange);
+  font-weight: 700;
+}
+
+.statsPanel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1.5px solid var(--color-bg-grey);
+}
+
+.scoreSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.scoreValue {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--color-primary-blue);
+  line-height: 1;
+  font-family: var(--heading-font);
+}
+
+.scoreLabel {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  font-weight: 800;
+  margin-top: 0.5rem;
+}
+
+.statsDivider {
+  width: 2px;
+  height: 60px;
+  background-color: var(--color-bg-blue);
+}
+
+.rankSection {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rankBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.25rem;
+  background-color: var(--color-bg-blue);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: 2rem;
+  color: var(--color-primary-blue);
+  font-weight: 800;
+  font-size: 1.2rem;
+}
+
+.rankLabel {
+  font-size: 0.95rem;
+  color: var(--color-text-secondary);
+  font-weight: 800;
+}
+
+.infoDesc {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-radius: var(--inner-radius);
+  border: 1px solid var(--color-bg-grey);
+}
+
+.statLabel {
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.statValue {
+  font-weight: 700;
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+}

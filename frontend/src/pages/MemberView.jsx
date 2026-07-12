@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react'
 import EventLayout from '../layouts/EventLayout'
 import TeamInfoHeader from '../components/leaderView/TeamInfoHeader'
 import TeamMemberPanel from '../components/leaderView/TeamMemberPanel'
+import TeamCategoryPanel from '../components/leaderView/TeamCategoryPanel'
 import InviteTeamCard from '../components/noTeamView/InviteTeamCard'
 import ConfirmModal from '../components/shared/ConfirmModal'
 import styles from './MemberView.module.css'
-import axios from 'axios'
 import axiosClient from '../api/axiosClient'
 import { useAuth } from '../AuthContext'
+import ToastContainer from '../components/shared/ToastContainer'
 
 // const MOCK_MEMBERS = [
 //   {
@@ -96,7 +97,13 @@ import { useAuth } from '../AuthContext'
 //   }
 // ]
 
-const FAKE_LEAVE_REQUESTS = []
+
+const MOCK_CATEGORIES = [
+  { id: 1, name: 'Giáo dục (Education)', desc: 'Các giải pháp liên quan đến học tập, giảng dạy, quản lý giáo dục.', currentTeams: 8, teamLimit: 10 },
+  { id: 2, name: 'Y tế (Healthcare)', desc: 'Các giải pháp chăm sóc sức khỏe, quản lý bệnh viện, y tế cộng đồng.', currentTeams: 15, teamLimit: 15 },
+  { id: 3, name: 'Thương mại điện tử (E-commerce)', desc: 'Nền tảng mua sắm trực tuyến, thanh toán điện tử, logistics.', currentTeams: 5, teamLimit: 12 },
+  { id: 4, name: 'Giải trí (Entertainment)', desc: 'Game, mạng xã hội, ứng dụng đa phương tiện.', currentTeams: 12, teamLimit: 20 },
+]
 
 function MemberView() {
   const [teamStatus, setTeamStatus] = useState('OPEN')
@@ -105,10 +112,21 @@ function MemberView() {
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [confirmModal, setConfirmModal] = useState(null)
 
-  const token = localStorage.getItem("accessToken")
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' });
+  const [selectedCategory, setSelectedCategory] = useState(null)
+  const [categories, setCategories] = useState(MOCK_CATEGORIES)
   const [leaveRequest, setLeaveRequest] = useState([])
   const { updateTeamRole } = useAuth();
+  const eventId = localStorage.getItem('eventId') || null;
+
+  const [toasts, setToasts] = useState([])
+  const addToast = (toast) => {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, ...toast }])
+  }
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(t => t.id !== id))
+  }
 
   useEffect(() => {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
@@ -137,9 +155,20 @@ function MemberView() {
       .then((response) => {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus);
+        // TODO: Cần trả về trường categoryId trong object teamInfo
+        if (response.data.category.id) setSelectedCategory(response.data.category.id)
       })
       .catch((error) => console.log(error));
   }, []);
+
+  // TODO: Gọi API GET /api/event/{eventId}/categories để lấy danh sách hạng mục
+  useEffect(() => {
+    // const eventId = 1 // Lấy id từ URL hoặc context
+    axiosClient.get(`/track?eventId=${eventId}`)
+      .then(res => setCategories(res.data))
+      .catch(err => console.log(err))
+  }, [])
+
 
 
   // api lấy team members - comment out to use mock data
@@ -161,17 +190,11 @@ function MemberView() {
         console.log(response.data);
         if (currentUser?.memberStatus === 'RESERVE') {
           // Reserve members are removed instantly, so just clear state and reload
-          setConfirmModal({
-            title: 'Thành công',
-            message: 'Bạn đã rời nhóm thành công!',
-            confirmLabel: 'Xác nhận',
-            isNotification: true,
-            variant: 'success',
-            onConfirm: () => {
-              localStorage.removeItem('lastKnownTeamRole');
-              updateTeamRole('NO_TEAM');
-            }
-          })
+          addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã rời nhóm thành công!' })
+          setTimeout(() => {
+            localStorage.removeItem('lastKnownTeamRole');
+            updateTeamRole('NO_TEAM');
+          }, 1500);
           return;
         }
 
@@ -180,18 +203,11 @@ function MemberView() {
         }
         setLeaveRequest([responseData])
         localStorage.setItem('pendingLeaveRequest', 'true');
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'success',
-          onConfirm: () => setConfirmModal(null)
-        })
+        addToast({ variant: 'success', title: 'Thành công', message: 'Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.' })
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra, không thể rời nhóm lúc này.' });
       });
   };
 
@@ -214,18 +230,12 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         localStorage.removeItem('pendingLeaveRequest');
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Bạn đã hủy yêu cầu rời nhóm thành công!',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'success',
-          onConfirm: () => window.location.reload()
-        })
+        addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã hủy yêu cầu rời nhóm thành công!' })
+        setTimeout(() => window.location.reload(), 1500)
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra, không thể hủy rời nhóm lúc này.");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra, không thể hủy rời nhóm lúc này.' });
       });
   }
 
@@ -240,18 +250,12 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Đã chấp nhận lời mời thành công!',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'success',
-          onConfirm: () => window.location.reload()
-        })
+        addToast({ variant: 'success', title: 'Thành công', message: 'Đã chấp nhận lời mời thành công!' })
+        setTimeout(() => window.location.reload(), 1500)
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra khi chấp nhận lời mời!");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi chấp nhận lời mời!' });
       });
   }
 
@@ -270,18 +274,12 @@ function MemberView() {
       .then((response) => {
         console.log(response.data);
         setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Đã từ chối lời mời thành công!',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'success',
-          onConfirm: () => window.location.reload()
-        })
+        addToast({ variant: 'success', title: 'Thành công', message: 'Đã từ chối lời mời thành công!' })
+        setTimeout(() => window.location.reload(), 1500)
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra khi Từ Chối lời mời!");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi Từ Chối lời mời!' });
       });
   }
 
@@ -298,13 +296,21 @@ function MemberView() {
           showFindMember={false}
         />
 
+        <TeamCategoryPanel
+          categories={categories}
+          selectedCategoryId={selectedCategory}
+          isLeader={false}
+          onCategoryChange={setSelectedCategory}
+        />
+
         <div className={styles.content}>
           <div className={styles.main}>
             <TeamMemberPanel
               members={FAKE_MEMBERS}
-              maxSlots={4}
+              maxSlots={teamInfo.maxSlots || 4}
               teamStatus={teamStatus}
               isLeader={false}
+              hasSelectedCategory={!!selectedCategory}
               leaveRequests={leaveRequest}
               onLeave={handleOnLeave}
               onCancelLeave={(id) => handleOnCancelLeave(id)}
@@ -338,6 +344,8 @@ function MemberView() {
         isNotification={confirmModal?.isNotification}
         variant={confirmModal?.variant}
       />
+      
+      <ToastContainer toasts={toasts} onClose={removeToast} bottom="2em" />
     </EventLayout>
   )
 }

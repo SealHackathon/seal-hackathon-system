@@ -2,6 +2,8 @@ package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.BulkJudgeInviteRequest;
 import com.minhtung.hackathon.dto.request.BulkMentorInviteRequest;
+import com.minhtung.hackathon.dto.response.AssignedEventResponseDTO;
+import com.minhtung.hackathon.dto.response.InvitationResponseDTO;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
 import com.minhtung.hackathon.service.MentorJudgeService;
@@ -9,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/mentor-judge")
@@ -31,6 +35,9 @@ public class MentorJudgeController {
     // ==========================================
     // ── MENTOR INVITE APIs ──
     // ==========================================
+
+
+
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/mentors/{userId}/invite")
@@ -117,4 +124,45 @@ public class MentorJudgeController {
     private ResponseEntity<String> unauthorized() {
         return ResponseEntity.status(401).body("Token không hợp lệ hoặc đã hết hạn");
     }
+
+    // lấy những invitation pending đang gửi tới mình
+    @GetMapping("/invitations")
+    public ResponseEntity<List<InvitationResponseDTO>> getMyPendingInvitations(@RequestHeader("Authorization") String auth) {
+        Integer userId = getUid(auth);
+        if (userId == null) return ResponseEntity.status(401).build();
+
+        return ResponseEntity.ok(mentorJudgeService.getPendingInvitationsForUser(userId));
+    }
+
+    // accept invitation
+    @PostMapping("/invitations/{requestId}/accept")
+    public ResponseEntity<?> acceptInvitation(@RequestHeader("Authorization") String auth,
+                                              @PathVariable long requestId) {
+        Integer userId = getUid(auth);
+        if (userId == null) return unauthorized();
+
+        mentorJudgeService.acceptInvitation(requestId, userId);
+        return ResponseEntity.ok("Bạn đã chấp nhận lời mời thành công");
+    }
+
+    // reject invitation
+    @PostMapping("/invitations/{invitationId}/reject")
+    public ResponseEntity<?> rejectInvitation(@RequestHeader("Authorization") String auth,
+                                              @PathVariable long invitationId) {
+        Integer userId = getUid(auth);
+        if (userId == null) return unauthorized();
+
+        mentorJudgeService.rejectInvitation(invitationId, userId);
+        return ResponseEntity.ok("Bạn đã từ chối lời mời");
+    }
+
+    @GetMapping("/assigned-event")
+    public ResponseEntity<?> getAssignedEvent(@RequestHeader("Authorization") String auth) {
+        Integer userId = getUid(auth);
+        if (userId == null) return unauthorized();
+
+        AssignedEventResponseDTO result = mentorJudgeService.getAssignedEvent(userId);
+        return ResponseEntity.ok(result);
+    }
+
 }

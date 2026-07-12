@@ -18,8 +18,8 @@
 .twoCol {
     display: grid;
     /* 3 cột: cột trái - divider - cột phải */
-    grid-template-columns: 4fr auto 2fr;
-    gap: 2.5rem; /* Khoảng cách giữa nội dung và divider dọc */
+    grid-template-columns: 4fr auto 1.6fr;
+    gap: 1.5rem; /* Khoảng cách giữa nội dung và divider dọc */
     align-items: start;
 }
 

@@ -48,13 +48,27 @@ public class AuthService {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("email nay da ton tai ");
         }
-
         if(userRepository.existsByPhoneNumber(registerRequest.getPhone())){
             throw new RuntimeException(" số điện thoại này  đã tồn tại ");
         }
         if(userRepository.existsByStudentId(registerRequest.getStudentId())){
             throw new RuntimeException("MSSV đã  tồn tại " );
         }
+
+        if(registerRequest.getPassword() == null ||registerRequest.getPassword().length() <  6 ){
+            throw new RuntimeException("passsword phai tren 6 ki tu ");
+        }
+        if(registerRequest.getEmail() == null){
+            throw new RuntimeException("khong duoc de trong") ;
+        }
+
+        if(registerRequest.getEmail()== null){
+            throw new RuntimeException("khong duoc de trong") ;
+        }
+        if(registerRequest.getStudentId() == null){
+            throw new RuntimeException("khong duoc de trong") ;
+        }
+
 
         // check xem truong co ton tai trong DB khong
 //        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
@@ -166,9 +180,7 @@ public class AuthService {
     //login
     public LoginResponse login(LoginRequest req) {
         User user = userRepository.findByEmail((req.getEmail())).orElse(null);
-        if(user==null){
-            throw new RuntimeException("User name or password is invalid");
-        }
+
         String teamRole = null;
         boolean hasTeam = false;
 
@@ -180,18 +192,18 @@ public class AuthService {
         }
 
         if (user == null) {
-            return new LoginResponse(false,null, null, null, "tai khoan khong ton tai ", null, false, null, 0, null);
+            return new LoginResponse(null, null, null, "tai khoan khong ton tai ", null, false, null, 0, null);
 
         }
         if (!user.isActive()) {
-            return new LoginResponse(false,null, null, null, "tai khoan chua duoc kich hoat email ", null, false, null, 0, null);
+            return new LoginResponse(null, null, null, "tai khoan chua duoc kich hoat email ", null, false, null, 0, null);
         }
         if (!req.getPassword().equals(user.getPassword())) {
             //passwordEncoder.encode(req.getPassword())
-            return new LoginResponse(false,null, null, null, "Mat khau khong chinh xac", null, false, null, 0, null);
+            return new LoginResponse(null, null, null, "Mat khau khong chinh xac", null, false, null, 0, null);
         }
         if (!req.getEmail().equals(user.getEmail())) {
-            return new LoginResponse(false,null, null, null, "tai khoan  khong chinh xac", null, false, null, 0, null);
+            return new LoginResponse(null, null, null, "tai khoan  khong chinh xac", null, false, null, 0, null);
         }
 
         if (user.getStatus() == UserStatus.BANNED) {
@@ -203,7 +215,6 @@ public class AuthService {
         String jwt = jwtUtil.generateToken(user.getEmail(), user.getRole().name());
         long expiredTime = jwtUtil.getExpiredTime();
         return new LoginResponse(
-                user.isActive(),
                 jwt,
                 user.getRole().name(),
                 user.getEmail(),

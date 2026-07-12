@@ -1,0 +1,64 @@
+/* ─── GeneralRulesSection ─── */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.body {
+  padding: 2em;
+}
+
+/* HTML từ tiptap — style nhất quán với cả hệ thống */
+.tiptapContent {
+  font-size: 0.95rem;
+  line-height: 1.75;
+  color: var(--color-text-primary);
+  font-family: var(--body-font-main);
+}
+
+.tiptapContent p { margin: 0 0 0.5em; }
+.tiptapContent p:last-child { margin-bottom: 0; }
+.tiptapContent strong { font-weight: 700; }
+.tiptapContent em { font-style: italic; }
+.tiptapContent ul, .tiptapContent ol {
+  padding-left: 1.5em;
+  margin: 0.4em 0;
+}
+.tiptapContent li { margin-bottom: 0.3em; }
+.tiptapContent h1 {
+  font-family: var(--body-font-main);
+  font-style: normal;
+  font-weight: 800;
+  font-size: 1.1rem;
+  margin: 0.8em 0 0.3em;
+  color: var(--color-dark-blue);
+}
+.tiptapContent h2 {
+  font-family: var(--body-font-main);
+  font-style: normal;
+
+  font-weight: 800;
+  font-size: 1rem;
+  margin: 0.7em 0 0.25em;
+  color: var(--color-dark-blue);
+}
+.tiptapContent h3 {
+  font-family: var(--body-font-main);
+  font-style: normal;
+
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin: 0.6em 0 0.2em;
+  color: var(--color-dark-blue);
+}

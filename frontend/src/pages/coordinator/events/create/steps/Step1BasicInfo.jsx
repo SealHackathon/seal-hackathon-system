@@ -170,7 +170,7 @@ function Step1BasicInfo({ formData, onFormChange, errors = {} }) {
                             hint="Hiển thị dưới tên sự kiện ở trang danh sách và kết quả tìm kiếm."
                             multiline
                             rows={3}
-                            maxLength={200}
+                            maxLength={300}
                             showCount
                             value={formData.shortDesc ?? ''}
                             onChange={val => handleChange('shortDesc', val)}

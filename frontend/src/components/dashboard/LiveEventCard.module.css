@@ -93,7 +93,7 @@
 .sectionLabel {
     margin: 0;
     font-weight: bold;
-    color: var(--color-dark-blue);
+    color: var(--color-primary-blue);
 }
 
 .sectionValue {
@@ -112,4 +112,21 @@
 
 .btn {
     width: 100%;
+}
+
+.stats {
+    display: flex;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: space-around;
+    padding: 0 1rem;
+    box-sizing: border-box;
+}
+
+.timelineTitle {
+    margin: 0;
+    font-weight: bold;
+    color: var(--color-primary-blue);
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
 }

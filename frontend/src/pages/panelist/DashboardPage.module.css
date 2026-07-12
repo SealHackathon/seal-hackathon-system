@@ -1,0 +1,31 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}
+
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.assignedList {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+/* 2 box lời mời chia đôi 50/50 */
+.inviteGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25em;
+    align-items: start;
+}
+
+@media (max-width: 900px) {
+    .inviteGrid {
+        grid-template-columns: 1fr;
+    }
+}

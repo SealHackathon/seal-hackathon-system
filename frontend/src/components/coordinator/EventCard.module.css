@@ -4,6 +4,7 @@
     border-radius: var(--radius);
     display: flex;
     flex-direction: row;
+    align-items: center;
     gap: 1.5em;
     padding: 1.5em;
     transition: all 0.15s;
@@ -27,8 +28,8 @@
 
 /* ---- Thumbnail ---- */
 .thumbnail {
-    width: 200px;
-    height: 200px;
+    width: 20em;
+    height: 20em;
     flex-shrink: 0;
     border-radius: var(--inner-radius);
     background-color: var(--color-bg-blue);

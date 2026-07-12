@@ -1,0 +1,311 @@
+.section {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.5em 1.75em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+}
+
+.head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.headLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+}
+
+.title {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  font-family: var(--body-font-main);
+  font-size: 1.25rem;
+  font-style: normal;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.count {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-bg-blue);
+  background-color: var(--color-primary-blue);
+  padding: 0.5em 1em;
+  border-radius: var(--radius);
+}
+
+.headRight {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  flex-wrap: wrap;
+}
+
+/* Toolbar: search + filter cùng một hàng */
+.toolbar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1em;
+  margin-top: 0.25em;
+  margin-bottom: 0.5em;
+}
+
+.search {
+  flex: 1;
+  min-width: 15em;
+  transform: scale(0.9);
+  transform-origin: left center;
+}
+
+.filterCol {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  min-width: 0;
+  transform: scale(0.9);
+  transform-origin: right center;
+}
+
+.tableWrap {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 6em minmax(12em, 1fr) 9em 10em 9em 3em;
+  align-items: center;
+  gap: 1em;
+  padding: 0.9em;
+  border: 1.5px solid transparent;
+  border-radius: var(--inner-radius);
+  border-bottom: 1px solid var(--color-bg-blue);
+  transition: border 0.15s ease-in;
+}
+
+.headerRow {
+  background: var(--color-primary-blue);
+  border-radius: var(--inner-radius);
+  border-bottom: none;
+  padding: 0.85em 0.75em;
+  margin-bottom: 0.5em;
+  /* spacing before first row */
+}
+
+.headerRow span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--color-bg-white);
+}
+
+.tieGroup {
+  position: relative;
+  margin-bottom: 0.5em;
+}
+
+.tieGroup::before {
+  content: "";
+  position: absolute;
+  top: 0; bottom: 0; left: 0; right: 0;
+  border: 1.5px dashed var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  pointer-events: none;
+}
+
+.row:not(.headerRow) {
+  margin-bottom: 0.5em;
+}
+
+.tieGroup .row:not(.headerRow) {
+  margin-bottom: 0;
+}
+
+.row:not(.headerRow):hover {
+  border: 1.5px solid var(--color-border-blue);
+  box-sizing: border-box;
+}
+
+.rankWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.35em;
+}
+
+.rankNum {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-dark-blue);
+}
+
+.rankNone {
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.medal1 {
+  color: var(--color-primary-orange);
+}
+
+.medal2 {
+  color: var(--color-primary-blue);
+}
+
+.medal3 {
+  color: var(--color-primary-green);
+}
+
+.tie {
+  /* No longer used, removed from jsx */
+}
+
+.cTeam {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15em;
+}
+
+.teamName {
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.strike {
+  text-decoration: line-through;
+  color: var(--color-text-secondary);
+}
+
+.teamNote {
+  font-size: 0.78rem;
+  color: var(--color-dark-orange);
+}
+
+.scoreVal {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.scoreTemp {
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: var(--color-dark-orange);
+}
+
+.scoreNone {
+  font-size: 1.1rem;
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.scoreWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.scoreMax {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin-left: 0.2em;
+}
+
+.iconOk {
+  color: var(--color-primary-green);
+  display: inline-flex;
+}
+
+.iconWarn {
+  color: var(--color-primary-orange);
+  display: inline-flex;
+}
+
+.flagBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-primary-orange);
+  display: inline-flex;
+  padding: 0;
+}
+
+.ended {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.pending {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.cAction {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.eyeBtn {
+  border: 1.5px solid var(--color-border-blue);
+  background: var(--color-bg-white);
+  color: var(--color-primary-blue);
+  width: 2.2em;
+  height: 2.2em;
+  border-radius: var(--inner-radius);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.eyeBtn:hover {
+  background: var(--color-bg-blue);
+}
+
+.empty {
+  padding: 1.5em;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+
+.cJudges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4em;
+  align-items: center;
+}
+
+.judgeBadge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  background: var(--color-bg-blue);
+  padding: 0.25em 0.5em;
+  border-radius: var(--inner-radius);
+  border: 1px solid var(--color-border-blue);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.judgeBadge:hover {
+  background: var(--color-primary-blue);
+  color: white;
+}

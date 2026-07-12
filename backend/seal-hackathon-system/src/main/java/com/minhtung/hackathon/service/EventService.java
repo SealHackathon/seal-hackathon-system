@@ -35,13 +35,14 @@ public class EventService {
 
 
     private final EventRepository eventRepository;
-    private final TrackRepository trackRepository;
+
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
-    private final RoundRepository roundRepository;
     private final Cloudinary cloudinary;
     private final SystemRequestRepository systemRequestRepository;
-
+    private final EventRegistrationRepository registrationRepository;
+    private final UserRepository userRepository;
+    private final EventRegistrationRepository eventRegistrationRepository;
 
     // service view Event
     // service lay tat ca event tất cả status lun
@@ -57,6 +58,7 @@ public class EventService {
             eventResponse.setEventId(event.getId());
             eventResponse.setEventName(event.getName());
             eventResponse.setEventTopic(event.getTopic());
+            eventResponse.setMaxTeam(event.getMaxTeam());
             eventResponse.setMaxTeamMember(event.getMaxTeamMember());
             eventResponse.setEventLocation(event.getEventLocation());
             eventResponse.setThumbnail(event.getThumbnail_image());
@@ -66,7 +68,13 @@ public class EventService {
             eventResponse.setRoundQuantity(totalRounds);
 
             // dang hard code set prize
-            eventResponse.setPrize(10000000);
+            List<Prize> prizes = event.getPrizes();
+            long totalprize = 0;
+            for (Prize prize : prizes) {
+                totalprize += prize.getMoney() * prize.getQuantity();
+            }
+
+            eventResponse.setPrize(totalprize);
 
             int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
             eventResponse.setTeamQuantity(teamQuantity);
@@ -115,20 +123,32 @@ public class EventService {
 
 
     // service view Live Event
-    public LiveEventResponse getLiveEvent() {
+    public LiveEventResponse getLiveEvent(Long userId) {
         Event event = eventRepository.findByStatus(EventStatus.LIVE).orElse(null);
         if (event == null) {
             throw new IllegalArgumentException("Event not found");
         }
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        boolean currentRegister = eventRegistrationRepository.existsByUserIdAndEventId(userId, event.getId());
+
         LiveEventResponse eventResponse = new LiveEventResponse();
+        eventResponse.setCurrentUserRegistered(currentRegister);
         eventResponse.setEventId(event.getId());
         eventResponse.setEventName(event.getName());
         eventResponse.setEventTopic(event.getTopic());
+        eventResponse.setMaxTeam(event.getMaxTeam());
         eventResponse.setMaxTeamMember(event.getMaxTeamMember());
         eventResponse.setEventLocation(event.getEventLocation());
         eventResponse.setTrackQuantity(eventResponse.getTrackQuantity() + event.getTracks().size());
         // dang hard code set prize
-        eventResponse.setPrize(10000000);
+        List<Prize> prizes = event.getPrizes();
+        long totalprize = 0;
+        for (Prize prize : prizes) {
+            totalprize += prize.getMoney() * prize.getQuantity();
+        }
 
         int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
         eventResponse.setTeamQuantity(teamQuantity);
@@ -207,6 +227,12 @@ public class EventService {
         event.setOpenRegisterTime(request.getOpenRegisterTime());
         event.setCloseRegisterTime(request.getCloseRegisterTime());
         event.setCofirmTeamTime(request.getCofirmTeamTime());
+
+        if (request.getKeywords() != null) {
+            String[] keywords = request.getKeywords().split(",");
+            event.setKeywords(keywords);
+        }
+
 
         Event savedEvent = eventRepository.save(event);
         return mapToEventDetailsResponse(savedEvent);
@@ -380,7 +406,7 @@ public class EventService {
                             t.getName(),
                             t.getDes(),
                             t.getMaxTeamPerTrack(),
-                            t.getMinTeamPerTrack(), event.getId()
+                            t.getMinTeamPerTrack(), t.getTeamQuantity(), event.getId()
                     ))
                     .toList();
             response.setTracks(trackDTOs);
@@ -558,6 +584,7 @@ public class EventService {
         response.setBannerImg(event.getBannerImg());
         response.setThumbnailImage(event.getThumbnail_image());
         response.setRules(event.getRules());
+        response.setMaxTeam(event.getMaxTeam());
         response.setParticipationBenefits(event.getParticipationBenefits());
         response.setMinTeamMember(event.getMinTeamMember());
         response.setMaxTeamMember(event.getMaxTeamMember());
@@ -584,4 +611,33 @@ public class EventService {
                 user.getAvt_img()
         );
     }
+
+    @Transactional
+    public String registerEvent(Long userId, Long eventId) {
+        // 1. Kiểm tra User có tồn tại không
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng có ID: " + userId));
+
+        // 2. Kiểm tra Event có tồn tại không
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện có ID: " + eventId));
+
+        // 3. Kiểm tra xem sinh viên đã đăng ký sự kiện này chưa
+        if (registrationRepository.findByUserIdAndEventId(userId, eventId).isPresent()) {
+            throw new RuntimeException("Bạn đã đăng ký tham gia sự kiện này rồi!");
+        }
+
+        // 4. Tạo bản ghi đăng ký mới
+        EventRegistration registration = EventRegistration.builder()
+                .user(user)
+                .event(event)
+                .registeredAt(LocalDateTime.now())
+                .build();
+
+        registrationRepository.save(registration);
+
+        return "Đăng ký tham gia sự kiện '" + event.getName() + "' thành công!";
+    }
+
+
 }

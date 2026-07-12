@@ -2,9 +2,13 @@ package com.minhtung.hackathon.service;
 
 import com.minhtung.hackathon.dto.request.TrackRequest;
 import com.minhtung.hackathon.dto.response.TrackResponse;
+import com.minhtung.hackathon.dto.response.ViewTeamListRespone;
 import com.minhtung.hackathon.entity.Event;
+import com.minhtung.hackathon.entity.Submission;
+import com.minhtung.hackathon.entity.Team;
 import com.minhtung.hackathon.entity.Track;
 import com.minhtung.hackathon.repository.EventRepository;
+import com.minhtung.hackathon.repository.TeamRepository;
 import com.minhtung.hackathon.repository.TrackRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,6 +23,7 @@ public class TrackService {
 
     private final TrackRepository trackRepository;
     private final EventRepository eventRepository;
+    private final TeamRepository teamRepository ;
 
 
     // Lấy tất cả danh sách bảng đấu (Track) thuộc về một sự kiện cụ thể
@@ -38,7 +43,9 @@ public class TrackService {
                         track.getName(),
                         track.getDes(), // Biến mô tả trong Entity của bạn
                         track.getMaxTeamPerTrack(),
-                        track.getMinTeamPerTrack(),eventId
+                        track.getMinTeamPerTrack(),
+                        track.getTeamQuantity()
+                        ,eventId
                 ))
                 .toList();
     }
@@ -89,6 +96,7 @@ public class TrackService {
                             track.getDes(),
                             track.getMinTeamPerTrack(),
                             track.getMaxTeamPerTrack(),
+                            track.getTeamQuantity(),
                             event.getId()
                     ))
                     .toList();
@@ -101,5 +109,56 @@ public class TrackService {
     public void deleteTrack(long id) {
         Track track = getTrackById(id);
         trackRepository.delete(track);
+    }
+
+    @Transactional
+    public List<ViewTeamListRespone> viewTeamByTrack(Long trackId){
+        Track track = trackRepository.findById(trackId).orElseThrow(()-> new RuntimeException("khong tim thay track")) ;
+        return teamRepository.findByTrackId(trackId)
+                .stream()
+                .map(team -> mapToTeamResponse(team, null))
+                .toList() ;
+    }
+
+    private ViewTeamListRespone mapToTeamResponse(
+            Team team,
+            Submission submission
+    ) {
+        return ViewTeamListRespone.builder()
+                .teamId(team.getId())
+                .teamName(team.getName())
+                .teamStatus(team.getStatus().name())
+                .leaderId(
+                        team.getLeader() != null
+                                ? team.getLeader().getId()
+                                : null
+                )
+                .leaderName(
+                        team.getLeader() != null
+                                ? team.getLeader().getFullName()
+                                : null
+                )
+                .trackId(
+                        team.getTrack() != null
+                                ? team.getTrack().getId()
+                                : null
+                )
+                .trackName(
+                        team.getTrack() != null
+                                ? team.getTrack().getName()
+                                : null
+                )
+                .memberCount(
+                        team.getMembers() != null
+                                ? team.getMembers().size()
+                                : 0
+                )
+                .hassSubmissionn(submission != null)
+                .submissionId(
+                        submission != null
+                                ? submission.getId()
+                                : null
+                )
+                .build();
     }
 }

@@ -1,5 +1,5 @@
 .sidebar {
-    width: 6em;
+    width: 6.5em;
     height: calc(100vh - 80px - 3em);
     flex-shrink: 0;
 

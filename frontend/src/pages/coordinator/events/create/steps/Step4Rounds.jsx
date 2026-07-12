@@ -11,10 +11,11 @@ import DateTimePicker from '../../../../../components/shared/DateTimePicker'
 import RichTextEditor from '../../../../../components/shared/RichTextEditor'
 import {
     CalendarBlank, MapPin, Broadcast, Trophy,
-    Folder, ArrowCounterClockwise, ListChecks, ClipboardText, Textbox
+    Folder, ArrowCounterClockwise, ListChecks, ClipboardText, Textbox, Trash, Plus
 } from '@phosphor-icons/react'
 import { getRecentLocations, saveRecentLocation } from '../../../../../utils/useRecentLocation'
 import styles from './Step4Rounds.module.css'
+import SelectRubricModal from './SelectRubricModal'
 
 // ── Tạo round mới với giá trị mặc định
 function createRound(name = 'Vòng mới') {
@@ -31,6 +32,9 @@ function createRound(name = 'Vòng mới') {
         submissionGuide: '',
         agenda: [],
         meetingLink: '',
+        topTeamPass: '',
+        rubricId: null,
+        locationName: '',
     }
 }
 
@@ -45,19 +49,41 @@ const SUBMISSION_OPTIONS = [
 ]
 
 // ── Form cho 1 vòng thi
-function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, teamDeadline, highlightRanges }) {
+function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, teamDeadline, closeDate, deadlineSameAsClose, highlightRanges, clearError }) {
     const [recents, setRecents] = useState(() => getRecentLocations())
+    const [showRubricModal, setShowRubricModal] = useState(false)
 
     function update(field, val) {
-        onChange({ ...round, [field]: val })
+        let updatedRound = { ...round, [field]: val }
+        
+        // Luôn đồng bộ hoạt động đầu tiên với thời gian bắt đầu vòng thi
+        if (field === 'startDate' && val) {
+            if (updatedRound.agenda && updatedRound.agenda.length > 0) {
+                const newAgenda = [...updatedRound.agenda]
+                newAgenda[0] = { ...newAgenda[0], startTime: new Date(val) }
+                updatedRound.agenda = newAgenda
+            }
+        }
+        
+        onChange(updatedRound)
+        clearError?.(`round-${roundIndex}-${field}`)
     }
 
     function handleLocationChange(place) {
-        update('location', place)
+        const updatedRound = { ...round, location: place }
         if (place) {
+            if (!round.location || round.location.name !== place.name) {
+                updatedRound.locationName = place.name
+                clearError?.(`round-${roundIndex}-locationName`)
+            }
             saveRecentLocation(place)
             setRecents(getRecentLocations())
+        } else {
+            updatedRound.locationName = ''
+            clearError?.(`round-${roundIndex}-locationName`)
         }
+        onChange(updatedRound)
+        clearError?.(`round-${roundIndex}-location`)
     }
 
     // ── Không cho phép nộp bài vòng trước nếu là vòng đầu tiên
@@ -79,10 +105,14 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
         if (!round.startDate) return null
         const start = new Date(round.startDate)
 
-        if (teamDeadline) {
-            const teamDeadlineDate = new Date(teamDeadline)
-            if (start <= teamDeadlineDate) {
-                return `Ngày bắt đầu phải sau thời gian chốt đội (${teamDeadlineDate.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })})`
+        const lockTime = deadlineSameAsClose === false 
+            ? (teamDeadline ? new Date(teamDeadline) : null) 
+            : (closeDate ? new Date(closeDate) : null);
+        const lockTimeName = deadlineSameAsClose === false ? 'thời gian chốt đội' : 'thời gian đóng đăng ký';
+
+        if (lockTime) {
+            if (start <= lockTime) {
+                return `Ngày bắt đầu phải sau ${lockTimeName} (${lockTime.toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })})`
             }
         }
 
@@ -107,7 +137,7 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
     // ── Validate thời gian mở nộp bài
     const submissionOpenError = errors?.[`round-${roundIndex}-submissionOpen`] || (() => {
         if (!round.submissionOpen) return null
-        
+
         if (!round.startDate) {
             return 'Vui lòng chọn thời gian bắt đầu vòng thi trước'
         }
@@ -191,11 +221,26 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
                                 message="Đây là vòng cuối cùng, sẽ được dùng để trao giải cho các đội thi."
                             />
                         ) : (
-                            <Banner
-                                color="blue" variant="flat" icon={Trophy}
-                                title="Không phải vòng trao giải"
-                                message="Vòng này không phải vòng trao giải, vòng trao giải sẽ là vòng cuối cùng."
-                            />
+                            <>
+                                <Banner
+                                    color="blue" variant="flat" icon={Trophy}
+                                    title="Không phải vòng trao giải"
+                                    message="Vòng này không phải vòng trao giải, vòng trao giải sẽ là vòng cuối cùng."
+                                />
+                                <div style={{ marginTop: '1rem' }}>
+                                    <FormInput
+                                        label="Số đội được vào vòng tiếp theo"
+                                        type="number"
+                                        min={1}
+                                        required
+                                        placeholder="Ví dụ: 10"
+                                        value={round.topTeamPass || ''}
+                                        onChange={e => update('topTeamPass', e?.target ? e.target.value : e)}
+                                        status={errors?.[`round-${roundIndex}-topTeamPass`] ? 'error' : 'default'}
+                                        message={errors?.[`round-${roundIndex}-topTeamPass`]}
+                                    />
+                                </div>
+                            </>
                         )}
                     </FieldGroup>
 
@@ -214,14 +259,31 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
                     />
 
                     {round.format === 'offline' && (
-                        <LocationSearch
-                            label="Địa điểm tổ chức"
-                            required
-                            value={round.location}
-                            onChange={handleLocationChange}
-                            recentPlaces={recents}
-                            error={errors?.[`round-${roundIndex}-location`]}
-                        />
+                            <LocationSearch
+                                label="Địa điểm tổ chức"
+                                required
+                                value={round.location}
+                                onChange={handleLocationChange}
+                                recentPlaces={recents}
+                                error={errors?.[`round-${roundIndex}-location`]}
+                                renderBelowSearch={
+                                    round.location && round.location.lat && round.location.lng ? (
+                                        <div style={{ marginTop: '0.5rem', marginBottom: '0.5rem' }}>
+                                            <FormInput
+                                                label="Tên địa điểm hiển thị"
+                                                labelVariant="small"
+                                                required
+                                                hint="Tên này sẽ được hiển thị cho thí sinh, thay cho tên địa điểm gốc."
+                                                placeholder="Tên địa điểm BTC tự đặt..."
+                                                value={round.locationName ?? ''}
+                                                onChange={e => update('locationName', e?.target ? e.target.value : e)}
+                                                status={errors?.[`round-${roundIndex}-locationName`] ? 'error' : 'default'}
+                                                message={errors?.[`round-${roundIndex}-locationName`]}
+                                            />
+                                        </div>
+                                    ) : null
+                                }
+                            />
                     )}
 
                     {round.format === 'online' && (
@@ -291,10 +353,40 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
                             </FieldGroup>
 
                             <FieldGroup icon={ListChecks} title="Rubric chấm điểm">
-                                <div className={styles.rubricPlaceholder}>
-                                    Chọn rubric
-                                </div>
+                                {round.rubricId ? (
+                                    <div className={styles.rubricSelected}>
+                                        <div className={styles.rubricInfo}>
+                                            <span className={styles.rubricLabel}>{round.rubricName || `Bộ tiêu chí đã chọn`}</span>
+                                        </div>
+                                        <div className={styles.rubricActions}>
+                                            <button className={styles.rubricChangeBtn} onClick={() => setShowRubricModal(true)}>
+                                                Thay đổi
+                                            </button>
+                                            <button className={styles.rubricRemoveBtn} onClick={() => {
+                                                onChange({ ...round, rubricId: null, rubricName: null })
+                                            }}>
+                                                <Trash size={20} weight='fill' />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className={styles.rubricPlaceholder} onClick={() => setShowRubricModal(true)}>
+                                        <Plus size={20} />
+                                        <span>Chọn rubric</span>
+                                    </div>
+                                )}
                             </FieldGroup>
+
+                            {showRubricModal && (
+                                <SelectRubricModal
+                                    onClose={() => setShowRubricModal(false)}
+                                    selectedRubricId={round.rubricId}
+                                    onSelect={(selected) => {
+                                        onChange({ ...round, rubricId: selected.id, rubricName: selected.name, criteria: selected.criteria })
+                                        setShowRubricModal(false)
+                                    }}
+                                />
+                            )}
                         </>
                     )}
 
@@ -308,6 +400,9 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
                     <AgendaTable
                         items={round.agenda}
                         onChange={val => update('agenda', val)}
+                        roundStartDate={round.startDate}
+                        roundEndDate={round.endDate}
+                        highlightRanges={highlightRanges}
                     />
                 </div>
             </section>
@@ -317,7 +412,7 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
 }
 
 // ── Container chính
-function Step4Rounds({ formData, onChange, errors }) {
+function Step4Rounds({ formData, onChange, errors, clearError }) {
     // Khởi tạo 1 lần — tránh render loop
     const [rounds, setRounds] = useState(() =>
         formData.rounds?.length
@@ -415,7 +510,10 @@ function Step4Rounds({ formData, onChange, errors }) {
                     roundIndex={activeIndex}
                     errors={errors}
                     teamDeadline={formData.teamDeadline}
+                    closeDate={formData.closeDate}
+                    deadlineSameAsClose={formData.deadlineSameAsClose}
                     highlightRanges={highlightRanges}
+                    clearError={clearError}
                 />
             )}
         </div>

@@ -1,0 +1,117 @@
+.wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+}
+
+.range {
+  flex: 1 1 auto;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 0.5em;
+  border-radius: var(--radius);
+  background: linear-gradient(
+    to right,
+    var(--color-primary-blue) 0 var(--pct, 0%),
+    var(--color-bg-grey) var(--pct, 0%) 100%
+  );
+  cursor: pointer;
+  outline: none;
+}
+
+.range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 1.15em;
+  height: 1.15em;
+  border-radius: var(--radius);
+  background: var(--color-bg-white);
+  border: 3px solid var(--color-primary-blue);
+  cursor: grab;
+  transition: transform 0.12s ease;
+}
+
+.range::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.15);
+}
+
+.range::-moz-range-thumb {
+  width: 1.15em;
+  height: 1.15em;
+  border-radius: var(--radius);
+  background: var(--color-bg-white);
+  border: 3px solid var(--color-primary-blue);
+  cursor: grab;
+}
+
+.readOnly {
+  cursor: default;
+}
+
+.readOnly::-webkit-slider-thumb {
+  cursor: default;
+  border-color: var(--color-secondary-blue);
+}
+
+.readOnly::-moz-range-thumb {
+  cursor: default;
+  border-color: var(--color-secondary-blue);
+}
+
+/* ── Ô điểm (nhập được) ── */
+.scoreCell {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15em;
+  flex-shrink: 0;
+}
+
+.scoreInput {
+  width: 3.6em;
+  text-align: right;
+  font-family: var(--body-font-main);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  padding: 0.1em 0.3em;
+  background: var(--color-bg-white);
+  outline: none;
+}
+
+.scoreInput::placeholder {
+  color: var(--color-border-blue);
+  opacity: 1; /* For Firefox */
+}
+
+.scoreInput:focus {
+  border-color: var(--color-primary-blue);
+}
+
+.scoreInput::-webkit-outer-spin-button,
+.scoreInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.scoreInput {
+  -moz-appearance: textfield;
+}
+
+.value {
+  min-width: 2.4em;
+  text-align: right;
+  font-family: var(--body-font-main);
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.max {
+  font-family: var(--body-font-main);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}

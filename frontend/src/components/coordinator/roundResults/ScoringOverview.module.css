@@ -1,0 +1,143 @@
+.section {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.5em 1.75em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+}
+
+.head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+
+.headText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.titleIcon { color: var(--color-border-blue); }
+
+.title {
+  margin: 0;
+  font-family: var(--body-font-main);
+  font-style: normal;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.subtitle {
+  font-size: 0.88rem;
+  color: var(--color-secondary-blue);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 0.9em;
+  margin-bottom: 1em;
+}
+
+.actions > button {
+  flex: 1; /* Chia đều chiều ngang cho 2 nút */
+}
+
+/* Các filter tab đã dùng component chung nên xoá CSS chip cũ ở đây */
+
+.roundGroup {
+  margin-bottom: 1em;
+}
+
+.roundTitle {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  margin-bottom: 0.5em;
+}
+
+.note {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  background: var(--color-bg-blue);
+  padding: 0.9em 1.1em;
+  border-radius: var(--inner-radius);
+}
+
+.judges {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+}
+
+.jCard {
+  flex: 0 0 auto;
+  min-width: 14em;
+  border-radius: var(--inner-radius);
+  padding: 0.9em 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+  border: 1.5px solid var(--color-border-blue);
+}
+
+.jDone { background: var(--color-bg-white); }
+.jScoring { background: var(--color-bg-blue); border-color: var(--color-primary-blue); }
+.jIdle { background: var(--color-bg-grey); border-color: var(--color-bg-grey); }
+
+.jTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+
+.jName {
+  font-weight: 800;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.jState {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+.jDone .jState { color: var(--color-dark-green); }
+.jScoring .jState { color: var(--color-primary-blue); }
+
+.jTrack {
+  height: 8px;
+  background: var(--color-bg-white);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.jFill {
+  height: 100%;
+  background: var(--color-primary-blue);
+  border-radius: var(--radius);
+}
+
+.jDone .jFill { background: var(--color-primary-green); }
+
+.jCount {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}

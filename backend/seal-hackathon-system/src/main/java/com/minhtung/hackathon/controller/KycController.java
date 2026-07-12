@@ -13,7 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequestMapping("api/kyc")
 @RequiredArgsConstructor
-@CrossOrigin("*")
 public class KycController {
     private final KycService kycService;
 
@@ -40,22 +39,15 @@ public class KycController {
     @PostMapping(value = "/student-card", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadStudentCard(
             @RequestParam MultipartFile file,
-            @RequestParam String mssv,
-            @RequestParam String school,
             Authentication authentication
     ) {
         String imageUrl = kycService.uploadStudentCart(
                 authentication.getName(),
-                file,
-                mssv,
-                school
+                file
         );
 
         return ResponseEntity.ok(imageUrl);
     }
-
-
-
 
 
 }

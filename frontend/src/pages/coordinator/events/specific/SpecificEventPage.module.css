@@ -1,0 +1,153 @@
+.page {
+  min-height: 100vh;
+  width: 100%;
+  background: var(--color-bg-white);
+}
+
+
+/* ── Vùng nội dung ── */
+.backBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--body-font-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  padding: 0.4em 0.2em;
+}
+
+.backBtn:hover {
+  color: var(--color-primary-blue);
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+  padding: 1.5em 1.6em 2.5em;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* ── Hero ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  padding: 1.5em;
+  border-radius: var(--radius);
+  background: var(--color-primary-blue);
+}
+
+.heroLeft {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85em;
+  min-width: 0;
+}
+
+.heroTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  flex-wrap: wrap;
+}
+
+.heroIcon {
+  color: var(--color-bg-white);
+  flex-shrink: 0;
+}
+
+.heroTitle {
+  margin: 0;
+  font-weight: 800;
+  color: var(--color-bg-white);
+  line-height: 1.1;
+}
+
+.heroBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.heroLinks {
+  display: inline-flex;
+  flex: 1;
+  align-items: center;
+  gap: 1em;
+  padding: 0.5em 1.25em;
+  border-radius: var(--inner-radius);
+  background: var(--color-bg-white);
+}
+
+.heroLink {
+  display: flex;
+  align-items: center;
+  gap: 0.45em;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-family: var(--body-font-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.heroLink:hover {
+    color: var(--color-primary-blue);
+}
+
+.heroLinkSep {
+  width: 1.5px;
+  height: 1.1em;
+  background: var(--color-border-blue);
+}
+
+.heroActions {
+  display: flex;
+  align-items: center;
+  gap: 0.7em;
+  flex-shrink: 0;
+}
+
+.heroExport {
+  background: var(--color-bg-white) !important;
+  border-color: var(--color-bg-white) !important;
+  color: var(--color-primary-blue) !important;
+}
+
+/* ── Thanh tab sticky dưới header ── */
+.tabBar {
+  padding: 0.6em 0;
+}
+
+/* ── Body ── */
+.body {
+  width: 100%;
+  padding: 0 1em;
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22em;
+  border: 1.5px dashed var(--color-border-blue);
+  border-radius: var(--radius);
+  background: var(--color-bg-white);
+}
+
+.placeholderText {
+  font-family: var(--body-font-main);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}

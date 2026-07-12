@@ -2,6 +2,8 @@ package com.minhtung.hackathon.repository;
 
 import com.minhtung.hackathon.entity.Submission; // Thay thế bằng entity thực tế của bạn
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -16,8 +18,36 @@ public interface SubmissionRepository extends JpaRepository<Submission, Long> {
             Long teamId,
             Long roundId
     );
+
     List<Submission>
-    findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(
-            Long roundId
+    findByTeamTrackIdAndLatestTrueOrderBySubmittedAtDesc(
+            Long trackId
     );
+
+    List<Submission>
+    findByTeamId(
+            Long teamId
+    );
+
+
+    List<Submission> findByRound_IdAndLatestTrue(long roundId);
+
+
+    @Query("""
+SELECT s
+FROM Submission s
+JOIN JudgeAssignment ja
+    ON ja.track.id = s.team.track.id
+WHERE ja.user.id = :judgeId
+  AND ja.round.id = :roundId
+  AND s.round.id = :roundId
+  AND s.latest = true
+ORDER BY s.submittedAt DESC
+""")
+    List<Submission> findSubmissionForJudge(
+            @Param("judgeId") Long judgeId,
+            @Param("roundId") Long roundId
+    );
+
+
 }

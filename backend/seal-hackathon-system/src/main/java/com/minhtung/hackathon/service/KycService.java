@@ -19,10 +19,16 @@ import com.minhtung.hackathon.repository.UserIdentityProfileRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,7 +47,7 @@ public class KycService {
     private final EmailService emailService;
     private final StudentprofileRepository studentprofileRepository;
     private final Cloudinary cloudinary;
-    private final FptAiService fptAiService;
+    private final IdAnalyzerService idAnalyzerService;
 
 
     @Value("${kyc.face-match-threshold}")
@@ -51,7 +57,7 @@ public class KycService {
 
     @Transactional
 
-    public String uploadStudentCart(String email, MultipartFile file, String mssv, String school) {
+    public String uploadStudentCart(String email, MultipartFile file) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("Không tìm thấy user"));
         if (!user.isActive()) {
             throw new RuntimeException("Tài khoản chưa xác nhận Gmail");
@@ -59,16 +65,13 @@ public class KycService {
         if (file.getSize() > 2 * 1024 * 1024) {
             throw new RuntimeException("Ảnh hồ sơ tối đa 2MB");
         }
-        Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId())
-
-                .orElse(new Student_profile());
-
+        Student_profile studentProfile =
+                studentprofileRepository.findByUserId(user.getId())
+                        .orElse(new Student_profile());
 
         studentProfile.setUser(user);
         String imageUrl = cloudinaryStorageService.uploadStudentCard(file, user.getId());
         studentProfile.setImg_studentcard(imageUrl);
-//        studentProfile.setMssv(mssv);
-//        studentProfile.setSchool(school);
         studentprofileRepository.save(studentProfile);
 
         return imageUrl;
@@ -115,28 +118,29 @@ public class KycService {
             throw new RuntimeException("tai khoan khong duoc cap nhat ho sơ");
         }
         //cho nay hiện tại là đang chứa tất cả thogno tin mặt trước cccd do fpt.AI trả về
-        JsonNode frontResult = fptAiService.scanCccd(front_img);
-        JsonNode backResult = fptAiService.scanCccd(Back_img);
-        System.out.println("===== FRONT FILE =====");
-        System.out.println("FRONT FILE = " + front_img.getOriginalFilename());
-        System.out.println("FRONT SIZE = " + front_img.getSize());
-        System.out.println("FRONT TYPE = " + front_img.getContentType());
+        JsonNode scanResult =
+                idAnalyzerService.scanCccd(front_img, Back_img);
+        System.out.println("===== ID ANALYZER RESPONSE =====");
+        System.out.println(scanResult.toPrettyString());
 
-        System.out.println("===== BACK FILE =====");
-        System.out.println("BACK FILE = " + Back_img.getOriginalFilename());
-        System.out.println("BACK SIZE = " + Back_img.getSize());
-        System.out.println("BACK TYPE = " + Back_img.getContentType());
+        if (!scanResult.path("success").asBoolean(false)) {
+            throw new RuntimeException("ID Analyzer khong nhan dien duoc CCCD");
+        }
 
-        System.out.println("===== FRONT OCR =====");
-        System.out.println(frontResult.toPrettyString());
+        // TODO CHECK CCCD ID đã trùng chưa
 
-        System.out.println("===== BACK OCR =====");
-        System.out.println(backResult.toPrettyString());
 
-        //khuc nay de check xem FPT.AI có quét đc không nếu không quét được thì báo lỗi ngay
-        JsonNode frontData = getFirstData(frontResult);
-        JsonNode backdata = getFirstData(backResult);
-        validataCccd(frontData, backdata);
+        String documentNumber = getIdAnalyzerValue(scanResult, "documentNumber");
+//        String fullName = getIdAnalyzerValue(scanResult, "fullName");
+        String lastname = getIdAnalyzerValue(scanResult, "lastName");
+        String firstname = getIdAnalyzerValue(scanResult, "firstName");
+        String fullName = lastname + " " + firstname;
+        String dateOfBirth = formatVietnameseDate(getIdAnalyzerValue(scanResult, "dob"));
+        String gender = getIdAnalyzerValue(scanResult, "sex");
+        String address = getIdAnalyzerValue(scanResult, "address1");
+        String hometown = getIdAnalyzerValue(scanResult, "placeOfBirth");
+
+        validateIdAnalyzerCccd(documentNumber, fullName, dateOfBirth);
         UserIdentityProfile profile = profileRepository.findByUserId(user.getId()).orElse(new UserIdentityProfile());
 
 
@@ -153,15 +157,15 @@ public class KycService {
 
         profile.setFrontcmnd_img(frontUpload.secureUrl());
         profile.setCmndBack_image(backUrl);
-        profile.setCmnd(frontData.path("id").asText(null));
-        profile.setFullName(frontData.path("name").asText(null));
-        user.setFullName(frontData.path("name").asText(null));
+        profile.setCmnd(documentNumber);
+        profile.setFullName(fullName);
+        user.setFullName(fullName);
 
-        profile.setDateOfBirth(frontData.path("dob").asText(null));
-        profile.setGender(frontData.path("sex").asText(null));
-        profile.setThuongtru(frontData.path("address").asText(null));
+        profile.setDateOfBirth(dateOfBirth);
+        profile.setGender(gender);
+        profile.setThuongtru(address);
         profile.setUser(user);
-        profile.setHometown(frontData.path("home").asText(null));
+        profile.setHometown(hometown);
         profile.setFace_image(faceUrl);
         // profile.setQrRaw(frontData.path("qr").asText(null));
         profileRepository.save(profile);
@@ -170,6 +174,40 @@ public class KycService {
         return mapToUserIdentityProfileResponse(profile, user);
     }
 
+    private String getIdAnalyzerValue(JsonNode result, String fieldName) {
+        JsonNode values = result.path("data").path(fieldName);
+        if (!values.isArray() || values.isEmpty()) {
+            return null;
+        }
+
+        String value = values.get(0).path("value").asText(null);
+        return value == null || value.isBlank() ? null : value.trim();
+    }
+
+    private void validateIdAnalyzerCccd(String documentNumber, String fullName, String dateOfBirth) {
+        if (documentNumber == null) {
+            throw new RuntimeException("Khong doc duoc ma so CCCD");
+        }
+        if (fullName == null) {
+            throw new RuntimeException("Khong doc duoc ho ten tren CCCD");
+        }
+        if (dateOfBirth == null) {
+            throw new RuntimeException("Khong doc duoc ngay sinh tren CCCD");
+        }
+    }
+
+    private String formatVietnameseDate(String isoDate) {
+        if (isoDate == null || isoDate.isBlank()) {
+            return null;
+        }
+
+        try {
+            LocalDate date = LocalDate.parse(isoDate, DateTimeFormatter.ISO_LOCAL_DATE);
+            return date.format(DateTimeFormatter.ofPattern("dd-MM-yyyy"));
+        } catch (DateTimeParseException e) {
+            return isoDate;
+        }
+    }
 
     private JsonNode getFirstData(JsonNode result) {
         JsonNode data = result.path("data");
@@ -237,13 +275,36 @@ public class KycService {
         }
         String selffieUrl = cloudinaryStorageService.uploadKycImage(selfieImg, user.getId(), "selfie");
 
-        JsonNode faceResult = fptAiService.matchFaceByUrl(profile.getFace_image(), selfieImg);
+        JsonNode faceResult =
+                idAnalyzerService.matchFaceByUrl(
+                        profile.getFace_image(),
+                        selfieImg
+                );
         System.out.println("Face match result " + faceResult.toPrettyString());
 
-        JsonNode data = faceResult.path("data");
+        if (!faceResult.path("success").asBoolean(false)) {
+            throw new RuntimeException(
+                    "ID Analyzer khong the so khop khuon mat"
+            );
+        }
 
-        double score = data.path("similarity").asDouble(0);
-        boolean matched = data.path("isMatch").asBoolean(false);
+        JsonNode scoreNode =
+                faceResult.path("scores").path("faceCompare");
+
+        if (scoreNode.isMissingNode() || scoreNode.isNull()) {
+            throw new RuntimeException(
+                    "ID Analyzer khong tra ve diem faceCompare"
+            );
+        }
+
+        double score = scoreNode.asDouble();
+
+        // ID Analyzer co the tra diem theo thang 0-1 hoac 0-100.
+        if (score <= 1) {
+            score *= 100;
+        }
+
+        boolean matched = score >= faceMatchThreshold;
 
         int attempts = profile.getFaceMatchAttempts() == null
                 ? 0
@@ -327,6 +388,18 @@ public class KycService {
 
         if (req.getTopics() != null && req.getTopics().size() > 10) {
             throw new RuntimeException("Chỉ được chọn tối đa 10 chủ đề");
+        }
+        //kiem tra cv link
+        if (req.getCvLink() != null) {
+            String cvLink = req.getCvLink().trim();
+
+            if (!cvLink.isEmpty()
+                    && !cvLink.startsWith("http://")
+                    && !cvLink.startsWith("https://")) {
+                throw new RuntimeException("CV link không hợp lệ");
+            }
+
+            profile.setCvLink(cvLink.isEmpty() ? null : cvLink);
         }
 
         // --- 3. Map dữ liệu vào Entity ---

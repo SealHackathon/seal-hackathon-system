@@ -1,0 +1,58 @@
+.tab {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+  font-family: var(--body-font-main);
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+}
+
+.pageTitle {
+  margin: 0;
+  font-family: var(--title-font-main);
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.pageDesc {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--color-secondary-blue);
+}
+
+.filterBar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.1em;
+  background: var(--color-bg-blue);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.4em 1.6em;
+}
+
+.divider {
+  height: 1px;
+  background: var(--color-border-blue);
+}
+
+.contentLayout {
+  display: flex;
+  gap: 1.25em;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.leaderboardCol {
+  flex: 3;
+  min-width: 0;
+}
+
+.overviewCol {
+  flex: 1; 
+  min-width: 0;
+}

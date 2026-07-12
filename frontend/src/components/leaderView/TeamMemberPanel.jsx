@@ -1,8 +1,8 @@
-import { Warning, Check, LockSimple } from '@phosphor-icons/react'
+import { Warning, SealCheck, LockSimple, Info } from '@phosphor-icons/react'
 import MemberRow from './MemberRow'
 import EmptyMemberSlot from './EmptyMemberSlot'
 import TeamStatusTag from '../shared/TeamStatusTag'
-import NoticeBox from '../shared/NoticeBox'
+import Banner from '../shared/Banner'
 import Button from '../shared/Button'
 import styles from './TeamMemberPanel.module.css'
 
@@ -22,6 +22,7 @@ function TeamMemberPanel({
     onMoveToReserve,
     rejectionReasons,
     leaveRequests = [],
+    hasSelectedCategory = true,
 }) {
 
     const officialMembers = members.filter(m => m.memberStatus !== 'RESERVE')
@@ -32,22 +33,26 @@ function TeamMemberPanel({
     function renderNoticeBox() {
         if (teamStatus === 'OPEN') {
             return (
-                <NoticeBox
+                <Banner
                     color="orange"
-                    icon={Warning}
-                    message= {(isLeader) 
-                        ? "Sau khi chốt đội, danh sách thành viên sẽ bị khóa và không thể thay đổi. Hãy chắc chắn trước khi tiếp tục." 
-                        : "Đội chưa được chốt. Vui lòng chờ đội trưởng xác nhận danh sách thành viên."}
-                    button={isLeader
+                    variant='dashed'
+                    iconSize={64}
+                    icon={Info}
+                    title={isLeader ? "Chốt đội thi đấu" : "Chờ chốt đội thi đấu"}
+                    message={isLeader 
+                        ? <>Sau khi chốt đội, danh sách thành viên sẽ bị khóa và không thể thay đổi.<br/>Hãy chắc chắn kiểm tra kỹ thông tin thành viên và hạng mục trước khi xác nhận.</> 
+                        : <>Đội trưởng của bạn hiện chưa chốt danh sách thành viên.<br/>Vui lòng liên hệ đội trưởng nếu cần thiết.</>}
+                    buttons={isLeader
                         ?
                         <Button
                             label="Chốt đội"
                             icon={LockSimple}
+                            iconWeight='fill'
                             iconPosition="right"    
                             variant="primary"
                             color='orange'
                             onClick={onLockTeam}
-                            disabled={officialMembers.length < minSlots}
+                            disabled={officialMembers.length < minSlots || !hasSelectedCategory}
                         />
                         : undefined
                     }
@@ -57,17 +62,20 @@ function TeamMemberPanel({
 
         if (teamStatus === 'PENDING_APPROVAL') {
             return (
-                <NoticeBox
+                <Banner
                     color="orange"
                     icon={Warning}
-                    message= {(isLeader) 
-                        ? "Đội đã được yêu cầu chốt và đang chờ BTC xét duyệt. Bạn sẽ nhận thông báo khi có kết quả." 
-                        : "Đội đang chờ BTC xét duyệt. Bạn sẽ nhận thông báo khi có kết quả."}
-                    button={isLeader
+                    iconSize={64}
+                    title="Đang chờ Ban tổ chức xét duyệt"
+                    message={isLeader 
+                        ? <>Đội của bạn đã gửi yêu cầu chốt danh sách thành viên và đang chờ Ban tổ chức xem xét.</> 
+                        : <>Đội của bạn đã gửi danh sách thành viên và đang chờ Ban tổ chức xét duyệt.<br/>Vui lòng kiên nhẫn chờ đợi.</>}
+                    buttons={isLeader
                         ?
                         <Button
                             label="Đang chờ BTC duyệt"
                             icon={LockSimple}
+                            iconWeight='fill'
                             iconPosition="right"
                             variant="primary"
                             disabled
@@ -80,11 +88,13 @@ function TeamMemberPanel({
 
         if (teamStatus === 'APPROVED') {
             return (
-                <NoticeBox
+                <Banner
                     color="green"
-                    icon={Check}
-                    message="Đội đã được BTC chấp thuận. Chúc bạn thi đấu tốt!"
-                    button={isLeader
+                    icon={SealCheck}
+                    iconSize={64}
+                    title="Đội đã được phê duyệt!"
+                    message={<>Tuyệt vời, đội của bạn đã được Ban tổ chức chấp thuận hợp lệ.<br/>Chúc các bạn thi đấu thật bùng nổ!</>}
+                    buttons={isLeader
                         ?
                         <Button
                             label="Đã chốt đội"
@@ -102,22 +112,26 @@ function TeamMemberPanel({
 
         if (teamStatus === 'REJECTED') {
             return (
-                <NoticeBox
+                <Banner
                     color="orange"
+                    iconSize={64}
                     icon={Warning}
-                    message= {(isLeader) 
-                        ? "Đội chưa đáp ứng yêu cầu. Vui lòng kiểm tra lại thông tin và nộp lại." 
-                        : "Đội chưa đáp ứng yêu cầu của BTC. Hãy liên hệ đội trưởng để biết thêm chi tiết."}
-                    button={isLeader
+                    title={isLeader ? "Yêu cầu chốt đội bị từ chối" : "Đội cần được điều chỉnh thông tin"}
+                    message={isLeader 
+                        ? <>Danh sách đội của bạn chưa đáp ứng yêu cầu từ Ban tổ chức.<br/>Vui lòng kiểm tra kỹ các thông tin cần điều chỉnh và nộp lại.</>
+                        : <>Danh sách thành viên hiện tại chưa đáp ứng yêu cầu của Ban tổ chức.<br/>Hãy liên hệ với đội trưởng của bạn để cập nhật thêm.</>}
+                    buttons={isLeader
                         ?
                         <Button
                             label="Chốt đội"
                             icon={LockSimple}
+                            iconWeight='fill'
                             iconPosition="right"
                             iconWeight='fill'
                             variant="primary"
                             color='orange'
                             onClick={onLockTeam}
+                            disabled={!hasSelectedCategory}
                         />
                         : undefined
                     }

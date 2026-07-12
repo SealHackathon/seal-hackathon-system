@@ -1,0 +1,60 @@
+.pageWrap {
+  background: var(--color-bg-blue);
+  min-height: 100vh;
+}
+
+.container {
+  padding: 0.25em 2em 2em;
+  max-width: 100%;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 28.5em;
+  gap: 1.25em;
+}
+
+.colMain {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  min-width: 0;
+}
+
+.colSide {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.stickySide {
+  position: sticky;
+  top: 4em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.guideRow {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 1.25em;
+  align-items: start;
+}
+
+.guideCol,
+.criteriaCol {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+}
+
+/* Đảm bảo card con lấp đầy chiều cao */
+.guideCol>div,
+.criteriaCol>div {
+  margin-top: 0;
+  height: 100%;
+}

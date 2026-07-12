@@ -1,0 +1,286 @@
+/* Bố cục 2 cột */
+.card {
+    display: grid;
+    grid-template-columns: 1fr 25em;
+    column-gap: 1.5em;
+    row-gap: 1.25em;
+
+    background-color: var(--color-bg-white);
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+
+    padding: 2em;
+    box-sizing: border-box;
+}
+
+/* ===== CỘT 1 — Thông tin cơ bản ===== */
+.colBasic {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    min-width: 0;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 0.75em;
+}
+
+.title {
+    margin: 0;
+    font-size: 1.85rem;
+    color: var(--color-primary-blue);
+}
+
+/* Timeline + giới thiệu ngắn */
+.metadataWrapper {
+    display: flex;
+    gap: 1.5em;
+    align-items: center;
+}
+
+.timeline {
+    width: 400px;
+    flex-shrink: 0;
+}
+
+.intro {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+}
+
+.introRow {
+    display: flex;
+    gap: 0.5em;
+    align-items: baseline;
+    margin: 0;
+}
+
+.introBlock {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25em;
+}
+
+.introLabel {
+    flex-shrink: 0;
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.introTheme {
+    font-size: 0.9rem;
+    color: var(--color-text-primary);
+}
+
+.introDesc {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--color-text-primary);
+
+    /* Giới hạn 3 dòng, phần dư tự cắt và thêm … */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Box phân công + cụm actions (đứng cạnh nhau) */
+.infoBoxes {
+    display: flex;
+    gap: 1em;
+    align-items: stretch;
+    margin-top: 2em;
+}
+
+.assignment {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+
+    flex: 1 1 60%;
+    background-color: var(--color-bg-blue);
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    padding: 1em 1.5em;
+}
+
+.boxTitle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    margin: 0;
+
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-secondary-blue);
+}
+
+.boxTitleIcon {
+    color: var(--color-border-blue);
+    flex-shrink: 0;
+}
+
+/* Danh sách phân công */
+.assignList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7em;
+}
+
+/* Mỗi vai trò 1 hàng: cột Vai trò + cột phụ trách */
+.assignRow {
+    display: grid;
+    grid-template-columns: 10em 1fr;
+    column-gap: 1.5em;
+    align-items: start;
+}
+
+/* Ngăn cách nhẹ giữa 2 vai trò */
+.assignRow + .assignRow {
+    border-top: 1px solid var(--color-border-blue);
+    padding-top: 0.7em;
+}
+
+.cell {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+    min-width: 0;
+}
+
+.cellLabel {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: var(--color-secondary-blue);
+}
+
+.values {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5em 0.9em;
+}
+
+/* Tên vòng (giám khảo) — hover hiện tooltip hạng mục */
+.roundValue {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    border-bottom: 1.5px dashed var(--color-border-blue);
+    cursor: normal;
+}
+
+/* Tên hạng mục (mentor) */
+.catValue {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    background-color: var(--color-bg-white);
+    border: 1px solid var(--color-border-blue);
+    padding: 0.25em 0.5em;
+    border-radius: var(--radius);
+}
+
+/* Cụm actions theo vai trò — xếp dọc, thay cho box thống kê */
+.actions {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 1.25em;
+
+    flex: 1 1 40%;
+}
+
+.block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6em;
+    width: 100%;
+}
+
+.blockLabel {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75em;
+
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: var(--color-text-secondary);
+}
+
+.count {
+    color: var(--color-text-primary);
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.track {
+    height: 0.5em;
+    background-color: var(--color-bg-grey);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.fill {
+    height: 100%;
+    background-color: var(--color-primary-green);
+    border-radius: 999px;
+}
+
+.mentorText {
+    display: flex;
+    align-items: center;
+    gap: 0.4em;
+    margin: 0;
+
+    font-size: 0.88rem;
+    color: var(--color-text-primary);
+}
+
+.mentorText strong {
+    color: var(--color-dark-orange);
+    font-weight: 800;
+}
+
+.mentorIcon {
+    color: var(--color-primary-orange);
+    flex-shrink: 0;
+}
+
+.fullBtn {
+    width: 100%;
+    justify-content: center;
+}
+
+/* ===== CỘT 2 — Thông tin vòng ===== */
+.colRound {
+    border-left: 1px solid var(--color-border-blue);
+    padding-left: 1.5em;
+}
+
+/* ===== Responsive: thu hẹp thì xếp dọc ===== */
+@media (max-width: 1080px) {
+    .card {
+        grid-template-columns: 1fr;
+    }
+
+    .colRound {
+        border-left: none;
+        border-top: 1px solid var(--color-border-blue);
+        padding-left: 0;
+        padding-top: 1.25em;
+    }
+
+    .metadataWrapper,
+    .infoBoxes {
+        flex-wrap: wrap;
+    }
+}

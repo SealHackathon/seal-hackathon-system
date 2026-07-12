@@ -1,0 +1,173 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+/* --- BOX GREEN (Yêu cầu chỉnh sửa) --- */
+.boxGreen {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-green);
+  border-radius: var(--radius);
+  padding: 1.25em 1.5em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.titleGreen {
+  margin: 0;
+  font-family: var(--body-font-main);
+  font-style: normal;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-primary-green);
+}
+
+.countBadgeGreen {
+  background-color: var(--color-bg-green);
+  color: var(--color-primary-green);
+  border: 1.5px solid var(--color-primary-green);
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.2em 0.6em;
+  border-radius: 99px;
+  margin-left: auto;
+}
+
+.emptyGreen {
+  color: var(--color-border-green);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 1em 0;
+  background-color: var(--color-bg-green);
+  border-radius: var(--inner-radius);
+  border: 1px dashed var(--color-border-green);
+}
+
+.cardGreen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.8em 1em;
+  background-color: var(--color-bg-green);
+  border: 1px solid var(--color-border-green);
+  border-radius: var(--inner-radius);
+}
+
+.teamGreen {
+  font-weight: 800;
+  color: var(--color-primary-green);
+}
+
+/* --- BOX ORANGE (Xử lí vi phạm) --- */
+.boxOrange {
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-orange);
+  border-radius: var(--radius);
+  padding: 1.25em 1.5em;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.titleOrange {
+  margin: 0;
+  font-family: var(--body-font-main);
+  font-style: normal;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-primary-orange);
+}
+
+.countBadgeOrange {
+  background-color: var(--color-bg-orange);
+  color: var(--color-primary-orange);
+  border: 1.5px solid var(--color-primary-orange);
+  font-size: 0.85rem;
+  font-weight: 800;
+  padding: 0.2em 0.6em;
+  border-radius: 99px;
+  margin-left: auto;
+}
+
+.emptyOrange {
+  color: var(--color-border-orange);
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 1em 0;
+  background-color: var(--color-bg-orange);
+  border-radius: var(--inner-radius);
+  border: 1px dashed var(--color-border-orange);
+}
+
+.cardOrange {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.8em 1em;
+  background-color: var(--color-bg-orange);
+  border: 1px solid var(--color-border-orange);
+  border-radius: var(--inner-radius);
+}
+
+.teamOrange {
+  font-weight: 800;
+  color: var(--color-primary-orange);
+}
+
+/* --- COMMON ELEMENTS --- */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  width: 100%;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75em;
+}
+
+/* --- CARD LAYOUT --- */
+.cardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  flex: 1;
+}
+
+.cardActionGroup {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4em;
+  flex-shrink: 0;
+}
+
+.senderName {
+  font-size: 1.05rem; 
+  color: var(--color-text-primary);
+  font-weight: 800;
+}
+
+.time {
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+}
+
+.cardTeam {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+}

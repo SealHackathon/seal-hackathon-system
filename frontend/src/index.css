@@ -4,6 +4,7 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  scrollbar-color: var(--color-text-muted) transparent;
 }
 
 html {
@@ -71,7 +72,7 @@ h2 {
 
   /* ! Màu nền cho các box */
   --color-bg-white: #FFFFFF;
-  --color-bg-grey: #ECECEC;
+  --color-bg-grey: #F2F2F2;
 
   /* ! Font */
   --body-font-main: 'Nunito', sans-serif;

@@ -18,6 +18,7 @@ public class AllEventResponse {
     private String eventName;
     private String eventTopic;
     private int maxTeamMember;
+    private int maxTeam;
     private int teamQuantity=0;
     private int trackQuantity=0;
     private int candidateQuantity=0;

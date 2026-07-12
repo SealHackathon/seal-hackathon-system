@@ -28,6 +28,9 @@ public class Student_profile {
     private String bio ;
 
     @Column(columnDefinition = "TEXT")
+    private String cvLink;
+
+    @Column(columnDefinition = "TEXT")
     private String avatar ;
 
 //    private String positions ;

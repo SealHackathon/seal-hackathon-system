@@ -1,15 +1,16 @@
 import { useState } from 'react'
-import { ArrowRight, ArrowLeft, PaperPlaneTilt, X } from '@phosphor-icons/react'
+import { ArrowRight, ArrowLeft, PaperPlaneTilt, X, User } from '@phosphor-icons/react'
 import Button from '../shared/Button'
 import styles from './MemberCard.module.css'
 import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
 import axios from 'axios'
+import UserProfileModal from './UserProfileModal'
 
 function MemberCard({ member, onInvite, onCancel }) {
-    // 'view' | 'compose' | 'invited'
     const [cardState, setCardState] = useState(
         member.isInvited ? 'invited' : 'view'
     )
+    const [showProfile, setShowProfile] = useState(false)
     const [message, setMessage] = useState(
         `Xin chào! Mình là đội trưởng của [Tên đội]. Mình thấy profile của bạn rất phù hợp và muốn mời bạn gia nhập đội. Rất mong được cùng bạn thi đấu!`
     )
@@ -88,14 +89,25 @@ function MemberCard({ member, onInvite, onCancel }) {
                                 onClick={handleCancel}
                             />
                         ) : (
-                            <Button
-                                label="Mời vào đội"
-                                labelSize={16}
-                                icon={ArrowRight}
-                                iconPosition="right"
-                                variant="primary"
-                                onClick={() => setCardState('compose')}
-                            />
+                            <div style={{ display: 'flex', gap: '0.5em' }}>
+                                <Button
+                                    label="Xem hồ sơ"
+                                    labelSize={16}
+                                    icon={User}
+                                    
+                                    variant="outline"
+                                    color="blue"
+                                    onClick={() => setShowProfile(true)}
+                                />
+                                <Button
+                                    label="Mời vào đội"
+                                    labelSize={16}
+                                    icon={ArrowRight}
+                                    iconPosition="right"
+                                    variant="primary"
+                                    onClick={() => setCardState('compose')}
+                                />
+                            </div>
                         )}
                     </div>
 
@@ -136,6 +148,13 @@ function MemberCard({ member, onInvite, onCancel }) {
                 </div>
 
             </div>
+
+            {showProfile && (
+                <UserProfileModal
+                    member={member}
+                    onClose={() => setShowProfile(false)}
+                />
+            )}
         </div>
     )
 }

@@ -1,8 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
-// import CoordinatorLayout from '../../../../layouts/CoordinatorLayout'
+import { Clock } from '@phosphor-icons/react'
 import CreateEventSidebar from '../../../../components/coordinator/events/create/CreateEventSidebar'
 import CreateEventHeader from '../../../../components/coordinator/events/create/CreateEventHeader'
-import CreateEventStickyHeader from '../../../../components/coordinator/events/create/CreateEventStickyHeader'
+import StickyHeader from '../../../../components/shared/StickyHeader'
 import CreateEventFooter from '../../../../components/coordinator/events/create/CreateEventFooter'
 import Step1BasicInfo from './steps/Step1BasicInfo'
 import Step2Rules from './steps/Step2Rules'
@@ -314,29 +314,38 @@ function CreateEventPage() {
   // hàm chuẩn hóa dữ liệu vòng thi từ API về định dạng mà formData mong muốn
   const normalizeRounds = (rawRounds) => {
     if (!Array.isArray(rawRounds)) return undefined
-    return rawRounds.map((r, index) => ({
-      id: r.roundId ?? r.id ?? `round-${index + 1}`,
-      name: r.roundName ?? r.name ?? `Vòng ${index + 1}`,
-      startDate: parseBackendDate(r.roundStartTime ?? r.timeStart ?? r.startDate),
-      endDate: parseBackendDate(r.roundEndTime ?? r.timeEnd ?? r.endDate),
-      format: r.format ?? (r.meetingLink ? 'online' : 'offline'),
-      location: r.location ?? (r.position ? { name: r.position } : null),
-      submissionType: r.submissionType ?? (r.submissionConfig?.hasSubmission ? 'new' : 'previous'),
-      submissionOpen: parseBackendDate(r.submissionConfig?.openingTime ?? r.submissionOpen ?? r.submissionOpenTime),
-      submissionDeadline: parseBackendDate(r.submissionConfig?.submissionDeadline ?? r.roundSubmissionDeadline ?? r.submissionDeadline),
-      submissionGuide: r.submissionConfig?.submissionInstructions ?? r.submissionGuide ?? '',
-      agenda: Array.isArray(r.agenda)
-        ? r.agenda.map((item, idx) => ({
-          id: item.id ?? `${r.roundId ?? index}-${idx}`,
-          name: item.name ?? item.timelineName ?? '',
-          desc: item.desc ?? item.description ?? '',
-          startTime: parseBackendDate(item.startTime ?? item.timeStart ?? null),
-        }))
-        : [],
-      meetingLink: r.meetingLink ?? '',
-      topTeamPass: r.topTeamPass ?? 0,
-      rubricId: r.rubricId ?? null,
-    }))
+    return rawRounds.map((r, index) => {
+      const startDate = parseBackendDate(r.roundStartTime ?? r.timeStart ?? r.startDate);
+      const endDate = parseBackendDate(r.roundEndTime ?? r.timeEnd ?? r.endDate);
+      return {
+        id: r.roundId ?? r.id ?? `round-${index + 1}`,
+        name: r.roundName ?? r.name ?? `Vòng ${index + 1}`,
+        startDate,
+        endDate,
+        format: r.format ?? (r.meetingLink ? 'online' : 'offline'),
+        location: typeof r.location === 'object' && r.location !== null
+            ? { ...r.location, detail: r.locationDetail ?? r.location.detail }
+            : (r.position ? { name: r.position, detail: r.locationDetail ?? '' } : null),
+        locationName: r.locationName ?? r.position ?? '',
+        submissionType: r.submissionType ?? (r.submissionConfig?.hasSubmission ? 'new' : 'previous'),
+        submissionOpen: parseBackendDate(r.submissionConfig?.openingTime ?? r.submissionOpen ?? r.submissionOpenTime),
+        submissionDeadline: parseBackendDate(r.submissionConfig?.submissionDeadline ?? r.roundSubmissionDeadline ?? r.submissionDeadline),
+        submissionGuide: r.submissionConfig?.submissionInstructions ?? r.submissionGuide ?? '',
+        agenda: Array.isArray(r.agenda || r.timelines)
+          ? (r.agenda || r.timelines).map((item, idx) => ({
+            id: item.id ?? `${r.roundId ?? index}-${idx}`,
+            name: item.name ?? item.timelineName ?? '',
+            desc: item.desc ?? item.description ?? '',
+            startTime: parseBackendDate(item.startTime ?? item.timeStart ?? null),
+          }))
+          : [],
+        meetingLink: r.meetingLink ?? '',
+        topTeamPass: r.topTeamPass ?? 0,
+        rrubricId: r.rubricId ? Number(r.rubricId) : null,
+        rubricName: (r.criteria && r.criteria.length > 0) ? 'Bộ tiêu chí đã lưu' : null,
+        criteria: r.criteria || [],
+      }
+    })
   }
 
   // hàm chuẩn hóa dữ liệu vòng thi từ API về định dạng mà formData mong muốn
@@ -404,6 +413,15 @@ function CreateEventPage() {
       return normalized
     }
     return 'pending'
+  }
+
+  const normalizeNotes = (rawNotes) => {
+    if (!Array.isArray(rawNotes)) return []
+    return rawNotes.map((note, index) => ({
+      id: note.id ?? `note-${Date.now()}-${index}`,
+      title: note.title ?? '',
+      desc: note.desc ?? note.description ?? note.detail ?? ''
+    }))
   }
 
   const normalizeMentors = (rawMentors) => {
@@ -590,7 +608,7 @@ function CreateEventPage() {
           teamDeadline: fetchedTeamDeadline ?? prev.teamDeadline,
           deadlineSameAsClose,
           generalRules: data.rules ?? data.eventRules ?? data.generalRules ?? prev.generalRules,
-          notes: data.notes ?? data.eventNotes ?? data.ruleNotes ?? prev.notes,
+          notes: normalizeNotes(data.notes ?? data.eventNotes ?? data.ruleNotes ?? prev.notes),
           benefits: data.participationBenefits ?? data.benefits ?? prev.benefits,
           status: data.eventStatus?.toLowerCase() ?? data.status?.toLowerCase() ?? prev.status,
           rounds: roundsData ?? prev.rounds,
@@ -767,7 +785,7 @@ function CreateEventPage() {
                            : (data.closeDate ? new Date(data.closeDate).getTime() : null);
 
           if (lockTime && start <= lockTime) {
-            errors[`round-${idx}-startDate`] = 'Phải sau hạn chốt đội';
+            errors[`round-${idx}-startDate`] = data.deadlineSameAsClose === false ? 'Phải sau hạn chốt đội' : 'Phải sau hạn đóng đăng ký';
           } else if (idx > 0 && rounds[idx - 1].endDate) {
             const prevEnd = new Date(rounds[idx - 1].endDate).getTime()
             if (start < prevEnd) {
@@ -810,6 +828,13 @@ function CreateEventPage() {
           } else {
             totalFilled++;
           }
+          totalRequired++;
+          if (!r.locationName || r.locationName.trim() === '') {
+            errors[`round-${idx}-locationName`] = 'Vui lòng nhập tên hiển thị';
+            isValid = false;
+          } else {
+            totalFilled++;
+          }
         } else if (r.format === 'online') {
           if (!r.meetingLink?.trim()) {
             errors[`round-${idx}-meetingLink`] = 'Vui lòng nhập link';
@@ -819,6 +844,20 @@ function CreateEventPage() {
           }
         } else {
           isValid = false;
+        }
+
+        // topTeamPass
+        if (idx < rounds.length - 1) {
+          totalRequired++;
+          if (r.topTeamPass === '' || r.topTeamPass === undefined || r.topTeamPass === null) {
+            errors[`round-${idx}-topTeamPass`] = 'Vui lòng nhập số đội qua vòng';
+            isValid = false;
+          } else if (Number(r.topTeamPass) <= 0) {
+            errors[`round-${idx}-topTeamPass`] = 'Phải lớn hơn 0';
+            isValid = false;
+          } else {
+            totalFilled++;
+          }
         }
 
         // submission
@@ -866,6 +905,14 @@ function CreateEventPage() {
             agendaValid = false;
           } else {
             totalFilled++;
+            if (r.startDate && r.endDate) {
+              const time = new Date(item.startTime).getTime();
+              const roundStart = new Date(r.startDate).getTime();
+              const roundEnd = new Date(r.endDate).getTime();
+              if (time < roundStart || time > roundEnd) {
+                agendaValid = false;
+              }
+            }
           }
           if (i > 0) {
             const prev = agenda[i - 1]
@@ -1042,7 +1089,7 @@ function CreateEventPage() {
       case 1: return <Step1BasicInfo formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 2: return <Step2Rules formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 3: return <Step3Prizes formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
-      case 4: return <Step4Rounds formData={formData} onChange={setFormData} errors={stepErrors} />
+      case 4: return <Step4Rounds formData={formData} onChange={setFormData} errors={stepErrors} clearError={(field) => setStepErrors(prev => ({...prev, [field]: undefined}))} />
       case 5: return <Step5Categories formData={formData} onFormChange={handleFormChange} errors={stepErrors} />
       case 6: return <Step6Timeline formData={formData} onChange={setFormData} errors={stepErrors} />
       case 7: return <Step7MentorJudge formData={formData} onFormChange={handleFormChange} />
@@ -1056,8 +1103,17 @@ function CreateEventPage() {
 
     <div ref={pageRef} className={styles.page} onBlurCapture={() => setBlurredFormData(formData)}>
 
-      {/* ── Sticky Header ── */}
-      <CreateEventStickyHeader isEditing={isEditing} lastUpdated={lastUpdated} />
+      <StickyHeader 
+        title={isEditing ? 'Chỉnh sửa sự kiện' : 'Tạo sự kiện mới'}
+        backLink="/admin/coordinator/events"
+        backTooltip="Quay lại danh sách sự kiện"
+        rightContent={isEditing && lastUpdated ? (
+          <>
+            <Clock size={16} />
+            <span>Cập nhật lần cuối: {lastUpdated}</span>
+          </>
+        ) : null}
+      />
 
       {/* ── Header ── */}
       <CreateEventHeader

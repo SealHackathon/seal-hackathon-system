@@ -34,17 +34,18 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       sendData.append('description', formData.shortDesc || '');
       sendData.append('minTeamMember', formData.minMembers || 1);
       sendData.append('maxTeamMember', formData.maxMembers || 5);
+     
 
       if (formData.openDate) sendData.append('openRegisterTime', toLocalISOString(formData.openDate));
       if (formData.closeDate) sendData.append('closeRegisterTime', toLocalISOString(formData.closeDate));
       if (formData.teamDeadline) sendData.append('cofirmTeamTime', toLocalISOString(formData.teamDeadline));
-
+      if (formData.keywords) sendData.append('keywords', formData.keywords);
       if (formData.avatarFile instanceof File) {
-        sendData.append("bannerFile", formData.avatarFile);
+        sendData.append("thumbnailFile", formData.avatarFile);
       }
 
       if (formData.coverFile instanceof File) {
-        sendData.append("thumbnailFile", formData.coverFile);
+        sendData.append("bannerFile", formData.coverFile);
       }
 
       // Gửi URL ảnh hiện tại để backend giữ nguyên nếu không upload ảnh mới
@@ -83,7 +84,10 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       const step2Payload = {
         eventId: formData.id,
         eventRules: formData.generalRules || '',
-        notes: formData.notes || []
+        notes: (formData.notes || []).map(note => ({
+          title: note.title || '',
+          desc: note.desc || ''
+        }))
       };
 
       currentPromise = axiosClient.post('/event-notes', step2Payload)
@@ -139,25 +143,28 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       const step4Payload = {
         eventId: formData.id,
         rounds: (formData.rounds || []).map((item, index) => ({
+          roundId: (typeof item.id === 'number' || (typeof item.id === 'string' && !item.id.startsWith('round-'))) ? Number(item.id) : null,
           name: item.name?.trim() || 'Vòng thi mới',
-          timeStart: item.startDate ? new Date(item.startDate).toISOString() : null,
-          timeEnd: item.endDate ? new Date(item.endDate).toISOString() : null,
+          timeStart: item.startDate ? toLocalISOString(item.startDate) : null,
+          timeEnd: item.endDate ? toLocalISOString(item.endDate) : null,
           hasPresetiontation: false,
           topTeamPass: Number(item.topTeamPass) || 0,
           ordinal_number: index + 1,
-          submissionDeadline: item.submissionDeadline ? new Date(item.submissionDeadline).toISOString() : null,
+          submissionDeadline: item.submissionDeadline ? toLocalISOString(item.submissionDeadline) : null,
           position: item.format === 'offline'
-            ? (item.location?.name || item.location?.formatted_address || '')
+            ? (typeof item.location === 'object' ? [item.location?.name || item.location?.formatted_address].filter(Boolean).join(' - ') : (item.location || ''))
             : (item.meetingLink || ''),
+          locationName: item.locationName || '',
+          locationDetail: typeof item.location === 'object' ? (item.location?.detail || '') : '',
           meetingLink: item.meetingLink || ''
           ,
-          rubricId: Number(item.rubricId) || 0,
+          rubricId: item.rubricId ? Number(item.rubricId) : null,
           submissionConfig: item.submissionType === 'new'
             ? {
               title: item.name?.trim() || '',
               submissionInstructions: item.submissionGuide || '',
-              openingTime: item.submissionOpen ? new Date(item.submissionOpen).toISOString() : null,
-              submissionDeadline: item.submissionDeadline ? new Date(item.submissionDeadline).toISOString() : null,
+              openingTime: item.submissionOpen ? toLocalISOString(item.submissionOpen) : null,
+              submissionDeadline: item.submissionDeadline ? toLocalISOString(item.submissionDeadline) : null,
               hasSubmission: true,
             }
             : {
@@ -170,7 +177,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
           timelines: (item.agenda || []).map(t => ({
             name: t.name?.trim() || '',
             description: t.desc?.trim() || '',
-            timeStart: t.startTime ? new Date(t.startTime).toISOString() : null,
+            timeStart: t.startTime ? toLocalISOString(t.startTime) : null,
             timeEnd: null,
           })),
         })),

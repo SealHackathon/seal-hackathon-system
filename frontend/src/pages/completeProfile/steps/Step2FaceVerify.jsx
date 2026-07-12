@@ -9,6 +9,7 @@ import CameraCapture from '../../../components/shared/CameraCapture'
 import Banner from '../../../components/shared/Banner'
 import Button from '../../../components/shared/Button'
 import ProfileStepper from '../../../components/shared/ProfileStepper'
+import ConfirmModal from '../../../components/shared/ConfirmModal'
 import styles from './Step2FaceVerify.module.css'
 
 // ── Constants ────────────────────────────
@@ -43,6 +44,7 @@ export default function Step2FaceVerify({ onNext, onBack, initialData, onSaveDat
     // ─ Camera
     const [cameraResetKey, setCameraResetKey] = useState(0)
     const [capturedFile, setCapturedFile] = useState(initialData?.capturedFile || null)
+    const [confirmModal, setConfirmModal] = useState(null)
 
     // ─ Verify state
     //   'idle' | 'loading' | 'success' | 'error_retry' | 'error_exhausted'
@@ -73,12 +75,49 @@ export default function Step2FaceVerify({ onNext, onBack, initialData, onSaveDat
         const fd = new FormData()
         fd.append('selfie_img', file)
         try {
-            await axiosClient.post('/kyc/face-match', fd, {
+            const res = await axiosClient.post('/kyc/face-match', fd, {
                 headers: { 'Content-Type': 'multipart/form-data' },
             })
-            setTimeout(() => setVerifyState('success'), 1000)
+            const data = res.data;
+            setTimeout(() => {
+                if (data.matched) {
+                    setVerifyState('success');
+                } else {
+                    if (data.canContinue) {
+                        // Backend canContinue = true khi matched HOẶC needsManualReview
+                        // Nếu vào nhánh else này tức là matched = false, vậy canContinue = true nghĩa là exhausted
+                        setVerifyState('error_exhausted');
+                        setRetriesLeft(0);
+                    } else {
+                        // canContinue = false nghĩa là chưa exhausted, phải thử lại
+                        setVerifyState('error_retry');
+                        setRetriesLeft(Math.max(0, MAX_RETRIES - (data.attempts || 0)));
+                    }
+                }
+            }, 1000)
         } catch (err) {
-            setVerifyState('error')
+            if (err.response?.data?.message === "Maximum upload size exceeded") {
+                setConfirmModal({
+                    title: "Lỗi tải ảnh lên",
+                    message: "Ảnh tải lên có kích thước quá lớn. Vui lòng chọn ảnh có kích thước nhỏ hơn!",
+                    variant: "warning",
+                    isNotification: true,
+                    onConfirm: () => {
+                        setConfirmModal(null)
+                        setVerifyState('idle')
+                        setCapturedFile(null)
+                        setCameraResetKey(k => k + 1)
+                    }
+                })
+                return;
+            }
+            
+            // Xử lý lỗi server chung
+            setTimeout(() => {
+                const next = retriesLeft - 1;
+                setRetriesLeft(next);
+                setVerifyState(next > 0 ? 'error_retry' : 'error_exhausted');
+            }, 1000);
         }
     }
 
@@ -249,6 +288,16 @@ export default function Step2FaceVerify({ onNext, onBack, initialData, onSaveDat
                         />
                     </div>
                 </div>
+
+                <ConfirmModal
+                    isOpen={!!confirmModal}
+                    title={confirmModal?.title}
+                    message={confirmModal?.message}
+                    variant={confirmModal?.variant}
+                    isNotification={confirmModal?.isNotification}
+                    onConfirm={confirmModal?.onConfirm}
+                    onCancel={() => setConfirmModal(null)}
+                />
             </div>
         )
     }

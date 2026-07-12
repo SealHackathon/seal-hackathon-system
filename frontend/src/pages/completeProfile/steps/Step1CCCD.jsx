@@ -12,6 +12,7 @@ import FormInput from '../../../components/shared/FormInput'
 import Dropdown from '../../../components/shared/Dropdown'
 import DateTimePicker from '../../../components/shared/DateTimePicker'
 import ProfileStepper from '../../../components/shared/ProfileStepper'
+import ConfirmModal from '../../../components/shared/ConfirmModal'
 import styles from './Step1CCCD.module.css'
 
 // ── Constants ────────────────────────────
@@ -35,20 +36,28 @@ const EMPTY_FORM = {
 
 /**
  * Parse chuỗi ngày từ API → Date object cho DateTimePicker.
- * API có thể trả về nhiều định dạng: "dd/MM/yyyy", ISO string, v.v.
+ * API có thể trả về nhiều định dạng: "dd/MM/yyyy", "dd-MM-yyyy", ISO string, v.v.
  */
 function parseApiDate(str) {
     if (!str) return null
-    // Thử parse ISO trước (VD: "2005-10-19T00:00:00.000Z")
+    // Check định dạng DD/MM/YYYY hoặc DD-MM-YYYY
+    const dmyMatch = /^(\d{1,2})[-/](\d{1,2})[-/](\d{4})$/.exec(str)
+    if (dmyMatch) {
+        const [_, d, m, y] = dmyMatch
+        return new Date(Number(y), Number(m) - 1, Number(d))
+    }
+    // parse ISO (VD: "2005-10-19T00:00:00.000Z")
     const iso = new Date(str)
     if (!isNaN(iso)) return iso
-    // Parse "dd/MM/yyyy"
-    const parts = str.split('/')
-    if (parts.length === 3) {
-        const [d, m, y] = parts.map(Number)
-        return new Date(y, m - 1, d)
-    }
     return null
+}
+
+function parseGender(str) {
+    if (!str) return ''
+    const upper = String(str).toUpperCase()
+    if (upper === 'M' || upper === 'NAM') return 'NAM'
+    if (upper === 'F' || upper === 'NỮ' || upper === 'NU') return 'NỮ'
+    return 'Khác'
 }
 
 function formatCountdown(seconds) {
@@ -64,6 +73,7 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
     const [frontFile, setFrontFile] = useState(initialData?.frontFile || initialData?.frontcmnd_img || null)
     const [backFile, setBackFile] = useState(initialData?.backFile || null)
     const [fileResetKey, setFileResetKey] = useState(0)
+    const [confirmModal, setConfirmModal] = useState(null)
 
     // ─ Extraction state
     //   'idle' | 'loading' | 'success' | 'error_retry' | 'error_exhausted'
@@ -117,16 +127,29 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
                 fullName: res.data.fullName || '',
                 cmnd: res.data.cmnd || '',
                 dateOfBirth: parseApiDate(res.data.dateOfBirth),
-                gender: res.data.gender || '',
+                gender: parseGender(res.data.gender),
                 hometown: res.data.hometown || '',
                 thuongtru: res.data.thuongtru || '',
             })
             // Lưu link Cloudinary để không bị mất khi refresh trang (localStorage không lưu được File object)
             if (res.data.frontcmnd_img) setFrontFile(res.data.frontcmnd_img)
-            if (res.data.CmndBack_img) setBackFile(res.data.CmndBack_img)
+            if (res.data.cmndBack_img) setBackFile(res.data.cmndBack_img)
             
             setExtractionState('success')
-        } catch {
+        } catch (err) {
+            if (err.response?.data?.message === "Maximum upload size exceeded") {
+                setConfirmModal({
+                    title: "Lỗi lưu ảnh tải lên",
+                    message: "Ảnh tải lên có kích thước quá lớn. Vui lòng chọn ảnh có kích thước nhỏ hơn!",
+                    variant: "warning",
+                    isNotification: true,
+                    onConfirm: () => {
+                        setConfirmModal(null)
+                        setExtractionState('idle')
+                    }
+                })
+                return;
+            }
             const next = retriesLeft - 1
             setRetriesLeft(next)
             setExtractionState(next > 0 ? 'error_retry' : 'error_exhausted')
@@ -222,7 +245,7 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
                             key={`front-${fileResetKey}`}
                             label="Mặt trước CCCD" required
                             accept={['image/png', 'image/jpeg', 'image/jpg']}
-                            maxSizeMB={5}
+                            maxSizeMB={3}
                             aspectRatio={3 / 2}
                             value={frontFile}
                             onFileChange={handleFrontChange}
@@ -231,7 +254,7 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
                             key={`back-${fileResetKey}`}
                             label="Mặt sau CCCD" required
                             accept={['image/png', 'image/jpeg', 'image/jpg']}
-                            maxSizeMB={5}
+                            maxSizeMB={3}
                             aspectRatio={3 / 2}
                             value={backFile}
                             onFileChange={handleBackChange}
@@ -420,6 +443,16 @@ function Step1CCCD({ onNext, onBack, initialData, onSaveData }) {
                     />
                 </div>
             </div>
+
+            <ConfirmModal
+                isOpen={!!confirmModal}
+                title={confirmModal?.title}
+                message={confirmModal?.message}
+                variant={confirmModal?.variant}
+                isNotification={confirmModal?.isNotification}
+                onConfirm={confirmModal?.onConfirm}
+                onCancel={() => setConfirmModal(null)}
+            />
         </div>
     )
 }

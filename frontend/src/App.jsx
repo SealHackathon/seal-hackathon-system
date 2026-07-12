@@ -108,10 +108,19 @@ import CompleteProfilePage from './pages/completeProfile/CompleteProfilePage';
 import EmailVerifiedPage from './pages/EmailVerifiedPage';
 import RubricLibraryPage from './pages/coordinator/rubrics/RubricLibraryPage';
 import CreateRubricPage from './pages/coordinator/rubrics/CreateRubricPage';
-
+import SubmissionPage from './pages/SubmissionPage';
+import RoundSubmissionDetailPage from './pages/RoundSubmissionDetailPage';
+import PanelistDashboard from './pages/panelist/DashboardPage';
+import EventDetailPage from './pages/panelist/EventDetailPage'; 
+import JudgeRoundDetailPage from './pages/panelist/JudgeRoundDetailPage';
+import JudgeScoringPage from './pages/panelist/JudgeScoringPage';
+import MentorTeamDetailPage from './pages/panelist/MentorTeamDetailPage';
+import SpecificEventPage from './pages/coordinator/events/specific/SpecificEventPage'
 
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
+
+
 
     useEffect(() => {
         fetchTeamRole();
@@ -161,6 +170,8 @@ function AppRoutes() {
                             <Route path="/admin/coordinator/rubrics" element={<RubricLibraryPage />} />
                             <Route path="/admin/coordinator/rubrics/create" element={<CreateRubricPage />} />
                             <Route path="/admin/coordinator/rubrics/:id/edit" element={<CreateRubricPage />} />
+                            <Route path="/admin/coordinator/events/:eventId" element={<SpecificEventPage />} />
+                            <Route path="/admin/coordinator/events/:eventId/:tab" element={<SpecificEventPage />} />
 
                         </>
                     )}
@@ -186,12 +197,41 @@ function AppRoutes() {
                                             <TeamRoute />
                                         )
                                     } />
+                                    
+                                    <Route path="/team/submissions" element={
+                                        userStatus === "PENDING_APPROVAL" ? (
+                                            <Navigate to="/user/dashboard" replace />
+                                        ) : (
+                                            <SubmissionPage />
+                                        )
+                                    } />
+
+                                    <Route path="/team/submissions/detail" element={
+                                        userStatus === "PENDING_APPROVAL" ? (
+                                            <Navigate to="/user/dashboard" replace />
+                                        ) : (
+                                            <RoundSubmissionDetailPage />
+                                        )
+                                    } />
 
                                     {/* Không cho phép quay lại complete-profile nếu đã xong */}
                                     <Route path="/user/complete-profile" element={<Navigate to="/user/dashboard" replace />} />
                                     <Route path="*" element={<Navigate to="/user/dashboard" replace />} />
                                 </>
                             )}
+                        </>
+                    )}
+
+                    {/* LUONG GIANG VIEN (LECTURER = Mentor & Giam khao) */}
+                    {role === "LECTURER" && (
+                        <>
+                            <Route path="/panelist/dashboard" element={<PanelistDashboard />} />
+                            {/* TODO: <Route path="/panelist/contests" element={<ContestsPage />} /> */}
+                            <Route path="/panelist/events/:eventId" element={<EventDetailPage />} />   
+                            <Route path="/panelist/events/:eventId/judge/rounds/:roundId" element={<JudgeRoundDetailPage />} />
+                            <Route path="/panelist/events/:eventId/judge/rounds/:roundId/submissions/:submissionId" element={<JudgeScoringPage />} />
+                            <Route path="/panelist/events/:eventId/mentor/teams/:teamId" element={<MentorTeamDetailPage />} />
+                            <Route path="*" element={<Navigate to="/panelist/dashboard" replace />} />
                         </>
                     )}
 

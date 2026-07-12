@@ -1,0 +1,76 @@
+.box {
+  flex: 2 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1em;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.5em;
+}
+
+.count {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1em;
+}
+
+.countValue {
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  line-height: 1;
+}
+
+.countLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.track {
+  display: flex;
+  width: 100%;
+  height: 0.6em;
+  background: var(--color-bg-grey);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.segDone {
+  height: 100%;
+  background: var(--color-primary-green);
+}
+
+.segDraft {
+  height: 100%;
+  background: var(--color-primary-orange);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 1.1em;
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.statDone {
+  color: var(--color-primary-green);
+}
+
+.statDraft {
+  color: var(--color-primary-orange);
+}
+
+.statNone {
+  color: var(--color-text-secondary);
+}

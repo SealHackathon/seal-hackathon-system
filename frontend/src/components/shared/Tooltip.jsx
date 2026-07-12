@@ -7,7 +7,7 @@ function Tooltip({
     content,
     contentSize = 14,
     bgColor = 'blue', // "blue", "green", "orange", "white"
-    textColor = 'white', // "blue", "green", "orange", "white"
+    textColor = 'white', // "blueTxt", "greenTxt", "orangeTxt", "whiteTxt"
     position = 'top', // "top", "bottom", "right", "left"
     wrapperClassName = '',
     wrapperStyle = {},
@@ -74,7 +74,7 @@ function Tooltip({
             {children}
 
             {visible && createPortal(
-                <div className={`${styles.tooltip} ${styles[position]} ${styles[bgColor]} `}
+                <div className={`${styles.tooltip} ${styles[position]} ${styles[bgColor] || ''}`}
                     style={{
                         position: 'fixed',
                         top: coords.top,
@@ -83,7 +83,7 @@ function Tooltip({
                         zIndex: 9999,
                     }}
                 >
-                    <div className={styles[textColor]} style={{ fontSize: `${contentSize}px` }}>{content}</div>
+                    <div className={styles[textColor] || ''} style={{ fontSize: `${contentSize}px` }}>{content}</div>
                     <span className={styles.arrow} />
                 </div>,
 

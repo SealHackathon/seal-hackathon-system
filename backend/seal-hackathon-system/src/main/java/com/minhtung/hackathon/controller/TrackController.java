@@ -1,6 +1,7 @@
 package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.TrackRequest;
+import com.minhtung.hackathon.dto.response.ViewTeamListRespone;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
 import com.minhtung.hackathon.service.TrackService;
@@ -10,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/track")
@@ -24,7 +27,6 @@ public class TrackController {
     private final TrackService trackService;
 
     // 1. GET ALL hoặc GET BY EVENT ID (Ví dụ: /api/track?eventId=1)
-    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping()
     public ResponseEntity<?> getTracks(@RequestHeader("Authorization") String auth,
                                        @RequestParam(required = false) Long eventId) {
@@ -101,5 +103,16 @@ public class TrackController {
 
     private ResponseEntity<String> unauthorized() {
         return ResponseEntity.status(401).body("Token không hợp lệ hoặc đã hết hạn");
+    }
+
+    @GetMapping("/{trackId}/teams")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
+    public ResponseEntity<List<ViewTeamListRespone>>
+    getTeamsByTrack(
+            @PathVariable Long trackId
+    ) {
+        return ResponseEntity.ok(
+                trackService.viewTeamByTrack(trackId)
+        );
     }
 }

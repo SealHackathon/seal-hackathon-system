@@ -4,7 +4,15 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
-@Table(name = "judge_score_detail")
+@Table(
+        name = "judge_score_detail",
+        uniqueConstraints = @UniqueConstraint(
+                columnNames = {
+                        "judge_score_id",
+                        "criterion_id"
+                }
+        )
+)
 @Data
 public class JudgeScoreDetail {
 

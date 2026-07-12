@@ -35,12 +35,12 @@ function MilestoneBanner({ timeline = [], milestone = null }) {
                     <strong className={styles.name}>{target.name}</strong> sẽ diễn ra vào{' '}
                     <strong className={styles.date}>{formatDate(target.date)}</strong>
                 </h1>
-                {target.note && (
+                {/* {target.note && (
                     <p className={`${styles.note} ${'icon-label'}`}>
                         <WarningCircle size={28} />
                         {target.note}
                     </p>
-                )}
+                )} */}
             </div>
 
             <Countdown target={targetTime} />

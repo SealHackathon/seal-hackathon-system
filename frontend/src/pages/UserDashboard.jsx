@@ -1,31 +1,53 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import UserLayout from '../layouts/UserLayout'
 import MilestoneBanner from '../components/dashboard/MilestoneBanner'
 import LiveEventCard from '../components/dashboard/LiveEventCard'
 import ProfilePendingModal from '../components/dashboard/ProfilePendingModal'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext'
+import axiosClient from '../api/axiosClient'
 // import styles from './UserDashboard.module.css'
 
-const FAKE_TIMELINE = [
-    { id: 1, name: 'Mở cổng đăng kí',   date: '2026-06-02T00:00:00', note: null },
-    { id: 2, name: 'Đóng cổng đăng kí', date: '2026-07-20T00:00:00', note: 'Hoặc sớm hơn nếu đủ 50 đội tham dự.' },
-    { id: 3, name: 'Workshop Online',    date: '2026-07-28T00:00:00', note: null },
-    { id: 4, name: 'Vòng Sơ khảo',      date: '2026-07-30T00:00:00', note: 'Nộp sản phẩm trước 23:59.' },
-    { id: 5, name: 'Vòng Chung kết',    date: '2026-07-31T00:00:00', note: null },
-]
+function mapApiEventToUi(apiEvent) {
+    if (!apiEvent) return null
 
-const FAKE_EVENT = {
-    name:        'SEAL Hackathon Summer 2026',
-    coverUrl:    null,
-    topic:       'AI Agents for Software Innovation',
-    description: 'SEAL Hackathon Summer 2026 là sự kiện mở đầu trong hệ thống SEAL – Software Engineering Agile League. Chủ đề mùa Summer 2026 là "AI Agents for Software Innovation", nơi sinh viên trải nghiệm áp dụng AI vào vòng đời phát triển phần mềm (SDLC), từ thu thập yêu cầu, thiết kế, phát triển, kiểm thử đến triển khai và giám sát vận hành.',
+    const start = apiEvent.startDate || apiEvent.openDate || apiEvent.eventStartDate || apiEvent.eventStartTime || apiEvent.dateStart || apiEvent.milestones?.[0]?.dateStart
+    const end = apiEvent.endDate || apiEvent.closeDate || apiEvent.eventEndDate || apiEvent.eventEndTime || apiEvent.dateEnd || apiEvent.milestones?.slice(-1)?.[0]?.dateEnd
+
+    const timeline = (apiEvent.milestones || []).map((milestone, index) => ({
+        id: milestone.id ?? index + 1,
+        name: milestone.milestoneName || milestone.name || 'Cột mốc',
+        date: milestone.dateStart || milestone.startDate || milestone.date || null,
+        note: milestone.des || milestone.description || milestone.note || null,
+    }))
+
+    return {
+        id: apiEvent.eventId ?? apiEvent.id,
+        name: apiEvent.eventName || 'Sự kiện chưa đặt tên',
+        coverUrl: apiEvent.thumbnail || null,
+        topic: apiEvent.eventTopic || 'Chưa xác định chủ đề',
+        description: apiEvent.description || 'Chưa có mô tả',
+        eventStatus: apiEvent.eventStatus || 'draft',
+        startDate: start,
+        endDate: end,
+        location: apiEvent.eventLocation || 'Trực tuyến',
+        prize: apiEvent.prize,
+        maxTeamMember: apiEvent.maxTeamMember || apiEvent.maxMemberPerTeam || 5,
+        teamCount: apiEvent.teamQuantity || 0,
+        participantCount: apiEvent.candidateQuantity || 0,
+        trackCount: apiEvent.trackQuantity || 0,
+        roundCount: apiEvent.roundQuantity || 0,
+        timeline,
+    }
 }
 
 function UserDashboard() {
-    console.log("UserDashboard rendered")
     const { userStatus } = useAuth();
     const navigate = useNavigate();
+
+    const [event, setEvent] = useState(null)
+    const [timeline, setTimeline] = useState([])
+    const [loading, setLoading] = useState(true)
 
     const [showPendingModal, setShowPendingModal] = useState(() => {
         if (userStatus === 'PENDING_APPROVAL') {
@@ -35,13 +57,47 @@ function UserDashboard() {
         return false;
     });
 
+    useEffect(() => {
+        let isMounted = true
+
+        axiosClient.get('/event/live')
+            .then((response) => {
+                if (!isMounted) return
+
+                const payload = response?.data
+                const list = Array.isArray(payload) ? payload : payload ? [payload] : []
+                const selected = list.find((item) => ['live', 'upcoming', 'active'].includes((item.eventStatus || '').toLowerCase())) || list[0] || null
+                const mapped = mapApiEventToUi(selected)
+
+                setEvent(mapped)
+                setTimeline(mapped?.timeline || [])
+
+                if (mapped?.id) {
+                    localStorage.setItem('eventId', String(mapped.id))
+                }
+            })
+            .catch((error) => {
+                console.error('Failed to load dashboard event:', error)
+            })
+            .finally(() => {
+                if (isMounted) setLoading(false)
+            })
+
+        return () => {
+            isMounted = false
+        }
+    }, [])
+
     const handleCloseModal = () => {
-        setShowPendingModal(false);
+        setShowPendingModal(false);``
         sessionStorage.setItem('hasSeenProfilePendingModal', 'true');
     };
 
     const handleJoinClick = () => {
-        // userStatus PROFILE_PENDING không thể vào trang này nữa nhờ routing
+        if (event?.id) {
+            localStorage.setItem('eventId', String(event.id))
+        }
+
         if (userStatus === 'PENDING_APPROVAL') {
             setShowPendingModal(true);
         } else {
@@ -52,9 +108,10 @@ function UserDashboard() {
     return (
         <UserLayout showCard={false}>
             <ProfilePendingModal isOpen={showPendingModal} onClose={handleCloseModal} />
-            <MilestoneBanner timeline={FAKE_TIMELINE} />
+            {loading && !event ? <div>Đang tải thông tin sự kiện...</div> : null}
+            <MilestoneBanner timeline={timeline} />
             <LiveEventCard
-                event={FAKE_EVENT}
+                event={event}
                 onJoin={handleJoinClick}
                 onViewRules={() => console.log('Chi tiết thể lệ')}
             />

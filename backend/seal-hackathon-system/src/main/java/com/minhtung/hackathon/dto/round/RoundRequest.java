@@ -1,6 +1,7 @@
 package com.minhtung.hackathon.dto.round;
 
 import lombok.Data;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -17,6 +18,8 @@ public class RoundRequest {
         private LocalDateTime timeStart;
         private LocalDateTime timeEnd;
         private boolean hasPresetiontation; // Giữ nguyên chính tả thực thể cũ của bạn
+        private String locationName;
+        private String detailLocation;
         private int topTeamPass;
         private int ordinal_number;         // Giữ nguyên chính tả thực thể cũ của bạn
         private LocalDateTime submissionDeadline;
