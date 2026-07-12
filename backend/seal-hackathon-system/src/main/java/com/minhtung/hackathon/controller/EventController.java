@@ -56,7 +56,7 @@ public class EventController {
             return unauthorized();
         }
         try {
-            return ResponseEntity.ok(eventService.getLiveEvent());
+            return ResponseEntity.ok(eventService.getLiveEvent(Integer.toUnsignedLong(uid)));
         } catch (Exception e) {
 
             return ResponseEntity.notFound().build();

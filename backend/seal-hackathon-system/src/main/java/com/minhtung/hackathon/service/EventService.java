@@ -35,14 +35,15 @@ public class EventService {
 
 
     private final EventRepository eventRepository;
-    private final TrackRepository trackRepository;
+
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
-    private final RoundRepository roundRepository;
     private final Cloudinary cloudinary;
     private final SystemRequestRepository systemRequestRepository;
     private final EventRegistrationRepository registrationRepository;
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final EventRegistrationRepository eventRegistrationRepository;
+
     // service view Event
     // service lay tat ca event tất cả status lun
     public List<AllEventResponse> getAllEvents() {
@@ -68,9 +69,9 @@ public class EventService {
 
             // dang hard code set prize
             List<Prize> prizes = event.getPrizes();
-            long totalprize=0;
+            long totalprize = 0;
             for (Prize prize : prizes) {
-                totalprize+=prize.getMoney()*prize.getQuantity();
+                totalprize += prize.getMoney() * prize.getQuantity();
             }
 
             eventResponse.setPrize(totalprize);
@@ -122,12 +123,19 @@ public class EventService {
 
 
     // service view Live Event
-    public LiveEventResponse getLiveEvent() {
+    public LiveEventResponse getLiveEvent(Long userId) {
         Event event = eventRepository.findByStatus(EventStatus.LIVE).orElse(null);
         if (event == null) {
             throw new IllegalArgumentException("Event not found");
         }
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        boolean currentRegister = eventRegistrationRepository.existsByUserIdAndEventId(userId, event.getId());
+
         LiveEventResponse eventResponse = new LiveEventResponse();
+        eventResponse.setCurrentUserRegistered(currentRegister);
         eventResponse.setEventId(event.getId());
         eventResponse.setEventName(event.getName());
         eventResponse.setEventTopic(event.getTopic());
@@ -137,9 +145,9 @@ public class EventService {
         eventResponse.setTrackQuantity(eventResponse.getTrackQuantity() + event.getTracks().size());
         // dang hard code set prize
         List<Prize> prizes = event.getPrizes();
-        long totalprize=0;
+        long totalprize = 0;
         for (Prize prize : prizes) {
-            totalprize+=prize.getMoney()*prize.getQuantity();
+            totalprize += prize.getMoney() * prize.getQuantity();
         }
 
         int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
@@ -220,8 +228,8 @@ public class EventService {
         event.setCloseRegisterTime(request.getCloseRegisterTime());
         event.setCofirmTeamTime(request.getCofirmTeamTime());
 
-        if(request.getKeywords() != null) {
-            String[] keywords=request.getKeywords().split(",");
+        if (request.getKeywords() != null) {
+            String[] keywords = request.getKeywords().split(",");
             event.setKeywords(keywords);
         }
 
@@ -398,7 +406,7 @@ public class EventService {
                             t.getName(),
                             t.getDes(),
                             t.getMaxTeamPerTrack(),
-                            t.getMinTeamPerTrack(),t.getTeamQuantity()  , event.getId()
+                            t.getMinTeamPerTrack(), t.getTeamQuantity(), event.getId()
                     ))
                     .toList();
             response.setTracks(trackDTOs);

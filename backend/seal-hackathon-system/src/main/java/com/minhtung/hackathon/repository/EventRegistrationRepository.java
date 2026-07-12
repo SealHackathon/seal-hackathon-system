@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface EventRegistrationRepository extends JpaRepository<EventRegistration, Long> {
     // Tìm kiếm bản ghi dựa vào userId và eventId để check trùng
     Optional<EventRegistration> findByUserIdAndEventId(Long userId, Long eventId);
+
+    boolean existsByUserIdAndEventId(Long userId, Long eventId);
 }
