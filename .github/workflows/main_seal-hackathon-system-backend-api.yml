@@ -51,9 +51,9 @@ jobs:
       - name: Login to Azure
         uses: azure/login@v2
         with:
-          client-id: $ secrets.AZUREAPPSERVICE_CLIENTID_XXX         # giữ tên secret cũ của bạn
-          tenant-id: $ secrets.AZUREAPPSERVICE_TENANTID_XXX         # giữ tên secret cũ của bạn
-          subscription-id: $ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_XXX   # giữ tên secret cũ của bạn
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_99A06487DB554B06B938AC17F27D0EBE }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_7E530C6D438241C2A2D928A259C1F4F8 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_B3D3E0852E8D482194F509685162465F }}
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
