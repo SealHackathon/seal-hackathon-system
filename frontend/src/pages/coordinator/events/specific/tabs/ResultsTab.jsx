@@ -293,7 +293,7 @@ function ResultsTab() {
 
     try {
       // 1. Gọi API lưu trạng thái ở Backend trước
-      await axiosClient.post(`/round/${roundId}/track/${trackId}/publish/stage/${nextStage}`);
+      await axiosClient.post(`/round/${roundId}/publish/stage/${nextStage}?trackId=${trackId}`);
       console.log(`Backend cập nhật thành công Stage ${nextStage} cho Track ${trackId}`);
 
       // 2. Khi API thành công, chạy đúng logic set state đồng bộ ban đầu của bạn

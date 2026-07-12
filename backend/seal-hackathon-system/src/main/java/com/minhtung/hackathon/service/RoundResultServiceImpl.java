@@ -383,25 +383,42 @@ public class RoundResultServiceImpl implements RoundResultService {
     @Override
     @Transactional
     public RoundResultResponse updatePublishStage(Long roundId, Long trackId, Integer stage) {
-        // 1. Kiểm tra giá trị stage hợp lệ truyền từ Frontend (Chấp nhận từ 0 đến 3)
-        // Cấu hình: 0 = Đóng hoàn toàn, 1 = Bắt đầu chấm (Ẩn với tất cả), 2 = Hiện cho LECTURE, 3 = Hiện công khai
+        // 1. Kiểm tra giá trị stage hợp lệ (0 đến 3)
         if (stage < 0 || stage > 3) {
             throw new IllegalArgumentException("Cấp độ công bố không hợp lệ: " + stage);
         }
 
-        // 2. Tìm bản ghi trong bảng trung gian RoundTrack bằng Composite Key
+        // 2. Trường hợp KHÔNG gửi trackId -> Tiến hành cập nhật TẤT CẢ các track thuộc Round này
+        if (trackId == null) {
+            List<RoundTrack> roundTracks = roundTrackRepository.findByRoundId(roundId);
+
+            if (roundTracks.isEmpty()) {
+                throw new EntityNotFoundException("Không tìm thấy cấu hình trận đấu nào cho Round ID: " + roundId);
+            }
+
+            // Duyệt qua từng track và cập nhật stage
+            for (RoundTrack rt : roundTracks) {
+                rt.setPublishStage(stage);
+            }
+            roundTrackRepository.saveAll(roundTracks); // Lưu đồng loạt xuống DB
+
+            System.out.println("Đã cập nhật TẤT CẢ các Track của Round ID " + roundId + " sang Publish Stage: " + stage);
+
+            // Trả về kết quả tổng quan của Round (hoặc lấy đại diện kết quả của track đầu tiên để response không bị null)
+            Long firstTrackId = roundTracks.get(0).getTrack().getId();
+            return getRoundResults(roundId, firstTrackId);
+        }
+
+        // 3. Trường hợp CÓ gửi trackId -> Chỉ cập nhật duy nhất 1 cặp Round - Track cụ thể (Giữ nguyên logic cũ)
         RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(roundId, trackId);
         RoundTrack roundTrack = roundTrackRepository.findById(roundTrackId)
                 .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy cấu hình trận đấu cho Round ID: " + roundId + " và Track ID: " + trackId));
 
-        // 3. Cập nhật cấp độ Stage mới
         roundTrack.setPublishStage(stage);
-        roundTrackRepository.save(roundTrack); // Lưu lại vào Database bảng round_track
+        roundTrackRepository.save(roundTrack);
 
-        // Log debug
         System.out.println("Đã cập nhật cặp (Round: " + roundId + ", Track: " + trackId + ") sang Publish Stage: " + stage);
 
-        // 4. Trả về kết quả hiện tại phục vụ Admin xem trên Dashboard
         return getRoundResults(roundId, trackId);
     }
 }
