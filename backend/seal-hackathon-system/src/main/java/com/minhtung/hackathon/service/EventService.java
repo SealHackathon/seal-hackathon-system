@@ -41,8 +41,8 @@ public class EventService {
     private final RoundRepository roundRepository;
     private final Cloudinary cloudinary;
     private final SystemRequestRepository systemRequestRepository;
-
-
+    private final EventRegistrationRepository registrationRepository;
+    private UserRepository userRepository;
     // service view Event
     // service lay tat ca event tất cả status lun
     public List<AllEventResponse> getAllEvents() {
@@ -603,4 +603,33 @@ public class EventService {
                 user.getAvt_img()
         );
     }
+
+    @Transactional
+    public String registerEvent(Long userId, Long eventId) {
+        // 1. Kiểm tra User có tồn tại không
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng có ID: " + userId));
+
+        // 2. Kiểm tra Event có tồn tại không
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện có ID: " + eventId));
+
+        // 3. Kiểm tra xem sinh viên đã đăng ký sự kiện này chưa
+        if (registrationRepository.findByUserIdAndEventId(userId, eventId).isPresent()) {
+            throw new RuntimeException("Bạn đã đăng ký tham gia sự kiện này rồi!");
+        }
+
+        // 4. Tạo bản ghi đăng ký mới
+        EventRegistration registration = EventRegistration.builder()
+                .user(user)
+                .event(event)
+                .registeredAt(LocalDateTime.now())
+                .build();
+
+        registrationRepository.save(registration);
+
+        return "Đăng ký tham gia sự kiện '" + event.getName() + "' thành công!";
+    }
+
+
 }
