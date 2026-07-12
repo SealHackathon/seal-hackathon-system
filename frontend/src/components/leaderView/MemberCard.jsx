@@ -3,7 +3,7 @@ import { ArrowRight, ArrowLeft, PaperPlaneTilt, X, User } from '@phosphor-icons/
 import Button from '../shared/Button'
 import styles from './MemberCard.module.css'
 import avatarPlaceholder from '../../assets/user-avatar-placeholder.png'
-import axios from 'axios'
+import axiosClient from '../../api/axiosClient'
 import UserProfileModal from './UserProfileModal'
 
 function MemberCard({ member, onInvite, onCancel }) {
@@ -19,9 +19,8 @@ function MemberCard({ member, onInvite, onCancel }) {
     function handleSend() {
         console.log("member =", member);
         console.log("sending id =", member.id);
-        axios.post('http://localhost:8080/api/teamrequest/invitation',
-            { id: member.id, message: message },
-            { headers: { Authorization: `Bearer ${token}` } }
+        axiosClient.post('/teamrequest/invitation',
+            { id: member.id, message: message }
         )
             .then(() => {
                 onInvite(member.id, message)
@@ -37,9 +36,7 @@ function MemberCard({ member, onInvite, onCancel }) {
     // ham cancel invite
 
     function handleCancel() {
-        axios.delete(`http://localhost:8080/api/teamrequest/invitation-bymember?memberId=${member.id}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-        )
+        axiosClient.delete(`/teamrequest/invitation-bymember?memberId=${member.id}`)
             .then(() => {
                 onCancel(member.id)
                 setCardState('view')

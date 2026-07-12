@@ -8,7 +8,6 @@ import InviteCard from '../components/leaderView/InviteCard'
 import ConfirmModal from '../components/shared/ConfirmModal'
 import styles from './LeaderView.module.css'
 import Banner from '../components/shared/Banner'
-import axios from 'axios'
 import { Bell } from '@phosphor-icons/react'
 import axiosClient from '../api/axiosClient'
 import { useAuth } from '../AuthContext'
@@ -358,13 +357,8 @@ function LeaderView() {
       confirmLabel: 'Xác nhận',
       denyLabel: 'Không',
       onConfirm: () => {
-        axios
-          .put(`http://localhost:8080/api/team/promote/${id}`, {}, {
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${token}` // Gửi kèm token để kiểm tra bạn đúng là Leader hiện tại không
-            }
-          })
+        axiosClient
+          .put(`/team/promote/${id}`)
           .then((response) => {
             console.log(response.data);
             addToast({ variant: 'success', title: 'Thành công', message: 'Đã chuyển giao quyền Trưởng nhóm thành công!' })

@@ -3,7 +3,7 @@ import { X } from '@phosphor-icons/react'
 import MemberCard from './MemberCard'
 import CardSearchBase from '../shared/CardSearchBase'
 import styles from '../shared/CardSearchBase.module.css'
-import axios from 'axios'
+import axiosClient from '../../api/axiosClient'
 import { useEffect } from 'react'
 import ModalShell from '../shared/ModalShell'
 
@@ -28,15 +28,7 @@ function FindMemberModal({ onClose }) {
   const token = localStorage.getItem("accessToken")
   useEffect(() => {
     // nếu team đã đủ người thì trả về mảng rỗng 
-    axios
-      .get('http://localhost:8080/api/user/free-users'
-        , {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}` // nếu có JWT
-          }
-        }
-      )
+    axiosClient.get('/user/free-users')
       .then((response) => {
         response.data.forEach(user => {
           user.isInvited = false; // thêm thuộc tính isInvited vào từng user

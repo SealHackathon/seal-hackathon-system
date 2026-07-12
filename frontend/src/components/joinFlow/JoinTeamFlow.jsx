@@ -33,9 +33,7 @@ function JoinTeamFlow({ onClose }) {
       onBack={() => setStep(2)}
       // onSubmit={(data) => {
 
-      //   axios.post('http://localhost:8080/api/team/create', data, {
-      //     headers: { Authorization: `Bearer ${token}` }
-      //   })
+      //   axiosClient.post('/team/create', data)
       //     .then(() => {
       //       onClose();
       //       window.location.reload();

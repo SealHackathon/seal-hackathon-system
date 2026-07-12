@@ -5,8 +5,7 @@ import StepFooter from '../shared/StepFooter'
 import FormInput from '../shared/FormInput'
 import TeamInfoPanel from '../noTeamView/TeamInfoPanel'
 import styles from './JoinByCodeStep.module.css'
-import axios from 'axios'
-
+import axiosClient from '../../api/axiosClient'
 // thêm tạm xóa sau
 import Button from '../shared/Button'
 import { ArrowLeft, ArrowRight } from '@phosphor-icons/react'
@@ -21,12 +20,8 @@ function JoinByCodeStep({ onClose, onBack, onSubmit }) {
     // hàm này truyền 1 code lấy từ ô input --> gửi xún backend nhận lên 1 FAKE_RESULTS
     function handleCheck() {
         if (!code.trim()) return setResult({ type: 'default' })
-        axios.get(`http://localhost:8080/api/team/check-code?code=${code}`, {
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}` // nếu có JWT
-            }
-        }).then((response) => {
+        axiosClient.get(`/team/check-code?code=${code}`)
+            .then((response) => {
             const responseData = {
 
                 [response.data.teamCode]: {

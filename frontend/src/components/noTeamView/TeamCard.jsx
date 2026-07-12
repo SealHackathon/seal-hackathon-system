@@ -6,7 +6,7 @@ import TeamInfoPanel from './TeamInfoPanel'
 import styles from './TeamCard.module.css'
 // import memberStyles from '../leaderView/MemberRow.module.css'
 // import memberEmptyStyles from '../leaderView/EmptyMemberSlot.module.css'
-import axios from 'axios'
+import axiosClient from '../../api/axiosClient'
 function TeamCard({ 
     team, 
     onRequest, 
@@ -24,9 +24,8 @@ function TeamCard({
     //gọi API gửi request tham gia đội, nếu thành công thì gọi onRequest để cập nhật trạng thái ở component cha, đồng thời chuyển card sang trạng thái 'requested'
     function handleSend() {
         const token = localStorage.getItem("accessToken");
-        axios.post('http://localhost:8080/api/teamrequest/joinrequest',
-            { teamId: team.id, message:message },
-            { headers: { Authorization: `Bearer ${token}` } }
+        axiosClient.post('/teamrequest/joinrequest',
+            { teamId: team.id, message:message }
         )
             .then(() => {
                 onRequest(team.id)
@@ -40,9 +39,7 @@ function TeamCard({
 
     function handleCancel() {
         const token = localStorage.getItem("accessToken");
-        axios.delete(`http://localhost:8080/api/teamrequest/member-request?teamId=${team.id}`,
-            { headers: { Authorization: `Bearer ${token}` } }
-        )
+        axiosClient.delete(`/teamrequest/member-request?teamId=${team.id}`)
             .then(() => {
                 onCancel(team.id)
                 setCardState('view')

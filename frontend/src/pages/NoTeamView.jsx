@@ -189,9 +189,7 @@ function NoTeamView() {
         <CreateTeamStep emailStatus={emailStatus} emailMessage={emailMessage} onClose={() => setShowCreateTeam(false)}
           onSubmit={(data) => {
 
-            axios.post('http://localhost:8080/api/team/create', data, {
-              headers: { Authorization: `Bearer ${token}` }
-            })
+            axiosClient.post('/team/create', data)
               .then(() => {
                 setEmailMessage('Email hợp lệ')
                 setEmailStatus('default')
@@ -211,9 +209,7 @@ function NoTeamView() {
         <JoinByCodeStep onClose={() => setShowJoinByCode(false)}
           onSubmit={(data) => {
 
-            axios.post('http://localhost:8080/api/team/join-by-code', data, {
-              headers: { Authorization: `Bearer ${token}` }
-            })
+            axiosClient.post('/team/join-by-code', data)
               .then((response) => {
                 console.log(response.data)
                 window.location.reload()

@@ -6,6 +6,7 @@ import FormInput from '../components/shared/FormInput'
 import Dropdown from '../components/shared/Dropdown'
 import Button from '../components/shared/Button'
 import styles from './RegisterPage.module.css'
+import axiosClient from '../api/axiosClient'
 const ROLE_OPTIONS = [
     { value: 'student_fpt', label: 'Sinh viên Đại học FPT' },
     { value: 'student_other', label: 'Sinh viên trường khác' },
@@ -54,18 +55,14 @@ function RegisterPage() {
         if (Object.keys(e2).length > 0) { setErrors(e2); return }
 
         try {
-            const res = await fetch('http://localhost:8080/api/auth/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    schoolName: form.role === 'student_fpt' ? 'Đại học FPT' : 'Khác',
-                    studentId: form.role === 'student_fpt' ? form.studentId : '',
-                    email: form.email,
-                    password: form.password,
-                    phone: form.phone
-                }),
+            const res = await axiosClient.post('/auth/register', {
+                schoolName: form.role === 'student_fpt' ? 'Đại học FPT' : 'Khác',
+                studentId: form.role === 'student_fpt' ? form.studentId : '',
+                email: form.email,
+                password: form.password,
+                phone: form.phone
             })
-            const data = await res.json()
+            const data = res.data
 
             if (data === null) {
                 setErrors({ email: 'Email hoặc mã số sinh viên đã tồn tại' })

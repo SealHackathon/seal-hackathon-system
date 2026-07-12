@@ -5,8 +5,7 @@ import StepFooter from '../shared/StepFooter'
 import FormInput from '../shared/FormInput'
 import FormTextarea from '../shared/FormTextarea'
 import styles from './CreateTeamStep.module.css'
-import axios from 'axios'
-
+import axiosClient from '../../api/axiosClient'
 // thêm tạm xóa sau
 import Button from '../shared/Button'
 import { ArrowLeft, ArrowRight } from '@phosphor-icons/react'
@@ -48,9 +47,8 @@ function CreateTeamStep({ onClose, onBack, onSubmit, currentUserEmail = localSto
     function handleNameBlur() {
         if (!name.trim()) return setNameMessage(''), setNameStatus('default')
         // TODO: GET /api/teams/check-name?name=...
-        axios.get(`http://localhost:8080/api/team/check-name?name=${name}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        }).then((response) => {
+        axiosClient.get(`/team/check-name?name=${name}`)
+            .then((response) => {
             if (response.data == false) {
                 setNameStatus('error')
                 setNameMessage('Tên đội đã tồn tại')
