@@ -7,7 +7,9 @@ import com.minhtung.hackathon.dto.result.RoundResultResponse;
 import com.minhtung.hackathon.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -22,6 +24,7 @@ public class RoundResultServiceImpl implements RoundResultService {
     private final JudgeAssignmentRepository judgeAssignmentRepository;
     private final JudgeScoreRepository judgeScoreRepository;
     private final TrackRepository trackRepository;
+    private final RoundTrackRepository roundTrackRepository;
     @Override
     public RoundResultResponse getRoundResults(Long roundId, Long trackId) {
         Round round = roundRepository.findById(roundId)
@@ -262,44 +265,69 @@ public class RoundResultServiceImpl implements RoundResultService {
     //public award
     //service trả về bảng xếp hạng của 1 track khi publistResult trong entity Track được map về True
 
-    public PublicRoundResultResponse getPublicRoundResultsByTrack(Long roundId, Long trackId) {
-        if (trackId == null) {
-            throw new IllegalArgumentException("Track ID is required for public results");
+    public PublicRoundResultResponse getPublicRoundResultsByTrack(Long roundId, Long trackId, String userRole) {
+        if (trackId == null || roundId == null) {
+            throw new IllegalArgumentException("Round ID và Track ID là bắt buộc");
         }
 
-        // 1. Tìm thông tin Track để kiểm tra trạng thái công bố trực tiếp
-        // Giả sử bạn đã inject TrackRepository vào Service này rồi nhé
-        Track track = trackRepository.findById(trackId)
-                .orElseThrow(() -> new EntityNotFoundException("Track not found: " + trackId));
+        // 1. Lấy trạng thái stage từ bảng trung gian round_track thay vì bảng track
+        RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(roundId, trackId);
+        RoundTrack roundTrack = roundTrackRepository.findById(roundTrackId)
+                .orElseThrow(() -> new EntityNotFoundException("Trận đấu chưa được thiết lập cấu hình."));
 
-        PublicRoundResultResponse response = new PublicRoundResultResponse();
+        int currentStage = roundTrack.getPublishStage();
 
-        // Kiểm tra trực tiếp trên thực thể Track
-        // TODO kiểm tra lại chỗ này
-        if (track.getPublishedResult() ==1) {
+        // 2. PHÂN QUYỀN VÀ CHECK LỖI THEO ĐÚNG YÊU CẦU
+
+        // Trường hợp Stage 0 hoặc Stage 1: Đang đóng hoặc đang chấm nội bộ -> Ẩn kết quả với tất cả
+        if (currentStage == 0 || currentStage == 1) {
+            // Nếu là sinh viên (USER) cố tình gọi API ở Stage 1 -> Ném lỗi trực tiếp
+            if ("USER".equalsIgnoreCase(userRole)) {
+                throw new AccessDeniedException("Kết quả vòng thi hiện tại chưa được mở cho Sinh viên!");
+            }
+
+            // Trả về response trống chuẩn chỉnh
+            PublicRoundResultResponse response = new PublicRoundResultResponse();
             response.setPublished(false);
             response.setEntries(new ArrayList<>());
             response.setAwards(null);
             return response;
         }
 
-        // 2. Lấy dữ liệu Submissions và Scores (chỉ lọc các bản ghi thuộc Track này)
+        // Trường hợp Stage 2: Chỉ mở cho LECTURER xem trước kết quả
+        if (currentStage == 2) {
+            // Sinh viên (USER) gọi ở giai đoạn này -> Báo lỗi chặn quyền lập tức
+            if ("USER".equalsIgnoreCase(userRole)) {
+                throw new AccessDeniedException("Kết quả đang trong giai đoạn duyệt nội bộ. Sinh viên chưa thể xem!");
+            }
+            // Nếu là LECTURER hoặc ADMIN thì cho phép chạy tiếp xuống dưới để lấy data...
+        }
+
+        // Trường hợp Stage 3: Mở public hoàn toàn, không chặn ai nữa cả, chạy tiếp xuống dưới...
+
+
+        // =========================================================================
+        // 3. LOGIC LẤY DATA VÀ TÍNH ĐIỂM BẢNG XẾP HẠNG (Giữ nguyên logic chuẩn của bạn)
+        // =========================================================================
+        PublicRoundResultResponse response = new PublicRoundResultResponse();
+
+        // Lọc các Submissions thuộc Track này
         List<Submission> submissions = submissionRepository.findByRound_IdAndLatestTrue(roundId).stream()
                 .filter(s -> s.getTeam().getTrack() != null && s.getTeam().getTrack().getId()==(trackId))
                 .toList();
 
         List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(roundId);
         List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(roundId).stream()
-                .filter(a -> a.getTrack() != null && a.getTrack().getId()  == (trackId))
+                .filter(a -> a.getTrack() != null && a.getTrack().getId()==(trackId))
                 .toList();
 
-        // Map để index score: "assignmentId-submissionId" -> JudgeScore
+        // Index scores
         Map<String, JudgeScore> scoreIndex = new HashMap<>();
         for (JudgeScore s : scores) {
             scoreIndex.put(s.getJudgeAssignment().getId() + "-" + s.getSubmission().getId(), s);
         }
 
-        // 3. Tính điểm trung bình công khai cho từng đội trong Track
+        // Tính điểm trung bình
         List<PublicEntryDTO> publicEntries = new ArrayList<>();
         for (Submission submission : submissions) {
             List<Double> submittedTotals = new ArrayList<>();
@@ -321,13 +349,13 @@ public class RoundResultServiceImpl implements RoundResultService {
             }
         }
 
-        // 4. Sắp xếp danh sách đội theo điểm giảm dần và đánh số Rank
+        // Sắp xếp rank
         publicEntries.sort((a, b) -> Double.compare(b.getFinalScore(), a.getFinalScore()));
         for (int i = 0; i < publicEntries.size(); i++) {
             publicEntries.get(i).setRank(i + 1);
         }
 
-        // 5. Tự động lấy TOP 3 trao giải MAIN (Nhất, Nhì, Ba) cho riêng Track này
+        // Tính Top 3 giải thưởng chính
         List<MainAwardDTO> mainAwards = new ArrayList<>();
         String[] rankKeys = {"first", "second", "third"};
         for (int i = 0; i < Math.min(publicEntries.size(), rankKeys.length); i++) {
@@ -345,7 +373,6 @@ public class RoundResultServiceImpl implements RoundResultService {
         awardsDTO.setMain(mainAwards);
         awardsDTO.setExtended(new ArrayList<>());
 
-        // 6. Đóng gói kết quả trả về
         response.setPublished(true);
         response.setEntries(publicEntries);
         response.setAwards(awardsDTO);
@@ -354,24 +381,27 @@ public class RoundResultServiceImpl implements RoundResultService {
     }
 
     @Override
+    @Transactional
     public RoundResultResponse updatePublishStage(Long roundId, Long trackId, Integer stage) {
-        // 1. Kiểm tra giá trị stage hợp lệ truyền từ Frontend (Chỉ chấp nhận từ 1 đến 3)
-        if (stage < 1 || stage > 3) {
+        // 1. Kiểm tra giá trị stage hợp lệ truyền từ Frontend (Chấp nhận từ 0 đến 3)
+        // Cấu hình: 0 = Đóng hoàn toàn, 1 = Bắt đầu chấm (Ẩn với tất cả), 2 = Hiện cho LECTURE, 3 = Hiện công khai
+        if (stage < 0 || stage > 3) {
             throw new IllegalArgumentException("Cấp độ công bố không hợp lệ: " + stage);
         }
 
-        // 2. Tìm thông tin Track cần cập nhật trong DB
-        Track track = trackRepository.findById(trackId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Track với ID: " + trackId));
+        // 2. Tìm bản ghi trong bảng trung gian RoundTrack bằng Composite Key
+        RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(roundId, trackId);
+        RoundTrack roundTrack = roundTrackRepository.findById(roundTrackId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy cấu hình trận đấu cho Round ID: " + roundId + " và Track ID: " + trackId));
 
-        // 3. Cập nhật cấp độ Stage mới mà Frontend vừa gửi lên
-        track.setPublishedResult(stage); // Giả sử thuộc tính trong file Track.java tên là publishStage
-        trackRepository.save(track);  // Lưu lại vào Database
+        // 3. Cập nhật cấp độ Stage mới
+        roundTrack.setPublishStage(stage);
+        roundTrackRepository.save(roundTrack); // Lưu lại vào Database bảng round_track
 
-        // Log ra để dễ dàng debug hệ thống
-        System.out.println("Đã cập nhật Track ID " + trackId + " sang Publish Stage: " + stage);
+        // Log debug
+        System.out.println("Đã cập nhật cặp (Round: " + roundId + ", Track: " + trackId + ") sang Publish Stage: " + stage);
 
-        // 4. Trả về kết quả chấm giải hiện tại của Round và Track này cho Frontend đồng bộ UI luôn
+        // 4. Trả về kết quả hiện tại phục vụ Admin xem trên Dashboard
         return getRoundResults(roundId, trackId);
     }
 }
