@@ -585,6 +585,22 @@ public class TeamService {
         if (approve) {
             team.setStatus(TeamStatus.APPROVED);//duyet r nen khong cho khoa nua
             team.setInviteCode(null);//vo hieu hoa ma moi de khong cho ai dung lai ma moi nay
+
+            // Tự động kick tất cả thành viên dự bị (RESERVE) và gửi email thông báo
+            List<Member> reserveMembers = memberRepository.findByTeamIdAndStatus(team.getId(), MemberStatus.RESERVE);
+            for (Member reserveMember : reserveMembers) {
+                reserveMember.setStatus(MemberStatus.OUT);
+                memberRepository.save(reserveMember);
+                // Gửi email thông báo cho thành viên bị kick
+                User kickedUser = reserveMember.getMember();
+                if (kickedUser != null && kickedUser.getEmail() != null) {
+                    emailService.sendReserveMemberKickedEmail(
+                            kickedUser.getEmail(),
+                            kickedUser.getFullName() != null ? kickedUser.getFullName() : kickedUser.getEmail(),
+                            team.getName()
+                    );
+                }
+            }
         } else {
             team.setStatus(TeamStatus.REJECTED);   // Admin từ chối
             req.setStatus(RequestStatus.REJECTED);
@@ -895,22 +911,18 @@ public class TeamService {
         teamInfoResponse.setTeamStatus(team.getStatus().toString());
 
         // set category
-        if(team.getTrack()!=null){
-            TeamInfoResponse.TrackResponse category = new TeamInfoResponse.TrackResponse();
-            category.setId(team.getTrack().getId());
-            category.setTrackName(team.getTrack().getName());
-            category.setDesc(team.getTrack().getDes());
-            category.setCurrentTeams(team.getTrack().getTeamQuantity());
-            category.setTeamLimit(team.getTrack().getMaxTeamPerTrack());
-            teamInfoResponse.setCategory(category);
-            Event event = team.getTrack().getEvent();
-            teamInfoResponse.setMaxSlots(event.getMaxTeamMember());
-        }
-
+        TeamInfoResponse.TrackResponse category = new TeamInfoResponse.TrackResponse();
+        category.setId(team.getTrack().getId());
+        category.setTrackName(team.getTrack().getName());
+        category.setDesc(team.getTrack().getDes());
+        category.setCurrentTeams(team.getTrack().getTeamQuantity());
+        category.setTeamLimit(team.getTrack().getMaxTeamPerTrack());
+        teamInfoResponse.setCategory(category);
 
 
         //trả về maxSlots
-
+        Event event = team.getTrack().getEvent();
+        teamInfoResponse.setMaxSlots(event.getMaxTeamMember());
 
         return teamInfoResponse;
     }
