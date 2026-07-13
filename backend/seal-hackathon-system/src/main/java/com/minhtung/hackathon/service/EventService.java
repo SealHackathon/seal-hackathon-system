@@ -391,7 +391,7 @@ public class EventService {
         event.setTopic(request.getTopic());
 
         // Giữ nguyên trạng thái cũ hoặc cập nhật theo request nếu cần (ở đây mặc định giữ luồng cấu hình)
-        event.setStatus(EventStatus.DRAFT);
+        event.setStatus(EventStatus.valueOf(request.getStatus().trim().toUpperCase()));
 
         // 5. Cập nhật URL ảnh: Nếu có ảnh mới upload thì lấy ảnh mới, không thì giữ nguyên ảnh cũ trong DB
         if (bannerUrl != null) {

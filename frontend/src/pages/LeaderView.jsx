@@ -156,7 +156,7 @@ function LeaderView() {
     if (eventId) {
       localStorage.setItem('lastKnownTeamRoleEventId', String(eventId));
     }
-  }, [eventId]);
+  }, []);
 
   // ↓ Để test UI: dùng MOCK_MEMBERS. Khi dùng API thật: đổi lại thành useState([])
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);

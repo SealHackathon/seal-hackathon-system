@@ -34,7 +34,7 @@ export function handleSaveDraft({ currentStep, formData, axiosClient, handleForm
       sendData.append('description', formData.shortDesc || '');
       sendData.append('minTeamMember', formData.minMembers || 1);
       sendData.append('maxTeamMember', formData.maxMembers || 5);
-     
+      sendData.append('status', formData.status || null);
 
       if (formData.openDate) sendData.append('openRegisterTime', toLocalISOString(formData.openDate));
       if (formData.closeDate) sendData.append('closeRegisterTime', toLocalISOString(formData.closeDate));
