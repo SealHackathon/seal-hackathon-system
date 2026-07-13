@@ -27,9 +27,13 @@ public class EmailService {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+<<<<<<< Updated upstream
 //      helper.setFrom("mtung638@gamil.com");
+=======
+     helper.setFrom("mtung638@gamil.com");
+>>>>>>> Stashed changes
       helper.setTo(email);
-      helper.setSubject("Xác  nhận đăng kí tài khoản");
+      helper.setSubject("Xác nhận đăng kí tài khoản");
 
       helper.setText(
               "<h2>Xác nhận tài khoản</h2>" +
@@ -37,7 +41,7 @@ public class EmailService {
                       "<a href='" + verifLink + "' style='padding:12px 24px;" +
                       "background:#4F46E5;color:white;text-decoration:none;" +
                       "border-radius:6px;display:inline-block'> Xác nhận Email</a>" +
-                      "<p>Link hết hạn sau <b> 15    phút</b>.</p>",
+                      "<p>Link hết hạn sau <b> 15 phút</b>.</p>",
               true
       );
       mailSender.send(message);
@@ -77,6 +81,11 @@ public class EmailService {
         return false;
     }
   }
+<<<<<<< Updated upstream
+=======
+
+  // gửi email thông báo thành viên dự bị bị loại khi team được phê duyệt
+>>>>>>> Stashed changes
   public boolean sendReserveMemberKickedEmail(String email, String memberName, String teamName) {
     try {
       MimeMessage message = mailSender.createMimeMessage();
@@ -86,7 +95,11 @@ public class EmailService {
       helper.setSubject("[SEAL Hackathon] Bạn đã bị loại khỏi đội " + teamName);
       helper.setText(
               "<p>Xin chào <strong>" + memberName + "</strong>,</p>" +
+<<<<<<< Updated upstream
               "<p>Đội <strong>\"" + teamName + "\"</strong> vừa được BTC phê duyệt. Do đội đã đủ thành viên chính thức, bạn (thành viên dự bị) đã bị tự động loại khỏi đội.</p>" +
+=======
+              "<p>Đội <strong>\"" + teamName + "\"</strong> vừa được BTC phê duyệt. Do đội đã đủ thành viên chính thức, bạn đã bị tự động loại khỏi đội.</p>" +
+>>>>>>> Stashed changes
               "<p>Bạn có thể tạo đội mới hoặc xin vào đội khác.</p>",
               true
       );

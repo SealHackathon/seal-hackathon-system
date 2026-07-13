@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { useState, useEffect, useRef } from 'react'
 import EventLayout from '../layouts/EventLayout'
 import TeamInfoHeader from '../components/leaderView/TeamInfoHeader'
@@ -9,6 +10,19 @@ import styles from './MemberView.module.css'
 import axiosClient from '../api/axiosClient'
 import { useAuth } from '../AuthContext'
 import ToastContainer from '../components/shared/ToastContainer'
+=======
+import { useState, useEffect, useRef } from "react";
+import EventLayout from "../layouts/EventLayout";
+import TeamInfoHeader from "../components/leaderView/TeamInfoHeader";
+import TeamMemberPanel from "../components/leaderView/TeamMemberPanel";
+import TeamCategoryPanel from "../components/leaderView/TeamCategoryPanel";
+import InviteTeamCard from "../components/noTeamView/InviteTeamCard";
+import ConfirmModal from "../components/shared/ConfirmModal";
+import styles from "./MemberView.module.css";
+import axiosClient from "../api/axiosClient";
+import { useAuth } from "../AuthContext";
+import ToastContainer from "../components/shared/ToastContainer";
+>>>>>>> Stashed changes
 
 // const MOCK_MEMBERS = [
 //   {
@@ -97,69 +111,108 @@ import ToastContainer from '../components/shared/ToastContainer'
 //   }
 // ]
 
-
 const MOCK_CATEGORIES = [
-  { id: 1, name: 'Giáo dục (Education)', desc: 'Các giải pháp liên quan đến học tập, giảng dạy, quản lý giáo dục.', currentTeams: 8, teamLimit: 10 },
-  { id: 2, name: 'Y tế (Healthcare)', desc: 'Các giải pháp chăm sóc sức khỏe, quản lý bệnh viện, y tế cộng đồng.', currentTeams: 15, teamLimit: 15 },
-  { id: 3, name: 'Thương mại điện tử (E-commerce)', desc: 'Nền tảng mua sắm trực tuyến, thanh toán điện tử, logistics.', currentTeams: 5, teamLimit: 12 },
-  { id: 4, name: 'Giải trí (Entertainment)', desc: 'Game, mạng xã hội, ứng dụng đa phương tiện.', currentTeams: 12, teamLimit: 20 },
-]
+  {
+    id: 1,
+    name: "Giáo dục (Education)",
+    desc: "Các giải pháp liên quan đến học tập, giảng dạy, quản lý giáo dục.",
+    currentTeams: 8,
+    teamLimit: 10,
+  },
+  {
+    id: 2,
+    name: "Y tế (Healthcare)",
+    desc: "Các giải pháp chăm sóc sức khỏe, quản lý bệnh viện, y tế cộng đồng.",
+    currentTeams: 15,
+    teamLimit: 15,
+  },
+  {
+    id: 3,
+    name: "Thương mại điện tử (E-commerce)",
+    desc: "Nền tảng mua sắm trực tuyến, thanh toán điện tử, logistics.",
+    currentTeams: 5,
+    teamLimit: 12,
+  },
+  {
+    id: 4,
+    name: "Giải trí (Entertainment)",
+    desc: "Game, mạng xã hội, ứng dụng đa phương tiện.",
+    currentTeams: 12,
+    teamLimit: 20,
+  },
+];
 
 function MemberView() {
-  const [teamStatus, setTeamStatus] = useState('OPEN')
+  const [teamStatus, setTeamStatus] = useState("OPEN");
   // Use mock data for testing UI
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
+<<<<<<< Updated upstream
   const [confirmModal, setConfirmModal] = useState(null)
   const [membersLoaded, setMembersLoaded] = useState(false)
   const [kickedModal, setKickedModal] = useState(false)
   const wasReserveRef = useRef(false) // Lưu trạng thái ban đầu để phát hiện bị kick
+=======
+  const [confirmModal, setConfirmModal] = useState(null);
+  const [membersLoaded, setMembersLoaded] = useState(false);
+  const [kickedModal, setKickedModal] = useState(false);
+  const wasReserveRef = useRef(false); // Lưu trạng thái ban đầu để phát hiện bị kick
+>>>>>>> Stashed changes
 
-  const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' });
-  const [selectedCategory, setSelectedCategory] = useState(null)
-  const [categories, setCategories] = useState(MOCK_CATEGORIES)
-  const [leaveRequest, setLeaveRequest] = useState([])
+  const [teamInfo, setTeamInfo] = useState({
+    teamName: "SEAL Hackathon Team",
+    description: "Đội thi của chúng mình",
+    teamCode: "SEAL2026",
+    teamStatus: "OPEN",
+  });
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [categories, setCategories] = useState(MOCK_CATEGORIES);
+  const [leaveRequest, setLeaveRequest] = useState([]);
   const { updateTeamRole } = useAuth();
-  const eventId = localStorage.getItem('eventId') || null;
+  const eventId = localStorage.getItem("eventId") || null;
 
-  const [toasts, setToasts] = useState([])
+  const [toasts, setToasts] = useState([]);
   const addToast = (toast) => {
-    const id = Date.now()
-    setToasts(prev => [...prev, { id, ...toast }])
-  }
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, ...toast }]);
+  };
   const removeToast = (id) => {
-    setToasts(prev => prev.filter(t => t.id !== id))
-  }
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
 
   useEffect(() => {
+<<<<<<< Updated upstream
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
   }, []);
-
+=======
+    localStorage.setItem("lastKnownTeamRole", "IN_TEAM");
+    if (eventId) {
+      localStorage.setItem("lastKnownTeamRoleEventId", String(eventId));
+    }
+  }, [eventId]);
+>>>>>>> Stashed changes
 
   // api sinh vien xem những invitation gui toi minh
   useEffect(() => {
-    axiosClient.get('/teamrequest/member-invitation')
+    axiosClient
+      .get("/teamrequest/member-invitation")
       .then((response) => {
         setFAKE_INVITES(response.data);
-
       })
       .catch((error) => console.log(error));
   }, []);
-
-
-
-
 
   // api lấy team info - comment out to use mock data for testing
 
   useEffect(() => {
     axiosClient
-      .get('/team/team-info')
+      .get("/team/team-info")
       .then((response) => {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus);
         // TODO: Cần trả về trường categoryId trong object teamInfo
-        if (response.data.category.id) setSelectedCategory(response.data.category.id)
+        if (response.data.category.id)
+          setSelectedCategory(response.data.category.id);
       })
       .catch((error) => console.log(error));
   }, []);
@@ -167,21 +220,30 @@ function MemberView() {
   // TODO: Gọi API GET /api/event/{eventId}/categories để lấy danh sách hạng mục
   useEffect(() => {
     // const eventId = 1 // Lấy id từ URL hoặc context
+<<<<<<< Updated upstream
     axiosClient.get(`/track?eventId=${eventId}`)
       .then(res => setCategories(res.data))
       .catch(err => console.log(err))
   }, [])
 
 
+=======
+    axiosClient
+      .get(`/track?eventId=${eventId}`)
+      .then((res) => setCategories(res.data))
+      .catch((err) => console.log(err));
+  }, [eventId]);
+>>>>>>> Stashed changes
 
   // api lấy team members - comment out to use mock data
 
   useEffect(() => {
     axiosClient
-      .get('/team/my-team')
+      .get("/team/my-team")
       .then((response) => {
         const members = response.data;
         setFAKE_MEMBERS(members);
+<<<<<<< Updated upstream
 
         // Ghi nhớ nếu user hiện tại đang là RESERVE (để phát hiện khi bị kick)
         const me = members.find(m => m.isCurrentUser);
@@ -195,41 +257,80 @@ function MemberView() {
         setMembersLoaded(true);
       });
   }, []);
+=======
+>>>>>>> Stashed changes
 
+        // Ghi nhớ nếu user hiện tại đang là RESERVE (để phát hiện khi bị kick)
+        const me = members.find((m) => m.isCurrentUser);
+        if (me && me.memberStatus === "RESERVE") {
+          wasReserveRef.current = true;
+        }
+        setMembersLoaded(true);
+      })
+      .catch((error) => {
+        console.log(error);
+        setMembersLoaded(true);
+      });
+  }, []);
 
   const handleOnLeave = (message) => {
     axiosClient
-      .post('/teamrequest/out-team', { message: message })
+      .post("/teamrequest/out-team", { message: message })
       .then((response) => {
         console.log(response.data);
-        if (currentUser?.memberStatus === 'RESERVE') {
+        if (currentUser?.memberStatus === "RESERVE") {
           // Reserve members are removed instantly, so just clear state and reload
-          addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã rời nhóm thành công!' })
+          addToast({
+            variant: "success",
+            title: "Thành công",
+            message: "Bạn đã rời nhóm thành công!",
+          });
           setTimeout(() => {
-            localStorage.removeItem('lastKnownTeamRole');
-            updateTeamRole('NO_TEAM');
+            localStorage.removeItem("lastKnownTeamRole");
+            updateTeamRole("NO_TEAM");
           }, 1500);
           return;
         }
 
         const responseData = {
+<<<<<<< Updated upstream
           id: response.data?.id, name: response.data?.name, message: response.data?.message
         }
         setLeaveRequest([responseData])
         localStorage.setItem('pendingLeaveRequest', 'true');
         addToast({ variant: 'success', title: 'Thành công', message: 'Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.' })
+=======
+          id: response.data?.id,
+          name: response.data?.name,
+          message: response.data?.message,
+        };
+        setLeaveRequest([responseData]);
+        localStorage.setItem("pendingLeaveRequest", "true");
+        if (eventId) {
+          localStorage.setItem("pendingLeaveRequestEventId", String(eventId));
+        }
+        addToast({
+          variant: "success",
+          title: "Thành công",
+          message:
+            "Đã gửi yêu cầu rời nhóm thành công! Đang chờ nhóm trưởng phê duyệt.",
+        });
+>>>>>>> Stashed changes
       })
       .catch((error) => {
         console.log(error);
-        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra, không thể rời nhóm lúc này.' });
+        addToast({
+          variant: "error",
+          title: "Lỗi",
+          message: "Có lỗi xảy ra, không thể rời nhóm lúc này.",
+        });
       });
   };
 
-
-  // api member xem những leave request da gui di 
+  // api member xem những leave request da gui di
   useEffect(() => {
     axiosClient
-      .get('/teamrequest/leave_request')
+      .get("/teamrequest/leave_request")
       .then((response) => {
         setLeaveRequest(response.data);
       })
@@ -239,6 +340,7 @@ function MemberView() {
   // Polling định kỳ 30 giây: phát hiện khi thành viên dự bị bị kick trong khi đang online
   useEffect(() => {
     if (!wasReserveRef.current) return; // Chỉ poll nếu user đang là RESERVE
+<<<<<<< Updated upstream
 
     const intervalId = setInterval(() => {
       axiosClient
@@ -262,43 +364,86 @@ function MemberView() {
     return () => clearInterval(intervalId);
   }, [membersLoaded]); // Chạy sau khi members đã load lần đầu
 
+=======
+>>>>>>> Stashed changes
 
+    const intervalId = setInterval(() => {
+      axiosClient
+        .get("/team/my-team")
+        .then((response) => {
+          const members = response.data;
+          const me = members.find((m) => m.isCurrentUser);
+          // Nếu user không còn trong danh sách → đã bị kick
+          if (!me) {
+            clearInterval(intervalId);
+            setKickedModal(true);
+          }
+        })
+        .catch(() => {
+          // Nếu gặp lỗi (ví dụ 404 vì không còn trong team) → cũng coi là bị kick
+          clearInterval(intervalId);
+          setKickedModal(true);
+        });
+    }, 30000); // Kiểm tra mỗi 30 giây
+
+    return () => clearInterval(intervalId);
+  }, [membersLoaded]); // Chạy sau khi members đã load lần đầu
 
   const handleOnCancelLeave = (id) => {
     axiosClient
-      .post('/teamrequest/out-team/cancle', id)
+      .post("/teamrequest/out-team/cancle", id)
       .then((response) => {
         console.log(response.data);
+<<<<<<< Updated upstream
         localStorage.removeItem('pendingLeaveRequest');
         addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã hủy yêu cầu rời nhóm thành công!' })
         setTimeout(() => window.location.reload(), 1500)
+=======
+        localStorage.removeItem("pendingLeaveRequest");
+        localStorage.removeItem("pendingLeaveRequestEventId");
+        addToast({
+          variant: "success",
+          title: "Thành công",
+          message: "Bạn đã hủy yêu cầu rời nhóm thành công!",
+        });
+        setTimeout(() => window.location.reload(), 1500);
+>>>>>>> Stashed changes
       })
       .catch((error) => {
         console.log(error);
-        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra, không thể hủy rời nhóm lúc này.' });
+        addToast({
+          variant: "error",
+          title: "Lỗi",
+          message: "Có lỗi xảy ra, không thể hủy rời nhóm lúc này.",
+        });
       });
-  }
-
-
+  };
 
   const handleAcceptInvite = (requestId, isAccepted) => {
     axiosClient
-      .put('/teamrequest/invitation-response', {
+      .put("/teamrequest/invitation-response", {
         requestId: requestId,
-        accept: isAccepted
+        accept: isAccepted,
       })
       .then((response) => {
         console.log(response.data);
-        setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
-        addToast({ variant: 'success', title: 'Thành công', message: 'Đã chấp nhận lời mời thành công!' })
-        setTimeout(() => window.location.reload(), 1500)
+        setFAKE_INVITES((prev) => prev.filter((inv) => inv.id !== requestId));
+        addToast({
+          variant: "success",
+          title: "Thành công",
+          message: "Đã chấp nhận lời mời thành công!",
+        });
+        setTimeout(() => window.location.reload(), 1500);
       })
       .catch((error) => {
         console.log(error);
-        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi chấp nhận lời mời!' });
+        addToast({
+          variant: "error",
+          title: "Lỗi",
+          message: "Có lỗi xảy ra khi chấp nhận lời mời!",
+        });
       });
-  }
-
+  };
 
   // (id) => {
   //   alert("Đã chấp nhận lời mời. Bạn sẽ rời team hiện tại.");
@@ -307,23 +452,41 @@ function MemberView() {
 
   const handleRejectInvite = (requestId, isAccepted) => {
     axiosClient
-      .put('/teamrequest/invitation-response', {
+      .put("/teamrequest/invitation-response", {
         requestId: requestId,
-        accept: isAccepted
+        accept: isAccepted,
       })
       .then((response) => {
         console.log(response.data);
-        setFAKE_INVITES(prev => prev.filter(inv => inv.id !== requestId));
-        addToast({ variant: 'success', title: 'Thành công', message: 'Đã từ chối lời mời thành công!' })
-        setTimeout(() => window.location.reload(), 1500)
+        setFAKE_INVITES((prev) => prev.filter((inv) => inv.id !== requestId));
+        addToast({
+          variant: "success",
+          title: "Thành công",
+          message: "Đã từ chối lời mời thành công!",
+        });
+        setTimeout(() => window.location.reload(), 1500);
       })
       .catch((error) => {
         console.log(error);
-        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi Từ Chối lời mời!' });
+        addToast({
+          variant: "error",
+          title: "Lỗi",
+          message: "Có lỗi xảy ra khi Từ Chối lời mời!",
+        });
       });
-  }
+  };
 
-  const currentUser = FAKE_MEMBERS.find(m => m.isCurrentUser);
+  const currentUser = FAKE_MEMBERS.find((m) => m.isCurrentUser);
+
+  // Phát hiện khi thành viên dự bị bị kick sau khi đội được APPROVED
+  useEffect(() => {
+    if (!membersLoaded) return;
+    // Nếu user từng là RESERVE nhưng giờ không còn trong danh sách
+    // (backend đã set status=OUT khi approve), hoặc teamStatus đã APPROVED và currentUser=null
+    if (wasReserveRef.current && !currentUser) {
+      setKickedModal(true);
+    }
+  }, [membersLoaded, currentUser]);
 
   // Phát hiện khi thành viên dự bị bị kick sau khi đội được APPROVED
   useEffect(() => {
@@ -338,7 +501,6 @@ function MemberView() {
   return (
     <EventLayout>
       <div className={styles.page}>
-
         <TeamInfoHeader
           teamName={teamInfo.teamName}
           teamStatus={teamStatus}
@@ -369,19 +531,20 @@ function MemberView() {
 
           <div className={styles.side}>
             <InviteTeamCard
-              invites={currentUser?.memberStatus === 'OFFICAL' ? [] : FAKE_INVITES}
+              invites={
+                currentUser?.memberStatus === "OFFICAL" ? [] : FAKE_INVITES
+              }
               onAccept={(id) => handleAcceptInvite(id, true)}
               onReject={(id) => handleRejectInvite(id, false)}
               isFromTeam={true}
               emptyText={
-                currentUser?.memberStatus === 'OFFICAL'
+                currentUser?.memberStatus === "OFFICAL"
                   ? "Thành viên chính thức sẽ không nhận được lời mời tham gia từ đội khác."
                   : "Chưa có lời mời nào."
               }
             />
           </div>
         </div>
-
       </div>
 
       <ConfirmModal
@@ -399,12 +562,17 @@ function MemberView() {
       <ConfirmModal
         isOpen={kickedModal}
         title="Bạn đã bị loại khỏi đội"
+<<<<<<< Updated upstream
         message={`Đội của bạn vừa được BTC phê duyệt. Do đội đã đủ thành viên chính thức, bạn (thành viên dự bị) đã bị tự động loại khỏi đội.\n\nBạn có thể tạo đội mới hoặc tham gia đội khác.`}
+=======
+        message={`Đội của bạn vừa được BTC phê duyệt. Do đội đã đủ thành viên chính thức, bạn đã bị tự động loại khỏi đội.\n\nBạn có thể tạo đội mới hoặc tham gia đội khác.`}
+>>>>>>> Stashed changes
         confirmLabel="Đã hiểu"
         isNotification={true}
         variant="warning"
         onConfirm={() => {
           setKickedModal(false);
+<<<<<<< Updated upstream
           localStorage.removeItem('lastKnownTeamRole');
           localStorage.removeItem('lastKnownTeamRoleEventId');
           updateTeamRole('NO_TEAM');
@@ -417,9 +585,23 @@ function MemberView() {
         }}
       />
       
+=======
+          localStorage.removeItem("lastKnownTeamRole");
+          localStorage.removeItem("lastKnownTeamRoleEventId");
+          updateTeamRole("NO_TEAM");
+        }}
+        onCancel={() => {
+          setKickedModal(false);
+          localStorage.removeItem("lastKnownTeamRole");
+          localStorage.removeItem("lastKnownTeamRoleEventId");
+          updateTeamRole("NO_TEAM");
+        }}
+      />
+
+>>>>>>> Stashed changes
       <ToastContainer toasts={toasts} onClose={removeToast} bottom="2em" />
     </EventLayout>
-  )
+  );
 }
 
-export default MemberView
+export default MemberView;
