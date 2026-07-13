@@ -227,32 +227,92 @@ public class EventService {
         if (event.getMilestones() != null) {
             LocalDateTime now = LocalDateTime.now(); // Lấy giờ chuẩn của SERVER
 
-            List<MilestoneResponse> milestoneDTOs = event.getMilestones().stream()
-                    .map(m -> {
-                        // Logic tính toán trạng thái động
-                        String status = com.minhtung.hackathon.enums.MilestoneStatus.UPCOMING.toString();
+            // Khởi tạo danh sách tổng để gom tất cả các mốc thời gian
+            List<MilestoneResponse> combinedMilestones = new ArrayList<>();
 
-                        if (m.getDateStart() != null && m.getDateEnd() != null) {
-                            if (now.isBefore(m.getDateStart())) {
-                                status = com.minhtung.hackathon.enums.MilestoneStatus.UPCOMING.toString();
-                            } else if (now.isAfter(m.getDateEnd())) {
-                                status = com.minhtung.hackathon.enums.MilestoneStatus.COMPLETED.toString();
-                            } else {
-                                status = com.minhtung.hackathon.enums.MilestoneStatus.IN_PROGRESS.toString();
-                            }
+// 1. Map danh sách Milestones trực thuộc Event
+            if (event.getMilestones() != null) {
+                event.getMilestones().forEach(m -> {
+                    String milestoneStatus = "UPCOMING";
+                    if (m.getDateStart() != null && m.getDateEnd() != null) {
+                        if (now.isBefore(m.getDateStart())) {
+                            milestoneStatus = "UPCOMING";
+                        } else if (now.isAfter(m.getDateEnd())) {
+                            milestoneStatus = "COMPLETED";
+                        } else {
+                            milestoneStatus = "IN_PROGRESS";
+                        }
+                    }
+                    combinedMilestones.add(new MilestoneResponse(
+                            m.getId(), // ID tạm thời, lát nữa sẽ đánh lại số tuần tự
+                            m.getMilestoneName(),
+                            m.getDateStart(),
+                            m.getDateEnd(),
+                            m.getDes(),
+                            milestoneStatus
+                    ));
+                });
+            }
+
+// 2. Map trực tiếp các mốc thời gian từ các ROUND thuộc Event
+            if (event.getRounds() != null) {
+                event.getRounds().forEach(r -> {
+
+                    // MỐC 1: Lịch trình thời gian diễn ra toàn bộ vòng thi
+                    if (r.getTimeStart() != null && r.getTimeEnd() != null) {
+                        String roundStatus = "UPCOMING";
+                        if (now.isBefore(r.getTimeStart())) {
+                            roundStatus = "UPCOMING";
+                        } else if (now.isAfter(r.getTimeEnd())) {
+                            roundStatus = "COMPLETED";
+                        } else {
+                            roundStatus = "IN_PROGRESS";
                         }
 
-                        return new MilestoneResponse(
-                                m.getId(),
-                                m.getMilestoneName(),
-                                m.getDateStart(),
-                                m.getDateEnd(),
-                                m.getDes(),
-                                status // Gán trạng thái vừa tính được vào DTO
-                        );
+                        combinedMilestones.add(new MilestoneResponse(
+                                r.getId(),
+                                "Thời gian diễn ra: " + r.getName(),
+                                r.getTimeStart(),
+                                r.getTimeEnd(),
+                                "Thời gian chính thức làm bài và tham gia các hoạt động của " + r.getName(),
+                                roundStatus
+                        ));
+                    }
+
+                    // MỐC 2: Hạn chót nộp bài dự thi của vòng này (nếu có cấu hình deadline)
+                    if (r.getSubmissionDeadline() != null) {
+                        String deadlineStatus = now.isAfter(r.getSubmissionDeadline()) ? "COMPLETED" : "IN_PROGRESS";
+
+                        combinedMilestones.add(new MilestoneResponse(
+                                r.getId(),
+                                "Hạn nộp bài: " + r.getName(),
+                                r.getSubmissionDeadline(),
+                                r.getSubmissionDeadline(), // Điểm mốc thời gian cố định nên start = end
+                                "Hạn cuối cùng để các đội thi hoàn thiện và tải sản phẩm lên hệ thống.",
+                                deadlineStatus
+                        ));
+                    }
+                });
+            }
+
+// 3. Sắp xếp toàn bộ danh sách hỗn hợp theo thứ tự thời gian tăng dần (dateStart)
+            List<MilestoneResponse> sortedMilestones = combinedMilestones.stream()
+                    .sorted((m1, m2) -> {
+                        if (m1.getDateStart() == null && m2.getDateStart() == null) return 0;
+                        if (m1.getDateStart() == null) return 1;  // Đẩy item không có ngày xuống cuối
+                        if (m2.getDateStart() == null) return -1;
+                        return m1.getDateStart().compareTo(m2.getDateStart());
                     })
                     .toList();
-            eventResponse.setMilestones(milestoneDTOs);
+
+// 4. RESET VÀ ĐÁNH LẠI ID TUẦN TỰ CHO FRONTEND TIỆN LÀM KEY RENDER
+            long autoIncrementId = 1;
+            for (MilestoneResponse item : sortedMilestones) {
+                item.setId(autoIncrementId++);
+            }
+
+// Đổ dữ liệu sạch đã sắp xếp vào object response cuối cùng
+            eventResponse.setMilestones(sortedMilestones);
         } else {
             eventResponse.setMilestones(new ArrayList<>());
         }
