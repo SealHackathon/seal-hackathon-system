@@ -486,7 +486,10 @@ public class DataInitializer implements CommandLineRunner {
                 round1, "Vòng sơ loại", now.minusDays(1), now.plusDays(22),
                 "Nộp file PDF ý tưởng (tối đa 5 trang) và link GitHub repo (nếu có).", true
         );
+
         round1.setSubmissionConfig(config1);
+
+
 
         List<RoundTimeline> timeline1 = new ArrayList<>();
         timeline1.add(new RoundTimeline(
@@ -519,6 +522,13 @@ public class DataInitializer implements CommandLineRunner {
         if (officialTemplate != null) {
             round2.setScoringTemplate(officialTemplate); // Gán template 1 cho Round 2
         }
+
+        SubmissionConfig config2 = new SubmissionConfig(
+                round2, "Vòng bán kết", now.minusDays(1), now.plusDays(30),
+                "Nộp source code, tài liệu và video demo vòng bán kết.", true
+        );
+        round2.setSubmissionConfig(config2);
+
         rounds.add(round2);
 
         // -- Vòng 3: Chung kết --
@@ -534,6 +544,13 @@ public class DataInitializer implements CommandLineRunner {
         if (officialTemplate != null) {
             round3.setScoringTemplate(officialTemplate); // Gán template 1 cho Round 3
         }
+
+        SubmissionConfig config3 = new SubmissionConfig(
+                round3, "Vòng chung kết", now.minusDays(1), now.plusDays(40),
+                "Nộp sản phẩm hoàn chỉnh và video thuyết trình vòng chung kết.", true
+        );
+        round3.setSubmissionConfig(config3);
+
         rounds.add(round3);
 
         event.setRounds(rounds);
@@ -621,7 +638,7 @@ public class DataInitializer implements CommandLineRunner {
             memberRepository.save(m5);
 
             teamRepository.save(customTeam);
-            System.out.println("✅ Khởi tạo thành công 1 Đội thi mẫu: SEAL INNOVATORS (5 thành viên)!");
+            System.out.println(" Khởi tạo thành công 1 Đội thi mẫu: SEAL INNOVATORS (5 thành viên)!");
         }
     }
 
