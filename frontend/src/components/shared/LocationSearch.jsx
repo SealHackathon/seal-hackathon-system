@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react'
-import { APIProvider, Map, AdvancedMarker, useApiIsLoaded, useMap } from '@vis.gl/react-google-maps'
+import { APIProvider, Map, AdvancedMarker, useApiIsLoaded, useMap } from git'@vis.gl/react-google-maps'
 import { MagnifyingGlass, MapPin, NavigationArrow, X } from '@phosphor-icons/react'
 import styles from './LocationSearch.module.css'
 

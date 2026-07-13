@@ -253,7 +253,90 @@ public class DataInitializer implements CommandLineRunner {
             initSampleEvent(u1, u2, u3, u4, u5, officialTemplate);
         }
 
+        initTrackFilteringTestData();
         initScoringAndRankingTestAccounts();
+    }
+
+    /**
+     * Tạo dữ liệu ổn định để test GET /api/track/{trackId}/viewTeaminTrack.
+     * Team thứ nhất nằm ở track đầu tiên, team thứ hai nằm ở track kế tiếp để
+     * có thể kiểm tra API chỉ trả về team thuộc đúng trackId được truyền vào.
+     */
+    private void initTrackFilteringTestData() {
+        Event event = eventRepository.findAll().stream().findFirst().orElse(null);
+        if (event == null || event.getTracks() == null || event.getTracks().size() < 2) {
+            return;
+        }
+
+        User sameTrackLeader = getOrCreateTrackTestUser(
+                "track.same@test.com",
+                "Track Filter Same Leader"
+        );
+        User otherTrackLeader = getOrCreateTrackTestUser(
+                "track.other@test.com",
+                "Track Filter Other Leader"
+        );
+
+        createTrackTestTeamIfMissing(
+                "TRACK FILTER - SAME TRACK",
+                "TRACK-FILTER-SAME",
+                "Team test nằm cùng track với SEAL INNOVATORS.",
+                sameTrackLeader,
+                event.getTracks().get(0)
+        );
+        createTrackTestTeamIfMissing(
+                "TRACK FILTER - OTHER TRACK",
+                "TRACK-FILTER-OTHER",
+                "Team test nằm ở track khác để kiểm tra điều kiện lọc trackId.",
+                otherTrackLeader,
+                event.getTracks().get(1)
+        );
+    }
+
+    private User getOrCreateTrackTestUser(String email, String fullName) {
+        return userRepository.findByEmail(email)
+                .orElseGet(() -> {
+                    User user = new User();
+                    user.setEmail(email);
+                    user.setPassword("12345678");
+                    user.setFullName(fullName);
+                    user.setSchoolName("FPT University");
+                    user.setRole(Role.USER);
+                    user.setActive(true);
+                    user.setStatus(UserStatus.ACCEPTED);
+                    return userRepository.save(user);
+                });
+    }
+
+    private void createTrackTestTeamIfMissing(
+            String name,
+            String inviteCode,
+            String description,
+            User leader,
+            Track track
+    ) {
+        if (teamRepository.existsByInviteCode(inviteCode)) {
+            return;
+        }
+
+        Team team = new Team();
+        team.setName(name);
+        team.setDescription(description);
+        team.setStatus(TeamStatus.APPROVED);
+        team.setCreateAt(LocalDate.now());
+        team.setInviteCode(inviteCode);
+        team.setLeader(leader);
+        team.setTrack(track);
+        team = teamRepository.save(team);
+
+        Member leaderMember = new Member(
+                MemberRole.LEADER,
+                MemberStatus.OFFICAL,
+                team,
+                leader,
+                JoinMethod.CREATETEAM
+        );
+        memberRepository.save(leaderMember);
     }
 
     /**
@@ -403,7 +486,10 @@ public class DataInitializer implements CommandLineRunner {
                 round1, "Vòng sơ loại", now.minusDays(1), now.plusDays(22),
                 "Nộp file PDF ý tưởng (tối đa 5 trang) và link GitHub repo (nếu có).", true
         );
+
         round1.setSubmissionConfig(config1);
+
+
 
         List<RoundTimeline> timeline1 = new ArrayList<>();
         timeline1.add(new RoundTimeline(
@@ -436,6 +522,13 @@ public class DataInitializer implements CommandLineRunner {
         if (officialTemplate != null) {
             round2.setScoringTemplate(officialTemplate); // Gán template 1 cho Round 2
         }
+
+        SubmissionConfig config2 = new SubmissionConfig(
+                round2, "Vòng bán kết", now.minusDays(1), now.plusDays(30),
+                "Nộp source code, tài liệu và video demo vòng bán kết.", true
+        );
+        round2.setSubmissionConfig(config2);
+
         rounds.add(round2);
 
         // -- Vòng 3: Chung kết --
@@ -451,6 +544,13 @@ public class DataInitializer implements CommandLineRunner {
         if (officialTemplate != null) {
             round3.setScoringTemplate(officialTemplate); // Gán template 1 cho Round 3
         }
+
+        SubmissionConfig config3 = new SubmissionConfig(
+                round3, "Vòng chung kết", now.minusDays(1), now.plusDays(40),
+                "Nộp sản phẩm hoàn chỉnh và video thuyết trình vòng chung kết.", true
+        );
+        round3.setSubmissionConfig(config3);
+
         rounds.add(round3);
 
         event.setRounds(rounds);
@@ -538,7 +638,7 @@ public class DataInitializer implements CommandLineRunner {
             memberRepository.save(m5);
 
             teamRepository.save(customTeam);
-            System.out.println("✅ Khởi tạo thành công 1 Đội thi mẫu: SEAL INNOVATORS (5 thành viên)!");
+            System.out.println(" Khởi tạo thành công 1 Đội thi mẫu: SEAL INNOVATORS (5 thành viên)!");
         }
     }
 
@@ -707,7 +807,7 @@ public class DataInitializer implements CommandLineRunner {
 
         templateRepository.save(draftTemplate);
 
-        System.out.println("✅ Khởi tạo thành công 2 bộ Scoring Template mẫu!");
+        System.out.println(" Khởi tạo thành công 2 bộ Scoring Template mẫu!");
 
         return officialTemplate;
     }

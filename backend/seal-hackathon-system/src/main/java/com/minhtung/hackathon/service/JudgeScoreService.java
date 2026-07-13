@@ -76,12 +76,26 @@ public class JudgeScoreService {
          );
          judgeScore.setComment(request.getCommet());
          judgeScore.setUpdatedAt(LocalDateTime.now());
-         judgeScore.getDetails().clear();
-         List<JudgeScoreDetail> newDetails = createDetails(
-                 judgeScore , judgeScore.getSubmission(),
-                 request.getDetails()
-         );
-         judgeScore.getDetails().addAll(newDetails);
+
+        List<JudgeScoreDetail> validatedDetails = createDetails(
+                judgeScore,
+                judgeScore.getSubmission(),
+                request.getDetails()
+        );
+        for (JudgeScoreDetail newDetail : validatedDetails) {
+            JudgeScoreDetail existingDetail = judgeScore.getDetails()
+                    .stream()
+                    .filter(detail ->
+                            detail.getCriterion().getId()
+                                    == newDetail.getCriterion().getId())
+                    .findFirst()
+                    .orElseThrow(() ->
+                            new RuntimeException("Không tìm thấy điểm tiêu chí cũ"));
+
+            existingDetail.setScore(newDetail.getScore());
+            existingDetail.setComment(newDetail.getComment());
+        }
+        judgeScore.setTotalScore(calculateTotalScore((judgeScore.getDetails())));
 
          return  mapToResponse(judgeScoreRepository.save(judgeScore));
     }
@@ -96,7 +110,13 @@ public class JudgeScoreService {
     @Transactional
     public List<JudgeScoreResponse> getMyScores(String email ){
         User judge = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("không có email xác nhận "));
-        return judgeScoreRepository.findByJudgeAssignmentUserIdOrderBySubmitAtDesc(judge.getId()).stream().map(this::mapToResponse).toList() ;
+
+
+        List<JudgeScoreResponse>scores = judgeScoreRepository.findByJudgeAssignmentUserIdOrderBySubmitAtDesc(judge.getId()).stream().map(this::mapToResponse ).toList() ;
+        if(scores.isEmpty()){
+            throw new RuntimeException("bạn chưa chấm bài này") ;
+        }
+        return scores ;
 
     }
 

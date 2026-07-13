@@ -18,13 +18,13 @@ public class RoleController {
         return "Hello Admin!";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','LECTURER')")
+    @PreAuthorize("hasAnyRole('LECTURER')")
     @GetMapping("/lecturer")
     public String lecturer() {
         return "Hello Lecturer!";
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN','LECTURER','USER')")
+    @PreAuthorize("hasAnyRole('USER')")
     @GetMapping("/user")
     public String user() {
         return "Hello User!";
