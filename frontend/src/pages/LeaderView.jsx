@@ -151,6 +151,8 @@ function LeaderView() {
   const token = localStorage.getItem("accessToken")
   const { updateTeamRole } = useAuth();
 
+  const eventId = localStorage.getItem('eventId') || null;
+
   useEffect(() => {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
     if (eventId) {
@@ -165,7 +167,6 @@ function LeaderView() {
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const emptyCount = (teamInfo.maxSlots || 4) - FAKE_MEMBERS.length
-  const eventId= localStorage.getItem('eventId') || null;
   const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
   const [toasts, setToasts] = useState([])

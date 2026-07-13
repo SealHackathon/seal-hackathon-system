@@ -18,7 +18,9 @@ function MentorSidebar({ event }) {
   // "Đang thi đấu" bao gồm cả đội "cần chú ý"; số cần chú ý tách ra note riêng.
   const { segments, attentionCount } = useMemo(() => {
     const counts = teams.reduce((acc, t) => {
-      acc[t.status] = (acc[t.status] ?? 0) + 1
+      let s = t.status || 'competing'
+      if (['approved', 'active', 'live'].includes(s)) s = 'competing'
+      acc[s] = (acc[s] ?? 0) + 1
       return acc
     }, {})
     const attention = counts.attention ?? 0

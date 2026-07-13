@@ -49,6 +49,7 @@ function mapApiEventToUi(apiEvent) {
         participantCount: apiEvent.candidateQuantity || 0,
         trackCount: apiEvent.trackQuantity || 0,
         roundCount: apiEvent.roundQuantity || 0,
+        isCurrentUserRegistered: apiEvent.isCurrentUserRegistered || false,
         timeline,
     }
 }
@@ -79,7 +80,7 @@ function UserDashboard() {
 
                 const payload = response?.data
                 const list = Array.isArray(payload) ? payload : payload ? [payload] : []
-                const selected = list.find((item) => ['live', 'upcoming', 'active'].includes((item.eventStatus || '').toLowerCase())) || list[0] || null
+                const selected = list.find((item) => ['live', 'upcoming', 'active', 'published'].includes((item.eventStatus || '').toLowerCase())) || list[0] || null
                 const mapped = mapApiEventToUi(selected)
 
                 setEvent(mapped)
@@ -106,7 +107,7 @@ function UserDashboard() {
         sessionStorage.setItem('hasSeenProfilePendingModal', 'true');
     };
 
-    const isRegistered = event?.id ? registeredEventId === String(event.id) : false
+    const isRegistered = Boolean(event?.isCurrentUserRegistered)
 
     const handleJoinClick = () => {
         if (event?.id) {
