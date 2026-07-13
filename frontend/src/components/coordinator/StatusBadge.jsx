@@ -6,10 +6,12 @@ import Badge from '../shared/Badge'
 const STATUS_MAP = {
   live:      { variant: 'green',         label: 'Đang diễn ra' },
   upcoming:  { variant: 'blue',          label: 'Sắp diễn ra'  },
+  published: { variant: 'blue',          label: 'Sắp diễn ra'  },
   ended:     { variant: 'orange',        label: 'Đã diễn ra'   },
-  draft:     { variant: 'dashedOrange', label: 'Lưu nháp'     },
+  closed:    { variant: 'orange',        label: 'Đã diễn ra'   },
+  draft:     { variant: 'dashedOrange',  label: 'Lưu nháp'     },
   cancelled: { variant: 'red',           label: 'Đã hủy'       },
-  ARCHIVED:  { variant: 'gray',          label: 'Lưu trữ'      }, 
+  archived:  { variant: 'gray',          label: 'Lưu trữ'      }, 
 }
 
 /**

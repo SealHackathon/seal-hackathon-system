@@ -90,8 +90,8 @@ export default function UserProfileModal({ member, onClose }) {
                 <User size={24} weight="duotone" className={styles.sectionIcon} />
                 <p className={styles.sectionTitle}>Giới thiệu</p>
               </div>
-              {member.bio ? (
-                <p className={styles.bioText}>{member.bio}</p>
+              {member.student_info_bio ? (
+                <p className={styles.bioText}>{member.student_info_bio}</p>
               ) : (
                 <p className={styles.emptyText}>Thí sinh này chưa cập nhật lời giới thiệu.</p>
               )}

@@ -192,7 +192,10 @@ function EventListPage({ onManageEvent }) {
 
             return {
               id: apiEvent.eventId,
-              status: (apiEvent.eventStatus || 'draft').toLowerCase(),
+              status: ((status) => {
+                const s = (status || 'draft').toLowerCase();
+                return { 'published': 'upcoming', 'closed': 'ended' }[s] || s;
+              })(apiEvent.eventStatus),
               title: apiEvent.eventName || 'Sự kiện chưa đặt tên',
               theme: apiEvent.eventTopic || 'Chưa xác định chủ đề',
               thumbnail: apiEvent.thumbnail,
