@@ -176,24 +176,44 @@ public class RoundService {
             // 5. XỬ LÝ ROUND TIMELINE (TỐI ƯU HIỆU NĂNG)
             // ==========================================
             // Xóa hết timeline cũ của Round này đi rồi nạp lại mảng mới từ FE
-            roundTimelineRepository.deleteByRoundId(savedRound.getId());
-            roundTimelineRepository.flush(); // Ép thực hiện xóa hết trước khi chèn mới để tránh lộn xộn câu lệnh
+//            roundTimelineRepository.deleteByRoundId(savedRound.getId());
+//            roundTimelineRepository.flush(); // Ép thực hiện xóa hết trước khi chèn mới để tránh lộn xộn câu lệnh
 
             List<RoundDetailsResponse.TimelineResponse> resTimelines = new ArrayList<>();
-            if (item.getTimelines() != null && !item.getTimelines().isEmpty()) {
-                List<RoundTimeline> timelinesToSave = item.getTimelines().stream()
-                        .map(tItem -> new RoundTimeline(
-                                tItem.getName(),
-                                tItem.getDescription(),
-                                tItem.getTimeStart(),
-                                tItem.getTimeEnd(),
-                                savedRound
-                        ))
-                        .toList();
 
-                List<RoundTimeline> savedTimelines = roundTimelineRepository.saveAll(timelinesToSave);
+            // Kiểm tra xem đây có phải là lần ĐẦU TIÊN TẠO MỚI bản ghi Round này không
+            boolean isNewRound = (item.getRoundId() == null || item.getRoundId() <= 0);
 
-                resTimelines = savedTimelines.stream()
+            if (isNewRound) {
+                // Chỉ lưu mảng timelines từ FE nếu đây là lần đầu tiên tạo Round này
+                if (item.getTimelines() != null && !item.getTimelines().isEmpty()) {
+                    List<RoundTimeline> timelinesToSave = item.getTimelines().stream()
+                            .map(tItem -> new RoundTimeline(
+                                    tItem.getName(),
+                                    tItem.getDescription(),
+                                    tItem.getTimeStart(),
+                                    tItem.getTimeEnd(),
+                                    savedRound
+                            ))
+                            .toList();
+
+                    List<RoundTimeline> savedTimelines = roundTimelineRepository.saveAll(timelinesToSave);
+
+                    resTimelines = savedTimelines.stream()
+                            .map(t -> new RoundDetailsResponse.TimelineResponse(
+                                    t.getId(),
+                                    t.getName(),
+                                    t.getDescription(),
+                                    t.getTimeStart(),
+                                    t.getTimeEnd()
+                            ))
+                            .toList();
+                }
+            } else {
+                // Nếu là UPDATE Round cũ, không sửa đổi gì dưới DB hết, chỉ lấy Timeline cũ lên để trả về Response cho FE xem
+                List<RoundTimeline> existingTimelines = roundTimelineRepository.findByRound_IdIn(List.of(savedRound.getId()));
+
+                resTimelines = existingTimelines.stream()
                         .map(t -> new RoundDetailsResponse.TimelineResponse(
                                 t.getId(),
                                 t.getName(),
