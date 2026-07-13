@@ -27,7 +27,7 @@ function ScoringCriteriaModal({ isOpen, onClose, criteria = [], showFooter = tru
     if (!isOpen) return null
 
     // Sắp xếp tiêu chí theo trọng số giảm dần
-    const sortedCriteria = [...criteria].sort((a, b) => (b.weight || 0) - (a.weight || 0))
+    const sortedCriteria = [...criteria].sort((a, b) => (b.weight || b.percent || 0) - (a.weight || a.percent || 0))
 
     const footer = showFooter ? (
         <div className={styles.footerContainer}>
@@ -123,7 +123,7 @@ function ScoringCriteriaModal({ isOpen, onClose, criteria = [], showFooter = tru
                                         className={styles.colorIndicator}
                                         style={{ backgroundColor: getSegmentColor(i, sortedCriteria.length) }}
                                     />
-                                    <span>{c.weight || 0}%</span>
+                                    <span>{c.weight || c.percent || 0}%</span>
                                 </div>
                             </div>
                         ))}

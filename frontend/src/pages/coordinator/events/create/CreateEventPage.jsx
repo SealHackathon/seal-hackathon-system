@@ -39,6 +39,8 @@ function CreateEventPage() {
   const isEditing = Boolean(id);
   const [confirmModal, setConfirmModal] = useState(null)
   const [lastUpdated, setLastUpdated] = useState('');
+  const [dataLoaded, setDataLoaded] = useState(!isEditing);
+  const [hasAutoValidated, setHasAutoValidated] = useState(false);
   const [currentStep, setCurrentStep] = useState(1)
   const [visitedSteps, setVisitedSteps] = useState([1])
   const [errorSteps, setErrorSteps] = useState([])
@@ -250,6 +252,20 @@ function CreateEventPage() {
   useEffect(() => {
     setBlurredFormData(formData)
   }, [currentStep, structureKey])
+  
+  useEffect(() => {
+    if (isEditing && dataLoaded && !hasAutoValidated) {
+      const initialErrors = []
+      for (let i = 1; i <= TOTAL_STEPS; i++) {
+        const { isValid } = validateStep(i, formData)
+        if (!isValid) initialErrors.push(i)
+      }
+      setVisitedSteps([1, 2, 3, 4, 5, 6, 7])
+      setErrorSteps(initialErrors)
+      setHasAutoValidated(true)
+    }
+  }, [isEditing, dataLoaded, hasAutoValidated, formData])
+
   const [status, setStatus] = useState('draft')
 
   function addToast(toast) {
@@ -630,6 +646,7 @@ function CreateEventPage() {
           const pad = n => String(n).padStart(2, '0')
           setLastUpdated(`${pad(updatedAt.getDate())}/${pad(updatedAt.getMonth() + 1)}/${updatedAt.getFullYear()} ${pad(updatedAt.getHours())}:${pad(updatedAt.getMinutes())}`)
         }
+        setDataLoaded(true)
       } catch (error) {
         console.error('Lỗi khi tải dữ liệu sự kiện:', error)
         alert('Không tải được dữ liệu sự kiện. Vui lòng kiểm tra lại.')
@@ -862,33 +879,30 @@ function CreateEventPage() {
 
         // submission
         if (r.submissionType === 'new') {
-          totalRequired++;
-          let isSubValid = false;
           if (!r.submissionDeadline) {
             errors[`round-${idx}-submissionDeadline`] = 'Vui lòng chọn hạn nộp bài';
+            isValid = false;
           } else if (r.startDate && r.endDate) {
             const subDeadline = new Date(r.submissionDeadline).getTime()
             const start = new Date(r.startDate).getTime()
             const end = new Date(r.endDate).getTime()
             if (subDeadline <= start || subDeadline >= end) {
               errors[`round-${idx}-submissionDeadline`] = 'Phải trong thời gian vòng thi';
+              isValid = false;
             } else if (r.submissionOpen) {
               const subOpen = new Date(r.submissionOpen).getTime()
               if (subDeadline <= subOpen) {
                 errors[`round-${idx}-submissionDeadline`] = 'Phải sau khi mở nộp bài';
+                isValid = false;
               } else if (subOpen < start) {
                 errors[`round-${idx}-submissionOpen`] = 'Phải từ lúc bắt đầu vòng thi';
-              } else {
-                isSubValid = true;
+                isValid = false;
               }
-            } else {
-              isSubValid = true;
             }
           } else {
             errors[`round-${idx}-submissionDeadline`] = 'Vui lòng chọn thời gian bắt đầu và kết thúc vòng thi trước';
+            isValid = false;
           }
-          if (isSubValid) totalFilled++;
-          else isValid = false;
         }
 
         // agenda
