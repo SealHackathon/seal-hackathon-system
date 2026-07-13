@@ -4,6 +4,7 @@
     align-items: center;
     justify-content: center;
     gap: 0.2em;
+    position: relative;
 
     width: 6em;
     height: 6em;
@@ -35,4 +36,16 @@
     text-align: center;
     line-height: 1.2;
     word-break: keep-all;
+}
+
+.badge {
+    position: absolute;
+    top: -0.5em;
+    right: -0.4em;
+    background-color: var(--color-primary-orange);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.1em 0.5em;
+    border-radius: 999px;
 }

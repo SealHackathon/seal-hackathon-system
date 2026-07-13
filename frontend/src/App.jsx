@@ -116,7 +116,8 @@ import JudgeRoundDetailPage from './pages/panelist/JudgeRoundDetailPage';
 import JudgeScoringPage from './pages/panelist/JudgeScoringPage';
 import MentorTeamDetailPage from './pages/panelist/MentorTeamDetailPage';
 import SpecificEventPage from './pages/coordinator/events/specific/SpecificEventPage'
-
+// import PublicEventPage from './pages/public/event/PublicEventPage'
+import CandidateApprovalPage from './pages/coordinator/CandidateApprovalPage'
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
 
@@ -154,6 +155,7 @@ function AppRoutes() {
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-email" element={<VerifyEmailPage />} />
             <Route path="/verified-email" element={<EmailVerifiedPage />} />
+            {/* <Route path="/event/:eventId" element={<PublicEventPage />} /> */}
 
 
             {/* <Route path="/user/dashboard" element={<UserDashboard />} /> */}
@@ -172,7 +174,7 @@ function AppRoutes() {
                             <Route path="/admin/coordinator/rubrics/:id/edit" element={<CreateRubricPage />} />
                             <Route path="/admin/coordinator/events/:eventId" element={<SpecificEventPage />} />
                             <Route path="/admin/coordinator/events/:eventId/:tab" element={<SpecificEventPage />} />
-
+                            <Route path="/coordinator/candidates" element={<CandidateApprovalPage />} />
                         </>
                     )}
 

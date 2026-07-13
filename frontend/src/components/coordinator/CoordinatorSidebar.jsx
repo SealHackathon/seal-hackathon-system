@@ -22,7 +22,8 @@ const NAV_GROUPS = [
     label: 'Quản lí',
     items: [
       { id: 'events',   label: 'Sự kiện',              icon: Star },
-      { id: 'rubric',   label: 'Bộ tiêu chí', icon:   Clipboard, },
+      { id: 'rubric',   label: 'Bộ tiêu chí',          icon: Clipboard },
+      { id: 'candidates', label: 'Duyệt hồ sơ',        icon: Users, badge: 12 },
       // { id: 'notify',   label: 'Thông báo',            icon: Megaphone },
       // { id: 'users',    label: 'Người dùng',           icon: Users },
     ],
@@ -71,6 +72,7 @@ function CoordinatorSidebar({ activePage, onNavigate }) {
                 key={item.id}
                 icon={item.icon}
                 label={item.label}
+                badge={item.badge}
                 isActive={activePage === item.id}
                 onClick={() => onNavigate?.(item.id)}
               />
