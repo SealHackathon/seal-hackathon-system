@@ -211,6 +211,9 @@ public class EventService {
             totalprize += prize.getMoney() * prize.getQuantity();
         }
 
+        eventResponse.setPrize(totalprize);
+
+
         int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
         eventResponse.setTeamQuantity(teamQuantity);
 
