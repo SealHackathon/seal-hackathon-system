@@ -74,7 +74,7 @@ function NoTeamView() {
           id: team.id,
           name: team.name,
           description: team.description,
-          maxSlots: 4,
+          maxSlots: 5,
           members: team.members.map(m => ({
             id: m.id,
             name: m.name,

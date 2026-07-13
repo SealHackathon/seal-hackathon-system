@@ -16,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -130,6 +131,24 @@ public class UserController {
             @RequestParam(required = false) String q) {
         return ResponseEntity.ok(userService.getLecturers(q));
     }
+
+    //lấy user info
+
+    @GetMapping(value = "/user-info")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getUserInfo(
+            @RequestHeader("Authorization") String auth
+    ) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token không hợp lệ");
+        }
+        return ResponseEntity.ok(
+              ResponseEntity.ok(userService.getUserInfor())
+        );
+    }
+
+
 
     private ResponseEntity<String> unauthorized() {
         return ResponseEntity.status(401).body("Token không hợp lệ");

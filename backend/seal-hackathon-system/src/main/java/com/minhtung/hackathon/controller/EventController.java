@@ -158,6 +158,28 @@ public class EventController {
         }
     }
 
+
+    //public mot EVENT set status về LIVE
+    @PutMapping("/public")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> publicAnEvent(
+            @RequestParam Long eventId,
+            @RequestHeader("Authorization") String auth // Truyền userId lên để test, sau này thay bằng lấy từ SecurityContext (JWT)
+    ) {
+        Integer uid = getUid(auth);
+        if (uid == null) {
+
+            return unauthorized();
+        }
+        try {
+            String message = eventService.publicAnEvent(Integer.toUnsignedLong(uid), eventId);
+            return ResponseEntity.ok(message);
+        } catch (RuntimeException e) {
+            // Trả về lỗi 400 Bad Request nếu user/event không tồn tại hoặc đã đăng ký rồi
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
     private ResponseEntity<String> unauthorized() {
         return ResponseEntity.status(401).body("Token không hợp lệ");
     }

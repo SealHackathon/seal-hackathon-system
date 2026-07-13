@@ -14,6 +14,7 @@ import com.minhtung.hackathon.dto.round.SubmissionConfigResponse;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.EventStatus;
 import com.minhtung.hackathon.enums.MemberStatus;
+import com.minhtung.hackathon.enums.Role;
 import com.minhtung.hackathon.enums.TeamStatus;
 import com.minhtung.hackathon.repository.*;
 import jakarta.transaction.Transactional;
@@ -482,8 +483,6 @@ public class EventService {
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Event với ID: " + id));
 
 
-
-
         // 2. Khởi tạo và Map dữ liệu cơ bản từ Entity sang DTO chính
         EventDetailsResponse response = new EventDetailsResponse();
         response.setEventId(event.getId());
@@ -509,7 +508,6 @@ public class EventService {
         //tra về thêm số lượng thí sinh tham gia thi
         int candidateQuantity = memberRepository.countOfficialParticipants(event.getId(), TeamStatus.APPROVED, MemberStatus.OFFICAL);
         response.setCandidateQuantity(candidateQuantity);
-
 
 
         // ==========================================
@@ -771,6 +769,27 @@ public class EventService {
         registrationRepository.save(registration);
 
         return "Đăng ký tham gia sự kiện '" + event.getName() + "' thành công!";
+    }
+
+
+    //public an event
+
+    public String publicAnEvent(long userId, long eventId) {
+        User admin= userRepository.findById(userId).orElse(null);
+        if (admin == null){
+            throw new RuntimeException("USER NOT FOUND");
+        }
+        if (admin.getRole()!= Role.ADMIN){
+            throw new RuntimeException("YOU DONT HAVE PERMISSION");
+        }
+        Event event=eventRepository.findById(eventId).orElse(null);
+        if (event == null){
+            throw new RuntimeException("EVENT NOT FOUND");
+        }
+
+        event.setStatus(EventStatus.LIVE);
+
+        return "Set Event Status ve LIVE THANH CONG";
     }
 
 

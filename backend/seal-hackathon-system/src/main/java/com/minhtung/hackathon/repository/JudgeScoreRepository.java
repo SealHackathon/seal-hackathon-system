@@ -1,6 +1,7 @@
 package com.minhtung.hackathon.repository;
 
 import com.minhtung.hackathon.entity.JudgeScore;
+import com.minhtung.hackathon.enums.JudgeScoreStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -29,5 +30,7 @@ public interface JudgeScoreRepository extends JpaRepository<JudgeScore,Long> {
         WHERE js.submission.round.id = :roundId
     """)
     List<JudgeScore> findAllByRoundIdWithDetails(@Param("roundId") long roundId);
+
+    int countByJudgeAssignment_IdInAndStatus(List<Long> judgeAssignmentIds, JudgeScoreStatus status);
 
 }

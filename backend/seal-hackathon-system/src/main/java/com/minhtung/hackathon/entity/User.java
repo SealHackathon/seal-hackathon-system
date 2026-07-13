@@ -40,6 +40,8 @@ public class User {
     @Column(name = "phoneNumber" ,unique = true )
     private String phoneNumber;
 
+    private LocalDateTime registeredDate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 255, nullable = false)
     private UserStatus status;

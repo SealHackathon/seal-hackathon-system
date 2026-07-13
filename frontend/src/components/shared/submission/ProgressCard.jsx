@@ -47,7 +47,7 @@ function ProgressCard({ progress, activeRound }) {
           <div className={styles.rankBadge}>
             <span>Hạng {rank} / {progress.totalTeams}</span>
           </div>
-          <div className={styles.rankLabel}>Bảng {progress.groupName}</div>
+          <div className={styles.rankLabel}>Bảng {progress.trackName}</div>
         </div>
       </div>
     </div>
