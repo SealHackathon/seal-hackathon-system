@@ -284,7 +284,7 @@ public class TeamService {
             memberInvitationResponse.setId(teamRequest.getId());
             memberInvitationResponse.setTeamName(teamRepository.findById(teamRequest.getTeam().getId()).orElse(null).getName());
             memberInvitationResponse.setMemberCount(memberRepository.countByTeamIdAndStatus(teamRequest.getTeam().getId(), MemberStatus.OFFICAL));
-            memberInvitationResponse.setMaxSlots(4);
+            memberInvitationResponse.setMaxSlots(5);
             memberInvitationResponse.setMessage(teamRequest.getMessage());
             memberInvitationResponse.setDescription(teamRequest.getTeam().getDescription());
 
@@ -321,7 +321,7 @@ public class TeamService {
             res.setId(teamRequest.getId());
             res.setTeamName(teamRepository.findById(teamRequest.getTeam().getId()).orElse(null).getName());
             res.setMemberCount(memberRepository.countByTeamIdAndStatus(teamRequest.getTeam().getId(), MemberStatus.OFFICAL));
-            res.setMaxSlots(4);
+            res.setMaxSlots(5);
             responseList.add(res);
         }
         return responseList;
@@ -843,6 +843,11 @@ public class TeamService {
             if (teamRequest != null || teamInvitation != null) {
                 continue;
             }
+            //dang hard code maxTeamMember
+            if(team.getMembers().size()>=5){
+                continue    ;
+            }
+
             //neu user da co yeu cau toi team nay roi thi ko hien thi team nay nua
             if (memberList == null || memberList.isEmpty()
                     || team.getStatus() != TeamStatus.OPEN
@@ -906,7 +911,7 @@ public class TeamService {
             category.setTeamLimit(team.getTrack().getMaxTeamPerTrack());
             teamInfoResponse.setCategory(category);
             Event event = team.getTrack().getEvent();
-            teamInfoResponse.setMaxSlots(event.getMaxTeamMember());
+            teamInfoResponse.setMaxSlots(5);
         }
 
 
@@ -983,7 +988,7 @@ public class TeamService {
         teamByCodeResponse.setTeamName(team.getName());
         teamByCodeResponse.setDescription(team.getDescription());
         teamByCodeResponse.setMemberCount(memberCount);
-        teamByCodeResponse.setMaxSlots(4);
+        teamByCodeResponse.setMaxSlots(5);
 
         // add nhung member vo
         List<Member> members = memberRepository.findByTeamIdAndStatus(team.getId(), MemberStatus.OFFICAL);

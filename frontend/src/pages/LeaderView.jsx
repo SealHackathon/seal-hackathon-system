@@ -166,7 +166,7 @@ function LeaderView() {
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_LEAVE_REQUESTS, setFAKE_LEAVE_REQUESTS] = useState([]);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const emptyCount = (teamInfo.maxSlots || 4) - FAKE_MEMBERS.length
+  const emptyCount = (teamInfo.maxSlots || 5) - FAKE_MEMBERS.length
   const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
 
   const [toasts, setToasts] = useState([])
@@ -562,7 +562,7 @@ function LeaderView() {
           <div className={styles.main}>
             <TeamMemberPanel
               members={FAKE_MEMBERS}
-              maxSlots={teamInfo.maxSlots || 4}
+              maxSlots={teamInfo.maxSlots || 5}
               teamStatus={teamStatus}
               isLeader
               hasSelectedCategory={!!selectedCategory}

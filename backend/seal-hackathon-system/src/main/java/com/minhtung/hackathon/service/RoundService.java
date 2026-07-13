@@ -6,14 +6,15 @@ import com.minhtung.hackathon.dto.round.RoundRequest;
 import com.minhtung.hackathon.dto.round.SubmissionConfigResponse;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.EventStatus;
+import com.minhtung.hackathon.enums.JudgeScoreStatus;
+import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.repository.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +26,13 @@ public class RoundService {
     private final SubmissionConfigRepository submissionConfigRepository;
     private final CriterionRepository criterionRepository;
     private final ScoringTemplateRepository scoringTemplateRepository;
+    private final MemberRepository memberRepository;
+
+    // --- THÊM MỚI: cần cho việc tính teamTotalScore + teamRank ---
+    private final SubmissionRepository submissionRepository;
+    private final JudgeAssignmentRepository judgeAssignmentRepository;
+    private final JudgeScoreRepository judgeScoreRepository;
+    private final RoundTrackRepository roundTrackRepository;
 
     public ComingRoundResponse getComingRound() {
         Round round = roundRepository.findFirstByTimeEndAfterOrderByTimeEndAsc(LocalDateTime.now())
@@ -49,7 +57,6 @@ public class RoundService {
         comingRoundResponse.setSubmissionQuantity(round.getSubmissions() != null ? round.getSubmissions().size() : 0);
         comingRoundResponse.setRoundOrdinalNumber(round.getOrdinal_number());
 
-        // --- MAP MẢNG TIMELINES SANG DTO PHẲNG TẠI ĐÂY ---
         if (round.getRoundTimelines() != null) {
             List<ComingRoundResponse.TimelineResponse> timelineDTOs = round.getRoundTimelines().stream()
                     .map(t -> new ComingRoundResponse.TimelineResponse(
@@ -71,28 +78,24 @@ public class RoundService {
 
     @Transactional
     public List<RoundDetailsResponse> createOrUpdateRounds(RoundRequest request) {
-        // 1. Kiểm tra Event có tồn tại không
         Event event = eventRepository.findById(request.getEventId())
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Event với ID: " + request.getEventId()));
 
-        // 2. XỬ LÝ XÓA CÁC ROUND BỊ FRONTEND LOẠI BỎ
         if (request.getRounds() == null) {
             request.setRounds(new ArrayList<>());
         }
 
-        // Gom tất cả các roundId gửi từ FE lên (Lọc bỏ null/0)
         List<Long> activeRoundIds = request.getRounds().stream()
                 .map(RoundRequest.RoundItem::getRoundId)
                 .filter(id -> id != null && id > 0)
                 .toList();
 
-        // Tìm và xóa các Round thuộc Event này nhưng KHÔNG nằm trong danh sách FE gửi lên
         if (!activeRoundIds.isEmpty()) {
             roundRepository.deleteByEventIdAndIdNotIn(event.getId(), activeRoundIds);
         } else {
             roundRepository.deleteByEventId(event.getId());
         }
-        roundRepository.flush(); // Đồng bộ lệnh xóa xuống DB trước khi làm việc tiếp
+        roundRepository.flush();
 
         if (request.getRounds().isEmpty()) {
             return List.of();
@@ -101,18 +104,15 @@ public class RoundService {
         List<RoundDetailsResponse> responseList = new ArrayList<>();
         int totalRounds = request.getRounds().size();
 
-        // 3. DUYỆT MẢNG ĐỂ UPDATE HOẶC CREATE MỚI
         for (RoundRequest.RoundItem item : request.getRounds()) {
             Round round;
 
-            // Check xem roundId có tồn tại trong DB không để thực hiện Update
             if (item.getRoundId() != null && item.getRoundId() > 0) {
                 round = roundRepository.findById(item.getRoundId()).orElse(new Round());
             } else {
-                round = new Round(); // Nếu không có id hoặc id sai -> Tạo mới tinh
+                round = new Round();
             }
 
-            // Lưu scoringTemplate mới
             ScoringTemplate scoringTemplate = scoringTemplateRepository.findById(item.getRubricId()).orElse(null);
             if (scoringTemplate != null) {
                 round.setScoringTemplate(scoringTemplate);
@@ -130,18 +130,12 @@ public class RoundService {
             round.setLocationName(item.getLocationName());
             round.setDetailLocation(item.getDetailLocation());
 
-            // Lưu hoặc Cập nhật Round
             Round savedRound = roundRepository.save(round);
 
-            // ==========================================
-            // 4. XỬ LÝ SUBMISSION CONFIG (SỬA LỖI TRÙNG UNIQUE KEY)
-            // ==========================================
             SubmissionConfigResponse resConfig = null;
             if (item.getSubmissionConfig() != null) {
                 RoundRequest.SubmissionConfigInfo configInfo = item.getSubmissionConfig();
 
-                // Tìm cấu hình cũ dựa trên round_id (Thay vì xóa đi tạo mới)
-                // Lưu ý: Nhớ khai báo Optional<SubmissionConfig> findByRoundId(Long roundId) trong Repository
                 SubmissionConfig config = submissionConfigRepository.findByRoundId(savedRound.getId())
                         .orElseGet(() -> {
                             SubmissionConfig newConfig = new SubmissionConfig();
@@ -149,7 +143,6 @@ public class RoundService {
                             return newConfig;
                         });
 
-                // Gán đè dữ liệu mới (Hibernate sẽ giữ nguyên Id bản ghi cũ để thực hiện lệnh UPDATE)
                 config.setTitle(configInfo.getTitle());
                 config.setOpeningTime(configInfo.getOpeningTime());
                 config.setSubmissionDeadline(configInfo.getSubmissionDeadline());
@@ -167,25 +160,14 @@ public class RoundService {
                         savedConfig.isHasSubmission()
                 );
             } else {
-                // Nếu FE gửi submissionConfig = null, chứng tỏ vòng này không có cấu hình nộp bài bài -> Tiến hành xóa bản ghi cũ
                 submissionConfigRepository.deleteByRoundId(savedRound.getId());
-                submissionConfigRepository.flush(); // Ép thực hiện xóa ngay lập tức
+                submissionConfigRepository.flush();
             }
 
-            // ==========================================
-            // 5. XỬ LÝ ROUND TIMELINE (TỐI ƯU HIỆU NĂNG)
-            // ==========================================
-            // Xóa hết timeline cũ của Round này đi rồi nạp lại mảng mới từ FE
-//            roundTimelineRepository.deleteByRoundId(savedRound.getId());
-//            roundTimelineRepository.flush(); // Ép thực hiện xóa hết trước khi chèn mới để tránh lộn xộn câu lệnh
-
             List<RoundDetailsResponse.TimelineResponse> resTimelines = new ArrayList<>();
-
-            // Kiểm tra xem đây có phải là lần ĐẦU TIÊN TẠO MỚI bản ghi Round này không
             boolean isNewRound = (item.getRoundId() == null || item.getRoundId() <= 0);
 
             if (isNewRound) {
-                // Chỉ lưu mảng timelines từ FE nếu đây là lần đầu tiên tạo Round này
                 if (item.getTimelines() != null && !item.getTimelines().isEmpty()) {
                     List<RoundTimeline> timelinesToSave = item.getTimelines().stream()
                             .map(tItem -> new RoundTimeline(
@@ -210,7 +192,6 @@ public class RoundService {
                             .toList();
                 }
             } else {
-                // Nếu là UPDATE Round cũ, không sửa đổi gì dưới DB hết, chỉ lấy Timeline cũ lên để trả về Response cho FE xem
                 List<RoundTimeline> existingTimelines = roundTimelineRepository.findByRound_IdIn(List.of(savedRound.getId()));
 
                 resTimelines = existingTimelines.stream()
@@ -224,7 +205,6 @@ public class RoundService {
                         .toList();
             }
 
-            // 6. XÁC ĐỊNH TRẠNG THÁI VÒNG THI
             LocalDateTime now = LocalDateTime.now();
             String status = "UPCOMING";
             if (savedRound.getTimeStart() != null && savedRound.getTimeEnd() != null) {
@@ -237,7 +217,6 @@ public class RoundService {
                 }
             }
 
-            // 7. BUILD OBJECT RESPONSE
             RoundDetailsResponse roundRes = new RoundDetailsResponse();
             roundRes.setRoundId(savedRound.getId());
             roundRes.setRoundName(savedRound.getName());
@@ -262,7 +241,6 @@ public class RoundService {
         return responseList;
     }
 
-    //delete Round
     @Transactional
     public String deleteRound(long id) {
         Round round = roundRepository.findById(id).orElse(null);
@@ -279,27 +257,39 @@ public class RoundService {
      * 1. Lấy chi tiết 1 vòng thi theo ID (Bao gồm cả cấu hình nộp bài SubmissionConfig)
      */
     @Transactional
-    public RoundDetailsResponse getRoundDetailsById(long roundId) {
+    public RoundDetailsResponse getRoundDetailsById(long roundId, Long userId) {
         Round round = roundRepository.findById(roundId)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Vòng thi với ID: " + roundId));
 
         int totalRounds = (round.getEvent() != null && round.getEvent().getRounds() != null)
                 ? round.getEvent().getRounds().size() : 0;
 
-        return convertToResponse(round, totalRounds);
+        Team team = null;
+        if (userId != null) {
+            Member member = memberRepository.findByMemberIdAndStatus(userId, MemberStatus.OFFICAL).orElse(null);
+            team = (member != null) ? member.getTeam() : null;
+        }
+        Double teamTotalScore = (team != null) ? computeTeamTotalScore(team) : null;
+
+        return convertToResponse(round, totalRounds, team, teamTotalScore);
     }
 
     /**
      * 2. Lấy danh sách toàn bộ vòng thi thuộc một Sự kiện (Event) dựa vào eventId
      */
     @Transactional
-    public List<RoundDetailsResponse> getRoundsByEventId(long eventId) {
+    public List<RoundDetailsResponse> getRoundsByEventId(long eventId, long userId) {
         List<Round> rounds = roundRepository.findRoundsWithConfigByEventId(eventId);
         List<RoundDetailsResponse> responseList = new ArrayList<>();
         int totalRounds = rounds.size();
 
+        Member member = memberRepository.findByMemberIdAndStatus(userId, MemberStatus.OFFICAL).orElse(null);
+        Team team = (member != null) ? member.getTeam() : null;
+
+        Double teamTotalScore = (team != null) ? computeTeamTotalScore(team) : null;
+
         for (Round round : rounds) {
-            responseList.add(convertToResponse(round, totalRounds));
+            responseList.add(convertToResponse(round, totalRounds, team, teamTotalScore));
         }
 
         return responseList;
@@ -308,7 +298,7 @@ public class RoundService {
     /**
      * Hàm Helper xử lý Map dữ liệu dùng chung (Tránh lặp code - DRY)
      */
-    private RoundDetailsResponse convertToResponse(Round round, int totalRounds) {
+    private RoundDetailsResponse convertToResponse(Round round, int totalRounds, Team team, Double teamTotalScore) {
         RoundDetailsResponse dto = new RoundDetailsResponse();
         dto.setRoundId(round.getId());
         dto.setRoundName(round.getName());
@@ -318,12 +308,36 @@ public class RoundService {
         dto.setRoundSubmissionDeadline(round.getSubmissionDeadline());
         dto.setRoundQuantity(totalRounds);
 
-        // 1. Map URL tiêu chí chấm điểm từ mối quan hệ liên kết (nếu có)
+        List<Submission> roundSubmissions = submissionRepository.findByRound_IdAndLatestTrue(round.getId());
+
+        Long trackIdForCount = null;
+        if (team != null) {
+            Submission teamSub = roundSubmissions.stream()
+                    .filter(s -> s.getTeam().getId()==(team.getId()))
+                    .findFirst().orElse(null);
+            if (teamSub != null && teamSub.getTeam().getTrack() != null) {
+                trackIdForCount = teamSub.getTeam().getTrack().getId();
+            }
+        }
+
+        int totalTeamsInRound;
+        if (trackIdForCount != null) {
+            Long finalTrackId = trackIdForCount;
+            totalTeamsInRound = (int) roundSubmissions.stream()
+                    .filter(s -> s.getTeam().getTrack() != null && finalTrackId.equals(s.getTeam().getTrack().getId()))
+                    .count();
+        } else {
+            totalTeamsInRound = roundSubmissions.size();
+        }
+
+        dto.setSubmissionQuantity(roundSubmissions.size());
+        dto.setTotalTeamsInRound(totalTeamsInRound);
+        dto.setTopTeamPass(round.getTopTeamPass());
+
         if (round.getScoringTemplate() != null) {
             dto.setScroringTemplateUrl(round.getScoringTemplate().getUrl());
         }
 
-        // 2. Map thông tin cấu hình nộp bài (SubmissionConfig) từ quan hệ @OneToOne
         if (round.getSubmissionConfig() != null) {
             SubmissionConfig config = round.getSubmissionConfig();
             SubmissionConfigResponse configDto = new SubmissionConfigResponse(
@@ -338,7 +352,6 @@ public class RoundService {
             dto.setSubmissionConfig(null);
         }
 
-        // 3. MAP THÊM: Chuyển đổi danh sách lịch trình (RoundTimeline) sang DTO
         if (round.getRoundTimelines() != null && !round.getRoundTimelines().isEmpty()) {
             List<RoundDetailsResponse.TimelineResponse> timelineDtos = round.getRoundTimelines().stream()
                     .map(timeline -> new RoundDetailsResponse.TimelineResponse(
@@ -351,10 +364,9 @@ public class RoundService {
                     .toList();
             dto.setTimelines(timelineDtos);
         } else {
-            dto.setTimelines(new ArrayList<>()); // Trả về mảng rỗng để Front-end an toàn khi loop hiển thị
+            dto.setTimelines(new ArrayList<>());
         }
 
-        // 4. Tính toán trạng thái động dựa trên thời gian thực tế của Server
         LocalDateTime now = LocalDateTime.now();
         String status = "UPCOMING";
         if (round.getTimeStart() != null && round.getTimeEnd() != null) {
@@ -369,23 +381,137 @@ public class RoundService {
         dto.setStatus(status);
 
         ScoringTemplate scoringTemplate = round.getScoringTemplate();
-        List<Criterion> criteria = criterionRepository.findByScoringTemplateId(scoringTemplate.getId());
-        if (scoringTemplate == null || criteria.isEmpty()) {
+        if (scoringTemplate == null) {
             dto.setCriteria(new ArrayList<>());
         } else {
-            List<RoundDetailsResponse.CriteriaResponse> criteriaDTOs = new ArrayList<>();
-            for (Criterion criterion : criteria) {
-                RoundDetailsResponse.CriteriaResponse criteriaDTO = new RoundDetailsResponse.CriteriaResponse();
-                criteriaDTO.setId(criterion.getId());
-                criteriaDTO.setName(criterion.getName());
-                criteriaDTO.setDescription(criterion.getDescription());
-                criteriaDTO.setWeight(criterion.getWeight());
-                criteriaDTOs.add(criteriaDTO);
+            List<Criterion> criteria = criterionRepository.findByScoringTemplateId(scoringTemplate.getId());
+            if (criteria.isEmpty()) {
+                dto.setCriteria(new ArrayList<>());
+            } else {
+                List<RoundDetailsResponse.CriteriaResponse> criteriaDTOs = new ArrayList<>();
+                for (Criterion criterion : criteria) {
+                    RoundDetailsResponse.CriteriaResponse criteriaDTO = new RoundDetailsResponse.CriteriaResponse();
+                    criteriaDTO.setId(criterion.getId());
+                    criteriaDTO.setName(criterion.getName());
+                    criteriaDTO.setDescription(criterion.getDescription());
+                    criteriaDTO.setWeight(criterion.getWeight());
+                    criteriaDTOs.add(criteriaDTO);
+                }
+                dto.setCriteria(criteriaDTOs);
             }
-            dto.setCriteria(criteriaDTOs);
         }
 
+        if (team != null) {
+            dto.setTeamTotalScore(teamTotalScore);
+            dto.setTrackName(team.getTrack().getName());
+            dto.setTeamRank(computeTeamRankInRound(round.getId(), team.getId()));
+        }
 
         return dto;
+    }
+
+    /**
+     * Tổng điểm (CỘNG DỒN, không chia trung bình) của team qua TẤT CẢ round đã public (publishStage = 3).
+     * Gộp mọi điểm giám khảo (SUBMITTED) từ mọi round lại thành 1 danh sách rồi cộng tổng.
+     */
+    private Double computeTeamTotalScore(Team team) {
+        List<Submission> submissions = submissionRepository.findByTeam_IdAndLatestTrue(team.getId());
+        if (submissions.isEmpty()) return null;
+
+        double sum = 0.0;
+        boolean hasAnyScore = false;
+
+        for (Submission submission : submissions) {
+            Round round = submission.getRound();
+            Long trackId = submission.getTeam().getTrack() != null
+                    ? submission.getTeam().getTrack().getId() : null;
+            if (trackId == null) continue;
+
+            RoundTrack.RoundTrackId rtId = new RoundTrack.RoundTrackId(round.getId(), trackId);
+            RoundTrack roundTrack = roundTrackRepository.findById(rtId).orElse(null);
+            if (roundTrack == null || roundTrack.getPublishStage() != 3) continue;
+
+            List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(round.getId()).stream()
+                    .filter(a -> a.getTrack() != null && Objects.equals(a.getTrack().getId(), trackId))
+                    .toList();
+
+            List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(round.getId());
+            Map<String, JudgeScore> scoreIndex = new HashMap<>();
+            for (JudgeScore s : scores) {
+                scoreIndex.put(s.getJudgeAssignment().getId() + "-" + s.getSubmission().getId(), s);
+            }
+
+            for (JudgeAssignment ja : assignments) {
+                JudgeScore score = scoreIndex.get(ja.getId() + "-" + submission.getId());
+                if (score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED) {
+                    sum += score.getTotalScore();
+                    hasAnyScore = true;
+                }
+            }
+        }
+
+        return hasAnyScore ? Math.round(sum * 100.0) / 100.0 : null;
+    }
+
+    /**
+     * Hạng của team trong 1 round cụ thể (so với các team CÙNG TRACK), dùng điểm trung bình của round đó để xếp hạng.
+     * Trả về rank + tổng số đội (VD: 3/24).
+     */
+    private RoundDetailsResponse.TeamRankDTO computeTeamRankInRound(Long roundId, Long teamId) {
+        List<Submission> allSubmissions = submissionRepository.findByRound_IdAndLatestTrue(roundId);
+
+        Submission teamSubmission = allSubmissions.stream()
+                .filter(s -> s.getTeam().getId()==(teamId))
+                .findFirst()
+                .orElse(null);
+        if (teamSubmission == null || teamSubmission.getTeam().getTrack() == null) {
+            return null;
+        }
+        Long trackId = teamSubmission.getTeam().getTrack().getId();
+
+        List<Submission> trackSubmissions = allSubmissions.stream()
+                .filter(s -> s.getTeam().getTrack() != null && trackId.equals(s.getTeam().getTrack().getId()))
+                .toList();
+
+        List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(roundId).stream()
+                .filter(a -> a.getTrack() != null && trackId.equals(a.getTrack().getId()))
+                .toList();
+
+        List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(roundId);
+        Map<String, JudgeScore> scoreIndex = new HashMap<>();
+        for (JudgeScore s : scores) {
+            scoreIndex.put(s.getJudgeAssignment().getId() + "-" + s.getSubmission().getId(), s);
+        }
+
+        List<Map.Entry<Long, Double>> teamAverages = new ArrayList<>();
+        for (Submission s : trackSubmissions) {
+            List<Double> totals = new ArrayList<>();
+            for (JudgeAssignment ja : assignments) {
+                JudgeScore score = scoreIndex.get(ja.getId() + "-" + s.getId());
+                if (score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED) {
+                    totals.add(score.getTotalScore());
+                }
+            }
+            if (!totals.isEmpty()) {
+                double avg = totals.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
+                teamAverages.add(Map.entry(s.getTeam().getId(), avg));
+            }
+        }
+
+        teamAverages.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
+
+        int rank = -1;
+        for (int i = 0; i < teamAverages.size(); i++) {
+            if (teamAverages.get(i).getKey().equals(teamId)) {
+                rank = i + 1;
+                break;
+            }
+        }
+        if (rank == -1) return null;
+
+        RoundDetailsResponse.TeamRankDTO rankDto = new RoundDetailsResponse.TeamRankDTO();
+        rankDto.setRank(rank);
+        rankDto.setTotalTeams(teamAverages.size());
+        return rankDto;
     }
 }

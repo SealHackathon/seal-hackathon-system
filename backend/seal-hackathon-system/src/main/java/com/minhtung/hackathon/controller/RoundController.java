@@ -54,10 +54,11 @@ public class RoundController {
     @GetMapping
     public ResponseEntity<?> getRounds(@RequestHeader("Authorization") String auth,
                                        @RequestParam(required = false) Long eventId) {
+        Integer uid=getUid(auth);
         if (getUid(auth) == null) return unauthorized();
 
 
-        return ResponseEntity.ok(roundService.getRoundsByEventId(eventId));
+        return ResponseEntity.ok(roundService.getRoundsByEventId(eventId,Integer.toUnsignedLong(uid)));
 
     }
 
@@ -100,9 +101,12 @@ public class RoundController {
      * URL: GET /api/v1/events/{eventId}/rounds
      */
     @GetMapping("/events/{eventId}/rounds")
-    public ResponseEntity<?> getRoundsByEvent(@PathVariable long eventId) {
+    public ResponseEntity<?> getRoundsByEvent(@RequestHeader("Authorization") String auth,@PathVariable long eventId) {
+        Integer uid=getUid(auth);
+        if (getUid(auth) == null) return unauthorized();
+
         try {
-            List<RoundDetailsResponse> rounds = roundService.getRoundsByEventId(eventId);
+            List<RoundDetailsResponse> rounds = roundService.getRoundsByEventId(eventId,uid);
             // Trả về danh sách (Mảng rỗng [] nếu Sự kiện chưa được cấu hình vòng thi nào)
             return ResponseEntity.ok(rounds);
         } catch (Exception e) {
@@ -116,9 +120,11 @@ public class RoundController {
      * URL: GET /api/v1/rounds/{roundId}
      */
     @GetMapping("/rounds/{roundId}")
-    public ResponseEntity<?> getRoundDetailsById(@PathVariable long roundId) {
+    public ResponseEntity<?> getRoundDetailsById(@RequestHeader("Authorization") String auth,@PathVariable long roundId) {
+        Integer uid=getUid(auth);
+        if (getUid(auth) == null) return unauthorized();
         try {
-            RoundDetailsResponse roundDetails = roundService.getRoundDetailsById(roundId);
+            RoundDetailsResponse roundDetails = roundService.getRoundDetailsById(roundId,Integer.toUnsignedLong(uid));
             return ResponseEntity.ok(roundDetails);
         } catch (IllegalArgumentException e) {
             // Trả về 404 nếu truyền sai roundId không tồn tại trong hệ thống

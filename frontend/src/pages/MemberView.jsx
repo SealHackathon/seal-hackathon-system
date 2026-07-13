@@ -314,7 +314,7 @@ function MemberView() {
           <div className={styles.main}>
             <TeamMemberPanel
               members={FAKE_MEMBERS}
-              maxSlots={teamInfo.maxSlots || 4}
+              maxSlots={teamInfo.maxSlots || 5}
               teamStatus={teamStatus}
               isLeader={false}
               hasSelectedCategory={!!selectedCategory}
