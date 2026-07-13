@@ -35,5 +35,6 @@ public interface JudgeAssignmentRepository extends JpaRepository<JudgeAssignment
 
 
 
+
     Optional<JudgeAssignment> findByUser_IdAndTrackIdAndRoundId(Long id ,Long TrackID , Long roundId) ;
 }

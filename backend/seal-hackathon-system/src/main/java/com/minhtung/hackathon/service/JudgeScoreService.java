@@ -33,17 +33,7 @@ public class JudgeScoreService {
                 new RuntimeException(
                         "Không tìm thấy Judge"));
         Submission submission = submissionRepository.findById(request.getSubmissionId()).orElseThrow((() -> new RuntimeException("không tìm thấy bài nộp ")));
-
-        if (!submission.isLatest()) {
-            throw new RuntimeException("không thể chấm phiên bản nộp cũ ");
-
-
-        }
-        if (submission.getTeam().getTrack() == null) {
-            throw new RuntimeException("Team chưa thuộc track");
-        }
-        Long trackId = submission.getTeam().getTrack().getId();
-        JudgeAssignment assignment = judgeAssignmentRepository.findByUser_IdAndTrackId(judge.getId(), trackId).orElseThrow(() -> new RuntimeException("bạn không được phân công trong track này "));
+        JudgeAssignment assignment = validateScoringContext(judge, submission);
 
         boolean alreadyScored = judgeScoreRepository.existsByJudgeAssignmentIdAndSubmissionId(assignment.getId(), submission.getId());
 
@@ -70,18 +60,26 @@ public class JudgeScoreService {
 
     @Transactional
     public JudgeScoreResponse updateScore(String email , Long judgeScoreId, UpdateJudgeScoreRequest request){
-        User judge = userRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("không có email xác nhận "));
-         JudgeScore judgeScore = getownedJudgeScore(
-                 judgeScoreId,judge.getId()
-         );
-         judgeScore.setComment(request.getCommet());
-         judgeScore.setUpdatedAt(LocalDateTime.now());
+        User judge = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy giám khảo"));
+
+        JudgeScore judgeScore = getownedJudgeScore(judgeScoreId, judge.getId());
+        Submission submission = judgeScore.getSubmission();
+
+        JudgeAssignment currentAssignment =     validateScoringContext(judge, submission);
+        if (currentAssignment.getId() != judgeScore.getJudgeAssignment().getId()) {
+            throw new RuntimeException("Phân công chấm bài không khớp với track và vòng thi");
+        }
+
+        judgeScore.setComment(request.getCommet());
+        judgeScore.setUpdatedAt(LocalDateTime.now());
 
         List<JudgeScoreDetail> validatedDetails = createDetails(
                 judgeScore,
-                judgeScore.getSubmission(),
+                submission,
                 request.getDetails()
         );
+
         for (JudgeScoreDetail newDetail : validatedDetails) {
             JudgeScoreDetail existingDetail = judgeScore.getDetails()
                     .stream()
@@ -90,14 +88,59 @@ public class JudgeScoreService {
                                     == newDetail.getCriterion().getId())
                     .findFirst()
                     .orElseThrow(() ->
-                            new RuntimeException("Không tìm thấy điểm tiêu chí cũ"));
+                            new RuntimeException("Không tìm thấy điểm của tiêu chí cũ"));
 
             existingDetail.setScore(newDetail.getScore());
             existingDetail.setComment(newDetail.getComment());
         }
-        judgeScore.setTotalScore(calculateTotalScore((judgeScore.getDetails())));
 
-         return  mapToResponse(judgeScoreRepository.save(judgeScore));
+        judgeScore.setTotalScore(calculateTotalScore(judgeScore.getDetails()));
+
+        return mapToResponse(judgeScoreRepository.save(judgeScore));
+    }
+
+    private JudgeAssignment validateScoringContext(User judge, Submission submission) {
+        if (!submission.isLatest()) {
+            throw new RuntimeException("Không thể chấm phiên bản nộp cũ");
+        }
+
+        Team team = submission.getTeam();
+        if (team == null) {
+            throw new RuntimeException("Bài nộp không thuộc team nào");
+        }
+
+        Round round = submission.getRound();
+        if (round == null) {
+            throw new RuntimeException("Bài nộp không thuộc vòng thi nào");
+        }
+
+        if (team.getTrack() == null) {
+            throw new RuntimeException("Team chưa thuộc track");
+        }
+
+        if (team.getTrack().getEvent() == null) {
+            throw new RuntimeException("Track của team chưa thuộc sự kiện nào");
+        }
+
+        if (round.getEvent() == null) {
+            throw new RuntimeException("Vòng thi chưa thuộc sự kiện nào");
+        }
+
+        long teamEventId = team.getTrack().getEvent().getId();
+        long roundEventId = round.getEvent().getId();
+        if (teamEventId != roundEventId) {
+            throw new RuntimeException("Team không thuộc vòng thi của sự kiện này");
+        }
+
+        return judgeAssignmentRepository
+                .findByUser_IdAndTrackIdAndRoundId(
+                        judge.getId(),
+                        team.getTrack().getId(),
+                        round.getId()
+                )
+                .orElseThrow(() -> new RuntimeException(
+                        "Bạn không được phân công chấm track này trong vòng thi này"
+                ));
     }
 
     @Transactional
@@ -273,7 +316,5 @@ public class JudgeScoreService {
         return details;
     }
         }
-
-
 
 
