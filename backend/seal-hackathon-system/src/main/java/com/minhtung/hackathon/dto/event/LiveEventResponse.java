@@ -1,5 +1,6 @@
 package com.minhtung.hackathon.dto.event;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.minhtung.hackathon.dto.response.MilestoneResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -18,6 +19,7 @@ public class LiveEventResponse {
     private String eventName;
     private String eventTopic;
     private int maxTeamMember;
+    private int maxTeam;
     private int teamQuantity = 0;
     private int trackQuantity = 0;
     private int candidateQuantity = 0;
@@ -25,6 +27,8 @@ public class LiveEventResponse {
     private long prize;
     private String eventStatus;
     private String description;
+    @JsonProperty("isCurrentUserRegistered")
+   private boolean currentUserRegistered;
     // List milestone
     private List<MilestoneResponse> milestones;
 

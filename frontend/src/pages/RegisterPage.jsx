@@ -72,8 +72,11 @@ function RegisterPage() {
                 return
             }
 
+            const dataToSave = { ...form }
+            delete dataToSave.password
+
             localStorage.setItem('verifyEmail', form.email)
-            localStorage.setItem('registerData', JSON.stringify(form))
+            localStorage.setItem('registerData', JSON.stringify(dataToSave))
             navigate('/verify-email', { state: { email: form.email } })
 
         } catch {
@@ -134,6 +137,7 @@ function RegisterPage() {
                     <FormInput
                         label="Số điện thoại"
                         required
+                        type="phone"
                         iconLeft={Phone}
                         placeholder="0123456789"
                         value={form.phone}

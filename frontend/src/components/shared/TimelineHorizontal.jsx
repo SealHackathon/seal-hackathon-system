@@ -34,11 +34,16 @@ function autoState(date, today) {
 // ────────────────────────────────────────────────────
 
 function TimelineHorizontal({ milestones = [], showToday = true }) {
-  const today = useMemo(() => todayStart(), [new Date().toDateString()])
+  const today = useMemo(() => todayStart(), [])
 
   const nodes = useMemo(() => milestones.map(m => {
     const d = parseDate(m.date)
     return { ...m, _date: d, _state: m.state ?? autoState(d, today) }
+  }).sort((a, b) => {
+    if (!a._date && !b._date) return 0
+    if (!a._date) return 1
+    if (!b._date) return -1
+    return a._date - b._date
   }), [milestones, today])
 
   const outerRef = useRef(null)

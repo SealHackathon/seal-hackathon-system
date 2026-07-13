@@ -7,11 +7,12 @@ import RequestCard from '../components/leaderView/RequestCard'
 import InviteCard from '../components/leaderView/InviteCard'
 import ConfirmModal from '../components/shared/ConfirmModal'
 import styles from './LeaderView.module.css'
-import NoticeBox from '../components/shared/NoticeBox'
+import Banner from '../components/shared/Banner'
 import axios from 'axios'
 import { Bell } from '@phosphor-icons/react'
 import axiosClient from '../api/axiosClient'
 import { useAuth } from '../AuthContext'
+import ToastContainer from '../components/shared/ToastContainer'
 
 // Data tạm — sau này thay bằng API
 // const FAKE_MEMBERS = [
@@ -152,7 +153,10 @@ function LeaderView() {
 
   useEffect(() => {
     localStorage.setItem('lastKnownTeamRole', 'IN_TEAM');
-  }, []);
+    if (eventId) {
+      localStorage.setItem('lastKnownTeamRoleEventId', String(eventId));
+    }
+  }, [eventId]);
 
   // ↓ Để test UI: dùng MOCK_MEMBERS. Khi dùng API thật: đổi lại thành useState([])
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
@@ -163,6 +167,15 @@ function LeaderView() {
   const emptyCount = (teamInfo.maxSlots || 4) - FAKE_MEMBERS.length
   const eventId= localStorage.getItem('eventId') || null;
   const triggerRefresh = () => setRefreshTrigger(prev => prev + 1);
+
+  const [toasts, setToasts] = useState([])
+  const addToast = (toast) => {
+    const id = Date.now()
+    setToasts(prev => [...prev, { id, ...toast }])
+  }
+  const removeToast = (id) => {
+    setToasts(prev => prev.filter(t => t.id !== id))
+  }
 
   // api lấy team members thành viên đội 
   useEffect(() => {
@@ -181,8 +194,7 @@ function LeaderView() {
       .then((response) => {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus)
-        // TODO: Cần trả về trường categoryId trong object teamInfo
-        if (response.data.category.id) setSelectedCategory(response.data.category.id)
+        if (response.data.category?.id) setSelectedCategory(response.data.category.id)
       })
       .catch((error) => console.log(error));
   }, [refreshTrigger]);
@@ -192,14 +204,14 @@ function LeaderView() {
     axiosClient.get(`/track?eventId=${eventId}`)
       .then(res => setCategories(res.data))
       .catch(err => console.log(err))
-  }, [])
+  }, [eventId])
 
   // TODO: Gọi API PUT /api/team/category để cập nhật/xóa hạng mục
   const handleCategoryChange = (categoryId) => {
     axiosClient.put(`/team/category?categoryId=${categoryId}`)
       .then(() => {
         setSelectedCategory(categoryId)
-        alert("Cập nhật hạng mục thành công!")
+        addToast({ variant: 'success', title: 'Thành công', message: 'Cập nhật hạng mục thành công!' })
       })
       .catch(err => console.log(err))
     
@@ -249,14 +261,12 @@ function LeaderView() {
       })
       .then((response) => {
         console.log(response.data);
-        // alert("Đã chấp nhận thành viên vào đội thành công!");
-
-        // 2. Reload lại trang để cập nhật danh sách mới
+        addToast({ variant: 'success', title: 'Thành công', message: 'Đã chấp nhận thành viên vào đội thành công!' });
         triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra khi thực hiện phê duyệt!");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi thực hiện phê duyệt!' });
       });
   });
 
@@ -277,14 +287,12 @@ function LeaderView() {
           })
           .then((response) => {
             console.log(response.data);
-            // alert("Đã từ chối yêu cầu gia nhập!");
-
-            // 2. Reload lại trang để yêu cầu biến mất khỏi danh sách chờ
-            // triggerRefresh();
+            addToast({ variant: 'success', title: 'Thành công', message: 'Đã từ chối yêu cầu gia nhập!' });
+            triggerRefresh();
           })
           .catch((error) => {
             console.log(error);
-            alert("Có lỗi xảy ra khi thực hiện từ chối!");
+            addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi thực hiện từ chối!' });
           });
 
         setConfirmModal(null)
@@ -307,16 +315,12 @@ function LeaderView() {
           .delete(`/teamrequest/invitation-bymember?memberId=${memberId}`)
           .then((response) => {
             console.log(response.data);
-
-            // Hiện thông báo thành công cho người dùng biết
-            // alert("Đã hủy lời mời thành công!");
-
-            // 2. Tải lại trang để cập nhật giao diện (mất lời mời vừa hủy)
+            addToast({ variant: 'success', title: 'Thành công', message: 'Đã hủy lời mời thành công!' });
             triggerRefresh();
           })
           .catch((error) => {
             console.log(error);
-            alert("Có lỗi xảy ra khi hủy lời mời!");
+            addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi hủy lời mời!' });
           });
 
         setConfirmModal(null)
@@ -336,24 +340,12 @@ function LeaderView() {
           )
           .then((response) => {
             console.log(response.data);
-            //thêm reload trang
-
-            setConfirmModal({
-              title: 'Thành công',
-              message: 'Đã kick thành viên thành công!',
-              confirmLabel: 'Xác nhận',
-              isNotification: true,
-              variant: 'success',
-              onConfirm: () => { triggerRefresh() }
-            })
-
-            // alert("Đã kick thành viên thành công!");
-            //reload trang
-            // triggerRefresh();
+            addToast({ variant: 'success', title: 'Thành công', message: 'Đã kick thành viên thành công!' })
+            triggerRefresh();
           })
           .catch((error) => {
             console.log(error);
-            alert("Có lỗi xảy ra khi hủy tư cách thành viên!");
+            addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi hủy tư cách thành viên!' });
           });
 
         setConfirmModal(null)
@@ -378,24 +370,12 @@ function LeaderView() {
           })
           .then((response) => {
             console.log(response.data);
-
-            setConfirmModal({
-              title: 'Thành công',
-              message: 'Đã chuyển giao quyền Trưởng nhóm thành công!',
-              confirmLabel: 'Xác nhận',
-              isNotification: true,
-              variant: 'success',
-              onConfirm: () => { window.location.reload() }
-            })
-
-            // alert("Đã chuyển giao quyền Trưởng nhóm thành công!");
-
-            // 2. Tải lại trang để cập nhật lại giao diện (Ẩn các nút quản lý của Leader cũ)
-
+            addToast({ variant: 'success', title: 'Thành công', message: 'Đã chuyển giao quyền Trưởng nhóm thành công!' })
+            setTimeout(() => window.location.reload(), 1500);
           })
           .catch((error) => {
             console.log(error);
-            alert("Có lỗi xảy ra khi trao quyền trưởng nhóm!");
+            addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra khi trao quyền trưởng nhóm!' });
           });
         setConfirmModal(null)
       }
@@ -418,22 +398,17 @@ function LeaderView() {
           .post('/teamrequest/out-team', {})
           .then((response) => {
             console.log(response.data);
-
-            setConfirmModal({
-              title: 'Thành công',
-              message: 'Bạn đã rời nhóm thành công!',
-              confirmLabel: 'Xác nhận',
-              isNotification: true,
-              variant: 'success',
-              onConfirm: () => {
-                localStorage.removeItem('lastKnownTeamRole');
-                updateTeamRole('NO_TEAM');
-              }
-            })
+            addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã rời nhóm thành công!' })
+            setTimeout(() => {
+              localStorage.removeItem('lastKnownTeamRole');
+              localStorage.removeItem('lastKnownTeamRoleEventId');
+              updateTeamRole('NO_TEAM');
+            }, 1500);
+            setConfirmModal(null)
           })
           .catch((error) => {
             console.log(error);
-            alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+            addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra, không thể rời nhóm lúc này.' })
             setConfirmModal(null)
           });
       }
@@ -449,23 +424,13 @@ function LeaderView() {
       .put(`/teamrequest/Leave-request/${id}/respond`, {})
       .then((response) => {
         console.log(response.data);
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Bạn đã duyệt yêu cầu rời nhóm thành công!',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'info',
-          onConfirm: () => { setConfirmModal(null); triggerRefresh() }
-        })
-
-        // alert("Bạn đã duyet yeu cau roi nhóm thành công!");
-        // triggerRefresh();
+        addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã duyệt yêu cầu rời nhóm thành công!' })
+        triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra, không thể duyệt yêu cầu lúc này.' })
       });
-
   } // TODO: Xử lí rời đội
 
   const handleOnCancelLeave = (id) => {
@@ -473,22 +438,12 @@ function LeaderView() {
       .post('/teamrequest/out-team/cancle', id)
       .then((response) => {
         console.log(response.data);
-        
-        setConfirmModal({
-          title: 'Thành công',
-          message: 'Bạn đã từ chối yêu cầu rời nhóm thành công!',
-          confirmLabel: 'Xác nhận',
-          isNotification: true,
-          variant: 'info',
-          onConfirm: () => { setConfirmModal(null); triggerRefresh() }
-        })
-
-        // alert("Bạn đã tu choi yeu cau roi nhóm thành công!");
-        // triggerRefresh();
+        addToast({ variant: 'success', title: 'Thành công', message: 'Bạn đã từ chối yêu cầu rời nhóm thành công!' })
+        triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
-        alert("Có lỗi xảy ra, không thể rời nhóm lúc này.");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Có lỗi xảy ra, không thể từ chối lúc này.' })
       });
   }
 
@@ -497,15 +452,13 @@ function LeaderView() {
       .post('/teamrequest/lock-team', {})
       .then((response) => {
         console.log(response.data);
-
         setTeamStatus('PENDING_APPROVAL')
-
-        // alert("Đã chốt đội thành công!");
+        addToast({ variant: 'success', title: 'Thành công', message: 'Đã chốt đội thành công!' })
         triggerRefresh();
       })
       .catch((error) => {
         console.log(error);
-        alert("Đã có lỗi xảy ra, không thể chốt đội lúc này.");
+        addToast({ variant: 'error', title: 'Lỗi', message: 'Đã có lỗi xảy ra, không thể chốt đội lúc này.' })
       });
   }
 
@@ -589,12 +542,14 @@ function LeaderView() {
           emptyCount={emptyCount}
           isLeader
           onRefresh={triggerRefresh}
+          onSuccessToast={(msg) => addToast({ variant: 'success', title: 'Thành công', message: msg })}
         />
 
         <TeamCategoryPanel 
           categories={categories} 
           selectedCategoryId={selectedCategory} 
-          isLeader={true} 
+          isLeader={true}
+          teamStatus={teamStatus}
           onCategoryChange={handleCategoryChange} 
         />
 
@@ -653,6 +608,7 @@ function LeaderView() {
         variant={confirmModal?.variant}
       />
 
+      <ToastContainer toasts={toasts} onClose={removeToast} bottom="2em" />
     </EventLayout>
   )
 }

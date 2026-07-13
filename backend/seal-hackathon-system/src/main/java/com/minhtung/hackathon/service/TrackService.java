@@ -42,8 +42,8 @@ public class TrackService {
                         track.getId(),
                         track.getName(),
                         track.getDes(), // Biến mô tả trong Entity của bạn
-                        track.getMaxTeamPerTrack(),
                         track.getMinTeamPerTrack(),
+                        track.getMaxTeamPerTrack(),
                         track.getTeamQuantity()
                         ,eventId
                 ))

@@ -35,6 +35,12 @@ public class Round {
     @Column(columnDefinition = "TEXT")
     private String position;
 
+    @Column(columnDefinition = "TEXT")
+    private String locationName;
+
+    @Column(columnDefinition = "TEXT")
+    private String detailLocation;
+
     @OneToMany(mappedBy = "round",
             cascade = CascadeType.ALL,
             orphanRemoval = true)

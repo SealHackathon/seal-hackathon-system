@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -67,6 +69,10 @@ public class Event {
     @Column(columnDefinition = "text")
     private String participationBenefits;
 
+    @JdbcTypeCode(SqlTypes.ARRAY)
+    @Column(columnDefinition = "text[]")
+    private String[]  keywords;
+
 
     @OneToMany(mappedBy = "event",
             cascade = CascadeType.ALL,
@@ -83,6 +89,7 @@ public class Event {
             orphanRemoval = true)
     private List<Round> rounds = new ArrayList<>();
 
+    private int maxTeam;
 
     @OneToMany(mappedBy = "event",
             cascade = CascadeType.ALL,
@@ -92,6 +99,9 @@ public class Event {
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventNote> notes; // những lưu ý của event
 
+
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<EventRegistration> registrations = new ArrayList<>();
 
     public Event() {
     }
@@ -109,5 +119,19 @@ public class Event {
         this.rules = rules;
         this.participationBenefits = participationBenefits;
         this.eventLocation = eventLocation;
+    }
+
+
+    public void setMaxTeam(int maxTeam) {
+        this.maxTeam = maxTeam;
+    }
+
+    public int getMaxTeam() {
+        int maxTeam=0;
+        for(Track item : tracks){
+            maxTeam+=item.getMaxTeamPerTrack();
+        }
+
+        return maxTeam;
     }
 }

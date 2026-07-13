@@ -35,13 +35,14 @@ public class EventService {
 
 
     private final EventRepository eventRepository;
-    private final TrackRepository trackRepository;
+
     private final TeamRepository teamRepository;
     private final MemberRepository memberRepository;
-    private final RoundRepository roundRepository;
     private final Cloudinary cloudinary;
     private final SystemRequestRepository systemRequestRepository;
-
+    private final EventRegistrationRepository registrationRepository;
+    private final UserRepository userRepository;
+    private final EventRegistrationRepository eventRegistrationRepository;
 
     // service view Event
     // service lay tat ca event tất cả status lun
@@ -57,6 +58,7 @@ public class EventService {
             eventResponse.setEventId(event.getId());
             eventResponse.setEventName(event.getName());
             eventResponse.setEventTopic(event.getTopic());
+            eventResponse.setMaxTeam(event.getMaxTeam());
             eventResponse.setMaxTeamMember(event.getMaxTeamMember());
             eventResponse.setEventLocation(event.getEventLocation());
             eventResponse.setThumbnail(event.getThumbnail_image());
@@ -66,7 +68,13 @@ public class EventService {
             eventResponse.setRoundQuantity(totalRounds);
 
             // dang hard code set prize
-            eventResponse.setPrize(10000000);
+            List<Prize> prizes = event.getPrizes();
+            long totalprize = 0;
+            for (Prize prize : prizes) {
+                totalprize += prize.getMoney() * prize.getQuantity();
+            }
+
+            eventResponse.setPrize(totalprize);
 
             int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
             eventResponse.setTeamQuantity(teamQuantity);
@@ -78,31 +86,92 @@ public class EventService {
 
             // --- MAP DANH SÁCH MILESTONES SANG DTO TẠI ĐÂY ---
             if (event.getMilestones() != null) {
-                List<AllEventResponse.MilestoneItemResponse> milestoneDTOs = event.getMilestones().stream()
-                        .map(m -> {
-                            // Tính trạng thái động cho từng mốc thời gian
-                            String milestoneStatus = "UPCOMING";
-                            if (m.getDateStart() != null && m.getDateEnd() != null) {
-                                if (now.isBefore(m.getDateStart())) {
-                                    milestoneStatus = "UPCOMING";
-                                } else if (now.isAfter(m.getDateEnd())) {
-                                    milestoneStatus = "COMPLETED";
-                                } else {
-                                    milestoneStatus = "IN_PROGRESS";
-                                }
+                // Khởi tạo danh sách tổng để gom tất cả các mốc thời gian
+                List<AllEventResponse.MilestoneItemResponse> combinedMilestones = new ArrayList<>();
+
+// 1. Map danh sách Milestones trực thuộc Event
+                if (event.getMilestones() != null) {
+                    event.getMilestones().forEach(m -> {
+                        String milestoneStatus = "UPCOMING";
+                        if (m.getDateStart() != null && m.getDateEnd() != null) {
+                            if (now.isBefore(m.getDateStart())) {
+                                milestoneStatus = "UPCOMING";
+                            } else if (now.isAfter(m.getDateEnd())) {
+                                milestoneStatus = "COMPLETED";
+                            } else {
+                                milestoneStatus = "IN_PROGRESS";
+                            }
+                        }
+                        combinedMilestones.add(new AllEventResponse.MilestoneItemResponse(
+                                m.getId(), // ID tạm thời, lát nữa sẽ đánh lại số tuần tự
+                                m.getMilestoneName(),
+                                m.getDateStart(),
+                                m.getDateEnd(),
+                                m.getDes(),
+                                milestoneStatus
+                        ));
+                    });
+                }
+
+// 2. Map trực tiếp các mốc thời gian từ các ROUND thuộc Event
+                if (event.getRounds() != null) {
+                    event.getRounds().forEach(r -> {
+
+                        // MỐC 1: Lịch trình thời gian diễn ra toàn bộ vòng thi
+                        if (r.getTimeStart() != null && r.getTimeEnd() != null) {
+                            String roundStatus = "UPCOMING";
+                            if (now.isBefore(r.getTimeStart())) {
+                                roundStatus = "UPCOMING";
+                            } else if (now.isAfter(r.getTimeEnd())) {
+                                roundStatus = "COMPLETED";
+                            } else {
+                                roundStatus = "IN_PROGRESS";
                             }
 
-                            return new AllEventResponse.MilestoneItemResponse(
-                                    m.getId(),
-                                    m.getMilestoneName(),
-                                    m.getDateStart(),
-                                    m.getDateEnd(),
-                                    m.getDes(),
-                                    milestoneStatus
-                            );
+                            combinedMilestones.add(new AllEventResponse.MilestoneItemResponse(
+                                    r.getId(),
+                                    "Thời gian diễn ra: " + r.getName(),
+                                    r.getTimeStart(),
+                                    r.getTimeEnd(),
+                                    "Thời gian chính thức làm bài và tham gia các hoạt động của " + r.getName(),
+                                    roundStatus
+                            ));
+                        }
+
+                        // MỐC 2: Hạn chót nộp bài dự thi của vòng này (nếu có cấu hình deadline)
+                        if (r.getSubmissionDeadline() != null) {
+                            String deadlineStatus = now.isAfter(r.getSubmissionDeadline()) ? "COMPLETED" : "IN_PROGRESS";
+
+                            combinedMilestones.add(new AllEventResponse.MilestoneItemResponse(
+                                    r.getId(),
+                                    "Hạn nộp bài: " + r.getName(),
+                                    r.getSubmissionDeadline(),
+                                    r.getSubmissionDeadline(), // Điểm mốc thời gian cố định nên start = end
+                                    "Hạn cuối cùng để các đội thi hoàn thiện và tải sản phẩm lên hệ thống.",
+                                    deadlineStatus
+                            ));
+                        }
+                    });
+                }
+
+// 3. Sắp xếp toàn bộ danh sách hỗn hợp theo thứ tự thời gian tăng dần (dateStart)
+                List<AllEventResponse.MilestoneItemResponse> sortedMilestones = combinedMilestones.stream()
+                        .sorted((m1, m2) -> {
+                            if (m1.getDateStart() == null && m2.getDateStart() == null) return 0;
+                            if (m1.getDateStart() == null) return 1;  // Đẩy item không có ngày xuống cuối
+                            if (m2.getDateStart() == null) return -1;
+                            return m1.getDateStart().compareTo(m2.getDateStart());
                         })
                         .toList();
-                eventResponse.setMilestones(milestoneDTOs);
+
+// 4. RESET VÀ ĐÁNH LẠI ID TUẦN TỰ CHO FRONTEND TIỆN LÀM KEY RENDER
+                long autoIncrementId = 1;
+                for (AllEventResponse.MilestoneItemResponse item : sortedMilestones) {
+                    item.setId(autoIncrementId++);
+                }
+
+// Đổ dữ liệu sạch đã sắp xếp vào object response cuối cùng
+                eventResponse.setMilestones(sortedMilestones);
             } else {
                 eventResponse.setMilestones(new ArrayList<>());
             }
@@ -115,20 +184,35 @@ public class EventService {
 
 
     // service view Live Event
-    public LiveEventResponse getLiveEvent() {
+    public LiveEventResponse getLiveEvent(Long userId) {
         Event event = eventRepository.findByStatus(EventStatus.LIVE).orElse(null);
         if (event == null) {
             throw new IllegalArgumentException("Event not found");
         }
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+        }
+        boolean currentRegister = eventRegistrationRepository.existsByUserIdAndEventId(userId, event.getId());
+
         LiveEventResponse eventResponse = new LiveEventResponse();
+        eventResponse.setCurrentUserRegistered(currentRegister);
         eventResponse.setEventId(event.getId());
         eventResponse.setEventName(event.getName());
         eventResponse.setEventTopic(event.getTopic());
+        eventResponse.setMaxTeam(event.getMaxTeam());
         eventResponse.setMaxTeamMember(event.getMaxTeamMember());
         eventResponse.setEventLocation(event.getEventLocation());
         eventResponse.setTrackQuantity(eventResponse.getTrackQuantity() + event.getTracks().size());
         // dang hard code set prize
-        eventResponse.setPrize(10000000);
+        List<Prize> prizes = event.getPrizes();
+        long totalprize = 0;
+        for (Prize prize : prizes) {
+            totalprize += prize.getMoney() * prize.getQuantity();
+        }
+
+        eventResponse.setPrize(totalprize);
+
 
         int teamQuantity = teamRepository.countTeamsByEventIdAndStatus(event.getId(), TeamStatus.APPROVED);
         eventResponse.setTeamQuantity(teamQuantity);
@@ -143,32 +227,92 @@ public class EventService {
         if (event.getMilestones() != null) {
             LocalDateTime now = LocalDateTime.now(); // Lấy giờ chuẩn của SERVER
 
-            List<MilestoneResponse> milestoneDTOs = event.getMilestones().stream()
-                    .map(m -> {
-                        // Logic tính toán trạng thái động
-                        String status = com.minhtung.hackathon.enums.MilestoneStatus.UPCOMING.toString();
+            // Khởi tạo danh sách tổng để gom tất cả các mốc thời gian
+            List<MilestoneResponse> combinedMilestones = new ArrayList<>();
 
-                        if (m.getDateStart() != null && m.getDateEnd() != null) {
-                            if (now.isBefore(m.getDateStart())) {
-                                status = com.minhtung.hackathon.enums.MilestoneStatus.UPCOMING.toString();
-                            } else if (now.isAfter(m.getDateEnd())) {
-                                status = com.minhtung.hackathon.enums.MilestoneStatus.COMPLETED.toString();
-                            } else {
-                                status = com.minhtung.hackathon.enums.MilestoneStatus.IN_PROGRESS.toString();
-                            }
+// 1. Map danh sách Milestones trực thuộc Event
+            if (event.getMilestones() != null) {
+                event.getMilestones().forEach(m -> {
+                    String milestoneStatus = "UPCOMING";
+                    if (m.getDateStart() != null && m.getDateEnd() != null) {
+                        if (now.isBefore(m.getDateStart())) {
+                            milestoneStatus = "UPCOMING";
+                        } else if (now.isAfter(m.getDateEnd())) {
+                            milestoneStatus = "COMPLETED";
+                        } else {
+                            milestoneStatus = "IN_PROGRESS";
+                        }
+                    }
+                    combinedMilestones.add(new MilestoneResponse(
+                            m.getId(), // ID tạm thời, lát nữa sẽ đánh lại số tuần tự
+                            m.getMilestoneName(),
+                            m.getDateStart(),
+                            m.getDateEnd(),
+                            m.getDes(),
+                            milestoneStatus
+                    ));
+                });
+            }
+
+// 2. Map trực tiếp các mốc thời gian từ các ROUND thuộc Event
+            if (event.getRounds() != null) {
+                event.getRounds().forEach(r -> {
+
+                    // MỐC 1: Lịch trình thời gian diễn ra toàn bộ vòng thi
+                    if (r.getTimeStart() != null && r.getTimeEnd() != null) {
+                        String roundStatus = "UPCOMING";
+                        if (now.isBefore(r.getTimeStart())) {
+                            roundStatus = "UPCOMING";
+                        } else if (now.isAfter(r.getTimeEnd())) {
+                            roundStatus = "COMPLETED";
+                        } else {
+                            roundStatus = "IN_PROGRESS";
                         }
 
-                        return new MilestoneResponse(
-                                m.getId(),
-                                m.getMilestoneName(),
-                                m.getDateStart(),
-                                m.getDateEnd(),
-                                m.getDes(),
-                                status // Gán trạng thái vừa tính được vào DTO
-                        );
+                        combinedMilestones.add(new MilestoneResponse(
+                                r.getId(),
+                                "Thời gian diễn ra: " + r.getName(),
+                                r.getTimeStart(),
+                                r.getTimeEnd(),
+                                "Thời gian chính thức làm bài và tham gia các hoạt động của " + r.getName(),
+                                roundStatus
+                        ));
+                    }
+
+                    // MỐC 2: Hạn chót nộp bài dự thi của vòng này (nếu có cấu hình deadline)
+                    if (r.getSubmissionDeadline() != null) {
+                        String deadlineStatus = now.isAfter(r.getSubmissionDeadline()) ? "COMPLETED" : "IN_PROGRESS";
+
+                        combinedMilestones.add(new MilestoneResponse(
+                                r.getId(),
+                                "Hạn nộp bài: " + r.getName(),
+                                r.getSubmissionDeadline(),
+                                r.getSubmissionDeadline(), // Điểm mốc thời gian cố định nên start = end
+                                "Hạn cuối cùng để các đội thi hoàn thiện và tải sản phẩm lên hệ thống.",
+                                deadlineStatus
+                        ));
+                    }
+                });
+            }
+
+// 3. Sắp xếp toàn bộ danh sách hỗn hợp theo thứ tự thời gian tăng dần (dateStart)
+            List<MilestoneResponse> sortedMilestones = combinedMilestones.stream()
+                    .sorted((m1, m2) -> {
+                        if (m1.getDateStart() == null && m2.getDateStart() == null) return 0;
+                        if (m1.getDateStart() == null) return 1;  // Đẩy item không có ngày xuống cuối
+                        if (m2.getDateStart() == null) return -1;
+                        return m1.getDateStart().compareTo(m2.getDateStart());
                     })
                     .toList();
-            eventResponse.setMilestones(milestoneDTOs);
+
+// 4. RESET VÀ ĐÁNH LẠI ID TUẦN TỰ CHO FRONTEND TIỆN LÀM KEY RENDER
+            long autoIncrementId = 1;
+            for (MilestoneResponse item : sortedMilestones) {
+                item.setId(autoIncrementId++);
+            }
+
+// Đổ dữ liệu sạch đã sắp xếp vào object response cuối cùng
+            eventResponse.setMilestones(sortedMilestones);
         } else {
             eventResponse.setMilestones(new ArrayList<>());
         }
@@ -207,6 +351,12 @@ public class EventService {
         event.setOpenRegisterTime(request.getOpenRegisterTime());
         event.setCloseRegisterTime(request.getCloseRegisterTime());
         event.setCofirmTeamTime(request.getCofirmTeamTime());
+
+        if (request.getKeywords() != null) {
+            String[] keywords = request.getKeywords().split(",");
+            event.setKeywords(keywords);
+        }
+
 
         Event savedEvent = eventRepository.save(event);
         return mapToEventDetailsResponse(savedEvent);
@@ -331,6 +481,9 @@ public class EventService {
         Event event = eventRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Không tìm thấy Event với ID: " + id));
 
+
+
+
         // 2. Khởi tạo và Map dữ liệu cơ bản từ Entity sang DTO chính
         EventDetailsResponse response = new EventDetailsResponse();
         response.setEventId(event.getId());
@@ -352,6 +505,11 @@ public class EventService {
         response.setDescriptionDetails(event.getDescriptionDetail());
         // Lấy thời gian hiện tại của Server làm mốc tính toán trạng thái động
         LocalDateTime now = LocalDateTime.now();
+
+        //tra về thêm số lượng thí sinh tham gia thi
+        int candidateQuantity = memberRepository.countOfficialParticipants(event.getId(), TeamStatus.APPROVED, MemberStatus.OFFICAL);
+        response.setCandidateQuantity(candidateQuantity);
+
 
 
         // ==========================================
@@ -379,8 +537,8 @@ public class EventService {
                             t.getId(),
                             t.getName(),
                             t.getDes(),
-                            t.getMaxTeamPerTrack(),
-                            t.getMinTeamPerTrack(),t.getTeamQuantity()  , event.getId()
+                            t.getMinTeamPerTrack(),
+                            t.getMaxTeamPerTrack(), t.getTeamQuantity(), event.getId()
                     ))
                     .toList();
             response.setTracks(trackDTOs);
@@ -404,6 +562,8 @@ public class EventService {
                         roundDTO.setRoundEndTime(r.getTimeEnd());
                         roundDTO.setRoundSubmissionDeadline(r.getSubmissionDeadline());
                         roundDTO.setScroringTemplateUrl(null); // Gán trường từ Entity của bạn nếu có thiết lập
+                        roundDTO.setLocationName(r.getLocationName());
+                        roundDTO.setDetailLocation(r.getDetailLocation());
 
                         // Thống kê số lượng
                         roundDTO.setSubmissionQuantity(0); // Tạm thời để mặc định 0 bài nộp
@@ -537,8 +697,8 @@ public class EventService {
                 .map(sr -> new JudgeInviteDto(
                         sr.getId(),
                         toReceiverDto(sr.getReceiver()),
-                        sr.getTrackId() == 0 ? null : sr.getTrackId(),
-                        sr.getRoundId() == 0 ? null : sr.getRoundId(),
+                        sr.getTrackId(),
+                        sr.getRoundId(),
                         sr.getStatus().toString(),
                         sr.getSentAt()
                 ))
@@ -558,6 +718,7 @@ public class EventService {
         response.setBannerImg(event.getBannerImg());
         response.setThumbnailImage(event.getThumbnail_image());
         response.setRules(event.getRules());
+        response.setMaxTeam(event.getMaxTeam());
         response.setParticipationBenefits(event.getParticipationBenefits());
         response.setMinTeamMember(event.getMinTeamMember());
         response.setMaxTeamMember(event.getMaxTeamMember());
@@ -584,4 +745,33 @@ public class EventService {
                 user.getAvt_img()
         );
     }
+
+    @Transactional
+    public String registerEvent(Long userId, Long eventId) {
+        // 1. Kiểm tra User có tồn tại không
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng có ID: " + userId));
+
+        // 2. Kiểm tra Event có tồn tại không
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy sự kiện có ID: " + eventId));
+
+        // 3. Kiểm tra xem sinh viên đã đăng ký sự kiện này chưa
+        if (registrationRepository.findByUserIdAndEventId(userId, eventId).isPresent()) {
+            throw new RuntimeException("Bạn đã đăng ký tham gia sự kiện này rồi!");
+        }
+
+        // 4. Tạo bản ghi đăng ký mới
+        EventRegistration registration = EventRegistration.builder()
+                .user(user)
+                .event(event)
+                .registeredAt(LocalDateTime.now())
+                .build();
+
+        registrationRepository.save(registration);
+
+        return "Đăng ký tham gia sự kiện '" + event.getName() + "' thành công!";
+    }
+
+
 }

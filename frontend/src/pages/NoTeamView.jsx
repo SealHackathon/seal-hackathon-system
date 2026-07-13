@@ -17,31 +17,38 @@ import ConfirmModal from '../components/shared/ConfirmModal'
 
 function NoTeamView() {
 
-  const [teamStatus, setTeamStatus] = useState('pending')
   const token = localStorage.getItem("accessToken");
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [FAKE_REQUESTS, setFAKE_REQUESTS] = useState([]);
   const [FAKE_TEAMS, setFAKE_TEAMS] = useState([]);
   const [confirmModal, setConfirmModal] = useState(null)
 
+  const currentEventId = localStorage.getItem('eventId') || localStorage.getItem('joinedEventId');
+  const lastKnownTeamRoleEventId = localStorage.getItem('lastKnownTeamRoleEventId');
+  const pendingLeaveRequestEventId = localStorage.getItem('pendingLeaveRequestEventId');
+
+  const shouldShowKickedModal =
+    localStorage.getItem('lastKnownTeamRole') === 'IN_TEAM' &&
+    !!currentEventId &&
+    lastKnownTeamRoleEventId === currentEventId;
+
+  const shouldShowApprovedLeaveModal =
+    localStorage.getItem('pendingLeaveRequest') === 'true' &&
+    !!currentEventId &&
+    pendingLeaveRequestEventId === currentEventId;
+
   // Modal thông báo bị kick
-  const [showKickedModal, setShowKickedModal] = useState(false);
-  const [showApprovedLeaveModal, setShowApprovedLeaveModal] = useState(false);
+  const [showKickedModal, setShowKickedModal] = useState(() => shouldShowKickedModal);
+  const [showApprovedLeaveModal, setShowApprovedLeaveModal] = useState(() => shouldShowApprovedLeaveModal);
 
   useEffect(() => {
-    const wasInTeam = localStorage.getItem('lastKnownTeamRole') === 'IN_TEAM';
-    const hadPendingLeave = localStorage.getItem('pendingLeaveRequest') === 'true';
-
-    if (wasInTeam) {
-      if (hadPendingLeave) {
-        setShowApprovedLeaveModal(true);
-      } else {
-        setShowKickedModal(true);
-      }
+    if (showKickedModal || showApprovedLeaveModal) {
       localStorage.removeItem('lastKnownTeamRole');
       localStorage.removeItem('pendingLeaveRequest');
+      localStorage.removeItem('lastKnownTeamRoleEventId');
+      localStorage.removeItem('pendingLeaveRequestEventId');
     }
-  }, []);
+  }, [showKickedModal, showApprovedLeaveModal]);
 
   const handleCloseKickedModal = () => {
     setShowKickedModal(false);
@@ -119,7 +126,7 @@ function NoTeamView() {
 
   // api sinh vien huy request da gui di
 
-  const handleCancel = ((requestId) => {
+  const handleCancel = (() => {
     //  Hiển thị hộp thoại xác nhận trước khi gửi yêu cầu hủy/xóa
     setConfirmModal({
       title: 'Hủy lời mời',

@@ -29,6 +29,7 @@ import java.util.Map;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -387,6 +388,18 @@ public class KycService {
 
         if (req.getTopics() != null && req.getTopics().size() > 10) {
             throw new RuntimeException("Chỉ được chọn tối đa 10 chủ đề");
+        }
+        //kiem tra cv link
+        if (req.getCvLink() != null) {
+            String cvLink = req.getCvLink().trim();
+
+            if (!cvLink.isEmpty()
+                    && !cvLink.startsWith("http://")
+                    && !cvLink.startsWith("https://")) {
+                throw new RuntimeException("CV link không hợp lệ");
+            }
+
+            profile.setCvLink(cvLink.isEmpty() ? null : cvLink);
         }
 
         if (req.getCvLink() != null) {

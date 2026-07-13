@@ -182,8 +182,10 @@ function EventListPage({ onManageEvent }) {
 
 
 
-            // Tính tổng giải thưởng từ mảng prizes
-            const totalCash = (apiEvent.prizes || []).reduce((sum, p) => sum + ((p.prizeValue || 0) * (p.quantity || 1)), 0);
+            // Tính tổng giải thưởng từ apiEvent.prize hoặc từ mảng prizes
+            const totalCash = apiEvent.prize != null && !Array.isArray(apiEvent.prize)
+              ? Number(apiEvent.prize)
+              : (apiEvent.prizes || []).reduce((sum, p) => sum + ((p.prizeValue || 0) * (p.quantity || 1)), 0);
 
             // Tính tổng số đội thi từ mảng tracks (nếu teamQuantity = 0)
             const totalTeams = (apiEvent.tracks || []).reduce((sum, t) => sum + (t.currentTeams || 0), 0);

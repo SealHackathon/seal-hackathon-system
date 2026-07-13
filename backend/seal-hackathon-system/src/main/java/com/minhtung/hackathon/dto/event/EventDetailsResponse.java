@@ -19,8 +19,10 @@ public class EventDetailsResponse {
     private String thumbnailImage;
     private String rules;
     private String participationBenefits;
+    private int candidateQuantity=0;
     private int minTeamMember;
     private int maxTeamMember;
+    private int maxTeam;
     private String eventStatus;
     private LocalDateTime createAt;
     private LocalDateTime openRegisterTime;
@@ -31,7 +33,6 @@ public class EventDetailsResponse {
     private int trackQuantity;
     private int roundQuantity;
     private int teamQuantity;
-    private int candidateQuantity;
 
 
     private List<PrizeResponse> prizes;                  // Thay thế biến long prize cũ

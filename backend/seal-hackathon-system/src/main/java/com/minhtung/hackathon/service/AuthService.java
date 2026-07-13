@@ -55,6 +55,21 @@ public class AuthService {
             throw new RuntimeException("MSSV đã  tồn tại " );
         }
 
+        if(registerRequest.getPassword() == null ||registerRequest.getPassword().length() <  6 ){
+            throw new RuntimeException("passsword phai tren 6 ki tu ");
+        }
+        if(registerRequest.getEmail() == null){
+            throw new RuntimeException("khong duoc de trong") ;
+        }
+
+        if(registerRequest.getEmail()== null){
+            throw new RuntimeException("khong duoc de trong") ;
+        }
+        if(registerRequest.getStudentId() == null){
+            throw new RuntimeException("khong duoc de trong") ;
+        }
+
+
         // check xem truong co ton tai trong DB khong
 //        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
 //        validateMssv(university, registerRequest.getStudentId());

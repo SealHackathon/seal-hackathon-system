@@ -22,9 +22,7 @@ function Button({
             onClick={onClick}
             disabled={disabled}
         >
-            <div>
-
-            </div>
+            
 
             {Icon && iconPosition === 'left' && (
                 <span className={styles.icon}>

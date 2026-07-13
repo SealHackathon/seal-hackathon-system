@@ -2,14 +2,12 @@ package com.minhtung.hackathon.service;
 
 import com.minhtung.hackathon.dto.response.LecturerResponse;
 import com.minhtung.hackathon.dto.response.SearchMemberResponse;
+import com.minhtung.hackathon.entity.Student_profile;
 import com.minhtung.hackathon.entity.Team;
 import com.minhtung.hackathon.entity.TeamRequest;
 import com.minhtung.hackathon.entity.User;
 import com.minhtung.hackathon.enums.*;
-import com.minhtung.hackathon.repository.MemberRepository;
-import com.minhtung.hackathon.repository.TeamRepository;
-import com.minhtung.hackathon.repository.TeamRequestRepository;
-import com.minhtung.hackathon.repository.UserRepository;
+import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +22,7 @@ public class UserService {
     private final MemberRepository memberRepository;
     private final TeamRequestRepository teamRequestRepository;
     private final UserRepository userRepository;
-
+    private final StudentprofileRepository  studentprofileRepository;
     //ham get nhung user chua co team
     //những ai đã có request tới team hoặc đã đc team invitation thì ko get
     public List<SearchMemberResponse> getMemberNoTeam(long leaderId) {
@@ -47,6 +45,7 @@ public class UserService {
         if (freeUsers.isEmpty()) {
             return Collections.emptyList();
         }
+
         List<SearchMemberResponse> members = new ArrayList<>();
         for (User user : freeUsers) {
             TeamRequest invitation = teamRequestRepository.findByReceiverIdAndTeamIdAndTypeAndStatus(user.getId(), team.getId(), RequestType.INVITATION, RequestStatus.PENDING).orElse(null);
@@ -55,12 +54,22 @@ public class UserService {
             if (joinRequest != null || invitation != null) {
                 continue;
             }
+            Student_profile profile=studentprofileRepository.findByUserId(user.getId()).orElse(null);
+
             SearchMemberResponse response = new SearchMemberResponse();
             response.setId(user.getId());
             response.setEmail(user.getEmail());
             response.setDescription("Discruption Dang Hard Code Them Sau");
             response.setName(user.getFullName());
             response.setSchoolName(user.getSchoolName());
+            if (profile != null) {
+                response.setPositions(profile.getPositions());
+                response.setTechTags(profile.getTechTags());
+                response.setTopics(profile.getTopics());
+                response.setCvLink(profile.getCvLink());
+                response.setStudent_info_bio(profile.getBio());
+            }
+
             members.add(response);
         }
         return members;

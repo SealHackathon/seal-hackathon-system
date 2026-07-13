@@ -64,9 +64,8 @@ function SelectCategoryModal({
     )
 
     return (
-        <ModalShell onClose={onClose} size="md" footer={footer}>
+        <ModalShell onClose={onClose} size="md" footer={footer} title='Chọn Hạng mục'>
             <div className={styles.wrapper}>
-                <h2 className={styles.title}>Chọn Hạng mục</h2>
 
                 <div className={styles.list}>
                     {categories.length === 0 && (

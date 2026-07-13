@@ -12,7 +12,17 @@ function mapApiEventToUi(apiEvent) {
     if (!apiEvent) return null
 
     const start = apiEvent.startDate || apiEvent.openDate || apiEvent.eventStartDate || apiEvent.eventStartTime || apiEvent.dateStart || apiEvent.milestones?.[0]?.dateStart
-    const end = apiEvent.endDate || apiEvent.closeDate || apiEvent.eventEndDate || apiEvent.eventEndTime || apiEvent.dateEnd || apiEvent.milestones?.slice(-1)?.[0]?.dateEnd
+    const closingRegistrationMilestone = (apiEvent.milestones || []).find((milestone) => {
+        const milestoneName = (milestone.milestoneName || milestone.name || '').trim().toLowerCase()
+        return milestoneName === 'đóng đăng ký'
+    })
+    const end = apiEvent.endDate
+        || apiEvent.closeDate
+        || apiEvent.eventEndDate
+        || apiEvent.eventEndTime
+        || apiEvent.dateEnd
+        || closingRegistrationMilestone?.dateStart
+        || apiEvent.milestones?.slice(-1)?.[0]?.dateEnd
 
     const timeline = (apiEvent.milestones || []).map((milestone, index) => ({
         id: milestone.id ?? index + 1,
@@ -31,10 +41,13 @@ function mapApiEventToUi(apiEvent) {
         startDate: start,
         endDate: end,
         location: apiEvent.eventLocation || 'Trực tuyến',
-        prize: apiEvent.prize,
+        prize: apiEvent.prize != null && !Array.isArray(apiEvent.prize)
+            ? Number(apiEvent.prize)
+            : (apiEvent.prizes || []).reduce((sum, p) => sum + ((p.prizeValue || 0) * (p.quantity || 1)), 0),
         maxTeamMember: apiEvent.maxTeamMember || apiEvent.maxMemberPerTeam || 5,
         teamCount: apiEvent.teamQuantity || 0,
         participantCount: apiEvent.candidateQuantity || 0,
+        trackCount: apiEvent.trackQuantity || 0,
         roundCount: apiEvent.roundQuantity || 0,
         timeline,
     }
@@ -47,6 +60,7 @@ function UserDashboard() {
     const [event, setEvent] = useState(null)
     const [timeline, setTimeline] = useState([])
     const [loading, setLoading] = useState(true)
+    const [registeredEventId, setRegisteredEventId] = useState(() => localStorage.getItem('joinedEventId'))
 
     const [showPendingModal, setShowPendingModal] = useState(() => {
         if (userStatus === 'PENDING_APPROVAL') {
@@ -92,9 +106,14 @@ function UserDashboard() {
         sessionStorage.setItem('hasSeenProfilePendingModal', 'true');
     };
 
+    const isRegistered = event?.id ? registeredEventId === String(event.id) : false
+
     const handleJoinClick = () => {
         if (event?.id) {
             localStorage.setItem('eventId', String(event.id))
+            localStorage.setItem('joinedEventId', String(event.id))
+            localStorage.setItem(`eventRegistration:${event.id}`, 'true')
+            setRegisteredEventId(String(event.id))
         }
 
         if (userStatus === 'PENDING_APPROVAL') {
@@ -111,6 +130,7 @@ function UserDashboard() {
             <MilestoneBanner timeline={timeline} />
             <LiveEventCard
                 event={event}
+                isRegistered={isRegistered}
                 onJoin={handleJoinClick}
                 onViewRules={() => console.log('Chi tiết thể lệ')}
             />

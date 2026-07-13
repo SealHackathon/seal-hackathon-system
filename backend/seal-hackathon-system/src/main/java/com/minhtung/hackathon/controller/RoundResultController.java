@@ -21,12 +21,13 @@ public class RoundResultController {
     }
 
 
-    @PostMapping("/{roundId}/track/{trackId}/publish/stage/{stage}")
+    @PostMapping("/{roundId}/publish/stage/{stage}")
     public RoundResultResponse publicResult(
             @PathVariable Long roundId,
-            @PathVariable Long trackId,
-            @PathVariable Integer stage) { // Đổi từ Long sang Integer
+            @PathVariable Integer stage,
+            @RequestParam(required = false) Long trackId) {
 
+        // Gọi hàm service mới xử lý cho cả 2 trường hợp (1 track hoặc tất cả track)
         return roundResultService.updatePublishStage(roundId, trackId, stage);
     }
 }

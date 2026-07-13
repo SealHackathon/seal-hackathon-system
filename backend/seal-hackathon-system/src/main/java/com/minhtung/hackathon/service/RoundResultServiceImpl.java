@@ -7,7 +7,9 @@ import com.minhtung.hackathon.dto.result.RoundResultResponse;
 import com.minhtung.hackathon.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -22,8 +24,9 @@ public class RoundResultServiceImpl implements RoundResultService {
     private final JudgeAssignmentRepository judgeAssignmentRepository;
     private final JudgeScoreRepository judgeScoreRepository;
     private final TrackRepository trackRepository;
+    private final RoundTrackRepository roundTrackRepository;
     @Override
-    public RoundResultResponse getRoundResults(Long roundId,Long trackId) {
+    public RoundResultResponse getRoundResults(Long roundId, Long trackId) {
         Round round = roundRepository.findById(roundId)
                 .orElseThrow(() -> new EntityNotFoundException("Round not found: " + roundId));
 
@@ -31,39 +34,43 @@ public class RoundResultServiceImpl implements RoundResultService {
         List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(roundId);
         List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(roundId);
 
-
-
-        // Lọc theo trackId nếu FE truyền category cụ thể (khác "all")
+        // 1. Lọc dữ liệu theo trackId nếu FE truyền lên cụ thể
         if (trackId != null) {
             submissions = submissions.stream()
-                    .filter(s -> s.getTeam().getTrack() != null && s.getTeam().getTrack().getId() == trackId)
+                    .filter(s -> s.getTeam().getTrack() != null && trackId.equals(s.getTeam().getTrack().getId()))
                     .toList();
             assignments = assignments.stream()
-                    .filter(a -> a.getTrack() != null && a.getTrack().getId() == trackId)
+                    .filter(a -> a.getTrack() != null && trackId.equals(a.getTrack().getId()))
                     .toList();
         }
 
-
-
+        // Index hóa điểm số để tìm kiếm nhanh: "judgeAssignmentId-submissionId" -> JudgeScore
         Map<String, JudgeScore> scoreIndex = new HashMap<>();
         for (JudgeScore s : scores) {
             scoreIndex.put(s.getJudgeAssignment().getId() + "-" + s.getSubmission().getId(), s);
         }
 
-        Map<Long, List<Submission>> submissionsByTrack = submissions.stream()
-                .filter(s -> s.getTeam().getTrack() != null)
-                .collect(Collectors.groupingBy(s -> s.getTeam().getTrack().getId()));
-
+        // Nhóm các JudgeAssignment theo Track để map chuẩn cho từng Đội thi
         Map<Long, List<JudgeAssignment>> assignmentsByTrack = assignments.stream()
                 .filter(a -> a.getTrack() != null)
                 .collect(Collectors.groupingBy(a -> a.getTrack().getId()));
 
+        // Nhóm các Bài nộp theo Track phục vụ việc đếm tiến độ của Giám khảo
+        Map<Long, List<Submission>> submissionsByTrack = submissions.stream()
+                .filter(s -> s.getTeam().getTrack() != null)
+                .collect(Collectors.groupingBy(s -> s.getTeam().getTrack().getId()));
+
+        // =========================================================================
+        // XỬ LÝ DANH SÁCH BẢNG ĐIỂM CỦA CÁC ĐỘI THI (ENTRIES)
+        // =========================================================================
         List<EntryDTO> entries = new ArrayList<>();
         for (Submission submission : submissions) {
             Team team = submission.getTeam();
-            List<JudgeAssignment> teamJudges = trackId != null
-                    ? assignmentsByTrack.getOrDefault(trackId, List.of())
-                    : List.of();
+            if (team.getTrack() == null) continue;
+
+            // SỬA LỖI: Lấy danh sách Giám khảo thuộc đúng Track của Đội thi này
+            Long teamTrackId = team.getTrack().getId();
+            List<JudgeAssignment> teamJudges = assignmentsByTrack.getOrDefault(teamTrackId, List.of());
 
             List<JudgeScoreDTO> perJudge = new ArrayList<>();
             for (JudgeAssignment ja : teamJudges) {
@@ -71,7 +78,7 @@ public class RoundResultServiceImpl implements RoundResultService {
                 boolean submitted = score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED;
 
                 JudgeScoreDTO dto = new JudgeScoreDTO();
-                dto.setJudge(ja.getUser().getFullName()); // TODO: đổi đúng field tên hiển thị của User
+                dto.setJudge(ja.getUser().getFullName());
                 dto.setSubmitted(submitted);
                 if (submitted) {
                     Map<String, Double> scoreMap = new LinkedHashMap<>();
@@ -79,8 +86,6 @@ public class RoundResultServiceImpl implements RoundResultService {
                         scoreMap.put(String.valueOf(d.getCriterion().getId()), d.getScore());
                     }
                     dto.setScores(scoreMap);
-                    // total score
-
                     dto.setTotal(score.getTotalScore());
                 }
                 perJudge.add(dto);
@@ -91,66 +96,75 @@ public class RoundResultServiceImpl implements RoundResultService {
             entry.setAssignedCount(teamJudges.size());
             entry.setPerJudge(perJudge);
             entry.setDiscrepancy(computeDiscrepancy(perJudge));
-            // TODO: ended / violation / tieBreakNote -> chưa có bảng lưu, xem ghi chú trước đó
             entries.add(entry);
         }
 
+        // =========================================================================
+        // XỬ LÝ TIẾN ĐỘ CHẤM CỦA BAN GIÁM KHẢO (JUDGE SUMMARIES)
+        // =========================================================================
         List<JudgeSummaryDTO> judgeSummaries = new ArrayList<>();
-        Map<Long, JudgeAssignment> distinctJudgeByUser = new LinkedHashMap<>();
-        for (JudgeAssignment ja : assignments) {
-            distinctJudgeByUser.putIfAbsent(ja.getUser().getId(), ja);
-        }
-        for (JudgeAssignment ja : distinctJudgeByUser.values()) {
-            List<Submission> teamSubs = trackId != null
-                    ? submissionsByTrack.getOrDefault(trackId, List.of())
-                    : List.of();
 
-            int assignedCount = teamSubs.size();
-            int scoredCount = 0;
+        // Gom nhóm phân công theo User ID để tránh lặp Giám khảo khi họ chấm nhiều Track
+        Map<Long, List<JudgeAssignment>> assignmentsByJudgeUser = assignments.stream()
+                .filter(a -> a.getTrack() != null)
+                .collect(Collectors.groupingBy(a -> a.getUser().getId()));
+
+        for (Map.Entry<Long, List<JudgeAssignment>> judgeEntry : assignmentsByJudgeUser.entrySet()) {
+            List<JudgeAssignment> judgeTrackAssignments = judgeEntry.getValue();
+            if (judgeTrackAssignments.isEmpty()) continue;
+
+            // Lấy thông tin user đại diện của Giám khảo
+            User judgeUser = judgeTrackAssignments.get(0).getUser();
+
+            int totalAssignedCount = 0;
+            int totalScoredCount = 0;
             LocalDateTime lastUpdate = null;
-            for (Submission s : teamSubs) {
-                JudgeScore score = scoreIndex.get(ja.getId() + "-" + s.getId());
-                if (score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED) {
-                    scoredCount++;
-                    LocalDateTime updated = score.getUpdatedAt() != null ? score.getUpdatedAt() : score.getSubmitAt();
-                    if (lastUpdate == null || (updated != null && updated.isAfter(lastUpdate))) {
-                        lastUpdate = updated;
+
+            // Lặp qua tất cả các Phân công Track của Giám khảo này trong Vòng thi
+            for (JudgeAssignment ja : judgeTrackAssignments) {
+                Long currentTrackId = ja.getTrack().getId();
+                List<Submission> trackSubs = submissionsByTrack.getOrDefault(currentTrackId, List.of());
+
+                totalAssignedCount += trackSubs.size();
+
+                for (Submission s : trackSubs) {
+                    JudgeScore score = scoreIndex.get(ja.getId() + "-" + s.getId());
+                    if (score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED) {
+                        totalScoredCount++;
+                        LocalDateTime updated = score.getUpdatedAt() != null ? score.getUpdatedAt() : score.getSubmitAt();
+                        if (lastUpdate == null || (updated != null && updated.isAfter(lastUpdate))) {
+                            lastUpdate = updated;
+                        }
                     }
                 }
             }
 
             JudgeSummaryDTO summary = new JudgeSummaryDTO();
-            summary.setId(String.valueOf(ja.getUser().getId()));
-            summary.setName(ja.getUser().getFullName()); // TODO: đổi đúng field tên hiển thị của User
-            summary.setAssigned(assignedCount);
-            summary.setScored(scoredCount);
+            summary.setId(String.valueOf(judgeUser.getId()));
+            summary.setName(judgeUser.getFullName());
+            summary.setAssigned(totalAssignedCount);
+            summary.setScored(totalScoredCount);
             summary.setLastUpdate(lastUpdate);
             judgeSummaries.add(summary);
         }
 
-
-
+        // =========================================================================
+        // THIẾT LẬP ĐẦU RA RESPONSE
+        // =========================================================================
         RoundResultResponse response = new RoundResultResponse();
         response.setJudges(judgeSummaries);
         response.setEntries(entries);
         response.setUpdatedAt(computeLatestUpdate(scores));
-        response.setReview(null); // TODO: chưa có bảng lưu trạng thái publish flow
-        response.setAwards(computeAwardsAutomatically(entries)); // TODO: chưa có bảng Award
+        response.setReview(null);
+        response.setAwards(computeAwardsAutomatically(entries));
 
-        // TRẢ về thêm getPublishedResult cho FRONTEND
+        // Trả về PublishStage tương ứng
         if (trackId != null) {
             Track track = trackRepository.findById(trackId).orElse(null);
-            if (track != null) {
-                // Lấy giá trị publishStage đang lưu trong DB gán vào DTO
-                response.setPublishStage(track.getPublishedResult());
-            } else {
-                response.setPublishStage(1); // Phòng hờ nếu không tìm thấy track
-            }
+            response.setPublishStage(track != null ? track.getPublishedResult() : 1);
         } else {
-            response.setPublishStage(1); // Nếu trackId bằng null (chế độ 'all')
+            response.setPublishStage(1); // Mặc định ở chế độ view 'all' track
         }
-
-
 
         return response;
     }
@@ -251,44 +265,69 @@ public class RoundResultServiceImpl implements RoundResultService {
     //public award
     //service trả về bảng xếp hạng của 1 track khi publistResult trong entity Track được map về True
 
-    public PublicRoundResultResponse getPublicRoundResultsByTrack(Long roundId, Long trackId) {
-        if (trackId == null) {
-            throw new IllegalArgumentException("Track ID is required for public results");
+    public PublicRoundResultResponse getPublicRoundResultsByTrack(Long roundId, Long trackId, String userRole) {
+        if (trackId == null || roundId == null) {
+            throw new IllegalArgumentException("Round ID và Track ID là bắt buộc");
         }
 
-        // 1. Tìm thông tin Track để kiểm tra trạng thái công bố trực tiếp
-        // Giả sử bạn đã inject TrackRepository vào Service này rồi nhé
-        Track track = trackRepository.findById(trackId)
-                .orElseThrow(() -> new EntityNotFoundException("Track not found: " + trackId));
+        // 1. Lấy trạng thái stage từ bảng trung gian round_track thay vì bảng track
+        RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(roundId, trackId);
+        RoundTrack roundTrack = roundTrackRepository.findById(roundTrackId)
+                .orElseThrow(() -> new EntityNotFoundException("Trận đấu chưa được thiết lập cấu hình."));
 
-        PublicRoundResultResponse response = new PublicRoundResultResponse();
+        int currentStage = roundTrack.getPublishStage();
 
-        // Kiểm tra trực tiếp trên thực thể Track
-        // TODO kiểm tra lại chỗ này
-        if (track.getPublishedResult() ==1) {
+        // 2. PHÂN QUYỀN VÀ CHECK LỖI THEO ĐÚNG YÊU CẦU
+
+        // Trường hợp Stage 0 hoặc Stage 1: Đang đóng hoặc đang chấm nội bộ -> Ẩn kết quả với tất cả
+        if (currentStage == 0 || currentStage == 1) {
+            // Nếu là sinh viên (USER) cố tình gọi API ở Stage 1 -> Ném lỗi trực tiếp
+            if ("USER".equalsIgnoreCase(userRole)) {
+                throw new AccessDeniedException("Kết quả vòng thi hiện tại chưa được mở cho Sinh viên!");
+            }
+
+            // Trả về response trống chuẩn chỉnh
+            PublicRoundResultResponse response = new PublicRoundResultResponse();
             response.setPublished(false);
             response.setEntries(new ArrayList<>());
             response.setAwards(null);
             return response;
         }
 
-        // 2. Lấy dữ liệu Submissions và Scores (chỉ lọc các bản ghi thuộc Track này)
+        // Trường hợp Stage 2: Chỉ mở cho LECTURER xem trước kết quả
+        if (currentStage == 2) {
+            // Sinh viên (USER) gọi ở giai đoạn này -> Báo lỗi chặn quyền lập tức
+            if ("USER".equalsIgnoreCase(userRole)) {
+                throw new AccessDeniedException("Kết quả đang trong giai đoạn duyệt nội bộ. Sinh viên chưa thể xem!");
+            }
+            // Nếu là LECTURER hoặc ADMIN thì cho phép chạy tiếp xuống dưới để lấy data...
+        }
+
+        // Trường hợp Stage 3: Mở public hoàn toàn, không chặn ai nữa cả, chạy tiếp xuống dưới...
+
+
+        // =========================================================================
+        // 3. LOGIC LẤY DATA VÀ TÍNH ĐIỂM BẢNG XẾP HẠNG (Giữ nguyên logic chuẩn của bạn)
+        // =========================================================================
+        PublicRoundResultResponse response = new PublicRoundResultResponse();
+
+        // Lọc các Submissions thuộc Track này
         List<Submission> submissions = submissionRepository.findByRound_IdAndLatestTrue(roundId).stream()
                 .filter(s -> s.getTeam().getTrack() != null && s.getTeam().getTrack().getId()==(trackId))
                 .toList();
 
         List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(roundId);
         List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(roundId).stream()
-                .filter(a -> a.getTrack() != null && a.getTrack().getId()  == (trackId))
+                .filter(a -> a.getTrack() != null && a.getTrack().getId()==(trackId))
                 .toList();
 
-        // Map để index score: "assignmentId-submissionId" -> JudgeScore
+        // Index scores
         Map<String, JudgeScore> scoreIndex = new HashMap<>();
         for (JudgeScore s : scores) {
             scoreIndex.put(s.getJudgeAssignment().getId() + "-" + s.getSubmission().getId(), s);
         }
 
-        // 3. Tính điểm trung bình công khai cho từng đội trong Track
+        // Tính điểm trung bình
         List<PublicEntryDTO> publicEntries = new ArrayList<>();
         for (Submission submission : submissions) {
             List<Double> submittedTotals = new ArrayList<>();
@@ -310,13 +349,13 @@ public class RoundResultServiceImpl implements RoundResultService {
             }
         }
 
-        // 4. Sắp xếp danh sách đội theo điểm giảm dần và đánh số Rank
+        // Sắp xếp rank
         publicEntries.sort((a, b) -> Double.compare(b.getFinalScore(), a.getFinalScore()));
         for (int i = 0; i < publicEntries.size(); i++) {
             publicEntries.get(i).setRank(i + 1);
         }
 
-        // 5. Tự động lấy TOP 3 trao giải MAIN (Nhất, Nhì, Ba) cho riêng Track này
+        // Tính Top 3 giải thưởng chính
         List<MainAwardDTO> mainAwards = new ArrayList<>();
         String[] rankKeys = {"first", "second", "third"};
         for (int i = 0; i < Math.min(publicEntries.size(), rankKeys.length); i++) {
@@ -334,7 +373,6 @@ public class RoundResultServiceImpl implements RoundResultService {
         awardsDTO.setMain(mainAwards);
         awardsDTO.setExtended(new ArrayList<>());
 
-        // 6. Đóng gói kết quả trả về
         response.setPublished(true);
         response.setEntries(publicEntries);
         response.setAwards(awardsDTO);
@@ -343,24 +381,44 @@ public class RoundResultServiceImpl implements RoundResultService {
     }
 
     @Override
+    @Transactional
     public RoundResultResponse updatePublishStage(Long roundId, Long trackId, Integer stage) {
-        // 1. Kiểm tra giá trị stage hợp lệ truyền từ Frontend (Chỉ chấp nhận từ 1 đến 3)
-        if (stage < 1 || stage > 3) {
+        // 1. Kiểm tra giá trị stage hợp lệ (0 đến 3)
+        if (stage < 0 || stage > 3) {
             throw new IllegalArgumentException("Cấp độ công bố không hợp lệ: " + stage);
         }
 
-        // 2. Tìm thông tin Track cần cập nhật trong DB
-        Track track = trackRepository.findById(trackId)
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy Track với ID: " + trackId));
+        // 2. Trường hợp KHÔNG gửi trackId -> Tiến hành cập nhật TẤT CẢ các track thuộc Round này
+        if (trackId == null) {
+            List<RoundTrack> roundTracks = roundTrackRepository.findByRoundId(roundId);
 
-        // 3. Cập nhật cấp độ Stage mới mà Frontend vừa gửi lên
-        track.setPublishedResult(stage); // Giả sử thuộc tính trong file Track.java tên là publishStage
-        trackRepository.save(track);  // Lưu lại vào Database
+            if (roundTracks.isEmpty()) {
+                throw new EntityNotFoundException("Không tìm thấy cấu hình trận đấu nào cho Round ID: " + roundId);
+            }
 
-        // Log ra để dễ dàng debug hệ thống
-        System.out.println("Đã cập nhật Track ID " + trackId + " sang Publish Stage: " + stage);
+            // Duyệt qua từng track và cập nhật stage
+            for (RoundTrack rt : roundTracks) {
+                rt.setPublishStage(stage);
+            }
+            roundTrackRepository.saveAll(roundTracks); // Lưu đồng loạt xuống DB
 
-        // 4. Trả về kết quả chấm giải hiện tại của Round và Track này cho Frontend đồng bộ UI luôn
+            System.out.println("Đã cập nhật TẤT CẢ các Track của Round ID " + roundId + " sang Publish Stage: " + stage);
+
+            // Trả về kết quả tổng quan của Round (hoặc lấy đại diện kết quả của track đầu tiên để response không bị null)
+            Long firstTrackId = roundTracks.get(0).getTrack().getId();
+            return getRoundResults(roundId, firstTrackId);
+        }
+
+        // 3. Trường hợp CÓ gửi trackId -> Chỉ cập nhật duy nhất 1 cặp Round - Track cụ thể (Giữ nguyên logic cũ)
+        RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(roundId, trackId);
+        RoundTrack roundTrack = roundTrackRepository.findById(roundTrackId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy cấu hình trận đấu cho Round ID: " + roundId + " và Track ID: " + trackId));
+
+        roundTrack.setPublishStage(stage);
+        roundTrackRepository.save(roundTrack);
+
+        System.out.println("Đã cập nhật cặp (Round: " + roundId + ", Track: " + trackId + ") sang Publish Stage: " + stage);
+
         return getRoundResults(roundId, trackId);
     }
 }

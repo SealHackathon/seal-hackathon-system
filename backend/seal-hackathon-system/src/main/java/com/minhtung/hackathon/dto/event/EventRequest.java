@@ -9,6 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @NoArgsConstructor
 @Getter
@@ -24,7 +25,7 @@ public class EventRequest {
     private String rules;
     private String eventLocation;
     private String participationBenefits;
-
+    private String keywords;
     // Cấu hình định dạng đón nhận chuỗi thời gian từ Form-data
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime openRegisterTime;

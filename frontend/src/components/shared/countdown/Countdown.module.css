@@ -37,8 +37,6 @@
     margin: 0;
     font-family: var(--title-font-main);
     color: var(--color-primary-orange);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
 .countdown.small .label {
@@ -51,10 +49,10 @@
 }
 
 .sep {
-    font-size: 2rem;
+    font-size: 1.5rem;
     font-weight: 900;
     color: var(--color-dark-orange);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1.2rem;
     /* bù phần label bên dưới */
 }
 
