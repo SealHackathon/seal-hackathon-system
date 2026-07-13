@@ -21,7 +21,7 @@ function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
         ? registrationDeadline.getTime() < now
         : false
     const joinButtonLabel = isRegistered
-        ? 'Đã đăng ký'
+        ? 'Vào cuộc thi'
         : isRegistrationClosed
             ? 'Đóng đăng ký'
             : 'Tham gia'
