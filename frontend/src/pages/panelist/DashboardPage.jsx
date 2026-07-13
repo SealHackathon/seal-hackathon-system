@@ -143,7 +143,7 @@ function DashboardPage() {
     if (assignedRounds.length > 0) {
       const now = new Date();
 
-      // 🎯 CHIẾN LƯỢC 1: Tìm vòng đang diễn ra ngay tại thời điểm này
+      //  Tìm vòng đang diễn ra ngay tại thời điểm này
       const activeRound = assignedRounds.find(r => {
         const start = new Date(r.timeStart);
         const end = new Date(r.timeEnd);
@@ -153,7 +153,7 @@ function DashboardPage() {
       if (activeRound) {
         targetRoundId = activeRound.roundId;
       } else {
-        // 🎯 CHIẾN LƯỢC 2: Không có vòng nào chạy -> Tìm vòng có thời gian diễn ra GẦN NHẤT
+        // Không có vòng nào chạy -> Tìm vòng có thời gian diễn ra GẦN NHẤT
         let minDistance = Infinity;
 
         assignedRounds.forEach(r => {
