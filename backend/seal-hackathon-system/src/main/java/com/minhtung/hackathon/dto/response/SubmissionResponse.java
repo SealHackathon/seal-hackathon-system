@@ -23,12 +23,11 @@ public class SubmissionResponse {
     private Boolean isLate;
     private LocalDateTime lastEditedAt;
 
-
     private Double score;               // Điểm trung bình cộng của Hội đồng
     private List<String> comments;      // Danh sách tất cả nhận xét từ các giám khảo
     private Integer judgesCount;        // Số lượng giám khảo đã nộp điểm chính thức
 
-    public static SubmissionResponse from(Submission submission, List<JudgeScore> judgeScores) {
+    public static SubmissionResponse from(Submission submission, List<JudgeScore> judgeScores, Integer publishStage) {
         if (submission == null) return null;
 
         // 1. Kiểm tra nộp muộn (Deadline)
@@ -37,23 +36,33 @@ public class SubmissionResponse {
             checkLate = submission.getSubmittedAt().isAfter(submission.getRound().getSubmissionDeadline());
         }
 
-        // 2. Lọc các bảng điểm đã SUBMITTED chính thức từ Hội đồng
-        List<JudgeScore> officialScores = (judgeScores != null) ? judgeScores.stream()
-                                                                  .filter(score -> score.getStatus() == JudgeScoreStatus.SUBMITTED)
-                                                                  .toList() : List.of();
-
-        // 3. Tính toán điểm trung bình cộng (Làm tròn 2 chữ số thập phân)
+        // Khởi tạo các giá trị mặc định liên quan đến điểm số là null hoặc rỗng
         Double avgScore = null;
-        if (!officialScores.isEmpty()) {
-            double sum = officialScores.stream().mapToDouble(JudgeScore::getTotalScore).sum();
-            avgScore = Math.round((sum / officialScores.size()) * 100.0) / 100.0;
-        }
+        List<String> allComments = List.of();
+        int officialJudgesCount = 0;
 
-        // 4. Gom tất cả nhận xét không rỗng của các giám khảo
-        List<String> allComments = officialScores.stream()
-                .map(JudgeScore::getComment)
-                .filter(comment -> comment != null && !comment.trim().isEmpty())
-                .collect(Collectors.toList());
+        // 2. CHỈ xử lý điểm số và nhận xét KHI publishStage == 3 (Giai đoạn công bố điểm chính thức)
+        if (publishStage != null && publishStage == 3) {
+
+            // Lọc các bảng điểm đã SUBMITTED chính thức từ Hội đồng
+            List<JudgeScore> officialScores = (judgeScores != null) ? judgeScores.stream()
+                                                                      .filter(score -> score.getStatus() == JudgeScoreStatus.SUBMITTED)
+                                                                      .toList() : List.of();
+
+            // Tính toán điểm trung bình cộng (Làm tròn 2 chữ số thập phân)
+            if (!officialScores.isEmpty()) {
+                double sum = officialScores.stream().mapToDouble(JudgeScore::getTotalScore).sum();
+                avgScore = Math.round((sum / officialScores.size()) * 100.0) / 100.0;
+            }
+
+            // Gom tất cả nhận xét không rỗng của các giám khảo
+            allComments = officialScores.stream()
+                    .map(JudgeScore::getComment)
+                    .filter(comment -> comment != null && !comment.trim().isEmpty())
+                    .collect(Collectors.toList());
+
+            officialJudgesCount = officialScores.size();
+        }
 
         return SubmissionResponse.builder()
                 .id(submission.getId())
@@ -67,10 +76,10 @@ public class SubmissionResponse {
                 .isLate(checkLate)
                 .lastEditedAt(submission.getSubmittedAt())
 
-                // Đổ dữ liệu hội đồng vào DTO
+                // Đổ dữ liệu hội đồng vào DTO (sẽ là ẩn/mặc định nếu stage chưa phải là 3)
                 .score(avgScore)
                 .comments(allComments)
-                .judgesCount(officialScores.size())
+                .judgesCount(officialJudgesCount)
                 .build();
     }
 }
