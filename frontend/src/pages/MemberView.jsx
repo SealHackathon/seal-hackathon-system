@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import EventLayout from '../layouts/EventLayout'
 import TeamInfoHeader from '../components/leaderView/TeamInfoHeader'
 import TeamMemberPanel from '../components/leaderView/TeamMemberPanel'
@@ -111,6 +111,9 @@ function MemberView() {
   const [FAKE_MEMBERS, setFAKE_MEMBERS] = useState([]);
   const [FAKE_INVITES, setFAKE_INVITES] = useState([]);
   const [confirmModal, setConfirmModal] = useState(null)
+  const [membersLoaded, setMembersLoaded] = useState(false)
+  const [kickedModal, setKickedModal] = useState(false)
+  const wasReserveRef = useRef(false) // Lưu trạng thái ban đầu để phát hiện bị kick
 
   const [teamInfo, setTeamInfo] = useState({ teamName: 'SEAL Hackathon Team', description: 'Đội thi của chúng mình', teamCode: 'SEAL2026', teamStatus: 'OPEN' });
   const [selectedCategory, setSelectedCategory] = useState(null)
@@ -177,9 +180,20 @@ function MemberView() {
     axiosClient
       .get('/team/my-team')
       .then((response) => {
-        setFAKE_MEMBERS(response.data);
+        const members = response.data;
+        setFAKE_MEMBERS(members);
+
+        // Ghi nhớ nếu user hiện tại đang là RESERVE (để phát hiện khi bị kick)
+        const me = members.find(m => m.isCurrentUser);
+        if (me && me.memberStatus === 'RESERVE') {
+          wasReserveRef.current = true;
+        }
+        setMembersLoaded(true);
       })
-      .catch((error) => console.log(error));
+      .catch((error) => {
+        console.log(error);
+        setMembersLoaded(true);
+      });
   }, []);
 
 
@@ -221,6 +235,32 @@ function MemberView() {
       })
       .catch((error) => console.log(error));
   }, []);
+
+  // Polling định kỳ 30 giây: phát hiện khi thành viên dự bị bị kick trong khi đang online
+  useEffect(() => {
+    if (!wasReserveRef.current) return; // Chỉ poll nếu user đang là RESERVE
+
+    const intervalId = setInterval(() => {
+      axiosClient
+        .get('/team/my-team')
+        .then((response) => {
+          const members = response.data;
+          const me = members.find(m => m.isCurrentUser);
+          // Nếu user không còn trong danh sách → đã bị kick
+          if (!me) {
+            clearInterval(intervalId);
+            setKickedModal(true);
+          }
+        })
+        .catch(() => {
+          // Nếu gặp lỗi (ví dụ 404 vì không còn trong team) → cũng coi là bị kick
+          clearInterval(intervalId);
+          setKickedModal(true);
+        });
+    }, 30000); // Kiểm tra mỗi 30 giây
+
+    return () => clearInterval(intervalId);
+  }, [membersLoaded]); // Chạy sau khi members đã load lần đầu
 
 
 
@@ -285,6 +325,16 @@ function MemberView() {
 
   const currentUser = FAKE_MEMBERS.find(m => m.isCurrentUser);
 
+  // Phát hiện khi thành viên dự bị bị kick sau khi đội được APPROVED
+  useEffect(() => {
+    if (!membersLoaded) return;
+    // Nếu user từng là RESERVE nhưng giờ không còn trong danh sách
+    // (backend đã set status=OUT khi approve), hoặc teamStatus đã APPROVED và currentUser=null
+    if (wasReserveRef.current && !currentUser) {
+      setKickedModal(true);
+    }
+  }, [membersLoaded, currentUser]);
+
   return (
     <EventLayout>
       <div className={styles.page}>
@@ -343,6 +393,28 @@ function MemberView() {
         onCancel={() => setConfirmModal(null)}
         isNotification={confirmModal?.isNotification}
         variant={confirmModal?.variant}
+      />
+
+      {/* Modal thông báo khi thành viên dự bị bị tự động loại khỏi đội */}
+      <ConfirmModal
+        isOpen={kickedModal}
+        title="Bạn đã bị loại khỏi đội"
+        message={`Đội của bạn vừa được BTC phê duyệt. Do đội đã đủ thành viên chính thức, bạn (thành viên dự bị) đã bị tự động loại khỏi đội.\n\nBạn có thể tạo đội mới hoặc tham gia đội khác.`}
+        confirmLabel="Đã hiểu"
+        isNotification={true}
+        variant="warning"
+        onConfirm={() => {
+          setKickedModal(false);
+          localStorage.removeItem('lastKnownTeamRole');
+          localStorage.removeItem('lastKnownTeamRoleEventId');
+          updateTeamRole('NO_TEAM');
+        }}
+        onCancel={() => {
+          setKickedModal(false);
+          localStorage.removeItem('lastKnownTeamRole');
+          localStorage.removeItem('lastKnownTeamRoleEventId');
+          updateTeamRole('NO_TEAM');
+        }}
       />
       
       <ToastContainer toasts={toasts} onClose={removeToast} bottom="2em" />

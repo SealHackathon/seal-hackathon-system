@@ -27,7 +27,7 @@ public class EmailService {
     try {
       MimeMessage message = mailSender.createMimeMessage();
       MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
-      helper.setFrom("mtung638@gamil.com");
+//      helper.setFrom("mtung638@gamil.com");
       helper.setTo(email);
       helper.setSubject("Xác  nhận đăng kí tài khoản");
 
@@ -77,6 +77,27 @@ public class EmailService {
         return false;
     }
   }
+  public boolean sendReserveMemberKickedEmail(String email, String memberName, String teamName) {
+    try {
+      MimeMessage message = mailSender.createMimeMessage();
+      MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+      helper.setFrom("thainguyenthanh504@gmail.com");
+      helper.setTo(email);
+      helper.setSubject("[SEAL Hackathon] Bạn đã bị loại khỏi đội " + teamName);
+      helper.setText(
+              "<p>Xin chào <strong>" + memberName + "</strong>,</p>" +
+              "<p>Đội <strong>\"" + teamName + "\"</strong> vừa được BTC phê duyệt. Do đội đã đủ thành viên chính thức, bạn (thành viên dự bị) đã bị tự động loại khỏi đội.</p>" +
+              "<p>Bạn có thể tạo đội mới hoặc xin vào đội khác.</p>",
+              true
+      );
+      mailSender.send(message);
+      return true;
+    } catch (Exception e) {
+      e.printStackTrace();
+      return false;
+    }
+  }
+
   public boolean  emailxacnhantuadmin(String email){
 //    String verifLink = baseUrl + "/api/auth/verify?email" + email;
 
