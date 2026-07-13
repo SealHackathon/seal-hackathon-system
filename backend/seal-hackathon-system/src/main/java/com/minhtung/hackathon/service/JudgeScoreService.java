@@ -34,16 +34,44 @@ public class JudgeScoreService {
                         "Không tìm thấy Judge"));
         Submission submission = submissionRepository.findById(request.getSubmissionId()).orElseThrow((() -> new RuntimeException("không tìm thấy bài nộp ")));
 
+
+
+        Team team = submission.getTeam();
+        Round round = submission.getRound();
         if (!submission.isLatest()) {
             throw new RuntimeException("không thể chấm phiên bản nộp cũ ");
 
 
         }
-        if (submission.getTeam().getTrack() == null) {
+
+        if(team == null ){
+            throw  new  RuntimeException("bai nop khong thuoc team nao ") ;
+
+        }
+        if(round == null){
+            throw  new RuntimeException("bai nay khong thuoc vong thi nao  ") ;
+
+        }
+        if (team.getTrack() == null) {
             throw new RuntimeException("Team chưa thuộc track");
         }
-        Long trackId = submission.getTeam().getTrack().getId();
-        JudgeAssignment assignment = judgeAssignmentRepository.findByUser_IdAndTrackId(judge.getId(), trackId).orElseThrow(() -> new RuntimeException("bạn không được phân công trong track này "));
+
+        if (team.getTrack().getEvent() == null) {
+            throw new RuntimeException("Track của team chưa thuộc sự kiện nào");
+        }
+
+        long teamEventId = team.getTrack().getEvent().getId();
+        long roundEventId = round.getEvent().getId();
+
+        if (teamEventId != roundEventId) {
+            throw new RuntimeException(
+                    "Team không thuộc vòng thi của sự kiện này"
+            );
+        }
+
+        Long trackId = team.getTrack().getId();
+        Long roundId  = round.getId();
+        JudgeAssignment assignment = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId,roundId).orElseThrow(() -> new RuntimeException("bạn không được phân công trong track này "));
 
         boolean alreadyScored = judgeScoreRepository.existsByJudgeAssignmentIdAndSubmissionId(assignment.getId(), submission.getId());
 
