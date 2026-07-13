@@ -89,7 +89,7 @@ export function AuthProvider({ children }) {
 
     const clearAuth = () => {
         ["accessToken", "role", "teamRole", "userInfo", "expiredTime", "activeAccount", "userStatus",
-            "completeProfileStep", "completeProfileStep1", "completeProfileStep2", "completeProfileStep3", "completeProfileStep4"].forEach(
+            "completeProfileStep", "completeProfileStep1", "completeProfileStep2", "completeProfileStep3", "completeProfileStep4", "hasSeenDisclaimer"].forEach(
                 (key) => localStorage.removeItem(key)
             );
         setRole(null);

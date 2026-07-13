@@ -54,8 +54,8 @@ function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
                 </div>
                 
                 <div className={styles.stats}>
-                    <StatChip value={`${event.teamCount || 0} / 100`} label={<>Đội thi <span style={{color: '#E55C00'}}>*</span></>} />
-                    <StatChip value={`${event.participantCount || 0} / 500`} label="Thí sinh" />
+                    <StatChip value={`${event.teamCount || 0} / ${event.maxTeamLimit || event.maxTeamMember || 'Không giới hạn'}`} label={<>Đội thi <span style={{color: '#E55C00'}}>*</span></>} />
+                    <StatChip value={`${event.participantCount || 0}`} label="Thí sinh" />
                     <StatChip value={event.trackCount || 0} label="Hạng mục" />
                 </div>
 

@@ -6,6 +6,7 @@ import ProfilePendingModal from '../components/dashboard/ProfilePendingModal'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../AuthContext'
 import axiosClient from '../api/axiosClient'
+import DisclaimerStep from '../components/joinFlow/DisclaimerStep'
 // import styles from './UserDashboard.module.css'
 
 function mapApiEventToUi(apiEvent) {
@@ -46,11 +47,13 @@ function mapApiEventToUi(apiEvent) {
             : (apiEvent.prizes || []).reduce((sum, p) => sum + ((p.prizeValue || 0) * (p.quantity || 1)), 0),
         maxTeamMember: apiEvent.maxTeamMember || apiEvent.maxMemberPerTeam || 5,
         teamCount: apiEvent.teamQuantity || 0,
+        maxTeamLimit: apiEvent.maxTeamLimit || (apiEvent.tracks || []).reduce((sum, t) => sum + (t.maxTeamPerTrack || 0), 0) || 0,
         participantCount: apiEvent.candidateQuantity || 0,
         trackCount: apiEvent.trackQuantity || 0,
         roundCount: apiEvent.roundQuantity || 0,
         isCurrentUserRegistered: apiEvent.isCurrentUserRegistered || false,
         timeline,
+        notes: apiEvent.notes || [],
     }
 }
 
@@ -70,24 +73,59 @@ function UserDashboard() {
         }
         return false;
     });
+    const [showDisclaimer, setShowDisclaimer] = useState(false);
 
     useEffect(() => {
         let isMounted = true
 
         axiosClient.get('/event/live')
-            .then((response) => {
+            .then(async (response) => {
                 if (!isMounted) return
 
                 const payload = response?.data
                 const list = Array.isArray(payload) ? payload : payload ? [payload] : []
-                const selected = list.find((item) => ['live', 'upcoming', 'active', 'published'].includes((item.eventStatus || '').toLowerCase())) || list[0] || null
+                let selected = list.find((item) => ['live', 'upcoming', 'active', 'published'].includes((item.eventStatus || '').toLowerCase())) || list[0] || null
+
+                if (selected && (selected.eventId || selected.id)) {
+                    const id = selected.eventId || selected.id
+                    try {
+                        const [eventRes, notesRes] = await Promise.all([
+                            axiosClient.get(`/event/${id}`),
+                            axiosClient.get(`/event-notes/${id}`).catch(() => null),
+                        ])
+                        const rawEvent = eventRes.data
+                        const eventData = rawEvent?.data ?? rawEvent?.result ?? rawEvent?.payload ?? rawEvent
+                        
+                        let notesHtml = ''
+                        if (notesRes) {
+                            const rawNotes = notesRes.data
+                            const parsedNotes = rawNotes?.data ?? rawNotes?.result ?? rawNotes?.payload ?? rawNotes
+                            if (Array.isArray(parsedNotes)) {
+                                notesHtml = parsedNotes[0] || ''
+                            } else {
+                                notesHtml = parsedNotes?.notes ?? parsedNotes?.ruleNotes ?? ''
+                            }
+                        }
+                        
+                        const liveMilestones = selected.milestones || []
+                        const detailMilestones = eventData.milestones || []
+                        const mergedMilestones = liveMilestones.length >= detailMilestones.length ? liveMilestones : detailMilestones
+                        
+                        selected = { ...selected, ...eventData, notesHtml, milestones: mergedMilestones }
+                    } catch (error) {
+                        console.error('Failed to load full event details:', error)
+                    }
+                }
+
                 const mapped = mapApiEventToUi(selected)
 
-                setEvent(mapped)
-                setTimeline(mapped?.timeline || [])
+                if (isMounted) {
+                    setEvent(mapped)
+                    setTimeline(mapped?.timeline || [])
 
-                if (mapped?.id) {
-                    localStorage.setItem('eventId', String(mapped.id))
+                    if (mapped?.id) {
+                        localStorage.setItem('eventId', String(mapped.id))
+                    }
                 }
             })
             .catch((error) => {
@@ -117,6 +155,15 @@ function UserDashboard() {
             setRegisteredEventId(String(event.id))
         }
 
+        const hasSeenDisclaimer = localStorage.getItem('hasSeenDisclaimer')
+        if (!hasSeenDisclaimer) {
+            setShowDisclaimer(true)
+        } else {
+            proceedToTeam()
+        }
+    }
+
+    const proceedToTeam = () => {
         if (userStatus === 'PENDING_APPROVAL') {
             setShowPendingModal(true);
         } else {
@@ -124,9 +171,22 @@ function UserDashboard() {
         }
     }
 
+    const handleDisclaimerConfirm = () => {
+        localStorage.setItem('hasSeenDisclaimer', 'true')
+        setShowDisclaimer(false)
+        proceedToTeam()
+    }
+
     return (
         <UserLayout showCard={false}>
             <ProfilePendingModal isOpen={showPendingModal} onClose={handleCloseModal} />
+            {showDisclaimer && (
+                <DisclaimerStep 
+                    onClose={() => setShowDisclaimer(false)} 
+                    onNext={handleDisclaimerConfirm} 
+                    notes={event?.notes}
+                />
+            )}
             {loading && !event ? <div>Đang tải thông tin sự kiện...</div> : null}
             <MilestoneBanner timeline={timeline} />
             <LiveEventCard
