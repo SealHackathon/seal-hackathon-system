@@ -641,11 +641,13 @@ public class TeamService {
                 TeamMembersResponseDetail membersResponse = new TeamMembersResponseDetail();
                 User user = member1.getMember();
                 Student_profile profile = studentprofileRepository.findByUserId(user.getId()).orElse(null);
-                membersResponse.setBio(profile.getBio());
-                membersResponse.setPositions(profile.getPositions());
-                membersResponse.setTechTags(profile.getTechTags());
-                membersResponse.setTopics(profile.getTopics());
-                membersResponse.setCvLink("đang hard code chưa fix chỗ cv này");
+                if (profile != null) {
+                    membersResponse.setBio(profile.getBio());
+                    membersResponse.setPositions(profile.getPositions());
+                    membersResponse.setTechTags(profile.getTechTags());
+                    membersResponse.setTopics(profile.getTopics());
+                    membersResponse.setCvLink("đang hard code chưa fix chỗ cv này");
+                }
                 membersResponse.setJoinMethod(member1.getJoinMethod().toString());
                 membersResponse.setMemberStatus(member1.getStatus().toString());
                 membersResponse.setId(member1.getId());
