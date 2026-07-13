@@ -4,25 +4,22 @@ import { useAuth } from '../AuthContext'
 
 // const userInfo=localStorage.getItem('userInfo')? JSON.parse(localStorage.getItem('userInfo')): null
 
-function UserLayout({ children, showCard = true }) {
+function UserLayout({ children, showCard = true, fullWidth = false }) {
     const { userInfo } = useAuth()
 
     return (
-        <div className={styles.page}>
-            <Navbar 
-        isLoggedIn={true}
-        user={{
-          name:userInfo? userInfo.fullname : 'Nguyen Van A',
-          email: userInfo? userInfo.email : 'nguyenvana@example.com',
-          avatar: userInfo? userInfo.avatar : null
-        }}
-
-      />
-            <main className={styles.main}>
+        <div className={[styles.page, fullWidth ? styles.fullWidth : ''].join(' ')}>
+            <Navbar
+                isLoggedIn={true}
+                user={{
+                    name: userInfo ? userInfo.fullname : 'Nguyen Van A',
+                    email: userInfo ? userInfo.email : 'nguyenvana@example.com',
+                    avatar: userInfo ? userInfo.avatar : null
+                }} />
+            <main className={[styles.main, fullWidth ? styles.fullWidth : ''].join(' ')}>
                 {showCard
                     ? <div className={styles.card}>{children}</div>
-                    : children
-                }
+                    : children}
             </main>
         </div>
     )

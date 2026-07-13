@@ -1,7 +1,7 @@
 .counter {
-    width: 2.75rem;
+    width: 3rem;
     height: 3.75rem;
-    border-radius: var(--inner-radius);
+    border-radius: 0.5em;
     overflow: hidden;
     background: var(--color-primary-orange);
 }

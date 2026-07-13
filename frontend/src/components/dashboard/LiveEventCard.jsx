@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Users, MapPin, Trophy } from '@phosphor-icons/react'
 import Button from '../shared/Button'
 import StatChip from '../coordinator/StatChip'
@@ -5,8 +6,25 @@ import TimelineHorizontal from '../shared/TimelineHorizontal'
 import styles from './LiveEventCard.module.css'
 import coverPlaceholder from '../../assets/seal_hackathon_poster.png'
 
-function LiveEventCard({ event, onJoin, onViewRules }) {
+function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
+    const [now, setNow] = useState(() => Date.now())
+
+    useEffect(() => {
+        const timer = setInterval(() => setNow(Date.now()), 1000)
+        return () => clearInterval(timer)
+    }, [])
+
     if (!event) return null
+
+    const registrationDeadline = event.endDate ? new Date(event.endDate) : null
+    const isRegistrationClosed = !isRegistered && registrationDeadline && !Number.isNaN(registrationDeadline.getTime())
+        ? registrationDeadline.getTime() < now
+        : false
+    const joinButtonLabel = isRegistered
+        ? 'Đã đăng ký'
+        : isRegistrationClosed
+            ? 'Đóng đăng ký'
+            : 'Tham gia'
 
     const infoItems = [
         { icon: Users, label: 'Số lượng thành viên', value: event.maxTeamMember ? `3 - ${event.maxTeamMember} người / đội` : 'Chưa cập nhật' },
@@ -43,7 +61,7 @@ function LiveEventCard({ event, onJoin, onViewRules }) {
 
                 {/* Nút */}
                 <div className={styles.actions}>
-                    <Button className={styles.btn} label="Tham gia" variant="primary" color="blue" onClick={onJoin}      />
+                    <Button className={styles.btn} label={joinButtonLabel} variant="primary" color="blue" onClick={onJoin} disabled={isRegistrationClosed} />
                     <Button className={styles.btn} label="Chi tiết thể lệ" variant="outline" color="blue" onClick={onViewRules} />
                 </div>
             </div>

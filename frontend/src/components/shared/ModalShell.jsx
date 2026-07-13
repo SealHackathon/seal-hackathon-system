@@ -72,7 +72,7 @@ function ModalShell({
                 <div className={styles.contentWrapper}>
                     <div
                         ref={contentRef}
-                        className={`${styles.content} ${title ? styles.contentWithHeader : ''}`}
+                        className={`${styles.content} ${title ? (styles.contentWithHeader || '') : styles.contentWithoutHeader}`}
                         style={disableScroll ? { overflow: 'hidden' } : {}}
                         onScroll={checkScroll}
                     >
