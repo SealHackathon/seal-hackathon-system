@@ -281,7 +281,7 @@ function SubmissionPage() {
         {loading && <p>Đang tải dữ liệu vòng thi...</p>}
         {error && <p>{error}</p>}
 
-        {!loading && !error && teamStatus !== 'APPROVED' ? (
+        {!loading && !error && teamStatus !== null && teamStatus !== 'APPROVED' ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>
               <LockKey size={48} weight="fill" color="var(--color-primary-blue)" />
