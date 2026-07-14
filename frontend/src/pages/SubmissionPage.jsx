@@ -96,9 +96,15 @@ function mapBackendRoundToUi(round) {
     }
   } else if (status === 'ACTIVE') {
     if (hasSubmission) {
-      submissionStatus = 'SUBMITTED_ON_TIME'
+      if (deadline && now > deadline) {
+        // Đã nộp nhưng giờ đã trễ hạn (vẫn đang trong thời gian vòng active, ví dụ cho phép nộp muộn)
+        submissionStatus = 'LATE_NO_SUBMISSION'
+      } else {
+        // Đã nộp và vòng vẫn đang mở → cho phép nộp lại
+        submissionStatus = 'READY'
+      }
     } else if (deadline && now > deadline) {
-      status = 'LATE'; // Đổi màu cam cho card
+      status = 'LATE'
       submissionStatus = 'LATE_NO_SUBMISSION'
     } else {
       submissionStatus = 'NO_SUBMISSION'
@@ -136,7 +142,7 @@ function mapBackendRoundToUi(round) {
     name: round.roundName ?? round.name ?? 'Vòng thi',
     dateRange: formatDateRange(start, end),
     status,
-    submissionStatus,
+    submissionStatus:round.submissionStatus ?? submissionStatus,
     submissionDeadline: deadline ? formatDateLabel(deadline) : null,
     daysLeft,
     message,

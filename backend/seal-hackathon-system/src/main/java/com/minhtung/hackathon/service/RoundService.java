@@ -271,7 +271,7 @@ public class RoundService {
         }
         Double teamTotalScore = (team != null) ? computeTeamTotalScore(team) : null;
 
-        return convertToResponse(round, totalRounds, team, teamTotalScore);
+        return convertToResponse(round, totalRounds, team, teamTotalScore,null);
     }
 
     /**
@@ -287,9 +287,13 @@ public class RoundService {
         Team team = (member != null) ? member.getTeam() : null;
 
         Double teamTotalScore = (team != null) ? computeTeamTotalScore(team) : null;
-
+        LocalDateTime now = LocalDateTime.now();
         for (Round round : rounds) {
-            responseList.add(convertToResponse(round, totalRounds, team, teamTotalScore));
+
+            // Tính toán submission status cho team hiện tại trong round này
+            String submissionStatus = determineSubmissionStatus(round, team, now);
+
+            responseList.add(convertToResponse(round, totalRounds, team, teamTotalScore,submissionStatus));
         }
 
         return responseList;
@@ -298,7 +302,7 @@ public class RoundService {
     /**
      * Hàm Helper xử lý Map dữ liệu dùng chung (Tránh lặp code - DRY)
      */
-    private RoundDetailsResponse convertToResponse(Round round, int totalRounds, Team team, Double teamTotalScore) {
+    private RoundDetailsResponse convertToResponse(Round round, int totalRounds, Team team, Double teamTotalScore,String submissionStatus) {
         RoundDetailsResponse dto = new RoundDetailsResponse();
         dto.setRoundId(round.getId());
         dto.setRoundName(round.getName());
@@ -307,7 +311,7 @@ public class RoundService {
         dto.setRoundEndTime(round.getTimeEnd());
         dto.setRoundSubmissionDeadline(round.getSubmissionDeadline());
         dto.setRoundQuantity(totalRounds);
-
+        dto.setSubmissionStatus(submissionStatus);
         List<Submission> roundSubmissions = submissionRepository.findByRound_IdAndLatestTrue(round.getId());
 
         Long trackIdForCount = null;
@@ -419,7 +423,7 @@ public class RoundService {
         if (submissions.isEmpty()) return null;
 
         double sum = 0.0;
-        boolean hasAnyScore = false;
+        int totalValidScoresCount = 0; // Đổi biến cờ sang đếm số lượng điểm hợp lệ
 
         for (Submission submission : submissions) {
             Round round = submission.getRound();
@@ -445,12 +449,19 @@ public class RoundService {
                 JudgeScore score = scoreIndex.get(ja.getId() + "-" + submission.getId());
                 if (score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED) {
                     sum += score.getTotalScore();
-                    hasAnyScore = true;
+                    totalValidScoresCount++; // Tăng số lượng điểm hợp lệ lên 1
                 }
             }
         }
 
-        return hasAnyScore ? Math.round(sum * 100.0) / 100.0 : null;
+        // Nếu không có giám khảo nào nộp điểm chính thức, trả về null
+        if (totalValidScoresCount == 0) {
+            return null;
+        }
+
+        // Chia trung bình cộng và làm tròn 2 chữ số thập phân
+        double averageScore = sum / totalValidScoresCount;
+        return Math.round(averageScore * 100.0) / 100.0;
     }
 
     /**
@@ -513,5 +524,47 @@ public class RoundService {
         rankDto.setRank(rank);
         rankDto.setTotalTeams(teamAverages.size());
         return rankDto;
+    }
+
+    private String determineSubmissionStatus(Round round, Team team, LocalDateTime now) {
+        LocalDateTime start = round.getTimeStart();
+        LocalDateTime end = round.getTimeEnd();
+        LocalDateTime deadline = round.getSubmissionDeadline();
+
+        // 1. Xác định trạng thái của Round (status: UPCOMING, ACTIVE, DONE)
+        String roundStatus = "ACTIVE";
+        if (now.isBefore(start)) {
+            roundStatus = "UPCOMING";
+        } else if (now.isAfter(end)) {
+            roundStatus = "DONE";
+        }
+
+        // 2. Kiểm tra xem đội hiện tại đã có submission (bản mới nhất) trong round này chưa
+        boolean hasSubmission = round.getSubmissions().stream()
+                .anyMatch(s -> s.getTeam().getId() == team.getId() && s.isLatest());
+
+        // 3. Match logic với frontend của bạn
+        if ("UPCOMING".equals(roundStatus)) {
+            return "NOT_OPEN";
+        }
+
+        if ("DONE".equals(roundStatus)) {
+            return hasSubmission ? "SUBMITTED_ON_TIME" : "CLOSED_NO_SUBMISSION";
+        }
+
+        // Trường hợp ACTIVE
+        if (hasSubmission) {
+            if (deadline != null && now.isAfter(deadline)) {
+                return "LATE_NO_SUBMISSION"; // Đã nộp nhưng hiện tại đã trễ hạn
+            } else {
+                return "READY"; // Đã nộp và vẫn trong hạn (có thể nộp lại)
+            }
+        } else {
+            if (deadline != null && now.isAfter(deadline)) {
+                return "LATE_NO_SUBMISSION"; // Chưa nộp và đã trễ hạn
+            } else {
+                return "NO_SUBMISSION"; // Chưa nộp và vẫn còn hạn
+            }
+        }
     }
 }

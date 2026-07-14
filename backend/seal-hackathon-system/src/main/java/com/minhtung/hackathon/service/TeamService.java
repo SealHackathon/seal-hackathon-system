@@ -1062,6 +1062,12 @@ public class TeamService {
             throw new IllegalArgumentException("team khong ton tai");
         }
         teamRequestRepository.deleteAllByTeamId(team.getId());
+        List<Member> members=team.getMembers();
+        for (Member member : members) {
+            if (member.getStatus() != MemberStatus.OFFICAL) {
+                member.setStatus(MemberStatus.OUT);
+            }
+        }
         team.setStatus(TeamStatus.PENDING_APPROVAL);
         teamRepository.save(team);
         User admin = userRepository.findByEmail("admin@gmail.com").orElse(null);

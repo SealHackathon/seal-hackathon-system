@@ -28,7 +28,7 @@ public class RoundDetailsResponse {
     private String status;             // Trạng thái vòng thi (UPCOMING, IN_PROGRESS, COMPLETED)
     private String trackName;
     private Long rubricId;
-
+    private String submissionStatus;
     private SubmissionConfigResponse submissionConfig;
 
     // --- THÊM MỚI ---

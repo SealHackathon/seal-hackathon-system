@@ -20,6 +20,7 @@ import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -120,7 +121,7 @@ public class SubmissionService {
         submission.setLatest(true);
 
         return SubmissionResponse.from(
-                submissionRepository.save(submission), null);
+                submissionRepository.save(submission), new ArrayList<>(),1);
     }
 
     @Transactional
@@ -162,7 +163,7 @@ public class SubmissionService {
         newSubmission.setSubmittedAt(LocalDateTime.now());
         newSubmission.setLatest(true);
 
-        return SubmissionResponse.from(submissionRepository.save(newSubmission), null);
+        return SubmissionResponse.from(submissionRepository.save(newSubmission), new ArrayList<>(),1);
     }
 
 
@@ -507,14 +508,28 @@ public class SubmissionService {
     @Autowired
     private JudgeScoreRepository judgeScoreRepository;
 
+    @Autowired
+    private RoundTrackRepository roundTrackRepository;
+
     public SubmissionResponse getCurrentSubmission(String email, Long roundId) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy tài khoản"));
 
-        Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL)
-                .orElseThrow(() -> new IllegalArgumentException("Chỉ trưởng nhóm mới có quyền xem"));
-
-        Team team = leader.getTeam();
+//        Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL)
+//                .orElseThrow(() -> new IllegalArgumentException("Chỉ trưởng nhóm mới có quyền xem"));
+//
+//        Team team = leader.getTeam();
+//        if (team == null) {
+//            throw new IllegalArgumentException("Tài khoản chưa tham gia vào đội thi nào");
+//        }
+        Member member =memberRepository.findByMemberIdAndStatus(user.getId(),MemberStatus.OFFICAL).orElse(null);
+        if (member == null) {
+            throw new RuntimeException("MEMBER NOT FOUND");
+        }
+        Team team = member.getTeam();
+        if (team == null) {
+            throw new RuntimeException("TEAM NOT FOUND");
+        }
 
         // 1. Tìm bài nộp mới nhất của đội trong vòng thi hiện tại
         Submission submission = submissionRepository
@@ -525,10 +540,22 @@ public class SubmissionService {
             return null; // Trả về null nếu chưa nộp bài bao giờ -> FE nhận biết dùng POST để tạo mới
         }
 
-        //ĐÃ SỬA: Tìm TẤT CẢ các bảng điểm của Hội đồng Giám khảo chấm cho bài nộp này
+        // 2. Tìm TẤT CẢ các bảng điểm của Hội đồng Giám khảo chấm cho bài nộp này
         List<JudgeScore> judgeScores = judgeScoreRepository.findBySubmissionId(submission.getId());
 
-        // 3. Trả về Response chứa đầy đủ thông tin bài nộp và danh sách điểm tổng hợp (Average)
-        return SubmissionResponse.from(submission, judgeScores);
+        // 3. Lấy thông tin publish_stage từ RoundTrack
+        // Giả định trong Entity Team của bạn có liên kết lấy được Track (ví dụ: team.getTrack())
+        Long trackId = (team.getTrack() != null) ? team.getTrack().getId() : null;
+
+        Integer publishStage = 1; // Mặc định là 1 (Đóng) nếu không tìm thấy cấu hình
+
+        if (trackId != null) {
+            publishStage = roundTrackRepository.findById(new RoundTrack.RoundTrackId(roundId, trackId))
+                    .map(RoundTrack::getPublishStage)
+                    .orElse(1);
+        }
+
+        // 4. Trả về Response chứa đầy đủ thông tin bài nộp, điểm số chỉ được điền nếu publishStage == 3
+        return SubmissionResponse.from(submission, judgeScores, publishStage);
     }
 }

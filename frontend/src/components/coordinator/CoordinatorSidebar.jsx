@@ -23,7 +23,7 @@ const NAV_GROUPS = [
     items: [
       { id: 'events',   label: 'Sự kiện',              icon: Star },
       { id: 'rubric',   label: 'Bộ tiêu chí',          icon: Clipboard },
-      { id: 'candidates', label: 'Duyệt hồ sơ',        icon: Users, badge: 12 },
+      { id: 'candidates', label: 'Duyệt hồ sơ',        icon: Users},
       // { id: 'notify',   label: 'Thông báo',            icon: Megaphone },
       // { id: 'users',    label: 'Người dùng',           icon: Users },
     ],

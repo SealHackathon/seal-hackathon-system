@@ -399,7 +399,7 @@ function RoundSubmissionDetailPage() {
         }
 
         // Gọi API PUT kèm theo PathVariable `submissionId`
-        const response = await axiosClient.put(`/submission/${roundId}`, updateRequestData)
+        const response = await axiosClient.put(`/submission/${submissionId}`, updateRequestData)
 
         if (response.status === 200) {
           alert('Cập nhật bài nộp thành công!')

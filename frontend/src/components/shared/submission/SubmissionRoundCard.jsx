@@ -146,7 +146,7 @@ function SubmissionRoundCard({ round, role }) {
             </div>
             <div className={styles.actions}>
                 {round.submissionStatus === 'READY' && (
-                    <Button label={`Xem lại bài Vòng ${round.referenceRound}`} variant="outline" color="blue" icon={ArrowSquareOut} />
+                    <Button label={`Xem lại bài ${round.name}`} variant="outline" color="blue" icon={ArrowSquareOut} onClick={handleOpenDetail} />
                 )}
                 {round.submissionStatus === 'NO_SUBMISSION' && isLeader && (
                     <Button label="Nộp bài" variant="primary" color="blue" icon={UploadSimple} onClick={handleOpenDetail} />

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Users } from '@phosphor-icons/react'
 import CoordinatorLayout from '../../layouts/CoordinatorLayout'
 import SectionHeader from '../../components/shared/SectionHeader'
@@ -6,72 +6,8 @@ import CandidateFilterBar from '../../components/candidateApproval/CandidateFilt
 import CandidateTable from '../../components/candidateApproval/CandidateTable'
 import CandidateDetailPanel from '../../components/candidateApproval/CandidateDetailPanel'
 import { CANDIDATE_STATUS } from '../../components/candidateApproval/candidateStatus'
+import axiosClient from '../../api/axiosClient' // TODO: sửa lại đúng path thực tế
 import styles from './CandidateApprovalPage.module.css'
-
-// ── Dữ liệu mẫu — thay bằng API thực tế ──
-const MOCK_CANDIDATES = [
-    {
-        id: 1,
-        name: 'Nguyễn Văn An',
-        email: 'example@gmail.com',
-        phone: '0987654321',
-        avatarUrl: '',
-        university: 'Đại học FPT (TP.HCM)',
-        team: 'PayFlow',
-        role: 'Thành viên',
-        status: 'approved',
-        joinedAt: '12/04/2026',
-        cccd: {
-            fullName: 'Nguyễn Văn A',
-            number: '075300000000',
-            dob: '19/10/2005',
-            gender: 'Nam',
-            address: 'Thủ Đức, TP. Hồ Chí Minh',
-            frontImage: '',
-            backImage: '',
-        },
-        student: {
-            studentId: 'SE180000',
-            university: 'Đại học FPT (TP.HCM)',
-            cardImage: '',
-        },
-        profile: {
-            bio: 'Mình là sinh viên năm 3 CNTT, đam mê xây dựng sản phẩm thực tế và có kinh nghiệm với React, Spring Boot...',
-            positions: ['Backend Developer', 'Frontend Developer'],
-            techTags: { 'frontend': ['React', 'Vue'], 'backend': ['Node.js', 'Java'] },
-            topics: ['AI & Machine Learning', 'Blockchain'],
-            cvLink: 'https://github.com/example',
-        },
-    },
-    {
-        id: 2,
-        name: 'Trần Thị Bình',
-        email: 'binh.tran@gmail.com',
-        phone: '0912345678',
-        avatarUrl: '',
-        university: 'Đại học Bách Khoa (TP.HCM)',
-        team: 'DataMinds',
-        role: 'Đội trưởng',
-        status: 'pending',
-        joinedAt: '13/04/2026',
-        cccd: { fullName: 'Trần Thị Bình', number: '079305000111', dob: '02/03/2004', gender: 'Nữ', address: 'Quận 10, TP. Hồ Chí Minh' },
-        student: { studentId: 'BK190111', university: 'Đại học Bách Khoa (TP.HCM)' },
-    },
-    {
-        id: 3,
-        name: 'Lê Hoàng Cường',
-        email: 'cuong.le@gmail.com',
-        phone: '0909112233',
-        avatarUrl: '',
-        university: 'Đại học Khoa học Tự nhiên',
-        team: '',
-        role: 'Thành viên',
-        status: 'rejected',
-        joinedAt: '14/04/2026',
-        cccd: { fullName: 'Lê Hoàng Cường', number: '079204000222', dob: '25/12/2003', gender: 'Nam', address: 'Quận 5, TP. Hồ Chí Minh' },
-        student: { studentId: 'KHTN200222', university: 'Đại học Khoa học Tự nhiên' },
-    },
-]
 
 const STATUS_OPTIONS = Object.entries(CANDIDATE_STATUS)
     .map(([value, meta]) => ({ value, label: meta.label }))
@@ -82,12 +18,109 @@ const CATEGORY_OPTIONS = [
     { value: 'blockchain', label: 'Blockchain' },
 ]
 
+// ── Map trạng thái tài khoản backend (enum UserStatus) -> status UI ──
+function mapAccountStatus(accoutStatus) {
+    switch (accoutStatus) {
+        case 'ACCEPTED':
+            return 'approved'
+        case 'REJECTED':
+            return 'rejected'
+        case 'BANNED':
+            return 'locked'
+        case 'PROFILE_PENDING':
+        case 'PENDING_APPROVAL':
+        default:
+            return 'pending'
+    }
+}
+
+// ── Map 1 phần tử response backend -> object candidate dùng trong UI ──
+function mapUserToCandidate(u) {
+    const profile = u.userIdentityProfileResponse
+
+    return {
+        id: u.userId,
+        name: u.fullName ?? '',
+        email: u.email ?? '',
+        phone: u.phoneNumber ?? '',
+        avatarUrl: '',
+        university: u.schoolName ?? '',
+        team: u.teamName && u.teamName !== 'NO_TEAM' ? u.teamName : '',
+        role: u.teamRole && u.teamRole !== 'NO_TEAM' ? u.teamRole : 'Thành viên',
+        status: mapAccountStatus(u.accoutStatus),
+        accountStatusRaw: u.accoutStatus, // giữ lại để lọc/debug nếu cần
+        joinedAt: u.registeredDate ?? '',
+
+        cccd: profile ? {
+            fullName: profile.fullName ?? '',
+            number: profile.cmnd ?? '',
+            dob: profile.dateOfBirth ?? '',
+            gender: profile.gender ?? '',
+            address: profile.thuongtru ?? profile.hometown ?? '',
+            frontImage: profile.frontcmnd_img ?? '',
+            backImage: profile.cmndBack_img ?? '',
+        } : null,
+
+        student: {
+            studentId: u.mssv ?? '',
+            university: u.schoolName ?? '',
+            cardImage: u.studenntCardImg ?? '',
+        },
+
+        // Backend hiện chưa trả bio/positions/techTags/topics/cvLink
+        profile: {
+            bio: '',
+            positions: [],
+            techTags: {},
+            topics: [],
+            cvLink: '',
+        },
+    }
+}
+
 function CandidateApprovalPage() {
-    const [candidates, setCandidates] = useState(MOCK_CANDIDATES)
+    const [candidates, setCandidates] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [error, setError] = useState(null)
+
     const [search, setSearch] = useState('')
     const [category, setCategory] = useState('')
     const [status, setStatus] = useState('')
     const [selected, setSelected] = useState(null)
+
+    // ── Gọi API lấy danh sách thí sinh ──
+    useEffect(() => {
+        const controller = new AbortController()
+
+        async function fetchCandidates() {
+            setLoading(true)
+            setError(null)
+            try {
+                const res = await axiosClient.get('/user/user-info', {
+                    signal: controller.signal,
+                })
+
+                // Lưu ý: backend đang bị double-wrap ResponseEntity.ok(ResponseEntity.ok(...))
+                // Nên sửa ở BE để trả thẳng list, tạm thời FE cố gắng lấy đúng chỗ:
+                const list = res.data?.body ?? res.data ?? []
+
+                setCandidates(list.map(mapUserToCandidate))
+            } catch (err) {
+                if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
+                    setError(
+                        err.response?.data?.message
+                        || err.message
+                        || 'Không thể tải danh sách thí sinh'
+                    )
+                }
+            } finally {
+                setLoading(false)
+            }
+        }
+
+        fetchCandidates()
+        return () => controller.abort()
+    }, [])
 
     // ── Lọc dữ liệu hiển thị ──
     const filtered = useMemo(() => {
@@ -101,16 +134,40 @@ function CandidateApprovalPage() {
         })
     }, [candidates, search, status])
 
-    // ── Cập nhật trạng thái 1 thí sinh ──
-    function updateStatus(candidate, nextStatus) {
+    // ── Cập nhật trạng thái 1 thí sinh qua API ──
+    async function updateStatus(candidate, nextStatus) {
+    setCandidates(prev =>
+        prev.map(c => (c.id === candidate.id ? { ...c, status: nextStatus } : c))
+    )
+
+    try {
+        await axiosClient.put(`/user/${candidate.id}/status`, {
+            status: mapUIStatusToBackend(nextStatus),
+        })
+    } catch (err) {
         setCandidates(prev =>
-            prev.map(c => (c.id === candidate.id ? { ...c, status: nextStatus } : c))
+            prev.map(c => (c.id === candidate.id ? { ...c, status: candidate.status } : c))
         )
+        alert(err.response?.data?.message || 'Cập nhật trạng thái thất bại')
+    }
+}
+
+    // ── Map ngược: status UI -> enum UserStatus backend ──
+    function mapUIStatusToBackend(uiStatus) {
+        switch (uiStatus) {
+            case 'approved':
+                return 'ACCEPTED'
+            case 'rejected':
+                return 'REJECTED'
+            case 'locked':
+                return 'BANNED'
+            case 'pending':
+            default:
+                return 'PENDING_APPROVAL'
+        }
     }
 
-    function removeCandidate(candidate) {
-        setCandidates(prev => prev.filter(c => c.id !== candidate.id))
-    }
+    
 
     return (
         <CoordinatorLayout>
@@ -136,7 +193,11 @@ function CandidateApprovalPage() {
                             statuses={STATUS_OPTIONS}
                         />
 
-                        <p className={styles.count}>{filtered.length} thí sinh</p>
+                        {loading && <p className={styles.count}>Đang tải danh sách...</p>}
+                        {error && <p className={styles.count}>{error}</p>}
+                        {!loading && !error && (
+                            <p className={styles.count}>{filtered.length} thí sinh</p>
+                        )}
 
                         <CandidateTable candidates={filtered} onSelect={setSelected} />
 
@@ -147,7 +208,7 @@ function CandidateApprovalPage() {
                             onReject={c => updateStatus(c, 'rejected')}
                             onRevokeApproval={c => updateStatus(c, 'pending')}
                             onLock={c => updateStatus(c, 'locked')}
-                            onDelete={removeCandidate}
+                            onDelete={c => updateStatus(c, 'rejected')}
                         />
                     </div>
                 </div>
