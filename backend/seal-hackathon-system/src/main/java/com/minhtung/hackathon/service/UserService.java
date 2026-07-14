@@ -4,8 +4,10 @@ import com.minhtung.hackathon.dto.response.*;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.*;
 import com.minhtung.hackathon.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -103,6 +105,9 @@ public class UserService {
         List<UserInformationResponse> responseList = new ArrayList<>();
 
         for (User user : users) {
+            if(user.getRole()!=Role.USER){
+                continue;
+            }
             UserInformationResponse response = new UserInformationResponse();
             response.setUserId(user.getId());
 //            response.setRegisteredDate(user.get); // TODO làm thêm cái field registeredDate
@@ -159,6 +164,14 @@ public class UserService {
         return responseList;
     }
 
+    // ── Cập nhật trạng thái user (ADMIN duyệt / từ chối / khoá) ──
+    @Transactional
+    public void updateUserStatus(Long userId, UserStatus status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user với id: " + userId));
 
+        user.setStatus(status);
+        userRepository.save(user);
+    }
 
 }
