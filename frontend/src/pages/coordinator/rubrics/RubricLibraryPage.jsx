@@ -1,6 +1,5 @@
 import { useState, useMemo } from 'react';
 import { MagnifyingGlass, Plus, Trophy } from '@phosphor-icons/react';
-import { useNavigate } from 'react-router-dom';
 import RubricList from '../../../components/coordinator/rubrics/RubricList';
 import Button from '../../../components/shared/Button';
 import FormInput from '../../../components/shared/FormInput';
@@ -67,7 +66,6 @@ const MOCK_RUBRICS = [
 ];
 
 export default function RubricLibraryPage() {
-    const navigate = useNavigate();
     const [rubrics, setRubrics] = useState([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('date_desc');

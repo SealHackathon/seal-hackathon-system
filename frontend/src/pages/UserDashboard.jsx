@@ -36,6 +36,7 @@ function mapApiEventToUi(apiEvent) {
         id: apiEvent.eventId ?? apiEvent.id,
         name: apiEvent.eventName || 'Sự kiện chưa đặt tên',
         coverUrl: apiEvent.thumbnail || null,
+        thumbnailImage: apiEvent.thumbnailImage || null,
         topic: apiEvent.eventTopic || 'Chưa xác định chủ đề',
         description: apiEvent.description || 'Chưa có mô tả',
         eventStatus: apiEvent.eventStatus || 'draft',

@@ -39,7 +39,7 @@ function computeStandings(entries, forced) {
     if (e.ended === 'eliminated') status = 'eliminated'
     else if (e.ended === 'withdrawn') status = 'withdrawn'
     else if (e.violation) { status = 'violation'; score = avg }
-    else if (e.discrepancy) { status = 'discrepancy'; score = avg }
+    // else if (e.discrepancy) { status = 'discrepancy'; score = avg } // Tạm ẩn độ lệch chuẩn
     else if (allSubmitted) { status = 'official'; score = avg }
     else if (forced && avg != null) { status = 'provisional'; score = avg }
     else { status = 'pending'; score = null }
@@ -271,7 +271,7 @@ function ResultsTab() {
     { key: 'all', label: 'Tất cả', count: counts.all, tone: 'blue', icon: ListChecks },
     { key: 'official', label: 'Đã chốt điểm', count: counts.official, tone: 'green', icon: SealCheck },
     { key: 'provisional', label: 'Tạm tính', count: counts.provisional, tone: 'orange', icon: Clock },
-    { key: 'discrepancy', label: 'Cần rà soát', count: counts.discrepancy, tone: 'orange', icon: Scales },
+    // { key: 'discrepancy', label: 'Cần rà soát', count: counts.discrepancy, tone: 'orange', icon: Scales },
     { key: 'violation', label: 'Vi phạm', count: counts.violation, tone: 'orange', icon: Flag },
   ]
 
@@ -430,7 +430,7 @@ function ResultsTab() {
         </div>
       </div>
 
-      <TeamDetailModal open={!!detail} team={detail} onClose={() => setDetail(null)} />
+      <TeamDetailModal open={!!detail} team={detail} eventId={eventId} roundId={roundId} onClose={() => setDetail(null)} />
 
       {awardToAssign && roundResult && (
         <AssignAwardModal

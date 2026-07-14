@@ -50,7 +50,7 @@ function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
             <div className={styles.leftSide}>
                 {/* Ảnh bìa */}
                 <div className={styles.cover}>
-                    <img src={coverPlaceholder} alt="cover"></img>
+                    <img src={event.thumbnailImage || coverPlaceholder} alt="cover"></img>
                 </div>
                 
                 <div className={styles.stats}>

@@ -13,7 +13,7 @@ const STATUS_FILTERS = [
   { key: 'all', label: 'Tất cả' },
   { key: 'official', label: 'Đã chốt điểm', dot: 'green' },
   { key: 'provisional', label: 'Tạm tính', dot: 'orange' },
-  { key: 'discrepancy', label: 'Cần rà soát', dot: 'orange' },
+  // { key: 'discrepancy', label: 'Cần rà soát', dot: 'orange' },
   { key: 'violation', label: 'Vi phạm', dot: 'orange' },
 ]
 
@@ -28,13 +28,14 @@ function StatusCell({ row, onResolveViolation }) {
       </Tooltip>
     )
   }
-  if (row.status === 'discrepancy') {
-    return (
-      <Tooltip content={'Chênh lệch điểm (lệch chuẩn ' + (row.discrepancy ? row.discrepancy.stdDev : '') + ')'} bgColor="white" textColor='orangeTxt'>
-        <span className={styles.iconWarn}><Scales size={22} weight="fill" /></span>
-      </Tooltip>
-    )
-  }
+  // Tạm ẩn độ lệch chuẩn
+  // if (row.status === 'discrepancy') {
+  //   return (
+  //     <Tooltip content={'Chênh lệch điểm (lệch chuẩn ' + (row.discrepancy ? row.discrepancy.stdDev : '') + ')'} bgColor="white" textColor='orangeTxt'>
+  //       <span className={styles.iconWarn}><Scales size={22} weight="fill" /></span>
+  //     </Tooltip>
+  //   )
+  // }
   if (row.status === 'provisional') {
     return <Badge variant="orange" label="Tạm tính" size="sm" dot={false} />
   }
