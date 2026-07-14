@@ -351,6 +351,17 @@ public class RoundService {
             dto.setCriteria(criteriaDTOs);
         }
 
+<<<<<<< Updated upstream
+=======
+        if (team != null) {
+            dto.setTeamTotalScore(teamTotalScore);
+            // ✅ Guard null: team chưa chọn track thì không set trackName
+            if (team.getTrack() != null) {
+                dto.setTrackName(team.getTrack().getName());
+            }
+            dto.setTeamRank(computeTeamRankInRound(round.getId(), team.getId()));
+        }
+>>>>>>> Stashed changes
 
         return dto;
     }

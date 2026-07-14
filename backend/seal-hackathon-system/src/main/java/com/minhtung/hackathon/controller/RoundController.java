@@ -57,6 +57,12 @@ public class RoundController {
         if (getUid(auth) == null) return unauthorized();
 
 
+<<<<<<< Updated upstream
+=======
+        if (eventId == null) {
+            return ResponseEntity.badRequest().body("Thiếu tham số eventId");
+        }
+>>>>>>> Stashed changes
         return ResponseEntity.ok(roundService.getRoundsByEventId(eventId));
 
     }
