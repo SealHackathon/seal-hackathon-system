@@ -496,7 +496,7 @@ function RoundSubmissionDetailPage() {
 
       <ConfirmModal
         isOpen={isConfirmOpen}
-        onClose={() => setIsConfirmOpen(false)}
+        onCancel={() => setIsConfirmOpen(false)}
         title="Xác nhận nộp bài"
         message="Bạn có chắc chắn muốn nộp bài? Hệ thống sẽ ghi nhận thời điểm hiện tại và lưu làm kết quả chính thức cho đội."
         confirmLabel={isLate ? 'Chốt nộp bài (Muộn)' : 'Chốt nộp bài'}
