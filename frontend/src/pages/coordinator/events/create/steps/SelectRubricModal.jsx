@@ -35,14 +35,14 @@ export default function SelectRubricModal({ onClose, onSelect, selectedRubricId 
     return (
         <ModalShell onClose={onClose} size="md">
             <div className={styles.header}>
-                <h2 className={styles.title}>Chọn Rubric chấm điểm</h2>
+                <h2 className={styles.title}>Chọn bộ tiêu chí chấm điểm</h2>
                 <p className={styles.subtitle}>Chọn một bộ tiêu chí để áp dụng cho vòng thi này.</p>
             </div>
 
             <div className={styles.searchWrap}>
                 <FormInput
                     iconLeft={MagnifyingGlass}
-                    placeholder="Tìm kiếm rubric..."
+                    placeholder="Tìm kiếm bộ tiêu chí..."
                     value={searchQuery}
                     onChange={e => setSearchQuery(e.target.value)}
                 />
@@ -50,9 +50,9 @@ export default function SelectRubricModal({ onClose, onSelect, selectedRubricId 
 
             <div className={styles.list}>
                 {loading ? (
-                    <div className={styles.empty}>Đang tải danh sách rubric...</div>
+                    <div className={styles.empty}>Đang tải danh sách bộ tiêu chí...</div>
                 ) : filteredRubrics.length === 0 ? (
-                    <div className={styles.empty}>Không tìm thấy rubric nào.</div>
+                    <div className={styles.empty}>Không tìm thấy bộ tiêu chí nào.</div>
                 ) : (
                     filteredRubrics.map(r => (
                         <div

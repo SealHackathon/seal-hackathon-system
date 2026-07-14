@@ -44,10 +44,10 @@ function ScoringPanel({
   const [notes, setNotes] = useState(prefilled ? existing.notes ?? {} : {})
   const [overall, setOverall] = useState(prefilled ? existing.overall ?? '' : '')
 
-  // Tổng = tổng(điểm_i × trọng_số_i / 10). Trọng số cộng lại = 10 → tổng tối đa 10.
+  // Tổng = tổng(điểm_i × trọng_số_i (%)).
   const total = criteria.reduce((sum, c) => {
     const v = scores[c.id]
-    return v == null ? sum : sum + (Number(v) * c.points) / 10
+    return v == null ? sum : sum + (Number(v) * (c.percent || 0)) / 100
   }, 0)
   const totalPct = Math.min(100, (total / 10) * 100)
   const totalBarStyle = { width: totalPct + '%' }

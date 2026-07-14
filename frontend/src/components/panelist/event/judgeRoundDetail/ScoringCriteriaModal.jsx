@@ -23,11 +23,11 @@ const getSegmentColor = (index, length) => {
 }
 
 // Modal hiển thị tiêu chí chấm điểm cho giám khảo
-function ScoringCriteriaModal({ isOpen, onClose, criteria = [], showFooter = true }) {
+function ScoringCriteriaModal({ isOpen, onClose, criteria = [], showFooter = true, roundName = 'Vòng thi', eventName = 'SEAL Hackathon' }) {
     if (!isOpen) return null
 
     // Sắp xếp tiêu chí theo trọng số giảm dần
-    const sortedCriteria = [...criteria].sort((a, b) => (b.weight || 0) - (a.weight || 0))
+    const sortedCriteria = [...criteria].sort((a, b) => (b.weight || b.percent || 0) - (a.weight || a.percent || 0))
 
     const footer = showFooter ? (
         <div className={styles.footerContainer}>
@@ -45,8 +45,8 @@ function ScoringCriteriaModal({ isOpen, onClose, criteria = [], showFooter = tru
             title="Tiêu chí chấm điểm" 
             subtitle={
                 <span>
-                    <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Bộ tiêu chí chấm điểm Vòng bán kết.</strong>
-                    <span>Áp dụng cho tất cả đội thi ở mọi hạng mục trong vòng này, do Ban tổ chức SEAL Hackathon Summer 2026 quy định.</span>
+                    <strong style={{ display: 'block', marginBottom: '0.25rem' }}>Bộ tiêu chí chấm điểm {roundName}.</strong>
+                    <span>Áp dụng cho tất cả đội thi ở mọi hạng mục trong vòng này, do Ban tổ chức {eventName} quy định.</span>
                 </span>
             }
             icon={<BookOpen weight="fill" size={24} />} 
@@ -123,7 +123,7 @@ function ScoringCriteriaModal({ isOpen, onClose, criteria = [], showFooter = tru
                                         className={styles.colorIndicator}
                                         style={{ backgroundColor: getSegmentColor(i, sortedCriteria.length) }}
                                     />
-                                    <span>{c.weight || 0}%</span>
+                                    <span>{c.weight || c.percent || 0}%</span>
                                 </div>
                             </div>
                         ))}

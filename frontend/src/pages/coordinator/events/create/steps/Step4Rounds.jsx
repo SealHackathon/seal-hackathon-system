@@ -352,7 +352,7 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
                                 />
                             </FieldGroup>
 
-                            <FieldGroup icon={ListChecks} title="Rubric chấm điểm">
+                            <FieldGroup icon={ListChecks} title="Bộ tiêu chí chấm điểm">
                                 {round.rubricId ? (
                                     <div className={styles.rubricSelected}>
                                         <div className={styles.rubricInfo}>
@@ -372,7 +372,7 @@ function RoundForm({ round, onChange, isLast, prevRound, errors, roundIndex, tea
                                 ) : (
                                     <div className={styles.rubricPlaceholder} onClick={() => setShowRubricModal(true)}>
                                         <Plus size={20} />
-                                        <span>Chọn rubric</span>
+                                        <span>Chọn bộ tiêu chí</span>
                                     </div>
                                 )}
                             </FieldGroup>

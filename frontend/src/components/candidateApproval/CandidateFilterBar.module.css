@@ -1,0 +1,80 @@
+.bar {
+    display: flex;
+    align-items: center;
+    gap: 0.9em;
+    flex-wrap: wrap;
+}
+
+/* ── Ô tìm kiếm ── */
+.search {
+    flex: 1;
+    min-width: 240px;
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    padding: 0.7em 1.2em;
+    transition: border-color 0.15s ease;
+}
+
+.search:focus-within {
+    border-color: var(--color-secondary-blue);
+}
+
+.search svg {
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+}
+
+.search input {
+    flex: 1;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: none;
+    font-family: var(--body-font-main);
+    font-size: 1rem;
+    color: var(--color-text-primary);
+}
+
+.search input::placeholder {
+    color: var(--color-secondary-blue);
+    font-weight: normal;
+}
+
+/* ── Dropdown lọc ── */
+.selectWrap {
+    position: relative;
+}
+
+.select {
+    appearance: none;
+    -webkit-appearance: none;
+    background: var(--color-bg-white);
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    padding: 0.75em 2.6em 0.75em 1.2em;
+    font-family: var(--body-font-main);
+    font-weight: 700;
+    font-size: 0.95rem;
+    color: var(--color-dark-blue);
+    cursor: pointer;
+    transition: border-color 0.15s ease;
+}
+
+.select:hover,
+.select:focus {
+    border-color: var(--color-secondary-blue);
+    outline: none;
+}
+
+.selectCaret {
+    position: absolute;
+    right: 1em;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--color-secondary-blue);
+}

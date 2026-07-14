@@ -96,9 +96,15 @@ function mapBackendRoundToUi(round) {
     }
   } else if (status === 'ACTIVE') {
     if (hasSubmission) {
-      submissionStatus = 'SUBMITTED_ON_TIME'
+      if (deadline && now > deadline) {
+        // Đã nộp nhưng giờ đã trễ hạn (vẫn đang trong thời gian vòng active, ví dụ cho phép nộp muộn)
+        submissionStatus = 'LATE_NO_SUBMISSION'
+      } else {
+        // Đã nộp và vòng vẫn đang mở → cho phép nộp lại
+        submissionStatus = 'READY'
+      }
     } else if (deadline && now > deadline) {
-      status = 'LATE'; // Đổi màu cam cho card
+      status = 'LATE'
       submissionStatus = 'LATE_NO_SUBMISSION'
     } else {
       submissionStatus = 'NO_SUBMISSION'
@@ -136,7 +142,7 @@ function mapBackendRoundToUi(round) {
     name: round.roundName ?? round.name ?? 'Vòng thi',
     dateRange: formatDateRange(start, end),
     status,
-    submissionStatus,
+    submissionStatus:round.submissionStatus ?? submissionStatus,
     submissionDeadline: deadline ? formatDateLabel(deadline) : null,
     daysLeft,
     message,
@@ -150,6 +156,10 @@ function mapBackendRoundToUi(round) {
     roundQuantity: round.roundQuantity,
     timelines: round.timelines ?? round.agenda ?? [],
     submissionConfig: round.submissionConfig,
+    teamTotalScore: round.teamTotalScore ?? null,
+    teamRank: round.teamRank ?? null, // { rank, totalTeams }
+    totalTeamsInRound: round.totalTeamsInRound ?? null,
+    trackName: round.trackName ?? null, // MỚI
   }
 }
 
@@ -161,22 +171,25 @@ function buildProgress(rounds = []) {
   const totalRounds = rounds[0]?.roundQuantity || rounds.length
   const percentage = totalRounds > 0 ? Math.round((currentIndex / totalRounds) * 100) : 0
 
+  // Lấy điểm/hạng đúng của round hiện tại (không fallback sang round khác)
+  const currentRound = rounds[activeRoundIndex >= 0 ? activeRoundIndex : 0]
+
   return {
     currentRoundIndex: currentIndex,
     totalRounds,
     percentage,
-    currentRoundName: rounds[activeRoundIndex >= 0 ? activeRoundIndex : 0]?.name || 'Chưa có vòng nào',
-    rank: '—',
-    totalTeams: '—',
-    score: '—',
+    currentRoundName: currentRound?.name || 'Chưa có vòng nào',
+    rank: currentRound?.teamRank?.rank ?? '—',
+    totalTeams: currentRound?.teamRank?.totalTeams ?? '—',
+    score: currentRound?.teamTotalScore ?? '—',
     maxScore: '—',
     groupName: '—',
+    trackName: currentRound?.trackName || '—',
   }
 }
-
 async function fetchRoundDetails(eventId) {
   const params = eventId ? { eventId } : {}
-  const candidateEndpoints = ['/round/details', '/round/team', '/round/my-team', '/round']
+  const candidateEndpoints = ['/round']
 
   let lastError = null
 

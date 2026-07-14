@@ -1,15 +1,13 @@
 package com.minhtung.hackathon.service;
 
-import com.minhtung.hackathon.dto.response.LecturerResponse;
-import com.minhtung.hackathon.dto.response.SearchMemberResponse;
-import com.minhtung.hackathon.entity.Student_profile;
-import com.minhtung.hackathon.entity.Team;
-import com.minhtung.hackathon.entity.TeamRequest;
-import com.minhtung.hackathon.entity.User;
+import com.minhtung.hackathon.dto.response.*;
+import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.*;
 import com.minhtung.hackathon.repository.*;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,7 +20,9 @@ public class UserService {
     private final MemberRepository memberRepository;
     private final TeamRequestRepository teamRequestRepository;
     private final UserRepository userRepository;
-    private final StudentprofileRepository  studentprofileRepository;
+    private final StudentprofileRepository studentprofileRepository;
+    private final UserIdentityProfileRepository userIdentityProfileRepository;
+
     //ham get nhung user chua co team
     //những ai đã có request tới team hoặc đã đc team invitation thì ko get
     public List<SearchMemberResponse> getMemberNoTeam(long leaderId) {
@@ -54,7 +54,7 @@ public class UserService {
             if (joinRequest != null || invitation != null) {
                 continue;
             }
-            Student_profile profile=studentprofileRepository.findByUserId(user.getId()).orElse(null);
+            Student_profile profile = studentprofileRepository.findByUserId(user.getId()).orElse(null);
 
             SearchMemberResponse response = new SearchMemberResponse();
             response.setId(user.getId());
@@ -94,6 +94,84 @@ public class UserService {
             throw new RuntimeException("User not found");
         }
         return user.getStatus().toString();
+    }
+
+
+    // get user information LIST
+
+    public List<UserInformationResponse> getUserInfor() {
+        // 1. Lấy tất cả user từ database
+        List<User> users = userRepository.findAll();
+        List<UserInformationResponse> responseList = new ArrayList<>();
+
+        for (User user : users) {
+            if(user.getRole()!=Role.USER){
+                continue;
+            }
+            UserInformationResponse response = new UserInformationResponse();
+            response.setUserId(user.getId());
+//            response.setRegisteredDate(user.get); // TODO làm thêm cái field registeredDate
+            response.setFullName(user.getFullName());
+            response.setSchoolName(user.getSchoolName());
+            response.setEmail(user.getEmail());
+            response.setPhoneNumber(String.valueOf(user.getPhoneNumber()));
+            response.setMssv(user.getStudentId());
+            response.setAccountRole(user.getRole() != null ? user.getRole().toString() : null);
+            response.setAccoutStatus(user.getStatus() != null ? user.getStatus().toString() : null);
+
+            // 2. Tìm thông tin Member
+            Member member = memberRepository.findByMemberIdAndStatusIn(
+                    user.getId(),
+                    List.of(MemberStatus.OFFICAL, MemberStatus.RESERVE)
+            ).orElse(null);
+
+            if (member != null) {
+                response.setTeamRole(member.getRole() != null ? member.getRole().toString() : "NO_TEAM");
+                response.setTeamName(member.getTeam() != null ? member.getTeam().getName() : "NO_TEAM");
+            } else {
+                response.setTeamRole("NO_TEAM");
+                response.setTeamName("NO_TEAM");
+            }
+
+            // 3. Tìm thông tin Identity Profile và set vào response (Đoạn này code cũ của bạn đang bị thiếu)
+            UserIdentityProfile profile = userIdentityProfileRepository.findByUserId(user.getId()).orElse(null);
+            if (profile != null) {
+                UserIdentityProfileResponse userIdentityProfileResponse = new UserIdentityProfileResponse();
+                userIdentityProfileResponse.setId(profile.getId());
+                userIdentityProfileResponse.setFullName(profile.getFullName());
+                userIdentityProfileResponse.setCmnd(profile.getCmnd());
+                userIdentityProfileResponse.setDateOfBirth(profile.getDateOfBirth());
+                userIdentityProfileResponse.setGender(profile.getGender());
+                userIdentityProfileResponse.setHometown(profile.getHometown());
+                userIdentityProfileResponse.setThuongtru(profile.getThuongtru());
+                userIdentityProfileResponse.setFrontcmnd_img(profile.getFrontcmnd_img());
+                userIdentityProfileResponse.setCmndBack_img(profile.getCmndBack_image());
+
+                // LƯU Ý: Bạn cần bổ sung hàm setProfile này trong class UserInformationResponse nếu chưa có
+                response.setUserIdentityProfileResponse(userIdentityProfileResponse);
+            }
+
+            // 4. Tìm thông tin Student Profile
+            Student_profile studentProfile = studentprofileRepository.findByUserId(user.getId()).orElse(null);
+            if (studentProfile != null) {
+                response.setStudenntCardImg(studentProfile.getImg_studentcard());
+            }
+
+            // Thêm response của user hiện tại vào list kết quả
+            responseList.add(response);
+        }
+
+        return responseList;
+    }
+
+    // ── Cập nhật trạng thái user (ADMIN duyệt / từ chối / khoá) ──
+    @Transactional
+    public void updateUserStatus(Long userId, UserStatus status) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user với id: " + userId));
+
+        user.setStatus(status);
+        userRepository.save(user);
     }
 
 }

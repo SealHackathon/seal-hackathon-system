@@ -127,11 +127,11 @@ public class Event {
     }
 
     public int getMaxTeam() {
-        int maxTeam=0;
-        for(Track item : tracks){
-            maxTeam+=item.getMaxTeamPerTrack();
-        }
-
-        return maxTeam;
+//        int maxTeam=0;
+//        for(Track item : tracks){
+//            maxTeam+=item.getMaxTeamPerTrack();
+//        }
+//
+        return this.maxTeam;
     }
 }

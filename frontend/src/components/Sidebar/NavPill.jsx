@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import styles from './NavPill.module.css'
 
-function NavPill({ icon: Icon, label, isActive, onClick }) {
+function NavPill({ icon: Icon, label, badge, isActive, onClick }) {
     const [isHover, setIsHover] = useState(false)
     const weight = isHover || isActive ? 'fill' : 'regular'
 
@@ -15,6 +15,9 @@ function NavPill({ icon: Icon, label, isActive, onClick }) {
         >
             <span><Icon size={28} weight={weight} /></span>
             <span className={styles.label}>{label}</span>
+            {badge !== undefined && badge !== null && (
+                <span className={styles.badge}>{badge}</span>
+            )}
         </button>
     )
 }

@@ -15,6 +15,7 @@ function CoordinatorLayout({
   // Auto-detect active page from URL
   let currentActive = 'events'
   if (location.pathname.includes('/rubrics')) currentActive = 'rubric'
+  if (location.pathname.includes('/candidates')) currentActive = 'candidates'
 
   const activePage = activePageProp ?? currentActive
 
@@ -24,6 +25,7 @@ function CoordinatorLayout({
     } else {
       if (id === 'events') navigate('/admin/coordinator/events')
       else if (id === 'rubric') navigate('/admin/coordinator/rubrics')
+      else if (id === 'candidates') navigate('/coordinator/candidates')
     }
   }
 

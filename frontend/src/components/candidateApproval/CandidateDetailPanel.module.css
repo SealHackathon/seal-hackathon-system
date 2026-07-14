@@ -1,0 +1,393 @@
+/* Lớp phủ bắt click đóng — không tô màu, không làm mờ nền */
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.panel {
+    position: relative;
+    width: 100%;
+    max-width: 520px;
+    height: 100%;
+    background: var(--color-bg-white);
+    border-left: 1px solid var(--color-border-blue);
+    display: flex;
+    flex-direction: column;
+    animation: slideIn 0.28s ease;
+}
+
+.panelClosing {
+    animation: slideOut 0.24s ease forwards;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
+}
+
+/* ── Header ── */
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75em;
+    padding: 1.25em 1.5em;
+    border-bottom: 1px solid var(--color-border-blue);
+    flex-shrink: 0;
+}
+
+.headerTitle {
+    margin: 0;
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--color-primary-blue);
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.75em;
+    border-radius: var(--inner-radius);
+    display: flex;
+    color: var(--color-border-blue);
+    transition: background 0.12s ease;
+}
+
+.closeBtn:hover {
+    background: var(--color-bg-blue);
+    color: var(--color-secondary-blue);
+}
+
+/* ── Body ── */
+.body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5em;
+    scrollbar-color: var(--color-border-blue) transparent;
+    scrollbar-width: thin;
+}
+
+/* ── Hồ sơ tóm tắt ── */
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 1em;
+}
+
+.profileAvatar {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-circle);
+    background: var(--color-bg-grey);
+    object-fit: cover;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.profileName {
+    margin: 0;
+    font-family: var(--body-font-main);
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--color-primary-blue);
+}
+
+.profileContact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+    margin-top: 0.25em;
+}
+
+.profileContact span {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-secondary-blue);
+}
+
+/* ── Tabs Wrapper ── */
+.tabsWrapper {
+    width: 100%;
+}
+
+/* ── Section ── */
+.section {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.banner {
+    display: flex;
+    align-items: center;
+    gap: 0.6em;
+    background: var(--color-primary-blue);
+    color: var(--color-bg-white);
+    border-radius: var(--inner-radius);
+    padding: 0.7em 1.1em;
+    font-family: var(--body-font-main);
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+.banner svg {
+    flex-shrink: 0;
+}
+
+/* ── Lưới field ── */
+.metaGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.1em 1.25em;
+}
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4em;
+    min-width: 0;
+}
+
+.fieldFull {
+    grid-column: 1 / -1;
+}
+
+.fieldLabel {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--color-secondary-blue);
+}
+
+.fieldValue {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--color-primary-blue);
+    word-break: break-word;
+}
+
+.fieldValue svg {
+    color: var(--color-border-blue);
+    flex-shrink: 0;
+}
+
+/* ── Khung ảnh ── */
+.imageRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.9em;
+}
+
+.imageBox {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1.58 / 1;
+    border-radius: var(--inner-radius);
+    border: 1px solid var(--color-border-blue);
+    background: var(--color-bg-grey);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.12s ease;
+}
+
+.imageBox:hover {
+    border-color: var(--color-secondary-blue);
+}
+
+.imageBox img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.imagePlaceholder {
+    color: var(--color-text-muted);
+}
+
+/* ── Footer ── */
+.footer {
+    border-top: 1px solid var(--color-border-blue);
+    padding: 1.25em 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+    background: var(--color-bg-white);
+    flex-shrink: 0;
+}
+
+.footerActions {
+    display: flex;
+    gap: 0.9em;
+}
+
+.fullBtn {
+    width: 100%;
+}
+
+/* ── Hộp xử lý xét duyệt ── */
+.approvalBox {
+    border: 1px solid var(--color-border-green);
+    border-radius: var(--inner-radius);
+    overflow: hidden;
+}
+
+.approvalHead {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+    padding: 0.9em 1.1em;
+    border: none;
+    background: var(--color-bg-green);
+    color: var(--color-primary-green);
+    font-family: var(--body-font-main);
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.approvalBody {
+    display: flex;
+    gap: 0.9em;
+    padding: 1em 1.1em;
+}
+/* ── Thông tin hồ sơ Tab ── */
+.profileBottomSection {
+    display: flex;
+    flex-direction: column;
+}
+
+.sectionHeader {
+    display: flex;
+    align-items: center;
+    gap: 0.5em;
+    margin-bottom: 1em;
+}
+
+.sectionIcon {
+    color: var(--color-border-blue);
+}
+
+.sectionTitle {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    margin: 0;
+}
+
+.orange .sectionTitle,
+.orange .sectionIcon {
+    color: var(--color-primary-orange);
+}
+
+/* Bio */
+.bioSection {
+    margin-bottom: 1.5em;
+    padding-left: 1.5em;
+    border-left: 1px solid var(--color-border-blue);
+}
+
+.bioText {
+    color: var(--color-text-primary);
+    line-height: 1.6;
+    margin: 0;
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--color-border-blue);
+    margin: 1.5em 0;
+    opacity: 0.5;
+}
+
+/* Tags Grid */
+.tagsGrid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5em;
+}
+
+@media (max-width: 480px) {
+    .tagsGrid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.tagsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75em;
+}
+
+.badgeItem {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4em 0.8em;
+    border: 1px solid var(--color-border-blue);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.blueBadge {
+    background-color: var(--color-bg-blue);
+    border-color: var(--color-border-blue);
+    color: var(--color-primary-blue);
+}
+
+.orangeBadge {
+    background-color: var(--color-bg-orange);
+    border-color: var(--color-border-orange);
+    color: var(--color-primary-orange);
+}
+
+.greyBadge {
+    background-color: var(--color-bg-grey);
+    border-color: var(--color-border-blue);
+    color: var(--color-text-primary);
+}
+
+.emptyText {
+    font-size: 0.95rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin: 0;
+}
+
+.cvLink {
+    color: var(--color-primary-green);
+    text-decoration: underline;
+    font-weight: 600;
+}
+
+.cvLink:hover {
+    color: var(--color-dark-green);
+}

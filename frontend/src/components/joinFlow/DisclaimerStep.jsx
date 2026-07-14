@@ -1,10 +1,10 @@
 import { useState } from 'react'
 import { WarningCircle, ArrowSquareOut } from '@phosphor-icons/react'
 import ModalShell from '../shared/ModalShell'
-import StepFooter from '../shared/StepFooter'
+import Button from '../shared/Button'
 import styles from './DisclaimerStep.module.css'
 
-function DisclaimerStep({ onClose, onNext }) {
+function DisclaimerStep({ onClose, onNext, notes }) {
     const [agreed, setAgreed] = useState(false)
 
     return (
@@ -13,15 +13,23 @@ function DisclaimerStep({ onClose, onNext }) {
             onClose={onClose}
             closeOnBackdrop={false}
             footer={
-                <StepFooter
-                    currentStep={1}
-                    totalSteps={3}
-                    stepLabel="Lưu ý"
-                    onBack={() => {}}
-                    onNext={onNext}
-                    nextDisabled={!agreed}
-                    backDisabled={true}
-                />
+                // <StepFooter
+                //     currentStep={1}
+                //     totalSteps={3}
+                //     stepLabel="Lưu ý"
+                //     onBack={() => {}}
+                //     onNext={onNext}
+                //     nextDisabled={!agreed}
+                //     backDisabled={true}
+                // />
+                <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                    <Button 
+                        label="Xác nhận và Tham gia" 
+                        variant="primary" 
+                        onClick={onNext} 
+                        disabled={!agreed} 
+                    />
+                </div>
             }
         >
             <div className={styles.titleRow}>
@@ -36,29 +44,22 @@ function DisclaimerStep({ onClose, onNext }) {
                 </p>
             </div>
 
-            <ol className={styles.list}>
-                <li>
-                    <p className={styles.ruleTitle}>[Thí sinh trường ngoài] Điều kiện đội thi</p>
-                    <div className={styles.rule}>
-                        <p>
-                            Nếu bạn <strong>không phải sinh viên trường FPT</strong> hoặc{' '}
-                            <strong>trường đối tác</strong>, đội của bạn bắt buộc phải{' '}
-                            <strong>có ít nhất một thành viên là sinh viên FPT</strong>.
-                            Đội không đáp ứng điều kiện này sẽ bị loại khỏi vòng xét duyệt.
-                        </p>
-                    </div>
-                </li>
-
-                <li>
-                    <p className={styles.ruleTitle}>Thông tin đăng ký không thể thay đổi sau khi nộp</p>
-                    <div className={styles.rule}>
-                        <p>
-                            Một số thông tin (tên đội, thành viên chính) sẽ <strong>bị khóa</strong> sau
-                            khi đăng ký thành công. Hãy kiểm tra kỹ trước khi xác nhận.
-                        </p>
-                    </div>
-                </li>
-            </ol>
+            <div className={styles.notesContainer}>
+                {notes && notes.length > 0 ? (
+                    <ol className={styles.list}>
+                        {notes.map((note, idx) => (
+                            <li key={note.id || idx}>
+                                <p className={styles.ruleTitle}>{note.title}</p>
+                                <div className={styles.rule}>
+                                    <p>{note.description}</p>
+                                </div>
+                            </li>
+                        ))}
+                    </ol>
+                ) : (
+                    <p>Chưa có thông tin lưu ý từ ban tổ chức.</p>
+                )}
+            </div>
 
             <p className={styles.rulesLink}>
                 Xem đầy đủ thể lệ và quy định chi tiết tại:{' '}

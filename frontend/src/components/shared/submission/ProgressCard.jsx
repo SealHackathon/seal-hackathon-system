@@ -40,14 +40,14 @@ function ProgressCard({ progress, activeRound }) {
       <div className={styles.statsPanel}>
         <div className={styles.scoreSection}>
           <div className={styles.scoreValue}>{score}</div>
-          <div className={styles.scoreLabel}>Tổng điểm / {progress.maxScore}</div>
+          <div className={styles.scoreLabel}>Tổng điểm /10 </div>
         </div>
         <div className={styles.statsDivider} />
         <div className={styles.rankSection}>
           <div className={styles.rankBadge}>
             <span>Hạng {rank} / {progress.totalTeams}</span>
           </div>
-          <div className={styles.rankLabel}>Bảng {progress.groupName}</div>
+          <div className={styles.rankLabel}>Bảng {progress.trackName}</div>
         </div>
       </div>
     </div>

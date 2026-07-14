@@ -5,6 +5,7 @@ import com.minhtung.hackathon.dto.request.BulkMentorInviteRequest;
 import com.minhtung.hackathon.dto.response.*;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.entity.SystemRequest.*;
+import com.minhtung.hackathon.enums.JudgeScoreStatus;
 import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +31,7 @@ public class MentorJudgeService {
     private final MemberRepository memberRepository;
     private final RoundRepository roundRepo;
     private final SubmissionRepository submissionRepository;
-
+    private final JudgeScoreRepository judgeScoreRepository;
     private final List<RequestStatus> activeStatuses = List.of(RequestStatus.PENDING, RequestStatus.ACCEPTED);
     private static final DateTimeFormatter HHmm = DateTimeFormatter.ofPattern("HH:mm");
 
@@ -370,9 +371,26 @@ public class MentorJudgeService {
             Round round = group.get(0).getRound();
             boolean allCategories = group.stream().anyMatch(ja -> ja.getTrack() == null);
 
+            List<Track> tracks = group.stream()
+                    .map(JudgeAssignment::getTrack)
+                    .filter(Objects::nonNull)
+                    .distinct()
+                    .collect(Collectors.toList());
+
             List<String> categories = allCategories
                     ? Collections.emptyList()
-                    : group.stream().map(ja -> ja.getTrack().getName()).distinct().collect(Collectors.toList());
+                    : tracks.stream().map(Track::getName).distinct().collect(Collectors.toList());
+
+            int submissionQuantity = allCategories
+                    ? submissionRepository.countByRoundAndLatestTrue(round)
+                    : submissionRepository.countByRoundAndTeam_TrackInAndLatestTrue(round, tracks);
+
+            List<Long> judgeAssignmentIds = group.stream()
+                    .map(JudgeAssignment::getId)
+                    .collect(Collectors.toList());
+
+            int scoredQuantity = judgeScoreRepository
+                    .countByJudgeAssignment_IdInAndStatus(judgeAssignmentIds, JudgeScoreStatus.SUBMITTED);
 
             return JudgeRoundDTO.builder()
                     .roundId(round.getId())
@@ -381,6 +399,8 @@ public class MentorJudgeService {
                     .categories(categories)
                     .timeStart(round.getTimeStart())
                     .timeEnd(round.getTimeEnd())
+                    .submissionQuantity(submissionQuantity)
+                    .scoredQuantity(scoredQuantity)
                     .build();
         }).collect(Collectors.toList());
 

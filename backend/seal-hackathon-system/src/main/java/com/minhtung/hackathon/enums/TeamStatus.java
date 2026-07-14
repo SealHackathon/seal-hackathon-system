@@ -5,7 +5,6 @@ public enum TeamStatus {
     PENDING_APPROVAL,
     APPROVED ,
     REJECTED
-
 }
 
 

@@ -40,7 +40,7 @@ function EventCard({ event, onManage, onEdit, onView, onCopyLink, onExport, onDu
   const {
     title, theme, status, thumbnail,
     teamSize, venues = [], prize, tags = [],
-    timeline = [], teamCount, participantCount, categoryCount, roundCount,
+    timeline = [], teamCount, participantCount, categoryCount, roundCount, maxTeamLimit
   } = event
 
   // Venues: hiển thị giống TagList nhưng tooltip là full list
@@ -108,11 +108,11 @@ function EventCard({ event, onManage, onEdit, onView, onCopyLink, onExport, onDu
               {/* Stats */}
               <div className={styles.stats}>
                 <StatChip
-                  value={`${teamCount} / 100`}
+                  value={maxTeamLimit ? `${teamCount} / ${maxTeamLimit}` : teamCount}
                   label="Đội thi"
                 />
                 <StatChip
-                  value={`${participantCount} / 500`}
+                  value={participantCount}
                   label="Thí sinh"
                 />
                 <StatChip

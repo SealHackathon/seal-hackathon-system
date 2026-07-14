@@ -26,6 +26,7 @@ public class EventRequest {
     private String eventLocation;
     private String participationBenefits;
     private String keywords;
+    private String status;
     // Cấu hình định dạng đón nhận chuỗi thời gian từ Form-data
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime openRegisterTime;

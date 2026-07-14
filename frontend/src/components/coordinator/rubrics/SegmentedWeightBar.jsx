@@ -11,7 +11,7 @@ const BAR_COLORS = [
 ];
 
 function SegmentedWeightBar({ criteria = [], size = 'large' }) {
-    const totalWeight = criteria.reduce((sum, c) => sum + (c.weight || 0), 0);
+    const totalWeight = criteria.reduce((sum, c) => sum + (c.weight || c.percent || 0), 0);
 
     const getSegmentColor = (index, length) => {
         if (length <= 2) return BAR_COLORS[index];
@@ -26,7 +26,7 @@ function SegmentedWeightBar({ criteria = [], size = 'large' }) {
                 <div
                     key={c.id || i}
                     style={{
-                        width: `${Math.min(c.weight || 0, 100)}%`,
+                        width: `${Math.min(c.weight || c.percent || 0, 100)}%`,
                         backgroundColor: getSegmentColor(i, criteria.length)
                     }}
                     className={styles.segment}
@@ -39,7 +39,7 @@ function SegmentedWeightBar({ criteria = [], size = 'large' }) {
                             <div className={styles.tooltipContent}>
                                 <div className={styles.tooltipHeader}>
                                     <span className={styles.tooltipName}>{c.name || 'Tiêu chí'}</span>
-                                    <span className={styles.tooltipWeight}>{c.weight || 0}%</span>
+                                    <span className={styles.tooltipWeight}>{c.weight || c.percent || 0}%</span>
                                 </div>
                                 {c.description && (
                                     <p className={styles.tooltipDesc}>{c.description}</p>

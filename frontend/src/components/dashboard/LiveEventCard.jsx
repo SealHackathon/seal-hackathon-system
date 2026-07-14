@@ -21,7 +21,7 @@ function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
         ? registrationDeadline.getTime() < now
         : false
     const joinButtonLabel = isRegistered
-        ? 'Đã đăng ký'
+        ? 'Vào cuộc thi'
         : isRegistrationClosed
             ? 'Đóng đăng ký'
             : 'Tham gia'
@@ -50,12 +50,12 @@ function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
             <div className={styles.leftSide}>
                 {/* Ảnh bìa */}
                 <div className={styles.cover}>
-                    <img src={coverPlaceholder} alt="cover"></img>
+                    <img src={event.thumbnailImage || coverPlaceholder} alt="cover"></img>
                 </div>
                 
                 <div className={styles.stats}>
-                    <StatChip value={`${event.teamCount || 0} / 100`} label={<>Đội thi <span style={{color: '#E55C00'}}>*</span></>} />
-                    <StatChip value={`${event.participantCount || 0} / 500`} label="Thí sinh" />
+                    <StatChip value={`${event.teamCount || 0} / ${event.maxTeamLimit || event.maxTeamMember || 'Không giới hạn'}`} label={<>Đội thi <span style={{color: '#E55C00'}}>*</span></>} />
+                    <StatChip value={`${event.participantCount || 0}`} label="Thí sinh" />
                     <StatChip value={event.trackCount || 0} label="Hạng mục" />
                 </div>
 
