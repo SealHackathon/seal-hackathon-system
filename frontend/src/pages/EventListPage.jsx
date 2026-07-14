@@ -22,7 +22,6 @@ const STATUS_FILTERS = [
 const SORT_OPTIONS = [
   { key: 'newest', label: 'Mới nhất', icon: <ArrowDown size={16} weight='fill' /> },
   { key: 'oldest', label: 'Cũ nhất', icon: <ArrowUp size={16} weight='fill' /> },
-  { key: 'popular', label: 'Phổ biến nhất', icon: <Heart size={16} weight='fill' /> },
 ]
 
 
@@ -202,9 +201,10 @@ function EventListPage({ onManageEvent }) {
               teamSize: `Tối đa ${apiEvent.maxTeamMember || 5} người / đội`,
               venues: [apiEvent.eventLocation || 'Trực tuyến'],
               prize: totalCash > 0 ? `${totalCash.toLocaleString('vi-VN')} VNĐ` : 'Chưa cập nhật',
-              tags: apiEvent.eventTopic ? [apiEvent.eventTopic] : [],
+              tags: apiEvent.keywords || [],
               timeline: timeline,
               teamCount: apiEvent.teamQuantity || totalTeams || 0,
+              maxTeamLimit: apiEvent.maxTeam || 0,
               participantCount: apiEvent.candidateQuantity || 0,
               categoryCount: apiEvent.trackQuantity || 0,
               roundCount: apiEvent.roundQuantity || 0,
@@ -241,7 +241,7 @@ function EventListPage({ onManageEvent }) {
 
   // ── SỬA CHỖ NÀY: Đổi MOCK_EVENTS thành biến events trong useMemo lọc ──
   const filtered = useMemo(() => {
-    let list = events // Đổi từ MOCK_EVENTS sang events ở đây
+    let list = [...events] // Clone mảng để không làm đột biến state gốc khi sort
     if (activeFilter !== 'all') list = list.filter(e => e.status === activeFilter)
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase()
@@ -250,8 +250,16 @@ function EventListPage({ onManageEvent }) {
         e.theme.toLowerCase().includes(q)
       )
     }
+    
+    // Sort logic
+    if (activeSort === 'newest') {
+      list.sort((a, b) => b.id - a.id)
+    } else if (activeSort === 'oldest') {
+      list.sort((a, b) => a.id - b.id)
+    }
+    
     return list
-  }, [activeFilter, searchQuery, events]) // Thêm cả events vào mảng dependency này luôn
+  }, [activeFilter, searchQuery, events, activeSort])
 
 
   // ── SỬA CHỖ NÀY: Đổi MOCK_EVENTS thành events trong useMemo đếm số lượng Badge ──

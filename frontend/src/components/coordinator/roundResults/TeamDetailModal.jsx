@@ -1,10 +1,13 @@
+import { useState, useEffect } from 'react'
 import ModalShell from '../../shared/ModalShell'
+import axiosClient from '../../../api/axiosClient'
 import TeamDetailHero from '../../panelist/event/mentorTeamDetail/TeamDetailHero'
 import RoundTimeline from '../../panelist/event/mentorTeamDetail/RoundTimeline'
 import TeamStatsBox from '../../panelist/event/mentorTeamDetail/TeamStatsBox'
 import { UsersThree } from '@phosphor-icons/react'
 import styles from './TeamDetailModal.module.css'
 
+/*
 const mockTeamBase = {
   category: 'AI Agents for Software Innovation',
   members: [
@@ -65,21 +68,67 @@ const mockTeamBase = {
     { label: 'Chung kết', score: null },
   ],
 }
+*/
 
 // -- Popup xem chi tiet 1 doi. --
-function TeamDetailModal({ open, team, onClose }) {
+function TeamDetailModal({ open, team, eventId, roundId, onClose }) {
+  const [teamData, setTeamData] = useState(null)
+  const [loading, setLoading] = useState(false)
+
+  useEffect(() => {
+    if (!open || !team || !eventId || !roundId) return
+
+    const fetchTeamInfo = async () => {
+      setLoading(true)
+      try {
+        const { data } = await axiosClient.get(`/team/${eventId}/rounds/${roundId}/teams?currentUserId=0`)
+        console.log("Teams fetched from API:", data, "Looking for teamId:", team?.team?.id)
+        const foundTeam = data.find(t => t.teamId === team.team?.id)
+        if (foundTeam) {
+          setTeamData(foundTeam)
+        } else {
+          setTeamData(null)
+        }
+      } catch (e) {
+        console.error(e)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTeamInfo()
+  }, [open, team, eventId, roundId])
+
   if (!open || !team) return null
   
-  // Trộn dữ liệu thực tế được truyền vào (team) với mock base
+  // Tạo object fullTeam với giá trị mặc định cho những field chưa có dữ liệu thật
   const fullTeam = {
-    ...mockTeamBase,
     id: team.team?.id || 't-unknown',
     name: team.team?.name || 'Tên Đội Thi',
+    category: teamData?.trackName || 'Chưa cập nhật',
+    members: teamData?.members?.map(m => ({
+      id: m.id,
+      name: m.name,
+      position: m.role === 'LEADER' ? 'Trưởng nhóm' : (m.role || 'Thành viên'),
+      isLeader: m.role === 'LEADER' || m.role === 'Trưởng nhóm',
+      avatar: m.avatar,
+    })) || [],
     kpi: {
-      ...mockTeamBase.kpi,
+      totalTeams: 0,
+      roundsDone: 0,
+      roundsTotal: 0,
+      pendingQuestions: 0,
       rank: team.rank || 0,
       latestScore: team.score || 0,
-    }
+    },
+    rounds: [],
+    stats: {
+      avgScore: 0,
+      bestRank: 0,
+      totalTeams: 0,
+      questionsTotal: 0,
+      questionsAnswered: 0,
+    },
+    scoreByRound: [],
   }
 
   return (
