@@ -271,7 +271,7 @@ public class RoundService {
         }
         Double teamTotalScore = (team != null) ? computeTeamTotalScore(team) : null;
 
-        return convertToResponse(round, totalRounds, team, teamTotalScore,null);
+        return convertToResponse(round, totalRounds, team, teamTotalScore);
     }
 
     /**
@@ -287,13 +287,12 @@ public class RoundService {
         Team team = (member != null) ? member.getTeam() : null;
 
         Double teamTotalScore = (team != null) ? computeTeamTotalScore(team) : null;
-        LocalDateTime now = LocalDateTime.now();
+
         for (Round round : rounds) {
 
-            // Tính toán submission status cho team hiện tại trong round này
-            String submissionStatus = determineSubmissionStatus(round, team, now);
 
-            responseList.add(convertToResponse(round, totalRounds, team, teamTotalScore,submissionStatus));
+
+            responseList.add(convertToResponse(round, totalRounds, team, teamTotalScore));
         }
 
         return responseList;
@@ -302,7 +301,7 @@ public class RoundService {
     /**
      * Hàm Helper xử lý Map dữ liệu dùng chung (Tránh lặp code - DRY)
      */
-    private RoundDetailsResponse convertToResponse(Round round, int totalRounds, Team team, Double teamTotalScore,String submissionStatus) {
+    private RoundDetailsResponse convertToResponse(Round round, int totalRounds, Team team, Double teamTotalScore) {
         RoundDetailsResponse dto = new RoundDetailsResponse();
         dto.setRoundId(round.getId());
         dto.setRoundName(round.getName());
@@ -311,7 +310,7 @@ public class RoundService {
         dto.setRoundEndTime(round.getTimeEnd());
         dto.setRoundSubmissionDeadline(round.getSubmissionDeadline());
         dto.setRoundQuantity(totalRounds);
-        dto.setSubmissionStatus(submissionStatus);
+
         List<Submission> roundSubmissions = submissionRepository.findByRound_IdAndLatestTrue(round.getId());
 
         Long trackIdForCount = null;
