@@ -146,6 +146,8 @@ function mapBackendRoundToUi(round, scoreResultsList = []) {
     trackName: matchedScore?.trackName ?? null,
   }
 }
+
+
 function buildProgress(rounds = []) {
   if (!Array.isArray(rounds) || rounds.length === 0) return null
 

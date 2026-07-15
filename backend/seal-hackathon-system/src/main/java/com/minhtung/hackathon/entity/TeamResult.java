@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "team_result")
@@ -32,6 +34,9 @@ public class TeamResult {
     @Enumerated(EnumType.STRING)
     private TeamResultStatus status;
 
+
+    @OneToMany(mappedBy = "teamResult", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<JudgeScore> judgeScores = new ArrayList<>();
     /**
      * Thứ hạng trong vòng thi
      * Ví dụ: 1, 2, 3,...
