@@ -28,15 +28,18 @@ public class JudgeScoreService {
     private final JudgeAssignmentRepository judgeAssignmentRepository;
     private final JudgeScoreRepository judgeScoreRepository;
     private final CriterionRepository criterionRepository;
-
+    private final TeamResultRepository teamResultRepository;
     @Transactional
     public JudgeScoreResponse createScore(String email, JudgeScoreRequest request) {
+        // 1. Tìm thông tin Giám khảo từ email đăng nhập
         User judge = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy Judge"));
 
+        // 2. Tìm bài nộp cần chấm từ request
         Submission submission = submissionRepository.findById(request.getSubmissionId())
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy bài nộp"));
 
+        // 3. Ràng buộc nghiệp vụ: Không cho phép chấm phiên bản cũ
         if (!submission.isLatest()) {
             throw new RuntimeException("Không thể chấm phiên bản nộp cũ");
         }
@@ -45,20 +48,18 @@ public class JudgeScoreService {
             throw new RuntimeException("Team chưa thuộc track");
         }
 
-        Long roundId=submission.getRound().getId();
-
+        Long roundId = submission.getRound().getId();
         Long trackId = submission.getTeam().getTrack().getId();
 
         System.out.println("judgeId = " + judge.getId());
         System.out.println("trackId = " + trackId);
         System.out.println("roundId = " + roundId);
 
-        JudgeAssignment assignment = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId,roundId)
+        // 4. Kiểm tra phân công chấm thi của Giám khảo này
+        JudgeAssignment assignment = judgeAssignmentRepository.findByUser_IdAndTrackIdAndRoundId(judge.getId(), trackId, roundId)
                 .orElseThrow(() -> new RuntimeException("Bạn không được phân công để chấm"));
 
-
-
-
+        // 5. Kiểm tra xem đã tồn tại bản ghi điểm trước đó chưa
         Optional<JudgeScore> existingScoreOpt = judgeScoreRepository
                 .findByJudgeAssignmentIdAndSubmissionId(assignment.getId(), submission.getId());
 
@@ -67,17 +68,17 @@ public class JudgeScoreService {
         if (existingScoreOpt.isPresent()) {
             judgeScore = existingScoreOpt.get();
 
-            // Nếu trạng thái hiện tại trong DB đã là SUBMITTED thì chặn đứng
+            // Ràng buộc nghiệp vụ: Điểm đã SUBMITTED thì không được sửa nữa
             if (judgeScore.getStatus() == JudgeScoreStatus.SUBMITTED) {
                 throw new RuntimeException("Điểm số đã được nộp chính thức trước đó, không thể thay đổi nữa.");
             }
 
             judgeScore.setUpdatedAt(LocalDateTime.now());
 
-            //   Xóa phần tử cũ thông qua .clear() nếu đã tồn tại bản nháp
+            // Xóa các chi tiết điểm (criteria score) cũ thông qua .clear() nếu đã tồn tại bản nháp
             if (judgeScore.getDetails() != null) {
                 judgeScore.getDetails().clear();
-                judgeScoreRepository.saveAndFlush(judgeScore); // Đẩy lệnh DELETE xuống DB ngay
+                judgeScoreRepository.saveAndFlush(judgeScore); // Đẩy lệnh DELETE xuống DB ngay để dọn rác chi tiết cũ
             }
         } else {
             judgeScore = new JudgeScore();
@@ -87,30 +88,69 @@ public class JudgeScoreService {
             judgeScore.setUpdatedAt(LocalDateTime.now());
         }
 
-        judgeScore.setStatus(JudgeScoreStatus.valueOf(request.getStatus()));
+        // Gán trạng thái và nhận xét từ request
+        JudgeScoreStatus newStatus = JudgeScoreStatus.valueOf(request.getStatus());
+        judgeScore.setStatus(newStatus);
         judgeScore.setComment(request.getComment());
 
-        // Sinh list các chi tiết điểm mới từ request
+        // 6. Tạo danh sách chi tiết điểm tiêu chí mới từ request.getDetails()
         List<JudgeScoreDetail> newDetails = createDetails(
                 judgeScore,
                 submission,
                 request.getDetails()
         );
 
-        //   2: THAY ĐỔI QUAN TRỌNG TẠI ĐÂY - Không dùng setDetails() bừa bãi
+        // Cập nhật danh sách chi tiết an toàn với Hibernate session
         if (judgeScore.getDetails() == null) {
             judgeScore.setDetails(newDetails);
         } else {
-            // Dùng addAll để Hibernate nhận biết được tiến trình cập nhật phần tử vào mảng cũ
             judgeScore.getDetails().addAll(newDetails);
         }
 
-        // Tính toán lại tổng điểm dựa trên danh sách chi tiết hiện tại trong thực thể
+        // Tính toán lại tổng điểm cho bảng JudgeScore dựa trên các tiêu chí vừa chấm
         judgeScore.setTotalScore(calculateTotalScore(judgeScore.getDetails()));
 
-        return mapToResponse(judgeScoreRepository.save(judgeScore));
-    }
+        // Lưu điểm của giám khảo hiện tại xuống DB
+        JudgeScore savedJudgeScore = judgeScoreRepository.save(judgeScore);
 
+        // =========================================================================
+        // 7. LOGIC CẬP NHẬT HOẶC TẠO TEAM RESULT KHI NỘP ĐIỂM CHÍNH THỨC
+        // =========================================================================
+        if (newStatus == JudgeScoreStatus.SUBMITTED) {
+            // Lấy tất cả điểm của hội đồng giám khảo đã nộp chính thức (SUBMITTED) cho bài nộp hiện hành này
+            List<JudgeScore> officialScores = judgeScoreRepository
+                    .findBySubmissionIdAndStatus(submission.getId(), JudgeScoreStatus.SUBMITTED);
+
+            if (!officialScores.isEmpty()) {
+                // Tính điểm trung bình cộng (Điểm tổng của các Giám khảo)
+                double averageScore = officialScores.stream()
+                        .mapToDouble(JudgeScore::getTotalScore)
+                        .average()
+                        .orElse(0.0);
+
+                // Làm tròn đến 2 chữ số thập phân
+                averageScore = Math.round(averageScore * 100.0) / 100.0;
+
+                // Tìm hoặc khởi tạo mới bản ghi kết quả của Đội thi (TeamResult) tại vòng này
+                Team team = submission.getTeam();
+                Round round = submission.getRound();
+
+                TeamResult teamResult = teamResultRepository.findByTeamIdAndRoundId(team.getId(), round.getId())
+                        .orElseGet(() -> {
+                            TeamResult newResult = new TeamResult();
+                            newResult.setTeam(team);
+                            newResult.setRound(round);
+                            return newResult;
+                        });
+
+                // Ghi đè điểm trung bình mới tính được vào TeamResult
+                teamResult.setTotalScore(averageScore);
+                teamResultRepository.save(teamResult);
+            }
+        }
+
+        return mapToResponse(savedJudgeScore);
+    }
 
     @Transactional
     public JudgeScoreResponse updateScore(String email, Long judgeScoreId, UpdateJudgeScoreRequest request) {

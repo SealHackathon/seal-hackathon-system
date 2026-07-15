@@ -31,6 +31,8 @@ public class SubmissionService {
     private final RoundRepository roundRepository;
     private final TrackRepository trackRepository ;
     private  final CloudinaryStorageService cloudinaryStorageService ;
+    private final TeamResultRepository teamResultRepository;
+    private final JudgeScoreRepository judgeScoreRepository;
 
 
     @Value("${submission.demo.max-size}")

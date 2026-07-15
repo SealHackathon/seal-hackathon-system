@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -117,6 +118,9 @@ public interface TeamResultRepository
 
     @Query("SELECT COUNT(t) FROM Team t WHERE t.track.id = :trackId")
     int countTotalTeamsInTrack(@Param("trackId") Long trackId);
+
+    // Tìm kết quả thi của Đội trong Vòng dựa trên teamId và roundId
+    Optional<TeamResult> findByTeamIdAndRoundId(Long teamId, Long roundId);
 }
 
 
