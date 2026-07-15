@@ -33,7 +33,6 @@ public class RoundDetailsResponse {
 
     // --- THÊM MỚI ---
     private Double teamTotalScore;       // Tổng điểm (cộng dồn) của team qua tất cả round đã công bố (null nếu user không thuộc team nào)
-    private TeamRankDTO teamRank;        // Hạng của team trong round này, dạng rank/totalTeams (null nếu chưa có điểm/chưa public/không có team)
     private int totalTeamsInRound;       // Tổng số đội thi trong round này (theo track của team, dùng để ghép "topTeamPass/totalTeamsInRound")
 
     // --- THÊM: Mảng lịch trình chi tiết của vòng thi này ---
@@ -65,13 +64,4 @@ public class RoundDetailsResponse {
         private float weight;
     }
 
-    // --- THÊM MỚI ---
-    @AllArgsConstructor
-    @NoArgsConstructor
-    @Getter
-    @Setter
-    public static class TeamRankDTO {
-        private int rank;
-        private int totalTeams;
-    }
 }

@@ -4,7 +4,7 @@ import lombok.Data;
 
 @Data
 public class ExtendedAwardDTO {
-    private String id;
+    private long id;
     private String label;
     private TeamDTO team; // null nếu chưa gán
 }

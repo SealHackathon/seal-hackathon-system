@@ -269,9 +269,8 @@ public class RoundService {
             Member member = memberRepository.findByMemberIdAndStatus(userId, MemberStatus.OFFICAL).orElse(null);
             team = (member != null) ? member.getTeam() : null;
         }
-        Double teamTotalScore = (team != null) ? computeTeamTotalScore(team) : null;
 
-        return convertToResponse(round, totalRounds, team, teamTotalScore);
+        return convertToResponse(round, totalRounds);
     }
 
     /**
@@ -286,13 +285,10 @@ public class RoundService {
         Member member = memberRepository.findByMemberIdAndStatus(userId, MemberStatus.OFFICAL).orElse(null);
         Team team = (member != null) ? member.getTeam() : null;
 
-        Double teamTotalScore = (team != null) ? computeTeamTotalScore(team) : null;
-
         for (Round round : rounds) {
 
 
-
-            responseList.add(convertToResponse(round, totalRounds, team, teamTotalScore));
+            responseList.add(convertToResponse(round, totalRounds));
         }
 
         return responseList;
@@ -301,7 +297,7 @@ public class RoundService {
     /**
      * Hàm Helper xử lý Map dữ liệu dùng chung (Tránh lặp code - DRY)
      */
-    private RoundDetailsResponse convertToResponse(Round round, int totalRounds, Team team, Double teamTotalScore) {
+    private RoundDetailsResponse convertToResponse(Round round, int totalRounds) {
         RoundDetailsResponse dto = new RoundDetailsResponse();
         dto.setRoundId(round.getId());
         dto.setRoundName(round.getName());
@@ -313,28 +309,8 @@ public class RoundService {
 
         List<Submission> roundSubmissions = submissionRepository.findByRound_IdAndLatestTrue(round.getId());
 
-        Long trackIdForCount = null;
-        if (team != null) {
-            Submission teamSub = roundSubmissions.stream()
-                    .filter(s -> s.getTeam().getId()==(team.getId()))
-                    .findFirst().orElse(null);
-            if (teamSub != null && teamSub.getTeam().getTrack() != null) {
-                trackIdForCount = teamSub.getTeam().getTrack().getId();
-            }
-        }
-
-        int totalTeamsInRound;
-        if (trackIdForCount != null) {
-            Long finalTrackId = trackIdForCount;
-            totalTeamsInRound = (int) roundSubmissions.stream()
-                    .filter(s -> s.getTeam().getTrack() != null && finalTrackId.equals(s.getTeam().getTrack().getId()))
-                    .count();
-        } else {
-            totalTeamsInRound = roundSubmissions.size();
-        }
 
         dto.setSubmissionQuantity(roundSubmissions.size());
-        dto.setTotalTeamsInRound(totalTeamsInRound);
         dto.setTopTeamPass(round.getTopTeamPass());
 
         if (round.getScoringTemplate() != null) {
@@ -404,166 +380,7 @@ public class RoundService {
             }
         }
 
-        if (team != null) {
-            dto.setTeamTotalScore(teamTotalScore);
-            dto.setTrackName(team.getTrack().getName());
-            dto.setTeamRank(computeTeamRankInRound(round.getId(), team.getId()));
-        }
 
         return dto;
-    }
-
-    /**
-     * Tổng điểm (CỘNG DỒN, không chia trung bình) của team qua TẤT CẢ round đã public (publishStage = 3).
-     * Gộp mọi điểm giám khảo (SUBMITTED) từ mọi round lại thành 1 danh sách rồi cộng tổng.
-     */
-    private Double computeTeamTotalScore(Team team) {
-        List<Submission> submissions = submissionRepository.findByTeam_IdAndLatestTrue(team.getId());
-        if (submissions.isEmpty()) return null;
-
-        double sum = 0.0;
-        int totalValidScoresCount = 0; // Đổi biến cờ sang đếm số lượng điểm hợp lệ
-
-        for (Submission submission : submissions) {
-            Round round = submission.getRound();
-            Long trackId = submission.getTeam().getTrack() != null
-                    ? submission.getTeam().getTrack().getId() : null;
-            if (trackId == null) continue;
-
-            RoundTrack.RoundTrackId rtId = new RoundTrack.RoundTrackId(round.getId(), trackId);
-            RoundTrack roundTrack = roundTrackRepository.findById(rtId).orElse(null);
-            if (roundTrack == null || roundTrack.getPublishStage() != 3) continue;
-
-            List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(round.getId()).stream()
-                    .filter(a -> a.getTrack() != null && Objects.equals(a.getTrack().getId(), trackId))
-                    .toList();
-
-            List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(round.getId());
-            Map<String, JudgeScore> scoreIndex = new HashMap<>();
-            for (JudgeScore s : scores) {
-                scoreIndex.put(s.getJudgeAssignment().getId() + "-" + s.getSubmission().getId(), s);
-            }
-
-            for (JudgeAssignment ja : assignments) {
-                JudgeScore score = scoreIndex.get(ja.getId() + "-" + submission.getId());
-                if (score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED) {
-                    sum += score.getTotalScore();
-                    totalValidScoresCount++; // Tăng số lượng điểm hợp lệ lên 1
-                }
-            }
-        }
-
-        // Nếu không có giám khảo nào nộp điểm chính thức, trả về null
-        if (totalValidScoresCount == 0) {
-            return null;
-        }
-
-        // Chia trung bình cộng và làm tròn 2 chữ số thập phân
-        double averageScore = sum / totalValidScoresCount;
-        return Math.round(averageScore * 100.0) / 100.0;
-    }
-
-    /**
-     * Hạng của team trong 1 round cụ thể (so với các team CÙNG TRACK), dùng điểm trung bình của round đó để xếp hạng.
-     * Trả về rank + tổng số đội (VD: 3/24).
-     */
-    private RoundDetailsResponse.TeamRankDTO computeTeamRankInRound(Long roundId, Long teamId) {
-        List<Submission> allSubmissions = submissionRepository.findByRound_IdAndLatestTrue(roundId);
-
-        Submission teamSubmission = allSubmissions.stream()
-                .filter(s -> s.getTeam().getId()==(teamId))
-                .findFirst()
-                .orElse(null);
-        if (teamSubmission == null || teamSubmission.getTeam().getTrack() == null) {
-            return null;
-        }
-        Long trackId = teamSubmission.getTeam().getTrack().getId();
-
-        List<Submission> trackSubmissions = allSubmissions.stream()
-                .filter(s -> s.getTeam().getTrack() != null && trackId.equals(s.getTeam().getTrack().getId()))
-                .toList();
-
-        List<JudgeAssignment> assignments = judgeAssignmentRepository.findByRound_Id(roundId).stream()
-                .filter(a -> a.getTrack() != null && trackId.equals(a.getTrack().getId()))
-                .toList();
-
-        List<JudgeScore> scores = judgeScoreRepository.findAllByRoundIdWithDetails(roundId);
-        Map<String, JudgeScore> scoreIndex = new HashMap<>();
-        for (JudgeScore s : scores) {
-            scoreIndex.put(s.getJudgeAssignment().getId() + "-" + s.getSubmission().getId(), s);
-        }
-
-        List<Map.Entry<Long, Double>> teamAverages = new ArrayList<>();
-        for (Submission s : trackSubmissions) {
-            List<Double> totals = new ArrayList<>();
-            for (JudgeAssignment ja : assignments) {
-                JudgeScore score = scoreIndex.get(ja.getId() + "-" + s.getId());
-                if (score != null && score.getStatus() == JudgeScoreStatus.SUBMITTED) {
-                    totals.add(score.getTotalScore());
-                }
-            }
-            if (!totals.isEmpty()) {
-                double avg = totals.stream().mapToDouble(Double::doubleValue).average().orElse(0.0);
-                teamAverages.add(Map.entry(s.getTeam().getId(), avg));
-            }
-        }
-
-        teamAverages.sort((a, b) -> Double.compare(b.getValue(), a.getValue()));
-
-        int rank = -1;
-        for (int i = 0; i < teamAverages.size(); i++) {
-            if (teamAverages.get(i).getKey().equals(teamId)) {
-                rank = i + 1;
-                break;
-            }
-        }
-        if (rank == -1) return null;
-
-        RoundDetailsResponse.TeamRankDTO rankDto = new RoundDetailsResponse.TeamRankDTO();
-        rankDto.setRank(rank);
-        rankDto.setTotalTeams(teamAverages.size());
-        return rankDto;
-    }
-
-    private String determineSubmissionStatus(Round round, Team team, LocalDateTime now) {
-        LocalDateTime start = round.getTimeStart();
-        LocalDateTime end = round.getTimeEnd();
-        LocalDateTime deadline = round.getSubmissionDeadline();
-
-        // 1. Xác định trạng thái của Round (status: UPCOMING, ACTIVE, DONE)
-        String roundStatus = "ACTIVE";
-        if (now.isBefore(start)) {
-            roundStatus = "UPCOMING";
-        } else if (now.isAfter(end)) {
-            roundStatus = "DONE";
-        }
-
-        // 2. Kiểm tra xem đội hiện tại đã có submission (bản mới nhất) trong round này chưa
-        boolean hasSubmission = round.getSubmissions().stream()
-                .anyMatch(s -> s.getTeam().getId() == team.getId() && s.isLatest());
-
-        // 3. Match logic với frontend của bạn
-        if ("UPCOMING".equals(roundStatus)) {
-            return "NOT_OPEN";
-        }
-
-        if ("DONE".equals(roundStatus)) {
-            return hasSubmission ? "SUBMITTED_ON_TIME" : "CLOSED_NO_SUBMISSION";
-        }
-
-        // Trường hợp ACTIVE
-        if (hasSubmission) {
-            if (deadline != null && now.isAfter(deadline)) {
-                return "LATE_NO_SUBMISSION"; // Đã nộp nhưng hiện tại đã trễ hạn
-            } else {
-                return "READY"; // Đã nộp và vẫn trong hạn (có thể nộp lại)
-            }
-        } else {
-            if (deadline != null && now.isAfter(deadline)) {
-                return "LATE_NO_SUBMISSION"; // Chưa nộp và đã trễ hạn
-            } else {
-                return "NO_SUBMISSION"; // Chưa nộp và vẫn còn hạn
-            }
-        }
     }
 }

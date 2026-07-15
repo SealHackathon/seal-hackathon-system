@@ -27,6 +27,7 @@ public class RoundResultServiceImpl implements RoundResultService {
     private final RoundTrackRepository roundTrackRepository;
     @Override
     public RoundResultResponse getRoundResults(Long roundId, Long trackId) {
+
         Round round = roundRepository.findById(roundId)
                 .orElseThrow(() -> new EntityNotFoundException("Round not found: " + roundId));
 
@@ -156,6 +157,20 @@ public class RoundResultServiceImpl implements RoundResultService {
         response.setEntries(entries);
         response.setUpdatedAt(computeLatestUpdate(scores));
         response.setReview(null);
+
+        // add list extend award
+
+        Event event=round.getEvent();
+        List<Prize> prizes=event.getPrizes();
+        if (event != null) {
+            for (Prize p : prizes) {
+
+            }
+        }
+
+
+
+
         response.setAwards(computeAwardsAutomatically(entries));
 
         // Trả về PublishStage tương ứng
@@ -254,6 +269,7 @@ public class RoundResultServiceImpl implements RoundResultService {
         // 5. Kết hợp vào AwardsDTO (Extended tạm thời để trống hoặc lấy từ nguồn khác vì ko tự tính được)
         AwardsDTO awardsDTO = new AwardsDTO();
         awardsDTO.setMain(mainAwards);
+
         awardsDTO.setExtended(new ArrayList<>()); //TODO: đang để trống giải phụ phai tự gán tay
 
         return awardsDTO;
