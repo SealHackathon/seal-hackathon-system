@@ -56,5 +56,5 @@ ORDER BY s.submittedAt DESC
     int countByRoundAndTeam_TrackInAndLatestTrue(Round round, List<Track> tracks);
     List<Submission>findByTeam_IdAndLatestTrue(long teamId);
 
-
+    List<Submission>findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(Long roundId);
 }

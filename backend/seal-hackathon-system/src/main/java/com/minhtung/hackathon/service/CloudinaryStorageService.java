@@ -99,16 +99,19 @@ public class CloudinaryStorageService {
         }
     }
 
-    public String uploadSubmissionFile(MultipartFile file , Long teamId , Long roundId , String resourceType){
-        try{
+    public String uploadSubmissionFile(MultipartFile file, Long teamId, Long roundId, String resourceType) {
+        try {
             Map uploadResult = cloudinary.uploader().upload(
-                    file.getBytes(), ObjectUtils.asMap(
-                            "folder","seal-Hackathon/submissions/" + teamId + "/" + roundId + "resouceType" , resourceType));
+                    file.getBytes(),
+                    ObjectUtils.asMap(
+                            "folder", "seal-hackathon/submissions/" + teamId + "/" + roundId,
+                            "resource_type", resourceType
+                    )
+            );
             return uploadResult.get("secure_url").toString();
-        }catch (IOException e ){
+        } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("Upload File that bai ");
         }
     }
 }
-
