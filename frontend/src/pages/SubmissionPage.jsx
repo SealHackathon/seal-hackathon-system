@@ -53,66 +53,47 @@ function resolveEventId(location) {
 // 1. CẬP NHẬT: Nhận mảng results (danh sách kết quả của các vòng thi) từ API mới
 function mapBackendRoundToUi(round, scoreResultsList = []) {
   const now = new Date()
-  
-  const startRaw = round.roundStartTime;
-  const endRaw = round.roundEndTime;
-  const deadlineRaw = round.submissionConfig?.submissionDeadline ?? round.roundSubmissionDeadline ?? round.submissionDeadline ?? round.deadline;
-  
+  const roundId = round.roundId ?? round.id
+
+  // 1. CHUẨN HÓA DỮ LIỆU THỜI GIAN THEO ĐÚNG ENTITY BACKEND
+  const startRaw = round.timeStart ?? round.roundStartTime
+  const endRaw = round.timeEnd ?? round.roundEndTime
+  const deadlineRaw = round.submissionDeadline ?? round.submissionConfig?.submissionDeadline ?? round.deadline
+
   const start = startRaw ? new Date(startRaw) : null
   const end = endRaw ? new Date(endRaw) : null
   const deadline = deadlineRaw ? new Date(deadlineRaw) : null
 
-  // Tính trạng thái vòng thi
+  // 2. TÌM KIẾM KẾT QUẢ PHÙ HỢP TỪ API KẾT QUẢ
+  const matchedScore = Array.isArray(scoreResultsList)
+    ? scoreResultsList.find(item => String(item.roundId) === String(roundId))
+    : null
+
+  // Ưu tiên lấy trạng thái nộp bài được tính toán cực chuẩn từ Backend
+  const submissionStatus = matchedScore?.submissionStatus ?? 'NOT_OPEN'
+
+  // 3. TÍNH TRẠNG THÁI VÒNG THI (Để timeline hiển thị sáng/tối đúng tiến độ)
   let status = 'UPCOMING'
-  const backendStatus = round.status?.toUpperCase() || 'UPCOMING'
-  
-  if (backendStatus === 'IN_PROGRESS' || backendStatus === 'ACTIVE' || (start && end && now >= start && now <= end)) {
+  if (start && end && now >= start && now <= end) {
     status = 'ACTIVE'
-  } else if (backendStatus === 'COMPLETED' || backendStatus === 'DONE' || (end && now > end)) {
+  } else if (end && now > end) {
     status = 'DONE'
   }
+  // Bổ sung logic nếu trạng thái là LATE theo thiết kế cũ của bạn
+  if (submissionStatus === 'LATE_NO_SUBMISSION' && status === 'ACTIVE') {
+    status = 'LATE'
+  }
 
-  // Tính số ngày còn lại (daysLeft)
-  let daysLeft = undefined;
+  // 4. TÍNH SỐ NGÀY CÒN LẠI (daysLeft)
+  let daysLeft = undefined
   if (deadline) {
-    const diffTime = deadline.getTime() - now.getTime();
-    if (diffTime > 0) {
-      daysLeft = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    } else {
-      daysLeft = 0;
-    }
+    const diffTime = deadline.getTime() - now.getTime()
+    daysLeft = diffTime > 0 ? Math.ceil(diffTime / (1000 * 60 * 60 * 24)) : 0
   }
 
-  const hasSubmission = round.submissionConfig?.hasSubmission || round.hasSubmission || false;
-  
-  // Tính trạng thái nộp bài
-  let submissionStatus = 'NOT_OPEN'
-  if (status === 'UPCOMING') {
-    submissionStatus = 'NOT_OPEN'
-  } else if (status === 'DONE') {
-    if (hasSubmission) {
-      submissionStatus = 'SUBMITTED_ON_TIME'
-    } else {
-      submissionStatus = 'CLOSED_NO_SUBMISSION'
-    }
-  } else if (status === 'ACTIVE') {
-    if (hasSubmission) {
-      if (deadline && now > deadline) {
-        submissionStatus = 'LATE_NO_SUBMISSION'
-      } else {
-        submissionStatus = 'READY'
-      }
-    } else if (deadline && now > deadline) {
-      status = 'LATE'
-      submissionStatus = 'LATE_NO_SUBMISSION'
-    } else {
-      submissionStatus = 'NO_SUBMISSION'
-    }
-  }
-
-  // Chuẩn bị thông báo (Banner)
+  // 5. CHUẨN BỊ THÔNG BÁO (BANNER) DỰA TRÊN TRẠNG THÁI ĐỒNG BỘ
   let message = null
-  const submissionInstructions = round.submissionConfig?.submissionInstructions ?? round.submissionGuide;
+  const submissionInstructions = round.submissionConfig?.submissionInstructions ?? round.submissionGuide
   
   if (submissionInstructions) {
     message = {
@@ -122,7 +103,8 @@ function mapBackendRoundToUi(round, scoreResultsList = []) {
     }
   }
 
-  if (hasSubmission) {
+  // Kiểm tra trạng thái nộp bài để ghi đè banner phù hợp
+  if (submissionStatus === 'SUBMITTED_ON_TIME' || submissionStatus === 'READY') {
     message = {
       type: 'success',
       title: 'Đã nộp bài',
@@ -136,41 +118,34 @@ function mapBackendRoundToUi(round, scoreResultsList = []) {
     }
   }
 
-  const roundId = round.roundId ?? round.id;
-
-  // 2. TÌM KIẾM KẾT QUẢ PHÙ HỢP: Khớp roundId từ danh sách kết quả API mới trả về
-  const matchedScore = Array.isArray(scoreResultsList)
-    ? scoreResultsList.find(item => String(item.roundId) === String(roundId))
-    : null;
-
+  // 6. TRẢ VỀ ĐỐI TƯỢNG UI HOÀN CHỈNH
   return {
     id: roundId,
-    name: round.roundName ?? round.name ?? 'Vòng thi',
+    name: round.name ?? round.roundName ?? 'Vòng thi',
     dateRange: formatDateRange(start, end),
     status,
-    submissionStatus: round.submissionStatus ?? submissionStatus,
+    submissionStatus, // Dùng trực tiếp dữ liệu từ Backend gửi về
     submissionDeadline: deadline ? formatDateLabel(deadline) : null,
     daysLeft,
     message,
-    evaluation: round.scroringTemplateUrl ? {
+    evaluation: round.scoringTemplate?.templateUrl ?? round.scroringTemplateUrl ? {
       title: 'Tiêu chí chấm điểm',
-      content: round.scroringTemplateUrl,
+      content: round.scoringTemplate?.templateUrl ?? round.scroringTemplateUrl,
     } : null,
-    roundNumber: round.roundOrdinalNumber ?? round.roundNumber,
+    roundNumber: round.ordinal_number ?? round.roundOrdinalNumber ?? round.roundNumber,
     topTeamPass: round.topTeamPass,
-    submissionQuantity: round.submissionQuantity,
+    submissionQuantity: round.submissions?.length ?? round.submissionQuantity,
     roundQuantity: round.roundQuantity,
-    timelines: round.timelines ?? round.agenda ?? [],
+    timelines: round.roundTimelines ?? round.timelines ?? round.agenda ?? [],
     submissionConfig: round.submissionConfig,
     
-    // 3. MAP DỮ LIỆU: Lấy thông tin từ kết quả đã được khớp đúng roundId
+    // Dữ liệu xếp hạng, điểm số từ API mới kết hợp
     teamTotalScore: matchedScore?.teamTotalScore ?? null,
-    teamRank: matchedScore?.teamRank ?? null, // { rank, totalTeams }
+    teamRank: matchedScore?.teamRank ?? null, // Cấu trúc dạng { rank, totalTeams }
     totalTeamsInRound: matchedScore?.totalTeamsInRound ?? null,
     trackName: matchedScore?.trackName ?? null,
   }
 }
-
 function buildProgress(rounds = []) {
   if (!Array.isArray(rounds) || rounds.length === 0) return null
 
@@ -256,7 +231,7 @@ function SubmissionPage() {
         const [roundsResult, teamInfoResult, scoreResult] = await Promise.allSettled([
           fetchRoundDetails(eventId),
           axiosClient.get('/team/team-info'),
-          axiosClient.get('/team/round-results', { params: { eventId } }) 
+          axiosClient.get('/team-results/round-results', { params: { eventId } }) 
         ])
 
         if (!isMounted) return

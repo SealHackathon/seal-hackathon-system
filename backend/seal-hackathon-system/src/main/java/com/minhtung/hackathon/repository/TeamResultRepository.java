@@ -100,6 +100,23 @@ public interface TeamResultRepository
             @Param("publishedStatus")
             TeamResultStatus publishedStatus
     );
+
+
+
+    // Lấy danh sách kết quả của một Team cụ thể dựa vào eventId
+    @Query("SELECT tr FROM TeamResult tr " +
+            "JOIN tr.round r " +
+            "WHERE tr.team.id = :teamId AND r.event.id = :eventId")
+    List<TeamResult> findByTeamIdAndEventId(@Param("teamId") Long teamId, @Param("eventId") Long eventId);
+
+    // Đếm tổng số đội có kết quả (tham gia) trong một vòng thi cụ thể
+    @Query("SELECT COUNT(tr) FROM TeamResult tr WHERE tr.round.id = :roundId")
+    int countTotalTeamsInRound(@Param("roundId") Long roundId);
+
+
+
+    @Query("SELECT COUNT(t) FROM Team t WHERE t.track.id = :trackId")
+    int countTotalTeamsInTrack(@Param("trackId") Long trackId);
 }
 
 
