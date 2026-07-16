@@ -2,12 +2,14 @@ package com.minhtung.hackathon.service;
 
 import com.minhtung.hackathon.dto.response.TeamResultResponse;
 import com.minhtung.hackathon.dto.response.TeamRoundResultDTO;
+import com.minhtung.hackathon.dto.response.TeamRoundResultLecturerDTO;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.enums.RankingScope;
 import com.minhtung.hackathon.enums.SubmissionStatus;
 import com.minhtung.hackathon.enums.TeamResultStatus;
 import com.minhtung.hackathon.repository.*;
+import com.minhtung.hackathon.security.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,8 @@ import java.util.stream.Collectors;
         private final TeamRepository teamRepository;
         private final MemberRepository memberRepository;
         private final RoundTrackRepository roundTrackRepository;
-    private final EventService eventService;
+        private final EventService eventService;
+        private final SubmissionRepository submissionRepository;
 
     @Transactional
         public List<TeamResultResponse> getTrackRanking(Long trackId, Long roundId) {
@@ -331,6 +334,95 @@ import java.util.stream.Collectors;
 
         return SubmissionStatus.NOT_OPEN;
     }
+
+    @Transactional
+    public List<TeamRoundResultLecturerDTO> getTeamResultsByTeamId(Long teamId, Long eventId) {
+
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("khong tim thay team"));
+
+        List<Round> allRounds = roundRepository.findByEventId(eventId);
+        List<TeamResult> existingResults = teamResultRepository.findByTeamIdAndEventId(team.getId(), eventId);
+        Map<Long, TeamResult> resultByRoundId = existingResults.stream()
+                .collect(Collectors.toMap(tr -> tr.getRound().getId(), tr -> tr));
+
+        return allRounds.stream().map(round -> {
+            TeamResult tr = resultByRoundId.get(round.getId());
+
+            String submissionStatus = determineSubmissionStatus(round, team.getId()).name();
+            int totalTeamsInRound = teamResultRepository.countTotalTeamsInRound(round.getId());
+
+            String trackName = null;
+            int totalTeamsInTrack = 0;
+            boolean isPublished = false;
+
+            if (team.getTrack() != null) {
+                trackName = team.getTrack().getName();
+                totalTeamsInTrack = teamResultRepository.countTotalTeamsInTrack(team.getTrack().getId());
+
+                RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(round.getId(), team.getTrack().getId());
+                isPublished = roundTrackRepository.findById(roundTrackId)
+                        .map(rt -> rt.getPublishStage() == 3)
+                        .orElse(false);
+            }
+
+            Double finalScore = (tr != null && isPublished) ? tr.getTotalScore() : null;
+            Integer finalRanking = (tr != null && isPublished) ? tr.getRanking() : null;
+
+            // ---- Submission thực tế (link + thời gian nộp) ----
+            TeamRoundResultLecturerDTO.SubmissionDTO submissionDTO = submissionRepository
+                    .findByTeam_IdAndRound_IdAndLatestTrue(team.getId(), round.getId())
+                    .map(s -> TeamRoundResultLecturerDTO.SubmissionDTO.builder()
+                            .githubUrl(s.getGithubUrl())
+                            .demoUrl(s.getDemoUrl())
+                            .documentUrl(s.getDocumentUrl())
+                            .submittedAt(s.getSubmittedAt())
+                            .build())
+                    .orElse(null);
+
+            // ---- Tính trễ hạn thủ công, không dựa vào enum ----
+            Boolean late = null;
+            if (submissionDTO != null && submissionDTO.getSubmittedAt() != null && round.getSubmissionDeadline() != null) {
+                late = submissionDTO.getSubmittedAt().isAfter(round.getSubmissionDeadline());
+            }
+
+            // ---- Neighbors (chỉ tính khi đã công bố và có rank) ----
+            List<TeamRoundResultLecturerDTO.NeighborDTO> neighbors = null;
+            if (isPublished && finalRanking != null && team.getTrack() != null) {
+                int from = Math.max(1, finalRanking - 1);
+                int to = finalRanking + 1;
+                List<TeamResult> neighborResults = teamResultRepository.findNeighborsByRank(
+                        round.getId(), team.getTrack().getId(), from, to);
+
+                neighbors = neighborResults.stream()
+                        .map(nr -> TeamRoundResultLecturerDTO.NeighborDTO.builder()
+                                .teamId(nr.getTeam().getId())
+                                .teamName(nr.getTeam().getName())
+                                .rank(nr.getRanking())
+                                .score(nr.getTotalScore())
+                                .isSelf(nr.getTeam().getId() == team.getId())
+                                .build())
+                        .collect(Collectors.toList());
+            }
+
+            return TeamRoundResultLecturerDTO.builder()
+                    .roundId(round.getId())
+                    .roundName(round.getName())
+                    .ordinalNumber(round.getOrdinal_number())
+                    .timeStart(round.getTimeStart())
+                    .timeEnd(round.getTimeEnd())
+                    .teamTotalScore(finalScore)
+                    .teamRank(new TeamRoundResultLecturerDTO.TeamRankDTO(finalRanking, totalTeamsInTrack))
+                    .totalTeamsInRound(totalTeamsInRound)
+                    .trackName(trackName)
+                    .submissionStatus(submissionStatus)
+                    .submission(submissionDTO)
+                    .late(late)
+                    .neighbors(neighbors)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
 
 
     }

@@ -5,6 +5,7 @@ import com.minhtung.hackathon.dto.request.CreateTeamDto;
 import com.minhtung.hackathon.dto.request.EdiTeamRequest;
 import com.minhtung.hackathon.dto.response.CreateTeamResponse;
 import com.minhtung.hackathon.dto.joinByCode;
+import com.minhtung.hackathon.dto.response.TeamDetailForMentorDTO;
 import com.minhtung.hackathon.dto.round.RoundTeamResponse;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
@@ -344,6 +345,12 @@ public class TeamController {
             // Nếu không tìm thấy thành viên, trả về lỗi 404 kèm thông báo công khai
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         }
+    }
+
+
+    @GetMapping("/teams/{teamId}")
+    public TeamDetailForMentorDTO getTeamDetail(@PathVariable Long teamId) {
+        return teamService.getTeamDetail(teamId);
     }
 
 }

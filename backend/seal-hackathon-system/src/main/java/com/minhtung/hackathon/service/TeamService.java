@@ -19,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.security.InvalidParameterException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -1260,5 +1261,29 @@ public class TeamService {
         teamRepository.save(team);
 
         return "Cập nhật hạng mục thành công.";
+    }
+
+
+
+    public TeamDetailForMentorDTO getTeamDetail(Long teamId) {
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new RuntimeException("khong tim thay team"));
+
+        List<TeamMemberDTO> members = memberRepository
+                .findByTeamIdAndStatus(teamId, MemberStatus.OFFICAL)
+                .stream()
+                .map(m -> new TeamMemberDTO(
+                        m.getId(),
+                        m.getMember().getFullName(),
+                        m.getRole()
+                ))
+                .collect(Collectors.toList());
+
+        return TeamDetailForMentorDTO.builder()
+                .teamId(team.getId())
+                .teamName(team.getName())
+                .trackName(team.getTrack() != null ? team.getTrack().getName() : null)
+                .members(members)
+                .build();
     }
 }

@@ -3,6 +3,7 @@ package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.response.TeamResultResponse;
 import com.minhtung.hackathon.dto.response.TeamRoundResultDTO;
+import com.minhtung.hackathon.dto.response.TeamRoundResultLecturerDTO;
 import com.minhtung.hackathon.enums.RankingScope;
 import com.minhtung.hackathon.repository.TeamResultRepository;
 import com.minhtung.hackathon.repository.UserRepository;
@@ -107,6 +108,14 @@ public class TeamResultController {
 
         List<TeamRoundResultDTO> results = teamResultService.getTeamResultsByEvent(Integer.toUnsignedLong(uid), eventId);
         return ResponseEntity.ok(results);
+    }
+
+    //lấy thông tin result cho mentor
+    @GetMapping("/events/{eventId}/teams/{teamId}/results")
+    public List<TeamRoundResultLecturerDTO> getTeamResults(
+            @PathVariable Long eventId,
+            @PathVariable Long teamId) {
+        return teamResultService.getTeamResultsByTeamId(teamId, eventId);
     }
 
 

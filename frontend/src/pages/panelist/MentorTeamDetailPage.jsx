@@ -154,60 +154,51 @@ function MentorTeamDetailPage() {
     async function fetchTeamDetail() {
       try {
         setLoading(true)
-        const response = await axiosClient.get(`/mentor-judge/assigned-event`)
-        const data = response.data
-        const mentor = data.assignment?.mentor
-        
-        if (!mentor) {
-          setError('Không có quyền mentor cho sự kiện này.')
-          return
-        }
+        const [detailRes, resultsRes] = await Promise.all([
+          axiosClient.get(`/team/teams/${teamId}`),
+          axiosClient.get(`/team-results/events/${eventId}/teams/${teamId}/results`),
+        ])
 
-        const rawTeam = mentor.teams?.find(t => String(t.id) === String(teamId))
-        if (!rawTeam) {
-          setError('Không tìm thấy đội này trong danh sách phụ trách.')
-          return
-        }
+        const detail = detailRes.data
+        const roundResults = resultsRes.data
 
         const mappedTeam = {
-          id: rawTeam.id,
-          name: rawTeam.name,
-          category: mentor.category || 'Chưa phân loại',
-          members: [
-            { id: 'leader', name: rawTeam.leader, position: rawTeam.leaderPosition || 'Trưởng nhóm', isLeader: true }
-          ],
-          kpi: {
-            rank: rawTeam.rank || 0,
-            totalTeams: mentor.teams?.length || 0,
-            latestScore: rawTeam.score || 0,
-            roundsDone: rawTeam.progress?.done || 0,
-            roundsTotal: rawTeam.progress?.total || 0,
-            pendingQuestions: rawTeam.pendingQuestions || 0,
-          },
-          rounds: (mentor.milestones || []).map((m, index) => ({
-            id: String(m.id || index),
-            ordinal: m.id || index,
-            name: m.title || m.name,
-            timeStart: m.dateStart || m.timeStart,
-            timeEnd: m.dateEnd || m.timeEnd,
-            lifecycle: (m.status || 'upcoming').toLowerCase() === 'in_progress' ? 'active' : (m.status || 'upcoming').toLowerCase(),
-            late: false,
-            hasSubmission: false,
-            result: null,
-            neighbors: [],
-            submission: {},
+          id: detail.teamId,
+          name: detail.teamName,
+          category: detail.trackName || 'Chưa phân loại',
+          members: detail.members.map((m) => ({
+            id: m.id,
+            name: m.name,
+            position: m.role,
+            isLeader: m.role === 'LEADER', // sửa theo đúng value enum MemberRole
           })),
-          requests: mentor.requests?.filter(r => String(r.teamId) === String(teamId)) || [],
-          stats: {
-            avgScore: rawTeam.score || 0,
-            bestRank: rawTeam.rank || 0,
-            totalTeams: mentor.teams?.length || 0,
-            questionsTotal: rawTeam.questionsTotal || 0,
-            questionsAnswered: Math.max(0, (rawTeam.questionsTotal || 0) - (rawTeam.pendingQuestions || 0)),
-          },
-          scoreByRound: [
-            { label: rawTeam.currentRound || 'Vòng hiện tại', score: rawTeam.score || 0, current: true }
-          ],
+          rounds: roundResults.map((r) => ({
+            id: String(r.roundId),
+            ordinal: r.ordinalNumber,
+            name: r.roundName,
+            timeStart: r.timeStart,
+            timeEnd: r.timeEnd,
+            lifecycle: r.teamTotalScore != null ? 'ended' : 'upcoming', // TODO: cần logic chuẩn hơn
+            late: r.late,
+            hasSubmission: !!r.submission,
+            result: r.teamTotalScore != null ? {
+              score: r.teamTotalScore,
+              rank: r.teamRank?.rank,
+              totalTeams: r.teamRank?.totalTeams,
+            } : null,
+            neighbors: (r.neighbors || []).map((n) => ({
+              rank: n.rank,
+              name: n.teamName,
+              score: n.score,
+              isSelf: n.isSelf,
+            })),
+            submission: r.submission ? {
+              github: { url: r.submission.githubUrl },
+              slide: { url: r.submission.documentUrl },
+              video: { url: r.submission.demoUrl },
+            } : {},
+          })),
+          requests: [], // TODO: chưa có API
         }
 
         setTeam(mappedTeam)
@@ -219,7 +210,10 @@ function MentorTeamDetailPage() {
       }
     }
     fetchTeamDetail()
-  }, [teamId])
+  }, [eventId, teamId])
+
+
+
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Đang tải thông tin đội...</div>
   }

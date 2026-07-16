@@ -15,7 +15,7 @@ import java.util.Optional;
 @Repository
 public interface TeamResultRepository
         extends JpaRepository<TeamResult, Long> {
-// xep hang track  trong 1 round
+    // xep hang track  trong 1 round
     List<TeamResult>
     findByTeamTrackIdAndRoundIdOrderByTotalScoreDesc(
             Long trackId,
@@ -28,6 +28,7 @@ public interface TeamResultRepository
     findByRoundIdOrderByTotalScoreDesc(
             Long roundId
     );
+
     //  Public Track
     List<TeamResult>
     findByTeamTrackIdAndRoundIdAndStatusOrderByTotalScoreDesc(
@@ -45,43 +46,43 @@ public interface TeamResultRepository
 
     //  Xếp hạng Event
     @Query("""
-        SELECT
-            tr.team.id AS teamId,
-            tr.team.name AS teamName,
-            tr.team.track.id AS trackId,
-            tr.team.track.name AS trackName,
-            AVG(tr.totalScore) AS averageScore
-        FROM TeamResult tr
-        WHERE tr.round.event.id = :eventId
-        GROUP BY
-            tr.team.id,
-            tr.team.name,
-            tr.team.track.id,
-            tr.team.track.name
-        ORDER BY AVG(tr.totalScore) DESC
-    """)
+                SELECT
+                    tr.team.id AS teamId,
+                    tr.team.name AS teamName,
+                    tr.team.track.id AS trackId,
+                    tr.team.track.name AS trackName,
+                    AVG(tr.totalScore) AS averageScore
+                FROM TeamResult tr
+                WHERE tr.round.event.id = :eventId
+                GROUP BY
+                    tr.team.id,
+                    tr.team.name,
+                    tr.team.track.id,
+                    tr.team.track.name
+                ORDER BY AVG(tr.totalScore) DESC
+            """)
     List<EventRankingProjection> findEventRanking(
             @Param("eventId") Long eventId
     );
 
     // Public Event
     @Query("""
-        SELECT
-            tr.team.id AS teamId,
-            tr.team.name AS teamName,
-            tr.team.track.id AS trackId,
-            tr.team.track.name AS trackName,
-            AVG(tr.totalScore) AS averageScore
-        FROM TeamResult tr
-        WHERE tr.round.event.id = :eventId
-        AND tr.status = :status
-        GROUP BY
-            tr.team.id,
-            tr.team.name,
-            tr.team.track.id,
-            tr.team.track.name
-        ORDER BY AVG(tr.totalScore) DESC
-    """)
+                SELECT
+                    tr.team.id AS teamId,
+                    tr.team.name AS teamName,
+                    tr.team.track.id AS trackId,
+                    tr.team.track.name AS trackName,
+                    AVG(tr.totalScore) AS averageScore
+                FROM TeamResult tr
+                WHERE tr.round.event.id = :eventId
+                AND tr.status = :status
+                GROUP BY
+                    tr.team.id,
+                    tr.team.name,
+                    tr.team.track.id,
+                    tr.team.track.name
+                ORDER BY AVG(tr.totalScore) DESC
+            """)
     List<EventRankingProjection> findPublishedEventRanking(
             @Param("eventId") Long eventId,
             @Param("status") TeamResultStatus status
@@ -90,18 +91,17 @@ public interface TeamResultRepository
     //  Công bố kết quả Track của một Round
     @Modifying
     @Query("""
-        UPDATE TeamResult tr
-        SET tr.status = :publishedStatus
-        WHERE tr.team.track.id = :trackId
-        AND tr.round.id = :roundId
-    """)
+                UPDATE TeamResult tr
+                SET tr.status = :publishedStatus
+                WHERE tr.team.track.id = :trackId
+                AND tr.round.id = :roundId
+            """)
     int publishTrackResults(
             @Param("trackId") Long trackId,
             @Param("roundId") Long roundId,
             @Param("publishedStatus")
             TeamResultStatus publishedStatus
     );
-
 
 
     // Lấy danh sách kết quả của một Team cụ thể dựa vào eventId
@@ -115,12 +115,25 @@ public interface TeamResultRepository
     int countTotalTeamsInRound(@Param("roundId") Long roundId);
 
 
-
     @Query("SELECT COUNT(t) FROM Team t WHERE t.track.id = :trackId")
     int countTotalTeamsInTrack(@Param("trackId") Long trackId);
 
     // Tìm kết quả thi của Đội trong Vòng dựa trên teamId và roundId
     Optional<TeamResult> findByTeamIdAndRoundId(Long teamId, Long roundId);
+
+    // lấy neighbors theo rank liền kề trong cùng round+track.
+    @Query("""
+            SELECT tr FROM TeamResult tr
+            WHERE tr.round.id = :roundId
+              AND tr.team.track.id = :trackId
+              AND tr.ranking BETWEEN :fromRank AND :toRank
+            ORDER BY tr.ranking ASC
+            """)
+    List<TeamResult> findNeighborsByRank(
+            @Param("roundId") long roundId,
+            @Param("trackId") long trackId,
+            @Param("fromRank") int fromRank,
+            @Param("toRank") int toRank);
 }
 
 

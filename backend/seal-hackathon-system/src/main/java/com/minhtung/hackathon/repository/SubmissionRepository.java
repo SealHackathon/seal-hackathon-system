@@ -57,4 +57,6 @@ ORDER BY s.submittedAt DESC
     List<Submission>findByTeam_IdAndLatestTrue(long teamId);
 
     List<Submission>findByRoundIdAndLatestTrueOrderBySubmittedAtDesc(Long roundId);
+
+    Optional<Submission> findByTeam_IdAndRound_IdAndLatestTrue(long teamId, long roundId);
 }
