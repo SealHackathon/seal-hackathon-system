@@ -1,6 +1,6 @@
 import { CaretRight } from '@phosphor-icons/react'
 import Badge from '../shared/Badge'
-import { getTeamStatusMeta } from './teamStatus'
+import { getStatusMeta } from './teamStatus'
 import styles from './TeamTable.module.css'
 
 function TeamTable({ teams, onSelect }) {
