@@ -125,9 +125,8 @@ public class SubmissionService {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException(" ban chua dang ki tk"));
 
         Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL).orElseThrow(() ->
-                new IllegalArgumentException(
-                        "Chi truong nhom duoc phep nop bai"
-                ));
+                new IllegalArgumentException("Chi truong nhom duoc phep nop bai")
+        );
 
         Submission oldSubmission = submissionRepository.findById(submissionId)
                 .orElseThrow(() -> new RuntimeException("khong tim thay bai nop"));
@@ -153,44 +152,46 @@ public class SubmissionService {
         if (!hasText(githubUrl)) {
             throw new RuntimeException("Link gihthub la bat buoc");
         }
-        boolean hasDemoFile =
-                demoFile != null && !demoFile.isEmpty();
 
-        boolean hasDocumentFile =
-                documentFile != null && !documentFile.isEmpty();
+        boolean hasDemoFile = demoFile != null && !demoFile.isEmpty();
+        boolean hasDocumentFile = documentFile != null && !documentFile.isEmpty();
 
-        Validdate(demoUrl , hasDemoFile , "Video demo") ;
-        Validdate(
-                documentUrl,
-                hasDocumentFile,
-                "Tài liệu/slide") ;
+        // =================================================================
+        // LOGIC MỚI: XỬ LÝ LẠI ĐỂ GIỮ FILE CŨ NẾU NGƯỜI DÙNG KHÔNG CẬP NHẬT
+        // =================================================================
 
+        // 1. Xử lý Video Demo
         if (hasDemoFile) {
+            // Nếu có upload file mới -> Validate và upload lên Cloudinary
             validateDemoFile(demoFile);
-
-            demoUrl = cloudinaryStorageService
-                    .uploadSubmissionFile(
-                            demoFile,
-                            team.getId(),
-                            round.getId(),
-                            "video"
-                    );
+            demoUrl = cloudinaryStorageService.uploadSubmissionFile(demoFile, team.getId(), round.getId(), "video");
+        } else if (!hasText(demoUrl)) {
+            // Nếu KHÔNG upload file mới VÀ KHÔNG nhập link mới -> Giữ lại link cũ từ bài nộp trước
+            demoUrl = oldSubmission.getDemoUrl();
+        } else {
+            // Trường hợp còn lại: Người dùng chủ động chuyển sang điền Link URL mới
+            Validdate(demoUrl, hasDemoFile, "Video demo");
         }
+
+        // 2. Xử lý Tài liệu / Slide
         if (hasDocumentFile) {
+            // Nếu có upload file mới
             validateDocumentFile(documentFile);
-
-            documentUrl = cloudinaryStorageService
-                    .uploadSubmissionFile(
-                            documentFile,
-                            team.getId(),
-                            round.getId(),
-                            "raw"
-                    );
+            documentUrl = cloudinaryStorageService.uploadSubmissionFile(documentFile, team.getId(), round.getId(), "raw");
+        } else if (!hasText(documentUrl)) {
+            // Nếu KHÔNG upload file mới VÀ KHÔNG nhập link mới -> Giữ lại tài liệu cũ
+            documentUrl = oldSubmission.getDocumentUrl();
+        } else {
+            // Trường hợp người dùng chủ động điền Link URL mới
+            Validdate(documentUrl, hasDocumentFile, "Tài liệu/slide");
         }
+        // =================================================================
 
+        // Đánh dấu bài nộp cũ không còn là latest nữa
         oldSubmission.setLatest(false);
         submissionRepository.save(oldSubmission);
 
+        // Tạo bản ghi bài nộp mới (lưu lịch sử)
         Submission newSubmission = new Submission();
         newSubmission.setTeam(team);
         newSubmission.setRound(round);

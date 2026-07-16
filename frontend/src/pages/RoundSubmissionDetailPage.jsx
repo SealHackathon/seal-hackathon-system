@@ -354,32 +354,37 @@ function RoundSubmissionDetailPage() {
     try {
       setLoading(true)
 
+      // Cả TH1 và TH2 đều dùng Multipart Form Data theo thiết kế của Backend
+      const formData = new FormData()
+
+      // 1. Gắn các trường text/chuỗi trực tiếp vào formData (Flat structure)
+      // Chú ý: Backend dùng key "githUrl" (không có chữ e)
+      formData.append('githUrl', form.github.value || '')
+
+      // Xử lý logic URL hoặc để trống tùy theo mode link
+      const demoUrlVal = form.video.mode === 'link' ? form.video.value : ''
+      const docUrlVal = form.slide.mode === 'link' ? form.slide.value : ''
+      formData.append('demoUrl', demoUrlVal)
+      formData.append('documentUrl', docUrlVal)
+
+      // 2. Gắn các file nếu có
+      if (form.video.mode === 'file' && form.video.file instanceof File) {
+        formData.append('demoFile', form.video.file)
+      }
+      if (form.slide.mode === 'file' && form.slide.file instanceof File) {
+        formData.append('documentFile', form.slide.file)
+      }
+
       if (!isUpdate) {
         // ==========================================
-        // TH 1: CHƯA CÓ BÀI NỘP -> DÙNG LỆNH POST (MULTIPART)
+        // TH 1: CHƯA CÓ BÀI NỘP -> POST (/submit)
         // ==========================================
-        const formData = new FormData()
-        const requestData = {
-          roundId: parseInt(roundId, 10),
-          githUrl: form.github.value || '',
-          demoUrl: form.video.mode === 'link' ? form.video.value : '',
-          documentUrl: form.slide.mode === 'link' ? form.slide.value : ''
-        }
+        // Cần thêm roundId đối với bài nộp mới
+        formData.append('roundId', parseInt(roundId, 10))
 
-        formData.append(
-          'request',
-          new Blob([JSON.stringify(requestData)], { type: 'application/json' })
-        )
-
-        if (form.video.mode === 'file' && form.video.file instanceof File) {
-          formData.append('demoFile', form.video.file)
-        }
-        if (form.slide.mode === 'file' && form.slide.file instanceof File) {
-          formData.append('documentFile', form.slide.file)
-        }
-
-        const response = await axiosClient.post('/submission', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' }
+        const response = await axiosClient.post('/submission/submit', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+             timeout: 0 
         })
 
         if (response.status === 201 || response.status === 200) {
@@ -390,16 +395,14 @@ function RoundSubmissionDetailPage() {
 
       } else {
         // ==========================================
-        // TH 2: ĐÃ CÓ BÀI NỘP -> DÙNG LỆNH PUT (JSON BODY)
+        // TH 2: ĐÃ CÓ BÀI NỘP -> PUT (/updateSumssion/{id})
         // ==========================================
-        const updateRequestData = {
-          githubUrl: form.github.value || '',
-          demoUrl: form.video.value || '',
-          documentUrl: form.slide.value || ''
-        }
-
-        // Gọi API PUT kèm theo PathVariable `submissionId`
-        const response = await axiosClient.put(`/submission/${submissionId}`, updateRequestData)
+        // Phải gọi đúng URL đang viết sai chính tả ở Backend: /updateSumssion/...
+        // Và phải truyền kèm headers multipart/form-data
+        const response = await axiosClient.put(`/submission/updateSumssion/${submissionId}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+          timeout: 0 
+        })
 
         if (response.status === 200) {
           alert('Cập nhật bài nộp thành công!')
