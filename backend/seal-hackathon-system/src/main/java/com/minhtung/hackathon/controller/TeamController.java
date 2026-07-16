@@ -3,6 +3,7 @@ package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.CreateTeamDto;
 import com.minhtung.hackathon.dto.request.EdiTeamRequest;
+import com.minhtung.hackathon.dto.response.AdminTeamResponse;
 import com.minhtung.hackathon.dto.response.CreateTeamResponse;
 import com.minhtung.hackathon.dto.joinByCode;
 import com.minhtung.hackathon.dto.response.TeamDetailForMentorDTO;
@@ -353,5 +354,25 @@ public class TeamController {
         return teamService.getTeamDetail(teamId);
     }
 
+
+    @Operation(summary = "Lấy tất cả các đội thi cho Admin duyệt")
+    @PreAuthorize("hasRole('ADMIN')")
+    @GetMapping("/admin/all-teams")
+    public ResponseEntity<List<AdminTeamResponse>> getAllTeamsForAdmin() {
+        return ResponseEntity.ok(teamService.getAllTeamForAdmin());
+    }
+
+    @Operation(summary = "Admin chấp nhận hoặc từ chối team")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/submission/{teamId}/review")
+    public ResponseEntity<String> adminReview(
+            @PathVariable Long teamId,
+            @RequestParam String approve
+    ) {
+        return ResponseEntity.ok(
+                teamService.adminReviewTeamByLongId(teamId, approve)
+        );
+    }
 }
+
 

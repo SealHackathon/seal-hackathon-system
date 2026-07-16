@@ -25,6 +25,7 @@ const NAV_GROUPS = [
       { id: 'events',   label: 'Sự kiện',              icon: Star },
       { id: 'rubric',   label: 'Bộ tiêu chí',          icon: Clipboard },
       { id: 'candidates', label: 'Duyệt hồ sơ',        icon: Users },
+      { id: 'teams',      label: 'Duyệt đội',          icon: Users },
       // { id: 'notify',   label: 'Thông báo',            icon: Megaphone },
       // { id: 'users',    label: 'Người dùng',           icon: Users },
     ],

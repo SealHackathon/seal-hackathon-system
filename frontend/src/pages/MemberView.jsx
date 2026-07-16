@@ -278,7 +278,7 @@ function MemberView() {
       .catch((error) => console.log(error));
   }, []);
 
-  // Polling định kỳ 30 giây: phát hiện khi thành viên dự bị bị kick trong khi đang online
+  // Polling định kỳ 3 giây: phát hiện khi thành viên dự bị bị kick trong khi đang online
   useEffect(() => {
     if (!wasReserveRef.current) return; // Chỉ poll nếu user đang là RESERVE
 
@@ -299,7 +299,7 @@ function MemberView() {
           clearInterval(intervalId);
           setKickedModal(true);
         });
-    }, 30000); // Kiểm tra mỗi 30 giây
+    }, 3000); // Kiểm tra mỗi 3 giây
 
     return () => clearInterval(intervalId);
   }, [membersLoaded]); // Chạy sau khi members đã load lần đầu

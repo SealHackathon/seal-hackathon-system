@@ -1,10 +1,10 @@
 export const TEAM_STATUS = {
-    approved: { label: 'Đã được duyệt', variant: 'green' },
-    pending:  { label: 'Chờ duyệt',     variant: 'orange' },
-    rejected: { label: 'Từ chối',       variant: 'red' },
-    locked:   { label: 'Đã khóa',       variant: 'gray' },
+    APPROVED: { label: 'Đã duyệt', variant: 'green' },
+    PENDING_APPROVAL: { label: 'Chờ duyệt', variant: 'orange' },
+    REJECTED: { label: 'Từ chối', variant: 'orangeSolid' },
+    OPEN: { label: 'Đang mở', variant: 'blue' }
 }
 
-export function getTeamStatusMeta(status) {
-    return TEAM_STATUS[status] || { label: status, variant: 'gray' }
+export function getStatusMeta(status) {
+    return TEAM_STATUS[status] ?? { label: status, variant: 'gray' }
 }
