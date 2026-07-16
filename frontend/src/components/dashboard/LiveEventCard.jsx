@@ -16,7 +16,7 @@ function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
 
     if (!event) return null
 
-    const registrationDeadline = event.endDate ? new Date(event.endDate) : null
+    const registrationDeadline = event.closeRegisterTime ? new Date(event.closeRegisterTime) : null
     const isRegistrationClosed = !isRegistered && registrationDeadline && !Number.isNaN(registrationDeadline.getTime())
         ? registrationDeadline.getTime() < now
         : false
@@ -61,7 +61,7 @@ function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
 
                 {/* Nút */}
                 <div className={styles.actions}>
-                    <Button className={styles.btn} label={joinButtonLabel} variant="primary" color="blue" onClick={onJoin} disabled={isRegistrationClosed} />
+                    <Button className={styles.btn} label={joinButtonLabel} variant="primary" color="blue" onClick={onJoin} disabled={isRegistrationClosed} /> 
                     <Button className={styles.btn} label="Chi tiết thể lệ" variant="outline" color="blue" onClick={onViewRules} />
                 </div>
             </div>
