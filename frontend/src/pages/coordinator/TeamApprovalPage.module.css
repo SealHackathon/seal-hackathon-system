@@ -1,0 +1,31 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
+}
+
+.pageContainer {
+    min-height: 100vh;
+    background-color: var(--color-bg-white);
+    border-radius: var(--radius);
+    border: 1px solid var(--color-border-blue);
+    padding: 2.5em 1.5em;
+}
+
+.maxWidthWrapper {
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2em;
+}
+
+.topRow {
+    align-items: center;
+    gap: 1em;
+}
+
+.count {
+    margin: 0;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}

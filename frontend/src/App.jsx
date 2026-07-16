@@ -118,6 +118,8 @@ import MentorTeamDetailPage from './pages/panelist/MentorTeamDetailPage';
 import SpecificEventPage from './pages/coordinator/events/specific/SpecificEventPage'
 // import PublicEventPage from './pages/public/event/PublicEventPage'
 import CandidateApprovalPage from './pages/coordinator/CandidateApprovalPage'
+import TeamApprovalPage from './pages/coordinator/TeamApprovalPage'
+
 function TeamRoute() {
     const { role, teamRole, teamRoleLoading, fetchTeamRole } = useAuth();
 
@@ -175,6 +177,7 @@ function AppRoutes() {
                             <Route path="/admin/coordinator/events/:eventId" element={<SpecificEventPage />} />
                             <Route path="/admin/coordinator/events/:eventId/:tab" element={<SpecificEventPage />} />
                             <Route path="/coordinator/candidates" element={<CandidateApprovalPage />} />
+                            <Route path="/coordinator/teams" element={<TeamApprovalPage />} />
                         </>
                     )}
 
