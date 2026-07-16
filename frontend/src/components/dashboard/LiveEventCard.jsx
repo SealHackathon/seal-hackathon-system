@@ -8,6 +8,16 @@ import coverPlaceholder from '../../assets/seal_hackathon_poster.png'
 function LiveEventCard({ event, onJoin, onViewRules }) {
     if (!event) return null
 
+    const registrationDeadline = event.endDate ? new Date(event.endDate) : null
+    const isRegistrationClosed = !isRegistered && registrationDeadline && !Number.isNaN(registrationDeadline.getTime())
+        ? registrationDeadline.getTime() < now
+        : false
+    const joinButtonLabel = isRegistered
+        ? 'Vào cuộc thi'
+        : isRegistrationClosed
+            ? 'Đóng đăng ký'
+            : 'Tham gia'
+
     const infoItems = [
         { icon: Users, label: 'Số lượng thành viên', value: event.maxTeamMember ? `3 - ${event.maxTeamMember} người / đội` : 'Chưa cập nhật' },
         { icon: MapPin, label: 'Địa điểm tổ chức', value: event.location || 'Chưa cập nhật' },
