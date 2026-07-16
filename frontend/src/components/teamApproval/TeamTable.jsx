@@ -1,6 +1,6 @@
 import { CaretRight } from '@phosphor-icons/react'
 import Badge from '../shared/Badge'
-import { getTeamStatusMeta } from './teamStatus'
+import { getStatusMeta } from './teamStatus'
 import styles from './TeamTable.module.css'
 
 function TeamTable({ teams, onSelect }) {
@@ -26,7 +26,7 @@ function TeamTable({ teams, onSelect }) {
                 </thead>
                 <tbody>
                     {teams.map(t => {
-                        const st = getTeamStatusMeta(t.status)
+                        const st = getStatusMeta(t.teamStatus || t.status)
                         return (
                             <tr
                                 key={t.id}
