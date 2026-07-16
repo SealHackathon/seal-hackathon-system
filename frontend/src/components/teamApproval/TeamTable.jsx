@@ -26,7 +26,7 @@ function TeamTable({ teams, onSelect }) {
                 </thead>
                 <tbody>
                     {teams.map(t => {
-                        const st = getTeamStatusMeta(t.status)
+                        const st = getStatusMeta(t.teamStatus || t.status)
                         return (
                             <tr
                                 key={t.id}
