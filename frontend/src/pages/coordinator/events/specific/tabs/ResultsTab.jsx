@@ -9,6 +9,7 @@ import ResultsLeaderboard from '../../../../../components/coordinator/roundResul
 import TeamDetailModal from '../../../../../components/coordinator/roundResults/TeamDetailModal'
 import AssignAwardModal from '../../../../../components/coordinator/roundResults/AssignAwardModal'
 import AwardsSection from '../../../../../components/coordinator/roundResults/AwardsSection'
+import RequestsSection from '../../../../../components/coordinator/roundResults/RequestsSection'
 import styles from './ResultsTab.module.css'
 import axiosClient from '../../../../../api/axiosClient'
 
@@ -455,6 +456,12 @@ function ResultsTab() {
             onOpenAudit={openAudit}
             onOpenScoring={openScoring}
           />
+          <div style={{ marginTop: '1.5rem' }}>
+            <RequestsSection
+              onOpenTeam={setDetail}
+              onOpenSubmission={() => {}}
+            />
+          </div>
         </div>
       </div>
 

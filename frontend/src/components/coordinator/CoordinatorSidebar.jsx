@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import {
   ChartPieSlice,
   CalendarBlank,
@@ -10,6 +10,7 @@ import {
 } from '@phosphor-icons/react'
 import NavPill from '../Sidebar/NavPill'
 import styles from './CoordinatorSidebar.module.css'
+import axiosClient from '../../api/axiosClient'
 
 const NAV_GROUPS = [
   {
@@ -23,7 +24,7 @@ const NAV_GROUPS = [
     items: [
       { id: 'events',   label: 'Sự kiện',              icon: Star },
       { id: 'rubric',   label: 'Bộ tiêu chí',          icon: Clipboard },
-      { id: 'candidates', label: 'Duyệt hồ sơ',        icon: Users, badge: 12 },
+      { id: 'candidates', label: 'Duyệt hồ sơ',        icon: Users },
       // { id: 'notify',   label: 'Thông báo',            icon: Megaphone },
       // { id: 'users',    label: 'Người dùng',           icon: Users },
     ],
@@ -45,6 +46,7 @@ const NAV_GROUPS = [
  */
 function CoordinatorSidebar({ activePage, onNavigate }) {
   const [isSticky, setIsSticky] = useState(false)
+  const [pendingCount, setPendingCount] = useState(0)
   const sentinelRef = useRef(null)
 
   useEffect(() => {
@@ -56,11 +58,40 @@ function CoordinatorSidebar({ activePage, onNavigate }) {
     return () => observer.disconnect()
   }, [])
 
+  useEffect(() => {
+    const fetchPendingCount = async () => {
+      try {
+        const res = await axiosClient.get('/user/user-info')
+        const list = res.data?.body ?? res.data ?? []
+        const count = list.filter(u => {
+          const st = u.accoutStatus
+          return st === 'PROFILE_PENDING' || st === 'PENDING_APPROVAL' || !st
+        }).length
+        setPendingCount(count)
+      } catch (err) {
+        console.error('Failed to fetch candidates count', err)
+      }
+    }
+    fetchPendingCount()
+  }, [])
+
+  const groups = useMemo(() => {
+    return NAV_GROUPS.map(group => ({
+      ...group,
+      items: group.items.map(item => {
+        if (item.id === 'candidates') {
+          return { ...item, badge: pendingCount > 0 ? pendingCount : null }
+        }
+        return item
+      })
+    }))
+  }, [pendingCount])
+
   return (
     <>
       <div ref={sentinelRef} className={styles.sidebarSentinel} />
       <aside className={`${styles.sidebar} ${isSticky ? styles.sidebarSticky : ''}`}>
-      {NAV_GROUPS.map((group, gi) => (
+      {groups.map((group, gi) => (
         <div key={gi}>
           {gi > 0 && <hr className={styles.divider} />}
           {group.label && (

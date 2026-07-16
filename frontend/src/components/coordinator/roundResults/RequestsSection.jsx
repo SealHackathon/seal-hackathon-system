@@ -48,6 +48,7 @@ function RequestsSection({ onOpenTeam, onOpenSubmission }) {
   return (
     <div className={styles.section}>
       {/* Box Yêu cầu chỉnh sửa điểm */}
+      {/* 
       <div className={styles.boxGreen}>
         <div className={styles.header}>
           <div className={styles.titleRow}>
@@ -76,6 +77,7 @@ function RequestsSection({ onOpenTeam, onOpenSubmission }) {
           )}
         </div>
       </div>
+      */}
 
       {/* Box Xử lí vi phạm */}
       <div className={styles.boxOrange}>

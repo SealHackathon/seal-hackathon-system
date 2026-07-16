@@ -5,7 +5,7 @@ import styles from './CategoryFilter.module.css'
 // props: categories[{id,name}], currentCategoryId, onChange
 
 function CategoryFilter({ categories, currentCategoryId, onChange }) {
-  const items = [{ id: 'all', name: 'Tất cả hạng mục' }, ...categories]
+  const items = categories;
   return (
     <div className={styles.row}>
       <div className={styles.rowLabel}>

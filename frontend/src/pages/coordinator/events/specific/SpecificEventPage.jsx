@@ -14,8 +14,8 @@ import styles from './SpecificEventPage.module.css'
 // ── Danh sách tab (value = segment trên URL) ──
 const TABS = [
   { value: 'overview',   label: 'Tổng quan',     icon: Info },
-  { value: 'rounds',     label: 'Vòng thi',      icon: Path },
-  { value: 'scoring',    label: 'Chấm điểm',     icon: PencilSimple },
+  // { value: 'rounds',     label: 'Vòng thi',      icon: Path },
+  // { value: 'scoring',    label: 'Chấm điểm',     icon: PencilSimple },
   { value: 'ranking',    label: 'Xếp hạng và Trao thưởng', icon: Trophy },
 ]
 const TAB_VALUES = TABS.map((t) => t.value)
