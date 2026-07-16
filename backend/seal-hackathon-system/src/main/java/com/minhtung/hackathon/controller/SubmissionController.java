@@ -92,25 +92,25 @@ public class SubmissionController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/viewSubmissionRound")
+    @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<List<SubmissionListResponse>>
-    getSubmissionsByRound(
+    getSubmissionsByRound( Authentication authentication,
             @RequestParam Long roundId
     ) {
         return ResponseEntity.ok(
-                submissionService.getSubmissionByRound(roundId)
+                submissionService.getSubmissionByRound(authentication.getName(),roundId)
         );
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
     public ResponseEntity<SubmissionDetailResponseid>
-    getSubmissionById(
+    getSubmissionById(Authentication authentication,
             @PathVariable Long id
     ) {
         return ResponseEntity.ok(
-                submissionService.getSubmissionById(id)
+                submissionService.getSubmissionById(authentication.getName(),id)
         );
     }
 
