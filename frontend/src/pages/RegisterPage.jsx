@@ -67,8 +67,24 @@ function RegisterPage() {
             })
             const data = await res.json()
 
+            if (!res.ok) {
+                const errorMsg = data?.message || 'Có lỗi xảy ra';
+                const msgLower = errorMsg.toLowerCase();
+                
+                if (msgLower.includes('email')) {
+                    setErrors(prev => ({ ...prev, email: 'Email này đã được sử dụng' }));
+                } else if (msgLower.includes('điện thoại') || msgLower.includes('phone')) {
+                    setErrors(prev => ({ ...prev, phone: 'Số điện thoại này đã được sử dụng' }));
+                } else if (msgLower.includes('mssv') || msgLower.includes('mã số sinh viên') || msgLower.includes('mã sinh viên')) {
+                    setErrors(prev => ({ ...prev, studentId: 'Mã số sinh viên này đã được đăng ký' }));
+                } else {
+                    setErrors(prev => ({ ...prev, submit: 'Đăng ký thất bại, vui lòng thử lại' }));
+                }
+                return;
+            }
+
             if (data === null) {
-                setErrors({ email: 'Email hoặc mã số sinh viên đã tồn tại' })
+                setErrors(prev => ({ ...prev, submit: 'Không thể gửi email xác nhận' }));
                 return
             }
 
@@ -114,7 +130,33 @@ function RegisterPage() {
                             iconLeft={UserCircle}
                             placeholder="SE190346"
                             value={form.studentId}
-                            onChange={e => setField('studentId', e.target.value)}
+                            onChange={e => {
+                                const val = e.target.value.toUpperCase();
+                                
+                                // Luôn cho phép nhập và cập nhật state
+                                setForm(prev => ({ ...prev, studentId: val }));
+                                setErrors(prev => ({ ...prev, studentId: '' }));
+
+                                // Khi gõ đủ 8 ký tự (hoặc copy paste) thì mới kiểm tra
+                                if (val.length >= 8) {
+                                    if (/^(SE|SS)\d{6}$/.test(val)) {
+                                        setTimeout(() => document.querySelector('input[type="email"]')?.focus(), 0);
+                                    } else {
+                                        setTimeout(() => {
+                                            setForm(prev => ({ ...prev, studentId: '' }));
+                                            
+                                            // Phân loại lỗi chi tiết để báo cho người dùng
+                                            if (!val.startsWith('SE') && !val.startsWith('SS')) {
+                                                setErrors(prev => ({ ...prev, studentId: 'Mã số sinh viên phải bắt đầu bằng SE hoặc SS' }));
+                                            } else if (/[^0-9]/.test(val.substring(2))) {
+                                                setErrors(prev => ({ ...prev, studentId: '6 ký tự cuối phải là số' }));
+                                            } else {
+                                                setErrors(prev => ({ ...prev, studentId: 'Sai mã số sinh viên, yêu cầu nhập lại' }));
+                                            }
+                                        }, 0);
+                                    }
+                                }
+                            }}
                             status={errors.studentId ? 'error' : 'default'}
                             message={errors.studentId}
                         />
