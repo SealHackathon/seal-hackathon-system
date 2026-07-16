@@ -1,18 +1,29 @@
 package com.minhtung.hackathon.service;
 
 import com.minhtung.hackathon.dto.request.PrizeRequest;
+import com.minhtung.hackathon.dto.response.PrizeDTO;
+import com.minhtung.hackathon.dto.response.PrizeMapper;
 import com.minhtung.hackathon.dto.response.PrizeResponse;
 import com.minhtung.hackathon.entity.Event;
 import com.minhtung.hackathon.entity.Prize;
+import com.minhtung.hackathon.entity.PrizeResult;
+import com.minhtung.hackathon.entity.Team;
 import com.minhtung.hackathon.enums.PrizeType;
 import com.minhtung.hackathon.repository.EventRepository;
 import com.minhtung.hackathon.repository.PrizeRepository;
+import com.minhtung.hackathon.repository.PrizeResultRepository;
+import com.minhtung.hackathon.repository.TeamRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
+import static com.minhtung.hackathon.dto.response.PrizeMapper.toDTO;
 
 @Service
 @RequiredArgsConstructor
@@ -20,7 +31,8 @@ public class PrizeService {
 
     private final PrizeRepository prizeRepository;
     private final EventRepository eventRepository;
-
+    private final PrizeResultRepository prizeResultRepository;
+    private final TeamRepository teamRepository;
     // Lấy tất cả giải thưởng của một sự kiện cụ thể
     public List<PrizeResponse> getPrizesByEventId(long eventId) {
         // 1. Tìm danh sách giải thưởng theo eventId từ Repository
@@ -110,5 +122,53 @@ public class PrizeService {
     public void deletePrize(long id) {
         Prize prize = getPrizeById(id);
         prizeRepository.delete(prize);
+    }
+
+
+    public List<PrizeDTO> getExtendedPrizes(Long eventId) {
+        // TODO: đổi PrizeType.EXTENDED cho đúng tên value trong enum của bạn
+        List<Prize> prizes = prizeRepository.findByEvent_IdAndPrizeType(eventId, PrizeType.EXTENDED);
+
+        // Lấy sẵn toàn bộ kết quả gán của event này để tránh query N+1
+        Map<Long, PrizeResult> resultMap = prizeResultRepository.findByPrize_Event_Id(eventId)
+                .stream()
+                .collect(Collectors.toMap(pr -> pr.getPrize().getId(), pr -> pr));
+
+        return prizes.stream()
+                .map(p -> toDTO(p, resultMap.get(p.getId())))
+                .collect(Collectors.toList());
+    }
+
+
+    @Transactional
+    public PrizeDTO assignTeam(Long prizeId, Long teamId) {
+        Prize prize = prizeRepository.findById(prizeId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy giải id=" + prizeId));
+        Team team = teamRepository.findById(teamId)
+                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy đội id=" + teamId));
+
+        // Nếu giải đã từng được gán -> update lại đội mới, chưa có -> tạo mới
+        PrizeResult result = prizeResultRepository.findByPrize_Id(prizeId)
+                .orElse(new PrizeResult());
+        result.setPrize(prize);
+        result.setTeam(team);
+        PrizeResult saved = prizeResultRepository.save(result);
+
+        return toDTO(prize, saved);
+    }
+
+    private PrizeDTO toDTO(Prize prize, PrizeResult result) {
+        PrizeDTO dto = new PrizeDTO();
+        dto.setId(prize.getId());
+        dto.setDescription(prize.getDescription());
+        dto.setMoney(prize.getMoney());
+        dto.setPrizeType(prize.getPrizeType());
+        dto.setPrizeName(prize.getPrizeName());
+        dto.setQuantity(prize.getQuantity());
+        if (result != null) {
+            dto.setTeamId(result.getTeam().getId());
+            dto.setTeamName(result.getTeam().getName());
+        }
+        return dto;
     }
 }

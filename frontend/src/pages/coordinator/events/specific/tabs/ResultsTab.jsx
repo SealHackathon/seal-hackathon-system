@@ -101,6 +101,9 @@ function ResultsTab() {
   const [detail, setDetail] = useState(null)
   const [awardToAssign, setAwardToAssign] = useState(null)
 
+  const [extendedAwards, setExtendedAwards] = useState([])
+
+
   // ---- Biến derive từ state ----
   const isAll = roundId === 'all'
   const roundMeta = rounds.find((r) => r.id === roundId)
@@ -154,64 +157,92 @@ function ResultsTab() {
     }
   }, [eventId])
 
-  //-----------------fetch entries/judges/review/awards cua round dang chon (theo track neu co)
-  useEffect(() => {
-  if (!roundId || isAll) {
-    setRoundResult(null)
+
+
+
+  //-----------------fetch danh sách giải phụ (chỉ ở vòng chung kết)
+ useEffect(() => {
+  if (!eventId || !isFinal) {
+    setExtendedAwards([])
     return
   }
-  const fetchResult = async () => {
-    setLoadingResult(true)
+  const fetchExtendedAwards = async () => {
     try {
-      const trackParam = categoryId && categoryId !== 'all' ? `&trackId=${categoryId}` : ''
-      // Giữ nguyên API gốc của bạn
-      const { data } = await axiosClient.get(`/round/${roundId}/results?${trackParam.slice(1)}`)
-      
-      // 1. [GIỮ NGUYÊN] Đổ toàn bộ data JSON vào state độc nhất của bạn để SHOW danh sách
-      setRoundResult(data)
-
-      // 2. [BỔ SUNG] Khôi phục Stage từ trường data.publishStage trong JSON vừa nhận
-      if (data) {
-        const backendStage = data.publishStage || 1;
-
-        // Khôi phục Stage hiển thị nút bấm (Dùng Key [roundId] theo hàm gốc của bạn)
-        setStageByRound((p) => ({
-          ...p,
-          [roundId]: backendStage
-        }));
-
-        // Khôi phục lại hộp đếm ngược thời gian nếu đang ở Stage 2
-        if (backendStage === 2) {
-          setReviewOverride((rp) => ({
-            ...rp,
-            [roundId]: { 
-              remainingSec: WINDOW_SEC, 
-              durationMin: 30, 
-              pendingRequests: 0, 
-              // Đếm số lượng giám khảo từ mảng data.judges có trong JSON
-              judgesAgreed: data.judges ? data.judges.length : 0, 
-              judgesTotal: data.judges ? data.judges.length : 0 
-            },
-          }));
-        } else {
-          // Nếu ở Stage 1 hoặc 3 thì xóa đi để ẩn đồng hồ đếm ngược
-          setReviewOverride((rp) => {
-            const updated = { ...rp };
-            delete updated[roundId];
-            return updated;
-          });
-        }
-      }
-
+      const { data } = await axiosClient.get(`/prize/extended?eventId=${eventId}`)
+      setExtendedAwards(
+        data.map((p) => ({
+          id: p.id,
+          label: p.prizeName,
+          team: p.teamId ? { id: p.teamId, name: p.teamName } : null,
+        }))
+      )
     } catch (error) {
       console.error(error)
-      setRoundResult(null)
-    } finally {
-      setLoadingResult(false)
+      setExtendedAwards([])
     }
   }
-  fetchResult()
-}, [roundId, isAll, categoryId])
+  fetchExtendedAwards()
+}, [eventId, isFinal])
+
+
+  //-----------------fetch entries/judges/review/awards cua round dang chon (theo track neu co)
+  useEffect(() => {
+    if (!roundId || isAll) {
+      setRoundResult(null)
+      return
+    }
+    const fetchResult = async () => {
+      setLoadingResult(true)
+      try {
+        const trackParam = categoryId && categoryId !== 'all' ? `&trackId=${categoryId}` : ''
+        // Giữ nguyên API gốc của bạn
+        const { data } = await axiosClient.get(`/round/${roundId}/results?${trackParam.slice(1)}`)
+
+        // 1. [GIỮ NGUYÊN] Đổ toàn bộ data JSON vào state độc nhất của bạn để SHOW danh sách
+        setRoundResult(data)
+
+        // 2. [BỔ SUNG] Khôi phục Stage từ trường data.publishStage trong JSON vừa nhận
+        if (data) {
+          const backendStage = data.publishStage || 1;
+
+          // Khôi phục Stage hiển thị nút bấm (Dùng Key [roundId] theo hàm gốc của bạn)
+          setStageByRound((p) => ({
+            ...p,
+            [roundId]: backendStage
+          }));
+
+          // Khôi phục lại hộp đếm ngược thời gian nếu đang ở Stage 2
+          if (backendStage === 2) {
+            setReviewOverride((rp) => ({
+              ...rp,
+              [roundId]: {
+                remainingSec: WINDOW_SEC,
+                durationMin: 30,
+                pendingRequests: 0,
+                // Đếm số lượng giám khảo từ mảng data.judges có trong JSON
+                judgesAgreed: data.judges ? data.judges.length : 0,
+                judgesTotal: data.judges ? data.judges.length : 0
+              },
+            }));
+          } else {
+            // Nếu ở Stage 1 hoặc 3 thì xóa đi để ẩn đồng hồ đếm ngược
+            setReviewOverride((rp) => {
+              const updated = { ...rp };
+              delete updated[roundId];
+              return updated;
+            });
+          }
+        }
+
+      } catch (error) {
+        console.error(error)
+        setRoundResult(null)
+      } finally {
+        setLoadingResult(false)
+      }
+    }
+    fetchResult()
+  }, [roundId, isAll, categoryId])
 
   //-----------------fetch tracks/categories tu API
   useEffect(() => {
@@ -252,10 +283,7 @@ function ResultsTab() {
   const allResultsReady = standings.length > 0 && standings.every((r) => r.status !== 'pending')
   const blockers = standings.filter((r) => r.status === 'pending').map((r) => r.team.name)
 
-  const unassignedAwardsCount = isFinal && roundResult?.awards ? (
-    (roundResult.awards.main?.filter(a => !a.team).length || 0) +
-    (roundResult.awards.extended?.filter(a => !a.team).length || 0)
-  ) : 0
+  const unassignedAwardsCount = isFinal ? extendedAwards.filter(a => !a.team).length : 0
 
   const canForce = !isAll && !!roundResult && !allResultsReady
   const allOfficial = standings.length > 0 && standings.every((r) => ['official', 'eliminated', 'withdrawn'].includes(r.status))
@@ -385,7 +413,7 @@ function ResultsTab() {
       {isFinal && !isAll && roundResult && (
         <AwardsSection
           main={roundResult.awards ? roundResult.awards.main : []}
-          extended={roundResult.awards ? roundResult.awards.extended : []}
+          extended={extendedAwards}
           onAssignExtended={(award) => setAwardToAssign(award)}
         />
       )}
@@ -432,20 +460,27 @@ function ResultsTab() {
 
       <TeamDetailModal open={!!detail} team={detail} eventId={eventId} roundId={roundId} onClose={() => setDetail(null)} />
 
-      {awardToAssign && roundResult && (
-        <AssignAwardModal
-          open={true}
-          award={awardToAssign}
-          teams={standings.map(s => s.team)}
-          onClose={() => setAwardToAssign(null)}
-          onAssign={(awardId, team) => {
-            // TODO: gọi API POST /round/{roundId}/awards/{awardId}/assign khi có endpoint
-            const aw = roundResult.awards.extended.find(a => a.id === awardId)
-            if (aw) aw.team = team
-            setAwardToAssign(null)
-          }}
-        />
-      )}
+     {awardToAssign && (
+  <AssignAwardModal
+    open={true}
+    award={awardToAssign}
+    teams={standings.map(s => s.team)}
+    onClose={() => setAwardToAssign(null)}
+    onAssign={async (prizeId, team) => {
+      try {
+        await axiosClient.put(`/prize/${prizeId}/assign`, { teamId: team.id })
+        setExtendedAwards((prev) =>
+          prev.map((a) => (a.id === prizeId ? { ...a, team } : a))
+        )
+      } catch (error) {
+        console.error(error)
+        alert('Không thể gán giải, vui lòng thử lại!')
+      } finally {
+        setAwardToAssign(null)
+      }
+    }}
+  />
+)}
     </div>
   )
 }

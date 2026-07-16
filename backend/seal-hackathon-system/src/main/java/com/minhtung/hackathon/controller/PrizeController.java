@@ -1,6 +1,8 @@
 package com.minhtung.hackathon.controller;
 
+import com.minhtung.hackathon.dto.request.AssignPrizeRequest;
 import com.minhtung.hackathon.dto.request.PrizeRequest;
+import com.minhtung.hackathon.dto.response.PrizeDTO;
 import com.minhtung.hackathon.dto.response.PrizeResponse;
 import com.minhtung.hackathon.entity.Prize;
 import com.minhtung.hackathon.repository.UserRepository;
@@ -96,5 +98,17 @@ public class PrizeController {
         return ResponseEntity.status(401).body("Token không hợp lệ hoặc đã hết hạn");
     }
 
+
+    // GET /api/prize/extended?eventId=1
+    @GetMapping("/extended")
+    public List<PrizeDTO> getExtendedPrizes(@RequestParam Long eventId) {
+        return prizeService.getExtendedPrizes(eventId);
+    }
+
+
+    @PutMapping("/{prizeId}/assign")
+    public PrizeDTO assignTeam(@PathVariable Long prizeId, @RequestBody AssignPrizeRequest request) {
+        return prizeService.assignTeam(prizeId, request.getTeamId());
+    }
 
 }
