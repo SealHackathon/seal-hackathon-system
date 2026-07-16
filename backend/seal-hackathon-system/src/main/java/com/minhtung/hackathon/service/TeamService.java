@@ -1362,7 +1362,7 @@ public class TeamService {
 
         team.setStatus(nextStatus);
 
-        
+
         teamRepository.save(team);
         return nextStatus == TeamStatus.APPROVED
                 ? "Đã chấp nhận team"
