@@ -46,7 +46,7 @@ function SummaryCard({ submission, state }) {
       {/* ── Điểm số & thông tin ── */}
       <div className={styles.sumTop}>
         <div className={`${styles.sumScore} ${scoreToneClass}`}>
-          <div className={styles.sumScoreVal}>{hasScore ? submission.score.toFixed(1) : '—'}</div>
+          <div className={styles.sumScoreVal}>{hasScore ? submission.score : '—'}</div>
           <div className={styles.sumScoreLbl}>{hasScore ? 'Điểm tổng / 10' : 'Chưa có điểm'}</div>
         </div>
         <div className={styles.sumMeta}>

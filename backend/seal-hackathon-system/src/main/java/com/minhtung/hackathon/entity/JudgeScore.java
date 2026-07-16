@@ -40,6 +40,10 @@ public class JudgeScore {
     @Enumerated(EnumType.STRING)
     private JudgeScoreStatus status = JudgeScoreStatus.DRAFT;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "team_result_id")
+    private TeamResult teamResult;
+
     @OneToMany(
             mappedBy = "judgeScore",
             cascade = CascadeType.ALL,

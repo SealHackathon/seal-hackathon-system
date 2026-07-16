@@ -2,11 +2,9 @@ package com.minhtung.hackathon.service;
 
 
 import com.minhtung.hackathon.dto.request.SubmissionRequest;
-import com.minhtung.hackathon.dto.response.SubmissionDetailResponseid;
-import com.minhtung.hackathon.dto.response.SubmissionListResponse;
-import com.minhtung.hackathon.dto.response.SubmissionResponse;
-import com.minhtung.hackathon.dto.response.ViewSubmissionTrackResponse;
+import com.minhtung.hackathon.dto.response.*;
 import com.minhtung.hackathon.entity.*;
+import com.minhtung.hackathon.enums.JudgeScoreStatus;
 import com.minhtung.hackathon.enums.MemberRole;
 import com.minhtung.hackathon.enums.MemberStatus;
 import com.minhtung.hackathon.repository.*;
@@ -391,6 +389,63 @@ public class SubmissionService {
         if(hasUrl&& hasFile){
             throw new RuntimeException("chỉ được cung cấp file hoặc link , không được nộp cả 2 ") ;
         }
+    }
+
+
+
+
+    //api trả về thông tin submission và team result
+    @Transactional(readOnly = true)
+    public SubmissionAndTeamResultResponse getCurrentSubmission(String email, Long roundId) {
+        // 1. Tìm thông tin học sinh qua email
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
+
+        // 2. Xác định Team của học sinh này (Leader)
+        Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL)
+                .orElseThrow(() -> new IllegalArgumentException("Chỉ trưởng nhóm được phép truy vấn thông tin bài nộp"));
+
+        Team team = leader.getTeam();
+
+        // 3. Tìm bài nộp mới nhất (latest = true) của đội tại vòng thi này
+        Submission submission = submissionRepository
+                .findFirstByTeamIdAndRoundIdAndLatestTrue(team.getId(), roundId)
+                .orElse(null); // Nếu chưa nộp thì trả về null để Controller phản hồi 204 No Content
+
+        if (submission == null) {
+            return null;
+        }
+
+        // 4. Tìm điểm trung bình chung cuộc từ TeamResult
+        Double averageScore = teamResultRepository.findByTeamIdAndRoundId(team.getId(), roundId)
+                .map(TeamResult::getTotalScore)
+                .orElse(null); // Trả về null nếu ban giám khảo chưa chấm xong ai cả
+
+        // 5. Lấy danh sách điểm số chính thức (SUBMITTED) của bài nộp này từ hội đồng giám khảo
+        List<JudgeScore> officialScores = judgeScoreRepository
+                .findBySubmissionIdAndStatus(submission.getId(), JudgeScoreStatus.SUBMITTED);
+
+        // Lọc ra danh sách nhận xét (bỏ qua nhận xét rỗng hoặc null)
+        List<String> comments = officialScores.stream()
+                .map(JudgeScore::getComment)
+                .filter(comment -> comment != null && !comment.trim().isEmpty())
+                .toList();
+
+        int judgesCount = officialScores.size();
+
+        // 6. Map toàn bộ thông tin về DTO gửi về cho Frontend
+        return SubmissionAndTeamResultResponse.builder()
+                .id(submission.getId())
+                .githubUrl(submission.getGithubUrl())
+                .demoUrl(submission.getDemoUrl())
+                .documentUrl(submission.getDocumentUrl())
+                .submittedAt(submission.getSubmittedAt())
+                .lastEditedAt(submission.getSubmittedAt()) // Gán bằng submittedAt hoặc trường update nếu có
+                .isLate(false) // Logic kiểm tra nộp muộn của bạn (nếu có)
+                .score(averageScore)
+                .judgesCount(judgesCount)
+                .comments(comments)
+                .build();
     }
 
 }

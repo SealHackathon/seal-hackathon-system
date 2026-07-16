@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -209,49 +210,49 @@ import java.util.stream.Collectors;
     @Transactional
     public List<TeamRoundResultDTO> getTeamResultsByEvent(Long userId, Long eventId) {
 
-         User user=userRepository.findById(userId).orElse(null);
-         if(user==null){
-             throw  new RuntimeException("khong tim thay user");
-         }
-        Member member=memberRepository.findByMemberIdAndStatus(user.getId(), MemberStatus.OFFICAL).orElse(null);
-         if (member==null) {
-         throw  new RuntimeException("khong tim thay member");
-         }
-         Team team=member.getTeam();
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new RuntimeException("khong tim thay user");
+        }
 
+        Member member = memberRepository.findByMemberIdAndStatus(user.getId(), MemberStatus.OFFICAL).orElse(null);
+        if (member == null) {
+            throw new RuntimeException("khong tim thay member");
+        }
 
+        Team team = member.getTeam();
 
+        // 1. Lấy TẤT CẢ round thuộc event này (không chỉ những round đã có TeamResult)
+        List<Round> allRounds = roundRepository.findByEventId(eventId);
 
+        // 2. Lấy các TeamResult đã tồn tại của đội trong event này
+        List<TeamResult> existingResults = teamResultRepository.findByTeamIdAndEventId(team.getId(), eventId);
 
-        List<TeamResult> results = teamResultRepository.findByTeamIdAndEventId( team.getId(), eventId);
+        // 3. Map roundId -> TeamResult để tra cứu nhanh
+        Map<Long, TeamResult> resultByRoundId = existingResults.stream()
+                .collect(Collectors.toMap(tr -> tr.getRound().getId(), tr -> tr));
 
-        return results.stream().map(tr -> {
+        // 4. Duyệt qua TẤT CẢ round, có TeamResult thì dùng, không có thì vẫn tính submissionStatus
+        return allRounds.stream().map(round -> {
+            TeamResult tr = resultByRoundId.get(round.getId());
 
-            // Tính toán Submission Status dựa trên cấu trúc thực tế của Round và TeamResult
-            String submissionStatus = determineSubmissionStatus(tr.getRound(), tr, team.getId()).name();
+            String submissionStatus = determineSubmissionStatus(round, team.getId()).name();
 
-            // 1. Tính tổng số đội tham gia vòng thi này
-            int totalTeamsInRound = teamResultRepository.countTotalTeamsInRound(tr.getRound().getId());
+            int totalTeamsInRound = teamResultRepository.countTotalTeamsInRound(round.getId());
 
-            // 2. Xác định Track và tính tổng số đội trong Track đó
             String trackName = null;
             int totalTeamsInTrack = 0;
-
-            if (tr.getTeam().getTrack() != null) {
-                trackName = tr.getTeam().getTrack().getName();
-                Long trackId = tr.getTeam().getTrack().getId();
-                // Đếm số đội trong track
-                totalTeamsInTrack = teamResultRepository.countTotalTeamsInTrack(trackId);
+            if (team.getTrack() != null) {
+                trackName = team.getTrack().getName();
+                totalTeamsInTrack = teamResultRepository.countTotalTeamsInTrack(team.getTrack().getId());
             }
 
-
-
-
             return TeamRoundResultDTO.builder()
-                    .roundId(tr.getRound().getId())
-                    .teamTotalScore(tr.getTotalScore())
-                    // totalTeams ở đây đại diện cho tổng số đội thuộc Track
-                    .teamRank(new TeamRoundResultDTO.TeamRankDTO(tr.getRanking(), totalTeamsInTrack))
+                    .roundId(round.getId())
+                    .teamTotalScore(tr != null ? tr.getTotalScore() : null)
+                    .teamRank(new TeamRoundResultDTO.TeamRankDTO(
+                            tr != null ? tr.getRanking() : null,
+                            totalTeamsInTrack))
                     .totalTeamsInRound(totalTeamsInRound)
                     .trackName(trackName)
                     .submissionStatus(submissionStatus)
@@ -260,9 +261,7 @@ import java.util.stream.Collectors;
     }
 
 
-
-
-    private SubmissionStatus determineSubmissionStatus(Round round, TeamResult teamResult, Long teamId) {
+    private SubmissionStatus determineSubmissionStatus(Round round, Long teamId) {
         LocalDateTime now = LocalDateTime.now();
 
         LocalDateTime start = round.getTimeStart();
@@ -287,7 +286,6 @@ import java.util.stream.Collectors;
         }
 
         // 2. Kiểm tra xem Đội đã nộp bài (Submission) trong vòng thi này chưa
-        // Duyệt trong danh sách submissions của Round xem có bài nào có team.id khớp với teamId không
         boolean hasSubmission = false;
         if (round.getSubmissions() != null) {
             hasSubmission = round.getSubmissions().stream()
@@ -306,17 +304,14 @@ import java.util.stream.Collectors;
         if ("ACTIVE".equals(roundStatus)) {
             if (hasSubmission) {
                 if (deadline != null && now.isAfter(deadline)) {
-                    // Đã nộp bài thành công nhưng nộp sau hạn chót (nộp muộn)
                     return SubmissionStatus.LATE_NO_SUBMISSION;
                 }
                 return SubmissionStatus.READY; // Đã nộp bài thành công & đúng hạn
             } else {
                 if (deadline != null && now.isAfter(deadline)) {
-                    // Chưa nộp và đã quá hạn
                     return SubmissionStatus.LATE_NO_SUBMISSION;
                 }
-                // Chưa nộp nhưng vẫn trong hạn nộp
-                return SubmissionStatus.NO_SUBMISSION;
+                return SubmissionStatus.NO_SUBMISSION; // Chưa nộp, còn trong hạn -> hiện nút "Nộp bài"
             }
         }
 

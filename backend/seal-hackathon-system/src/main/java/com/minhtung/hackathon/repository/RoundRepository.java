@@ -30,4 +30,7 @@ public interface RoundRepository extends JpaRepository<Round, Long> {
     @Query("SELECT r FROM Round r LEFT JOIN FETCH r.submissionConfig WHERE r.event.id = :eventId")
     List<Round> findRoundsWithConfigByEventId(@Param("eventId") Long eventId);
 
+
+    List<Round> findByEventId(Long eventId);
+
 }

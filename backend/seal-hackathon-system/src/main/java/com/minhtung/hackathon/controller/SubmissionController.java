@@ -1,10 +1,7 @@
 package com.minhtung.hackathon.controller;
 
 import com.minhtung.hackathon.dto.request.SubmissionRequest;
-import com.minhtung.hackathon.dto.response.SubmissionDetailResponseid;
-import com.minhtung.hackathon.dto.response.SubmissionListResponse;
-import com.minhtung.hackathon.dto.response.SubmissionResponse;
-import com.minhtung.hackathon.dto.response.ViewSubmissionTrackResponse;
+import com.minhtung.hackathon.dto.response.*;
 import com.minhtung.hackathon.service.SubmissionService;
 
 import jakarta.validation.Valid;
@@ -127,5 +124,21 @@ public class SubmissionController {
                 submissionService.viewSubmissionTrackResponses(trackId)
 
         );
+    }
+
+
+    @GetMapping("/current")
+    public ResponseEntity<SubmissionAndTeamResultResponse> getCurrentSubmission(
+            Authentication authentication,
+            @RequestParam Long roundId
+    ) {
+        SubmissionAndTeamResultResponse response = submissionService.getCurrentSubmission(authentication.getName(), roundId);
+
+        if (response == null) {
+            // Trả về 204 No Content nếu đội chưa nộp bài, Frontend sẽ tự chuyển trạng thái về form tạo mới (POST)
+            return ResponseEntity.noContent().build();
+        }
+
+        return ResponseEntity.ok(response);
     }
 }

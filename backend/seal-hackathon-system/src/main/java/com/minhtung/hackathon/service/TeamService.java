@@ -916,7 +916,7 @@ public class TeamService {
         teamInfoResponse.setTeamName(team.getName());
         teamInfoResponse.setDescription(team.getDescription());
         teamInfoResponse.setTeamStatus(team.getStatus().toString());
-
+        teamInfoResponse.setTeamRole(member.getRole().toString());
         // set category
         TeamInfoResponse.TrackResponse category = new TeamInfoResponse.TrackResponse();
         category.setId(team.getTrack().getId());
