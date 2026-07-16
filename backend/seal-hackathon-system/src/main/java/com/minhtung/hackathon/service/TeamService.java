@@ -1076,6 +1076,7 @@ public class TeamService {
             throw new IllegalArgumentException("admin khong ton tai");
         }
         TeamRequest teamRequest = new TeamRequest(RequestStatus.PENDING, team.getLeader(), admin, team, RequestType.TEAM_SUBMISSION, team.getName() + " gui yeu cau xin duyet doi");
+        teamRequestRepository.save(teamRequest);
         return "gui yeu cau duyet doi thanh cong";
     }
 
@@ -1285,5 +1286,62 @@ public class TeamService {
                 .trackName(team.getTrack() != null ? team.getTrack().getName() : null)
                 .members(members)
                 .build();
+    }
+
+
+    @Transactional
+    public List<AdminTeamResponse> getAllTeamForAdmin(){
+        List<Team> teams = teamRequestRepository.findAllForAdmin() ;
+        Map<Long, Long> requestIds = teamRequestRepository
+                .findByTypeAndStatus(
+                        RequestType.TEAM_SUBMISSION,
+                        RequestStatus.PENDING
+                )
+                .stream()
+                .collect(Collectors.toMap(
+                        request -> request.getTeam().getId(),
+                        TeamRequest::getId,
+                        (first, ignored) -> first
+                ));
+
+        return teams.stream()
+                .map(team -> {
+                    User leader = team.getLeader();
+
+                    List<AdminTeamMemberDTO> members = team.getMembers()
+                            .stream()
+                            .map(member -> {
+                                User user = member.getMember();
+
+                                return AdminTeamMemberDTO.builder()
+                                        .userId(user.getId())
+                                        .fullName(user.getFullName())
+                                        .email(user.getEmail())
+                                        .school(user.getSchoolName())
+                                        .role(member.getRole().name())
+                                        .memberStatus(member.getStatus().name())
+                                        .joinMethod(member.getJoinMethod().name())
+                                        .build();
+                            })
+                            .toList();
+
+                    return AdminTeamResponse.builder()
+                            .teamId(team.getId())
+                            .teamName(team.getName())
+                            .teamStatus(team.getStatus().name())
+                            .description(team.getDescription())
+                            .leaderId(leader.getId())
+                            .leaderName(leader.getFullName())
+                            .leaderEmail(leader.getEmail())
+                            .memberCount(members.size())
+                            .trackId(team.getTrack() != null ? team.getTrack().getId() : null)
+                            .trackName(team.getTrack() != null ? team.getTrack().getName() : null)
+                            .createdAt(team.getCreateAt().toString())
+                            .requestId(requestIds.get(team.getId()))
+                            .members(members)
+                            .build();
+                })
+                .toList();
+
     }
 }

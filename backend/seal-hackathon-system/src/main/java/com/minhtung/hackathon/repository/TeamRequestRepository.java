@@ -65,4 +65,19 @@ public interface TeamRequestRepository  extends JpaRepository<TeamRequest,Long> 
      void deleteAllByTeamId(long teamId);
 
 
+
+
+     @Query("""
+    SELECT DISTINCT t
+    FROM Team t
+    LEFT JOIN FETCH t.members m
+    LEFT JOIN FETCH m.member
+    LEFT JOIN FETCH t.leader
+    LEFT JOIN FETCH t.track
+    ORDER BY t.createAt DESC
+""")
+     List<Team> findAllForAdmin();
+
+     List<TeamRequest> findByTypeAndStatus(RequestType type , RequestStatus status) ;
 }
+

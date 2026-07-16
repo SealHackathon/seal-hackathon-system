@@ -3,7 +3,10 @@ package com.minhtung.hackathon.repository;
 import com.minhtung.hackathon.dto.response.CreateTeamResponse;
 import com.minhtung.hackathon.dto.response.NeedMemberTeamResponse;
 import com.minhtung.hackathon.entity.Team;
+import com.minhtung.hackathon.entity.TeamRequest;
 import com.minhtung.hackathon.entity.Track;
+import com.minhtung.hackathon.enums.RequestStatus;
+import com.minhtung.hackathon.enums.RequestType;
 import com.minhtung.hackathon.enums.TeamStatus;
 import io.lettuce.core.dynamic.annotation.Param;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -43,6 +46,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     // Hoặc lấy tất cả team thuộc về cùng 1 Event thông qua Track
     @Query("SELECT t FROM Team t WHERE t.track.event.id = :eventId")
     List<Team> findTeamsByEventId(@Param("eventId") Long eventId);
+
     @Query("""
     SELECT t
     FROM Team t
