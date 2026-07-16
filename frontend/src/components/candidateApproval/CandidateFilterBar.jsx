@@ -22,6 +22,7 @@ function CandidateFilterBar({
     onStatusChange,
     categories = [],
     statuses = [],
+    searchPlaceholder = "Tìm kiếm tên hoặc email ..."
 }) {
     return (
         <div className={styles.bar}>
@@ -31,7 +32,7 @@ function CandidateFilterBar({
                 <input
                     type="text"
                     value={search}
-                    placeholder="Tìm kiếm tên hoặc email ..."
+                    placeholder={searchPlaceholder}
                     onChange={e => onSearchChange?.(e.target.value)}
                 />
             </div>
