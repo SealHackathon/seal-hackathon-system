@@ -1398,18 +1398,18 @@ public class TeamService {
         if(team.getStatus() !=TeamStatus.APPROVED){
             throw new RuntimeException("chỉ có thể thu hồi với những team approve") ;
         }
-        TeamRequest request = teamRequestRepository.findByTeamIdAndTypeAndStatus(teamId,RequestType.TEAM_SUBMISSION,RequestStatus.APPROVED).stream()
-                .findFirst()
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "Không tìm thấy yêu cầu duyệt team"
-                        )
-                );
-        team.setStatus(TeamStatus.PENDING_APPROVAL);
-        request.setStatus(RequestStatus.PENDING);
+//        TeamRequest request = teamRequestRepository.findByTeamIdAndTypeAndStatus(teamId,RequestType.TEAM_SUBMISSION,RequestStatus.APPROVED).stream()
+//                .findFirst()
+//                .orElseThrow(() ->
+//                        new IllegalStateException(
+//                                "Không tìm thấy yêu cầu duyệt team"
+//                        )
+//                );
+    team.setStatus(TeamStatus.PENDING_APPROVAL);
+      //  request.setStatus(RequestStatus.PENDING);
 
         teamRepository.save(team);
-        teamRequestRepository.save(request);
+       // teamRequestRepository.save(request);
         return TeamStatus.PENDING_APPROVAL.name();
     }
 }
