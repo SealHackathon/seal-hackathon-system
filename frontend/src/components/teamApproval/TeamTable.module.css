@@ -1,0 +1,103 @@
+.tableWrap {
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-bg-white);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table thead th {
+    text-align: left;
+    font-family: var(--body-font-main);
+    font-weight: 800;
+    color: var(--color-secondary-blue);
+    font-size: 0.95rem;
+    padding: 1em 1.4em;
+    border-bottom: 1px solid var(--color-border-blue);
+    background: var(--color-bg-blue);
+}
+
+.row {
+    cursor: pointer;
+    transition: background 0.12s ease;
+}
+
+.row:hover {
+    background: var(--color-bg-blue);
+}
+
+.row td {
+    padding: 0.9em 1.4em;
+    border-bottom: 1px solid var(--color-border-blue);
+    font-size: 0.95rem;
+    color: var(--color-text-primary);
+    vertical-align: middle;
+}
+
+.table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.nameCell {
+    display: flex;
+    align-items: center;
+    gap: 0.7em;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+}
+
+.avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-circle);
+    background: var(--color-bg-grey);
+    object-fit: cover;
+    flex-shrink: 0;
+    display: inline-block;
+}
+
+.muted {
+    color: var(--color-text-secondary);
+}
+
+.linkText {
+    color: var(--color-primary-blue);
+    font-weight: 600;
+}
+
+.actionCell {
+    width: 1%;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.openBtn {
+    background: none;
+    border: none;
+    color: var(--color-secondary-blue);
+    cursor: pointer;
+    padding: 0.4em;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.12s ease;
+}
+
+.openBtn:hover {
+    background: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+}
+
+.empty {
+    border: 1px dashed var(--color-border-blue);
+    border-radius: var(--radius);
+    padding: 3em 1em;
+    text-align: center;
+    color: var(--color-text-secondary);
+    font-weight: 600;
+    background: var(--color-bg-white);
+}
