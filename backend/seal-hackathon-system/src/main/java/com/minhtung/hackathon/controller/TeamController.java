@@ -361,6 +361,18 @@ public class TeamController {
     public ResponseEntity<List<AdminTeamResponse>> getAllTeamsForAdmin() {
         return ResponseEntity.ok(teamService.getAllTeamForAdmin());
     }
+
+    @Operation(summary = "Admin chấp nhận hoặc từ chối team")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/submission/{teamId}/review")
+    public ResponseEntity<String> adminReview(
+            @PathVariable Long teamId,
+            @RequestParam boolean approve
+    ) {
+        return ResponseEntity.ok(
+                teamService.adminReviewTeamByLongId(teamId, approve)
+        );
+    }
 }
 
 
