@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
         private final UserRepository userRepository;
         private final TeamRepository teamRepository;
         private final MemberRepository memberRepository;
+        private final RoundTrackRepository roundTrackRepository;
     private final EventService eventService;
 
     @Transactional
@@ -207,6 +208,7 @@ import java.util.stream.Collectors;
     }
 
 
+    //user view result cua minh o round do
     @Transactional
     public List<TeamRoundResultDTO> getTeamResultsByEvent(Long userId, Long eventId) {
 
@@ -222,7 +224,7 @@ import java.util.stream.Collectors;
 
         Team team = member.getTeam();
 
-        // 1. Lấy TẤT CẢ round thuộc event này (không chỉ những round đã có TeamResult)
+        // 1. Lấy TẤT CẢ round thuộc event này
         List<Round> allRounds = roundRepository.findByEventId(eventId);
 
         // 2. Lấy các TeamResult đã tồn tại của đội trong event này
@@ -232,26 +234,38 @@ import java.util.stream.Collectors;
         Map<Long, TeamResult> resultByRoundId = existingResults.stream()
                 .collect(Collectors.toMap(tr -> tr.getRound().getId(), tr -> tr));
 
-        // 4. Duyệt qua TẤT CẢ round, có TeamResult thì dùng, không có thì vẫn tính submissionStatus
+        // 4. Duyệt qua TẤT CẢ round để build DTO trả về
         return allRounds.stream().map(round -> {
             TeamResult tr = resultByRoundId.get(round.getId());
 
             String submissionStatus = determineSubmissionStatus(round, team.getId()).name();
-
             int totalTeamsInRound = teamResultRepository.countTotalTeamsInRound(round.getId());
 
             String trackName = null;
             int totalTeamsInTrack = 0;
+            boolean isPublished = false; // Biến đánh dấu đã công bố kết quả chưa
+
             if (team.getTrack() != null) {
                 trackName = team.getTrack().getName();
                 totalTeamsInTrack = teamResultRepository.countTotalTeamsInTrack(team.getTrack().getId());
+
+                // Nghiệp vụ mới: Check cấu hình công bố kết quả (Publish Stage) từ bảng round_track
+                RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(round.getId(), team.getTrack().getId());
+
+                isPublished = roundTrackRepository.findById(roundTrackId)
+                        .map(rt -> rt.getPublishStage() ==3) // == 3 là công bố cho thí sinh xem rồi
+                        .orElse(false); // Không tìm thấy cấu hình mặc định coi như chưa công bố
             }
+
+            // Logic ẩn/hiển thị dựa trên biến công bố isPublished
+            Double finalScore = (tr != null && isPublished) ? tr.getTotalScore() : null;
+            Integer finalRanking = (tr != null && isPublished) ? tr.getRanking() : null;
 
             return TeamRoundResultDTO.builder()
                     .roundId(round.getId())
-                    .teamTotalScore(tr != null ? tr.getTotalScore() : null)
+                    .teamTotalScore(finalScore) // Chỉ trả về điểm nếu đã công bố
                     .teamRank(new TeamRoundResultDTO.TeamRankDTO(
-                            tr != null ? tr.getRanking() : null,
+                            finalRanking,      // Chỉ trả về rank nếu đã công bố
                             totalTeamsInTrack))
                     .totalTeamsInRound(totalTeamsInRound)
                     .trackName(trackName)

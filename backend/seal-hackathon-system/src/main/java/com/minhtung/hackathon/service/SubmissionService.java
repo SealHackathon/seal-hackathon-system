@@ -16,6 +16,7 @@ import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,7 +32,7 @@ public class SubmissionService {
     private  final CloudinaryStorageService cloudinaryStorageService ;
     private final TeamResultRepository teamResultRepository;
     private final JudgeScoreRepository judgeScoreRepository;
-
+    private final RoundTrackRepository roundTrackRepository;
 
     @Value("${submission.demo.max-size}")
     private DataSize maxDemoSize;
@@ -417,22 +418,41 @@ public class SubmissionService {
             return null;
         }
 
+        // =================================================================
+        // LOGIC MỚI: CHECK XEM ĐÃ ĐẾN STAGE 3 ĐỂ CÔNG BỐ KẾT QUẢ CHƯA
+        // =================================================================
+        boolean isPublished = false;
+        if (team.getTrack() != null) {
+            RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(roundId, team.getTrack().getId());
+            isPublished = roundTrackRepository.findById(roundTrackId)
+                    .map(rt -> rt.getPublishStage() == 3) // Chỉ bằng 3 mới coi là ĐÃ CÔNG BỐ
+                    .orElse(false);
+        }
+
         // 4. Tìm điểm trung bình chung cuộc từ TeamResult
-        Double averageScore = teamResultRepository.findByTeamIdAndRoundId(team.getId(), roundId)
-                .map(TeamResult::getTotalScore)
-                .orElse(null); // Trả về null nếu ban giám khảo chưa chấm xong ai cả
+        Double averageScore = null;
+        if (isPublished) { // Chỉ lấy điểm khi đã công bố (stage == 3)
+            averageScore = teamResultRepository.findByTeamIdAndRoundId(team.getId(), roundId)
+                    .map(TeamResult::getTotalScore)
+                    .orElse(null);
+        }
 
-        // 5. Lấy danh sách điểm số chính thức (SUBMITTED) của bài nộp này từ hội đồng giám khảo
-        List<JudgeScore> officialScores = judgeScoreRepository
-                .findBySubmissionIdAndStatus(submission.getId(), JudgeScoreStatus.SUBMITTED);
+        // 5. Lấy danh sách điểm số chính thức và nhận xét từ hội đồng giám khảo
+        int judgesCount = 0;
+        List<String> comments = new ArrayList<>();
 
-        // Lọc ra danh sách nhận xét (bỏ qua nhận xét rỗng hoặc null)
-        List<String> comments = officialScores.stream()
-                .map(JudgeScore::getComment)
-                .filter(comment -> comment != null && !comment.trim().isEmpty())
-                .toList();
+        if (isPublished) { // Chỉ lấy số lượng giám khảo và nhận xét khi đã công bố (stage == 3)
+            List<JudgeScore> officialScores = judgeScoreRepository
+                    .findBySubmissionIdAndStatus(submission.getId(), JudgeScoreStatus.SUBMITTED);
 
-        int judgesCount = officialScores.size();
+            judgesCount = officialScores.size();
+
+            comments = officialScores.stream()
+                    .map(JudgeScore::getComment)
+                    .filter(comment -> comment != null && !comment.trim().isEmpty())
+                    .toList();
+        }
+        // =================================================================
 
         // 6. Map toàn bộ thông tin về DTO gửi về cho Frontend
         return SubmissionAndTeamResultResponse.builder()
@@ -441,11 +461,11 @@ public class SubmissionService {
                 .demoUrl(submission.getDemoUrl())
                 .documentUrl(submission.getDocumentUrl())
                 .submittedAt(submission.getSubmittedAt())
-                .lastEditedAt(submission.getSubmittedAt()) // Gán bằng submittedAt hoặc trường update nếu có
-                .isLate(false) // Logic kiểm tra nộp muộn của bạn (nếu có)
-                .score(averageScore)
-                .judgesCount(judgesCount)
-                .comments(comments)
+                .lastEditedAt(submission.getSubmittedAt())
+                .isLate(false)
+                .score(averageScore)     // Trả về số điểm thật hoặc null tùy thuộc vào isPublished
+                .judgesCount(judgesCount) // Trả về số lượng giám khảo thật hoặc 0 tùy thuộc vào isPublished
+                .comments(comments)       // Trả về list nhận xét thật hoặc list rỗng tùy thuộc vào isPublished
                 .build();
     }
 
