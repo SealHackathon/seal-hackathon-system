@@ -544,8 +544,8 @@ public class SubmissionService {
                 .orElseThrow(() -> new RuntimeException("Tài khoản không tồn tại"));
 
         // 2. Xác định Team của học sinh này (Leader)
-        Member leader = memberRepository.findByMemberIdAndRoleAndStatus(user.getId(), MemberRole.LEADER, MemberStatus.OFFICAL)
-                .orElseThrow(() -> new IllegalArgumentException("Chỉ trưởng nhóm được phép truy vấn thông tin bài nộp"));
+        Member leader = memberRepository.findByMemberIdAndStatus(user.getId(), MemberStatus.OFFICAL)
+                .orElseThrow(() -> new IllegalArgumentException("MEMBER NOT FOUND"));
 
         Team team = leader.getTeam();
 
