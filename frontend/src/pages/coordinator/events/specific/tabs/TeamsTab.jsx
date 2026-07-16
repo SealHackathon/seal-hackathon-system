@@ -1,101 +1,124 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useMemo } from 'react'
 import CandidateFilterBar from '../../../../../components/candidateApproval/CandidateFilterBar'
 import TeamTable from '../../../../../components/teamApproval/TeamTable'
 import TeamDetailPanel from '../../../../../components/teamApproval/TeamDetailPanel'
 import { TEAM_STATUS } from '../../../../../components/teamApproval/teamStatus'
-import axiosClient from '../../../../../api/axiosClient'
 import styles from './TeamsTab.module.css'
 
 const STATUS_OPTIONS = Object.entries(TEAM_STATUS)
     .map(([value, meta]) => ({ value, label: meta.label }))
 
-// Assuming categories from tracks, hardcode some or fetch if available
 const CATEGORY_OPTIONS = [
     { value: 'AI & Machine Learning', label: 'AI & Machine Learning' },
     { value: 'IoT & Smart Systems', label: 'IoT & Smart Systems' },
     { value: 'Blockchain', label: 'Blockchain' },
 ]
 
+const MOCK_TEAMS = [
+    {
+        id: 1,
+        teamName: 'AI Pioneers',
+        description: 'Đội ngũ đam mê AI, chuyên giải quyết các bài toán về Machine Learning và Computer Vision.',
+        category: 'AI & Machine Learning',
+        status: 'pending',
+        currentMembers: 4,
+        maxMembers: 5,
+        members: [
+            {
+                id: 101,
+                name: 'Nguyễn Thành Thái',
+                school: 'Đại học FPT',
+                isLeader: true,
+                avatar: '',
+                bio: 'Đam mê xây dựng sản phẩm thực tế và có kinh nghiệm với React, Spring Boot...',
+                positions: ['Backend Developer'],
+                techTags: ['Java', 'Spring Boot', 'MySQL'],
+                topics: ['System Design', 'AI'],
+                cvLink: 'https://github.com/Thaibc'
+            },
+            {
+                id: 102,
+                name: 'Hồ Ngọc Bảo Trân',
+                school: 'Đại học FPT',
+                isLeader: false,
+                avatar: '',
+                bio: 'Yêu thích sự kết hợp giữa thiết kế và công nghệ...',
+                positions: ['Frontend Developer', 'UI/UX Designer'],
+                techTags: ['React', 'Tailwind', 'Figma'],
+                topics: ['UI/UX Design', 'Web Development'],
+                cvLink: 'https://github.com/hngbtran'
+            }
+        ]
+    },
+    {
+        id: 2,
+        teamName: 'Crypto Knights',
+        description: 'Chúng tôi xây dựng tương lai của tài chính với công nghệ chuỗi khối.',
+        category: 'Blockchain',
+        status: 'approved',
+        currentMembers: 5,
+        maxMembers: 5,
+        members: [
+            {
+                id: 201,
+                name: 'Bùi Thiên Khánh',
+                school: 'Đại học FPT',
+                isLeader: true,
+                avatar: '',
+                bio: 'Phát triển dApp và smart contracts trên Ethereum.',
+                positions: ['Smart Contract Developer'],
+                techTags: ['Solidity', 'Ethereum', 'Web3.js'],
+                topics: ['DeFi', 'Web3'],
+                cvLink: 'https://github.com/Kbuiii'
+            },
+            {
+                id: 202,
+                name: 'Phạm Khắc Đăng Khoa',
+                school: 'Đại học FPT',
+                isLeader: false,
+                avatar: '',
+                bio: 'Chuyên thiết kế giao diện cho các ứng dụng phi tập trung.',
+                positions: ['Frontend Developer', 'UI/UX Designer'],
+                techTags: ['React', 'Figma'],
+                topics: ['Web3', 'UI/UX Design'],
+                cvLink: 'https://github.com/khoa2099'
+            },
+            {
+                id: 203,
+                name: 'Mạc Minh Tùng',
+                school: 'Đại học FPT',
+                isLeader: false,
+                avatar: '',
+                bio: 'Backend Dev với kinh nghiệm quản lý hệ thống phân tán.',
+                positions: ['Backend Developer'],
+                techTags: ['Java', 'Spring Boot', 'Redis'],
+                topics: ['Backend Architecture', 'Cloud Computing'],
+                cvLink: 'https://github.com/Mtung0603'
+            }
+        ]
+    }
+]
+
 function TeamsTab() {
-    const [teams, setTeams] = useState([])
-    const [loading, setLoading] = useState(true)
-    const [error, setError] = useState(null)
+    const [teams, setTeams] = useState(MOCK_TEAMS)
     const [search, setSearch] = useState('')
     const [category, setCategory] = useState('')
     const [status, setStatus] = useState('')
     const [selected, setSelected] = useState(null)
 
-    useEffect(() => {
-        const controller = new AbortController()
-
-        async function fetchTeams() {
-            setLoading(true)
-            setError(null)
-            try {
-                const res = await axiosClient.get('/team/admin/all-teams', {
-                    signal: controller.signal,
-                })
-                const list = res.data?.body ?? res.data ?? []
-                setTeams(list)
-            } catch (err) {
-                if (err.name !== 'CanceledError' && err.code !== 'ERR_CANCELED') {
-                    setError(
-                        err.response?.data?.message
-                        || err.message
-                        || 'Không thể tải danh sách đội thi'
-                    )
-                }
-            } finally {
-                setLoading(false)
-            }
-        }
-
-        fetchTeams()
-        return () => controller.abort()
-    }, [])
-
-    // Lọc data
+    // Lọc mock data
     const filtered = useMemo(() => {
         const q = search.trim().toLowerCase()
         return teams.filter(t => {
-            const matchSearch = !q || (t.teamName && t.teamName.toLowerCase().includes(q))
-            const matchCategory = !category || t.trackName === category || t.category === category
-            const matchStatus = !status || t.teamStatus === status || t.status === status
+            const matchSearch = !q || t.teamName.toLowerCase().includes(q)
+            const matchCategory = !category || t.category === category
+            const matchStatus = !status || t.status === status
             return matchSearch && matchCategory && matchStatus
         })
     }, [teams, search, category, status])
 
-    async function updateTeamStatus(team, approve) {
-        if (!team.requestId) {
-            alert('Không tìm thấy ID yêu cầu xét duyệt (requestId) cho đội này.')
-            return
-        }
-
-        const nextStatus = approve ? 'APPROVED' : 'REJECTED'
-        const teamId = team.teamId || team.id
-
-        // Optimistic UI update
-        setTeams(prev =>
-            prev.map(t => ((t.teamId || t.id) === teamId ? { ...t, teamStatus: nextStatus, status: nextStatus } : t))
-        )
-        if (selected && (selected.teamId || selected.id) === teamId) {
-             setSelected(prev => ({ ...prev, teamStatus: nextStatus, status: nextStatus }))
-        }
-        
-        try {
-            await axiosClient.put(`/team/submission/${team.requestId}/review`, null, {
-                params: { approve }
-            })
-        } catch (err) {
-            // Revert on error
-            setTeams(prev =>
-                prev.map(t => ((t.teamId || t.id) === teamId ? { ...t, teamStatus: team.teamStatus, status: team.status } : t))
-            )
-            if (selected && (selected.teamId || selected.id) === teamId) {
-                 setSelected(prev => ({ ...prev, teamStatus: team.teamStatus, status: team.status }))
-            }
-            alert(err.response?.data?.message || 'Cập nhật trạng thái thất bại')
-        }
+    function updateTeamStatus(teamId, newStatus) {
+        setTeams(prev => prev.map(t => t.id === teamId ? { ...t, status: newStatus } : t))
     }
 
     return (
@@ -113,10 +136,7 @@ function TeamsTab() {
             />
 
             <div className={styles.topRow}>
-                {loading && <p className={styles.count}>Đang tải danh sách...</p>}
-                {!loading && (
-                    <p className={styles.count}>{filtered.length} đội thi</p>
-                )}
+                <p className={styles.count}>{filtered.length} đội thi</p>
             </div>
 
             <TeamTable teams={filtered} onSelect={setSelected} />
@@ -125,13 +145,16 @@ function TeamsTab() {
                 team={selected}
                 onClose={() => setSelected(null)}
                 onApprove={(t) => {
-                    updateTeamStatus(t, true)
+                    updateTeamStatus(t.id, 'approved')
+                    setSelected(null)
                 }}
                 onReject={(t) => {
-                    updateTeamStatus(t, false)
+                    updateTeamStatus(t.id, 'rejected')
+                    setSelected(null)
                 }}
                 onRevokeApproval={(t) => {
-                    alert('Chức năng hủy xét duyệt chưa được hỗ trợ bởi API!')
+                    updateTeamStatus(t.id, 'pending')
+                    setSelected(null)
                 }}
             />
         </div>

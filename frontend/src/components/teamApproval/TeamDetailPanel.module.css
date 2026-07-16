@@ -1,4 +1,3 @@
-/* Lớp phủ bắt click đóng */
 .overlay {
     position: fixed;
     inset: 0;
@@ -10,14 +9,12 @@
 .panel {
     position: relative;
     width: 100%;
-    max-width: 500px;
+    max-width: 520px;
     height: 100%;
-    max-height: 100vh;
     background: var(--color-bg-white);
     border-left: 1px solid var(--color-border-blue);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
     animation: slideIn 0.28s ease;
 }
 
@@ -26,13 +23,23 @@
 }
 
 @keyframes slideIn {
-    from { transform: translateX(100%); }
-    to   { transform: translateX(0); }
+    from {
+        transform: translateX(100%);
+    }
+
+    to {
+        transform: translateX(0);
+    }
 }
 
 @keyframes slideOut {
-    from { transform: translateX(0); }
-    to   { transform: translateX(100%); }
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(100%);
+    }
 }
 
 /* ── Header ── */
@@ -50,8 +57,6 @@
     margin: 0;
     font-weight: 800;
     font-size: 1.2rem;
-    font-style: normal;
-    font-family: var(--body-font-main);
     color: var(--color-primary-blue);
 }
 
@@ -59,22 +64,21 @@
     background: none;
     border: none;
     cursor: pointer;
-    padding: 0.45em;
+    padding: 0.75em;
     border-radius: var(--inner-radius);
     display: flex;
-    color: var(--color-text-secondary);
+    color: var(--color-border-blue);
     transition: background 0.12s ease;
 }
 
 .closeBtn:hover {
     background: var(--color-bg-blue);
-    color: var(--color-primary-blue);
+    color: var(--color-secondary-blue);
 }
 
 /* ── Body ── */
 .body {
     flex: 1;
-    min-height: 0;
     overflow-y: auto;
     padding: 1.5em;
     display: flex;
@@ -84,12 +88,47 @@
     scrollbar-width: thin;
 }
 
-/* ── Tabs Wrapper ── */
-.tabsWrapper {
-    width: 100%;
+/* ── Hồ sơ tóm tắt ── */
+.profile {
+    display: flex;
+    align-items: center;
+    gap: 1em;
 }
 
-/* ── Section chung ── */
+.profileAvatar {
+    width: 72px;
+    height: 72px;
+    border-radius: var(--radius-circle);
+    background: var(--color-bg-blue);
+    color: var(--color-primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.profileName {
+    margin: 0;
+    font-family: var(--body-font-main);
+    font-weight: 800;
+    font-size: 1.5rem;
+    color: var(--color-primary-blue);
+}
+
+.profileContact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15em;
+    margin-top: 0.25em;
+}
+
+.profileContact span {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--color-secondary-blue);
+}
+
+/* ── Section ── */
 .section {
     display: flex;
     flex-direction: column;
@@ -104,6 +143,7 @@
     color: var(--color-bg-white);
     border-radius: var(--inner-radius);
     padding: 0.7em 1.1em;
+    font-family: var(--body-font-main);
     font-weight: 800;
     font-size: 1rem;
 }
@@ -112,7 +152,7 @@
     flex-shrink: 0;
 }
 
-/* ── Info Grid ── */
+/* ── Lưới field ── */
 .metaGrid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -133,7 +173,7 @@
 .fieldLabel {
     font-size: 0.9rem;
     font-weight: 700;
-    color: var(--color-text-primary);
+    color: var(--color-secondary-blue);
 }
 
 .fieldValue {
@@ -151,270 +191,182 @@
     flex-shrink: 0;
 }
 
-/* ── Team Info Tab (Like TeamCard) ── */
-.teamInfoWrapper {
-    display: flex;
-    flex-direction: column;
-    gap: 1.25em;
-    padding-top: 0.5em;
-}
-
-.teamNameLarge {
-    margin: 0;
-    font-size: 1.5rem;
-    font-weight: 800;
-    font-style: normal;
-    font-family: var(--body-font-main);
-    color: var(--color-primary-blue);
-}
-
-.teamBadges {
+.sectionHeader {
     display: flex;
     align-items: center;
-    gap: 0.75em;
-    flex-wrap: wrap;
+    gap: 0.5em;
+    margin-bottom: 0.5em;
 }
 
-.memberBadge {
-    display: inline-flex;
-    align-items: center;
-    width: fit-content;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--color-secondary-blue);
-    background: var(--color-bg-white);
-    border: 1px solid var(--color-border-blue);
-    border-radius: 50px;
-    padding: 0.25em 0.9em;
+.sectionIcon {
+    color: var(--color-border-blue);
 }
 
-.avatarRow {
-    display: flex;
-    gap: 0.75em;
-    align-items: center;
-    flex-wrap: wrap;
-    margin-top: 0.5em;
-}
-
-.avatarWrap {
-    position: relative;
-    width: 56px;
-    height: 56px;
-    border-radius: var(--radius-circle);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-bg-grey);
-    border: 2px solid var(--color-bg-white);
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.avatarImg {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border-radius: var(--radius-circle);
-}
-
-.crownIcon {
-    position: absolute;
-    top: -1em;
-    left: 50%;
-    transform: rotate(30deg);
-    transition: transform 0.2s ease-in-out;
-    color: var(--color-primary-orange);
-}
-
-.crownIcon:hover {
-    transform: translateX(0.4em) rotate(45deg) scale(1.1);
-}
-
-.emptyAvatar {
-    width: 56px;
-    height: 56px;
-    border-radius: var(--radius-circle);
-    border: 2px dashed var(--color-border-blue);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-bg-white);
-}
-
-.tooltipName {
-    margin: 0;
+.sectionTitle {
+    font-size: 1.15rem;
     font-weight: 700;
     color: var(--color-primary-blue);
-}
-
-.tooltipSchool {
     margin: 0;
-    font-size: 0.85rem;
-    color: var(--color-text-secondary);
-}
-
-.leaderBadge {
-    color: var(--color-primary-orange);
-    font-weight: 700;
-    font-size: 0.8rem;
-    display: block;
-    margin-bottom: 0.2em;
-}
-
-.bioSection {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4em;
-    margin-top: 0.5em;
-}
-
-.bioLabel {
-    margin: 0;
-    font-weight: 800;
-    color: var(--color-primary-blue);
-    font-size: 1.1rem;
 }
 
 .bioText {
-    margin: 0;
     color: var(--color-text-primary);
     line-height: 1.6;
+    margin: 0;
+}
+
+.divider {
+    height: 1px;
+    background-color: var(--color-border-blue);
+    margin: 0.5em 0;
+    opacity: 0.5;
+}
+
+.emptyText {
     font-size: 0.95rem;
+    color: var(--color-text-muted);
+    font-style: italic;
+    margin: 0;
 }
 
-/* ── Compact Member Card ── */
-.compactMemberCard {
-    background: var(--color-bg-white);
-    border: 1px solid var(--color-border-blue);
-    border-radius: var(--radius);
-    padding: 1.25em;
+/* ── Members List ── */
+.membersList {
     display: flex;
-    gap: 1.25em;
-    align-items: flex-start;
+    flex-direction: column;
+    gap: 0.75em;
 }
 
-.compactAvatar {
-    width: 64px;
-    height: 64px;
+.memberCard {
+    border: 1px solid var(--color-border-blue);
+    border-radius: var(--inner-radius);
+    padding: 1em;
+    background: var(--color-bg-white);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75em;
+}
+
+.memberHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75em;
+}
+
+.memberAvatar {
+    width: 40px;
+    height: 40px;
     border-radius: var(--radius-circle);
-    object-fit: cover;
-    background: var(--color-bg-grey);
+    background: var(--color-bg-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     flex-shrink: 0;
 }
 
-.compactInfo {
+.memberInfo {
     flex: 1;
+    min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 0.4em;
-    min-width: 0;
+    gap: 0.15em;
 }
 
-.compactHeader {
+.memberName {
+    margin: 0;
+    font-weight: 700;
+    color: var(--color-primary-blue);
+    font-size: 1.05rem;
     display: flex;
     align-items: center;
-    gap: 0.75em;
-    flex-wrap: wrap;
+    gap: 0.5em;
 }
 
-.compactName {
-    margin: 0;
-    font-size: 1.1rem;
+.leaderBadge {
+    font-size: 0.7rem;
+    padding: 0.1em 0.5em;
+    border-radius: 12px;
+    background: var(--color-bg-orange);
+    color: var(--color-primary-orange);
+    border: 1px solid var(--color-border-orange);
+    text-transform: uppercase;
     font-weight: 800;
-    font-style: normal;
-    font-family: var(--body-font-main);
-    color: var(--color-primary-blue);
 }
 
-.compactRoleLeader {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--color-bg-white);
-    background: var(--color-primary-orange);
-    padding: 0.2em 0.6em;
-    border-radius: 20px;
-}
-
-.compactRoleMember {
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--color-secondary-blue);
-    background: var(--color-bg-blue);
-    padding: 0.2em 0.6em;
-    border-radius: 20px;
-}
-
-.compactSchool {
+.memberEmail {
+    margin: 0;
     font-size: 0.85rem;
     color: var(--color-text-secondary);
-    display: flex;
-    align-items: center;
-    gap: 0.4em;
-}
-
-.compactTags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.4em;
-    margin-top: 0.4em;
-}
-
-.compactTag {
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.25em 0.6em;
-    border-radius: 4px;
     white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
-.tagBlue {
-    background: var(--color-bg-blue);
-    color: var(--color-primary-blue);
+.memberStatus {
+    flex-shrink: 0;
 }
 
-.compactLink {
-    margin-top: 0.25em;
-    display: inline-flex;
+.memberDetails {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5em;
+    padding-top: 0.75em;
+    border-top: 1px dashed var(--color-border-blue);
+}
+
+.detailRow {
+    display: flex;
     align-items: center;
-    gap: 0.3em;
+    gap: 0.5em;
     font-size: 0.85rem;
-    color: var(--color-primary-blue);
-    font-weight: 700;
-    text-decoration: underline;
-    width: fit-content;
+    color: var(--color-text-primary);
 }
 
-/* ── Footer hành động ── */
+.detailRow svg {
+    color: var(--color-secondary-blue);
+    flex-shrink: 0;
+}
+
+
+/* ── Footer ── */
 .footer {
     border-top: 1px solid var(--color-border-blue);
     padding: 1.25em 1.5em;
+    display: flex;
+    flex-direction: column;
+    gap: 1em;
     background: var(--color-bg-white);
     flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-}
-
-.approvalBox {
-    background: var(--color-bg-blue);
-    border: 1px solid var(--color-border-blue);
-    border-radius: var(--radius);
-    padding: 1.2em;
-    display: flex;
-    flex-direction: column;
-    gap: 1em;
-}
-
-.approvalBox p {
-    margin: 0;
-    font-weight: 600;
-    color: var(--color-primary-blue);
-}
-
-.approvalActions {
-    display: flex;
-    gap: 0.75em;
 }
 
 .fullBtn {
-    flex: 1;
+    width: 100%;
+}
+
+/* ── Hộp xử lý xét duyệt ── */
+.approvalBox {
+    border: 1px solid var(--color-border-green);
+    border-radius: var(--inner-radius);
+    overflow: hidden;
+}
+
+.approvalHead {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5em;
+    padding: 0.9em 1.1em;
+    border: none;
+    background: var(--color-bg-green);
+    color: var(--color-primary-green);
+    font-family: var(--body-font-main);
+    font-weight: 800;
+    font-size: 0.95rem;
+    cursor: pointer;
+}
+
+.approvalBody {
+    display: flex;
+    gap: 0.9em;
+    padding: 1em 1.1em;
 }

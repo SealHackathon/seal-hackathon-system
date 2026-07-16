@@ -33,7 +33,7 @@ function TeamApprovalPage() {
                 const res = await axiosClient.get('/team/admin/all-teams', {
                     signal: controller.signal,
                 })
-
+                
                 const list = res.data?.body ?? res.data ?? []
                 setTeams(list)
             } catch (err) {
@@ -66,21 +66,21 @@ function TeamApprovalPage() {
     }, [teams, search, status])
 
     // ── Cập nhật trạng thái đội thi qua API ──
-    async function updateStatus(team, approved) {
-        if (!team.teamId) {
-            alert('Không tìm thấy ID đội thi (teamId) cho đội này.')
+    async function updateStatus(team, approve) {
+        if (!team.requestId) {
+            alert('Không tìm thấy ID yêu cầu xét duyệt (requestId) cho đội này.')
             return
         }
 
-        const approve = approved? 'APPROVED' : 'REJECTED'
+        const nextStatus = approve ? 'APPROVED' : 'REJECTED'
 
         // Optimistic UI update
         setTeams(prev =>
-            prev.map(t => (t.teamId === team.teamId ? { ...t, teamStatus: approve } : t))
+            prev.map(t => (t.teamId === team.teamId ? { ...t, teamStatus: nextStatus } : t))
         )
 
         try {
-            await axiosClient.put(`/team/submission/${team.teamId}/review`, null, {
+            await axiosClient.put(`/team/submission/${team.requestId}/review`, null, {
                 params: { approve }
             })
         } catch (err) {
@@ -90,17 +90,6 @@ function TeamApprovalPage() {
             )
             alert(err.response?.data?.message || 'Cập nhật trạng thái thất bại')
         }
-    }
-
-
-    const onRevokeApprove = () => {
-        axiosClient.put('/team/submission/revoke-approval', null, {
-            params: { teamId: selected.teamId }
-        })
-        .then((res) => {
-        }).catch((err) => {
-            console.log(err)
-        })
     }
 
     return (
@@ -139,7 +128,7 @@ function TeamApprovalPage() {
                             onReject={t => updateStatus(t, false)}
                             // Backend hiện tại chưa có API "Revoke approval" riêng cho Team,
                             // chức năng này có thể map thành Reject nếu cần thiết hoặc ẩn đi.
-                            onRevokeApproval={onRevokeApprove}
+                            onRevokeApproval={t => alert('Chức năng hủy chấp nhận cần API hỗ trợ từ backend.')}
                         />
                     </div>
                 </div>

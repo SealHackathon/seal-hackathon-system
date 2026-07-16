@@ -166,15 +166,15 @@ public class TeamController {
 //
 //    }
 
-//    @Operation(summary = "Admin duyệt hoặc từ chối TEAM_SUBMISSION",
-//            description = "APPROVED → Team.status=APPROVED, mã mời bị vô hiệu hoá")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    @PutMapping("/submission/{requestId}/review")
-//    public ResponseEntity<String> adminReview(
-//            @PathVariable Integer requestId,
-//            @RequestParam boolean approve) {
-//        return ResponseEntity.ok(teamService.adminReviewTeam(requestId, approve));
-//    }
+    @Operation(summary = "Admin duyệt hoặc từ chối TEAM_SUBMISSION",
+            description = "APPROVED → Team.status=APPROVED, mã mời bị vô hiệu hoá")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/submission/{requestId}/review")
+    public ResponseEntity<String> adminReview(
+            @PathVariable Integer requestId,
+            @RequestParam boolean approve) {
+        return ResponseEntity.ok(teamService.adminReviewTeam(requestId, approve));
+    }
 
 
     //thành viên trong team lấy role của mình
