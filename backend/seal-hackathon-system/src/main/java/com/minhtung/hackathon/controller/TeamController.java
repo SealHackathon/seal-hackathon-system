@@ -367,7 +367,7 @@ public class TeamController {
     @PutMapping("/submission/{teamId}/review")
     public ResponseEntity<String> adminReview(
             @PathVariable Long teamId,
-            @RequestParam boolean approve
+            @RequestParam String approve
     ) {
         return ResponseEntity.ok(
                 teamService.adminReviewTeamByLongId(teamId, approve)

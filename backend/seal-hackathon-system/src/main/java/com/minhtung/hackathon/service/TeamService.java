@@ -1336,7 +1336,7 @@ public class TeamService {
     }
 
     @Transactional
-    public String adminReviewTeamByLongId(Long teamId, boolean approve) {
+    public String adminReviewTeamByLongId(Long teamId, String status) {
         Team team = teamRepository.findById(teamId).orElseThrow(() -> new IllegalArgumentException("Không tìm thấy team"));
 
 
@@ -1344,26 +1344,50 @@ public class TeamService {
             throw new RuntimeException("team dang khong o trang thai cho duyet ");
 
         }
-        TeamRequest request = teamRequestRepository
-                .findByTeamIdAndTypeAndStatus(teamId, RequestType.TEAM_SUBMISSION, RequestStatus.PENDING)
-                .stream().findFirst().orElseThrow(() -> new IllegalStateException(
-                        "Không tìm thấy yêu cầu duyệt team"
-                ));
+        TeamStatus nextStatus;
+        try {
+            nextStatus = TeamStatus.valueOf(status.trim().toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException(
+                    "Status chỉ được là APPROVED hoặc REJECTED"
+            );
+        }
 
-        if (approve) {
-            team.setStatus(TeamStatus.APPROVED);
+        if (nextStatus != TeamStatus.APPROVED
+                && nextStatus != TeamStatus.REJECTED) {
+            throw new IllegalArgumentException(
+                    "Status chỉ được là APPROVED hoặc REJECTED"
+            );
+        }
+
+        TeamRequest request = teamRequestRepository
+                .findByTeamIdAndTypeAndStatus(
+                        teamId,
+                        RequestType.TEAM_SUBMISSION,
+                        RequestStatus.PENDING
+                )
+                .stream()
+                .findFirst()
+                .orElseThrow(() ->
+                        new IllegalStateException(
+                                "Không tìm thấy yêu cầu duyệt team"
+                        )
+                );
+
+        team.setStatus(nextStatus);
+
+        if (nextStatus == TeamStatus.APPROVED) {
             team.setInviteCode(null);
             request.setStatus(RequestStatus.APPROVED);
         } else {
-            team.setStatus(TeamStatus.REJECTED);
             request.setStatus(RequestStatus.REJECTED);
         }
+
         teamRepository.save(team);
         teamRequestRepository.save(request);
 
-        return approve
+        return nextStatus == TeamStatus.APPROVED
                 ? "Đã chấp nhận team"
                 : "Đã từ chối team";
-
     }
 }
