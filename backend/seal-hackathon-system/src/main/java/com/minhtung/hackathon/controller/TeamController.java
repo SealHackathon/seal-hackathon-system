@@ -373,6 +373,17 @@ public class TeamController {
                 teamService.adminReviewTeamByLongId(teamId, approve)
         );
     }
+
+
+    @PutMapping("/submission/revoke-approval")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<String> revokeApproval(
+            @RequestParam Long teamId
+    ) {
+        return ResponseEntity.ok(
+                teamService.reveolekeApporve(teamId)
+        );
+    }
 }
 
 
