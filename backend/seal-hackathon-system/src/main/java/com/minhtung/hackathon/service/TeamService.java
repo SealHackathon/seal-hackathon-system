@@ -1352,34 +1352,14 @@ public class TeamService {
                     "Status chỉ được là APPROVED hoặc REJECTED"
             );
         }
-
         if (nextStatus != TeamStatus.APPROVED
                 && nextStatus != TeamStatus.REJECTED) {
             throw new IllegalArgumentException(
                     "Status chỉ được là APPROVED hoặc REJECTED"
             );
         }
-
-        TeamRequest request = teamRequestRepository
-                .findByTeamIdAndTypeAndStatus(
-                        teamId,
-                        RequestType.TEAM_SUBMISSION,
-                        RequestStatus.PENDING
-                )
-                .stream()
-                .findFirst()
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "Không tìm thấy yêu cầu duyệt team"
-                        )
-                );
-
         team.setStatus(nextStatus);
-
-
         teamRepository.save(team);
-        teamRequestRepository.save(request);
-
         return nextStatus == TeamStatus.APPROVED
                 ? "Đã chấp nhận team"
                 : "Đã từ chối team";
@@ -1392,18 +1372,9 @@ public class TeamService {
         if(team.getStatus() !=TeamStatus.APPROVED){
             throw new RuntimeException("chỉ có thể thu hồi với những team approve") ;
         }
-        TeamRequest request = teamRequestRepository.findByTeamIdAndTypeAndStatus(teamId,RequestType.TEAM_SUBMISSION,RequestStatus.APPROVED).stream()
-                .findFirst()
-                .orElseThrow(() ->
-                        new IllegalStateException(
-                                "Không tìm thấy yêu cầu duyệt team"
-                        )
-                );
-        team.setStatus(TeamStatus.PENDING_APPROVAL);
-        request.setStatus(RequestStatus.PENDING);
 
+        team.setStatus(TeamStatus.PENDING_APPROVAL);
         teamRepository.save(team);
-        teamRequestRepository.save(request);
         return TeamStatus.PENDING_APPROVAL.name();
     }
 }
