@@ -2,10 +2,13 @@ package com.minhtung.hackathon.service;
 
 import com.google.gson.JsonObject;
 import jakarta.mail.internet.MimeMessage;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value ;
 
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 
@@ -15,9 +18,22 @@ public class EmailService {
 
   @Value("${app.base-url}")
   private String baseUrl;
+  private static final Logger log = LoggerFactory.getLogger(EmailService.class);
 
   public EmailService(JavaMailSender mailSender) {
     this.mailSender = mailSender;
+  }
+
+
+  @Async("taskExecutor")
+  public void sendVerificationEmailAsync(String email, String token) {
+    boolean sent = sendVerificationEmail(email, token);
+    if (!sent) {
+      log.warn("Gửi email xác thực KHÔNG thành công cho: {}", email);
+      // TODO: có thể lưu vào bảng "failed_emails" để retry sau, hoặc bắn thông báo cho admin
+    } else {
+      log.info("Đã gửi email xác thực thành công cho: {}", email);
+    }
   }
 
 

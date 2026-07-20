@@ -9,6 +9,7 @@ import SectionHeader from '../../../components/shared/SectionHeader';
 import ConfirmModal from '../../../components/shared/ConfirmModal'
 import styles from './RubricLibraryPage.module.css';
 import axiosClient from '../../../api/axiosClient';
+import { useNavigate } from 'react-router-dom';
 const MOCK_RUBRICS = [
     {
         id: 1,
@@ -70,7 +71,7 @@ export default function RubricLibraryPage() {
     const [searchQuery, setSearchQuery] = useState('');
     const [sortBy, setSortBy] = useState('date_desc');
     const [confirmModal, setConfirmModal] = useState(null);
-
+    const navigate = useNavigate();
     useState(() => {
         axiosClient.get('/scoring-template')
             .then((response) => {

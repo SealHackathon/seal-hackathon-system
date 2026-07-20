@@ -100,18 +100,18 @@ function VerifyEmailPage() {
                     </p>
 
                     <div className={styles.resendWrapper}>
-                        <div className={styles.orMessage}>
+                        {/* <div className={styles.orMessage}>
                             <span>Bạn vẫn chưa xác nhận được mã xác nhận?</span>
-                        </div>
+                        </div> */}
 
-                        <Button
+                        {/* <Button
                             label={countdown > 0 ? `Gửi lại sau ${formatCountdown(countdown)}` : 'Gửi lại Link xác nhận'}
                             icon={ArrowCounterClockwise}
                             iconPosition="right"
                             variant="primary"
                             disabled={countdown > 0}   // ← xám trong 2 phút
                             onClick={handleResend}
-                        />
+                        /> */}
 
                         {resendSuccess && (
                             <p className={styles.resendSuccess}>Đã gửi lại link xác nhận!</p>
@@ -119,14 +119,14 @@ function VerifyEmailPage() {
                     </div>
 
                     <div className={styles.orRow}>
-                        <hr /><span>Hoặc</span><hr />
+                        {/* <hr /><span>Hoặc</span><hr /> */}
                     </div>
 
-                    <Button
+                    {/* <Button
                         label="Đổi địa chỉ email"
                         variant="outline"
                         onClick={handleChangeEmail}
-                    />
+                    /> */}
 
                 </div>
             </div>

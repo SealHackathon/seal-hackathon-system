@@ -43,43 +43,40 @@ public class AuthService {
     @Autowired
     private MemberRepository memberRepository;
 
+
     // nếu không verify thi sau .... xoa
     public RegisterResponse register(RegisterRequest registerRequest) {
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
             throw new RuntimeException("email nay da ton tai ");
         }
-        if(userRepository.existsByPhoneNumber(registerRequest.getPhone())){
+        if (userRepository.existsByPhoneNumber(registerRequest.getPhone())) {
             throw new RuntimeException(" số điện thoại này  đã tồn tại ");
         }
-        if(userRepository.existsByStudentId(registerRequest.getStudentId())){
-            throw new RuntimeException("MSSV đã  tồn tại " );
+        if (userRepository.existsByStudentId(registerRequest.getStudentId())) {
+            throw new RuntimeException("MSSV đã  tồn tại ");
         }
 
-        if(registerRequest.getPassword() == null ||registerRequest.getPassword().length() <  8 ){
+        if (registerRequest.getPassword() == null || registerRequest.getPassword().length() < 8) {
             throw new RuntimeException("passsword phai tren 8 ki tu ");
         }
-        if(registerRequest.getEmail() == null){
-            throw new RuntimeException("khong duoc de trong") ;
+        if (registerRequest.getEmail() == null) {
+            throw new RuntimeException("khong duoc de trong");
+        }
+        if (registerRequest.getStudentId() == null) {
+            throw new RuntimeException("khong duoc de trong");
         }
 
-        if(registerRequest.getEmail()== null){
-            throw new RuntimeException("khong duoc de trong") ;
-        }
-        if(registerRequest.getStudentId() == null){
-            throw new RuntimeException("khong duoc de trong") ;
-        }
+        // check xem truong co ton tai trong DB khong
+        // University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
+        // validateMssv(university, registerRequest.getStudentId());
+        // xoa pending cu neu co (Dang ki lai)
 
-
-         //check xem truong co ton tai trong DB khong
-//        University university = universityRepository.findByName(registerRequest.getSchoolName().trim()).orElseThrow(() -> new RuntimeException("truong dai học khong ton tai"));
-//        validateMssv(university, registerRequest.getStudentId());
-        //xoa pending cu neu co (Dang ki lai)
         User user = new User();
         user.setEmail(registerRequest.getEmail());
         user.setPassword(registerRequest.getPassword());
         user.setRole(Role.USER);
         user.setSchoolName(registerRequest.getSchoolName());
-        user.setActive(false);//chua an xac nhan
+        user.setActive(false); // chua an xac nhan
         user.setToken(UUID.randomUUID().toString());
         user.setExpiredAt(LocalDateTime.now().plusMinutes(15));
         user.setStatus(UserStatus.PROFILE_PENDING);
@@ -89,15 +86,17 @@ public class AuthService {
         user.setStudentId(registerRequest.getStudentId().trim().toUpperCase());
         user.setPhoneNumber(registerRequest.getPhone());
         userRepository.save(user);
+
         RegisterResponse registerResponse = new RegisterResponse();
         registerResponse.setStudentId(registerRequest.getStudentId());
         registerResponse.setEmail(registerRequest.getEmail());
         registerResponse.setSchoolName(registerRequest.getSchoolName());
         registerResponse.setPhone(registerRequest.getPhone());
-        boolean sent = emailService.sendVerificationEmail(registerRequest.getEmail(), user.getToken());
-        return sent
-                ? registerResponse
-                : null;
+
+        // gửi email bất đồng bộ - không chờ, không block response
+        emailService.sendVerificationEmailAsync(registerRequest.getEmail(), user.getToken());
+
+        return registerResponse;
     }
 
     //    ham resend email
