@@ -4,7 +4,12 @@ import styles from './TimelineHorizontal.module.css'
 
 // ─── Helpers ────────────────────────────────────────
 
-function parseDate(str) {
+function parseDate(node) {
+  if (node.isoDate) {
+    const d = new Date(node.isoDate);
+    if (!isNaN(d.getTime())) return d;
+  }
+  const str = node.date;
   if (!str) return null
   if (str.includes('/')) {
     const [d, m, y] = str.split('/')
@@ -15,36 +20,67 @@ function parseDate(str) {
   return d
 }
 
-function todayStart() {
-  const d = new Date()
-  d.setHours(0, 0, 0, 0)
-  return d
-}
-
 function isSameDay(a, b) {
   return a.toDateString() === b.toDateString()
-}
-
-function autoState(date, today) {
-  if (!date) return 'upcoming'
-  if (isSameDay(date, today)) return 'active'
-  return date < today ? 'done' : 'upcoming'
 }
 
 // ────────────────────────────────────────────────────
 
 function TimelineHorizontal({ milestones = [], showToday = true }) {
-  const today = useMemo(() => todayStart(), [])
+  const now = useMemo(() => new Date(), [])
 
-  const nodes = useMemo(() => milestones.map(m => {
-    const d = parseDate(m.date)
-    return { ...m, _date: d, _state: m.state ?? autoState(d, today) }
-  }).sort((a, b) => {
-    if (!a._date && !b._date) return 0
-    if (!a._date) return 1
-    if (!b._date) return -1
-    return a._date - b._date
-  }), [milestones, today])
+  const nodes = useMemo(() => {
+    // 1. Parse dates and sort
+    const sorted = milestones.map(m => {
+      const d = parseDate(m)
+      return { ...m, _date: d }
+    }).sort((a, b) => {
+      if (!a._date && !b._date) return 0
+      if (!a._date) return 1
+      if (!b._date) return -1
+      return a._date - b._date
+    })
+
+    // 2. Identify nodes today
+    const nodesToday = sorted.filter(n => n._date && isSameDay(n._date, now));
+    let todayHasActive = false;
+
+    // 3. Assign states
+    return sorted.map(node => {
+      if (node.state) return { ...node, _state: node.state };
+      if (!node._date) return { ...node, _state: 'upcoming' };
+
+      const pastDayTime = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+
+      // Case 1: Past days
+      if (node._date.getTime() < pastDayTime) {
+        return { ...node, _state: 'done' };
+      }
+
+      // Case 2: Today
+      if (isSameDay(node._date, now)) {
+        if (nodesToday.length > 1) {
+          // Multiple nodes today: exact time logic
+          if (node._date <= now) {
+            return { ...node, _state: 'done' };
+          } else {
+            if (!todayHasActive) {
+              todayHasActive = true;
+              return { ...node, _state: 'active' };
+            } else {
+              return { ...node, _state: 'upcoming' };
+            }
+          }
+        } else {
+          // Only one node today: active all day
+          return { ...node, _state: 'active' };
+        }
+      }
+
+      // Case 3: Future days
+      return { ...node, _state: 'upcoming' };
+    })
+  }, [milestones, now])
 
   const outerRef = useRef(null)
   const trackRef = useRef(null)
@@ -91,19 +127,33 @@ function TimelineHorizontal({ milestones = [], showToday = true }) {
       return r.left + r.width / 2 - trackRect.left
     }
 
-    const prevIdx = nodes.reduce((acc, n, i) => (n._date && n._date < today ? i : acc), -1)
-    const nextIdx = nodes.findIndex((n, i) => n._date && n._date > today && i > prevIdx)
+    // 1. Is there an active node today?
+    const activeTodayIdx = nodes.findIndex(n => n._state === 'active' && n._date && isSameDay(n._date, now));
+    if (showToday && activeTodayIdx >= 0) {
+      const center = dotCenter(activeTodayIdx);
+      if (center !== null) {
+        track.style.setProperty('--done-width', `${center}px`);
+        track.style.setProperty('--today-left', `${center}px`);
+        track.style.setProperty('--today-show', '0');
+        updateFade();
+        return;
+      }
+    }
+
+    // 2. Between nodes logic (only when NO nodes today)
+    const prevIdx = nodes.reduce((acc, n, i) => (n._date && n._date < now ? i : acc), -1)
+    const nextIdx = nodes.findIndex((n, i) => n._date && n._date > now && i > prevIdx)
 
     const todayBetweenNodes = showToday
       && prevIdx >= 0
       && nextIdx >= 0
-      && !nodes.some(n => n._date && isSameDay(n._date, today))
+      && !nodes.some(n => n._date && isSameDay(n._date, now))
 
     if (todayBetweenNodes) {
       const prevCenter = dotCenter(prevIdx)
       const nextCenter = dotCenter(nextIdx)
       if (prevCenter !== null && nextCenter !== null) {
-        const frac = (today - nodes[prevIdx]._date) / (nodes[nextIdx]._date - nodes[prevIdx]._date)
+        const frac = (now - nodes[prevIdx]._date) / (nodes[nextIdx]._date - nodes[prevIdx]._date)
         const todayLeft = prevCenter + frac * (nextCenter - prevCenter)
         track.style.setProperty('--done-width', `${todayLeft}px`)
         track.style.setProperty('--today-left', `${todayLeft}px`)
@@ -113,14 +163,31 @@ function TimelineHorizontal({ milestones = [], showToday = true }) {
       }
     }
 
+    // 3. Fallback
     const lastDoneIdx = nodes.reduce(
       (acc, n, i) => (n._state === 'done' || n._state === 'active') ? i : acc, -1
     )
     const center = lastDoneIdx >= 0 ? dotCenter(lastDoneIdx) : null
     track.style.setProperty('--done-width', center ? `${center}px` : '0px')
-    track.style.setProperty('--today-show', '0')
+    
+    // Position 'HÔM NAY' on the last done node today, if any
+    const lastDoneTodayIdx = nodes.reduce(
+      (acc, n, i) => (n._state === 'done' && n._date && isSameDay(n._date, now)) ? i : acc, -1
+    )
+    if (showToday && lastDoneTodayIdx >= 0) {
+      const centerToday = dotCenter(lastDoneTodayIdx);
+      if (centerToday !== null) {
+        track.style.setProperty('--today-left', `${centerToday}px`);
+        track.style.setProperty('--today-show', '1');
+      } else {
+        track.style.setProperty('--today-show', '0');
+      }
+    } else {
+      track.style.setProperty('--today-show', '0')
+    }
+    
     updateFade()
-  }, [nodes, today, showToday])
+  }, [nodes, now, showToday])
 
   return (
     // ── wrapper bọc ngoài để đặt fade overlay ──
@@ -141,7 +208,7 @@ function TimelineHorizontal({ milestones = [], showToday = true }) {
           <div className={styles.arrow} />
 
           <div className={styles.todayIndicator}>
-            <span className={styles.todayIndicatorLabel}>HÔM NAY</span>
+            <span className={styles.todayIndicatorLabel}>HIỆN TẠI</span>
             <span className={styles.todayIndicatorLine} />
           </div>
 

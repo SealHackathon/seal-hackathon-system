@@ -18,6 +18,8 @@ function Navbar({ isLoggedIn, user }) {
                 className={styles.logo}
                 src="/seal-hackathon-logo.svg"
                 alt="SEAL Hackathon typography logo"
+                onClick={() => navigate('/')}
+                style={{ cursor: 'pointer' }}
             />
 
 

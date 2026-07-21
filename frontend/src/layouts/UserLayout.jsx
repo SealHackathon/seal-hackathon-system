@@ -10,12 +10,12 @@ function UserLayout({ children, showCard = true, fullWidth = false }) {
     return (
         <div className={[styles.page, fullWidth ? styles.fullWidth : ''].join(' ')}>
             <Navbar
-                isLoggedIn={true}
-                user={{
-                    name: userInfo ? userInfo.fullname : 'Nguyen Van A',
-                    email: userInfo ? userInfo.email : 'nguyenvana@example.com',
-                    avatar: userInfo ? userInfo.avatar : null
-                }} />
+                isLoggedIn={!!userInfo}
+                user={userInfo ? {
+                    name: userInfo.fullname,
+                    email: userInfo.email,
+                    avatar: userInfo.avatar
+                } : null} />
             <main className={[styles.main, fullWidth ? styles.fullWidth : ''].join(' ')}>
                 {showCard
                     ? <div className={styles.card}>{children}</div>

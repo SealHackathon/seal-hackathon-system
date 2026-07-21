@@ -204,7 +204,7 @@ function RegisterPage() {
                     />
 
                     <Button
-                        label="Đăng kí"
+                        label="Đăng ký"
                         variant="primary"
                         type="submit"
                         onClick={()=>handleSubmit}

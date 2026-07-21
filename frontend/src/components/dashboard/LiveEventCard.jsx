@@ -41,7 +41,8 @@ function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
         });
         return {
             date: dateStr,
-            label: m.name
+            isoDate: m.isoDate || m.date,
+            label: m.label || m.name
         };
     }) || [];
 

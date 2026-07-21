@@ -29,6 +29,7 @@ function mapApiEventToUi(apiEvent) {
         id: milestone.id ?? index + 1,
         name: milestone.milestoneName || milestone.name || 'Cột mốc',
         date: milestone.dateStart || milestone.startDate || milestone.date || null,
+        isoDate: milestone.dateStart || milestone.startDate || milestone.date || null,
         note: milestone.des || milestone.description || milestone.note || null,
     }))
 
@@ -194,7 +195,9 @@ function UserDashboard() {
                 event={event}
                 isRegistered={isRegistered}
                 onJoin={handleJoinClick}
-                onViewRules={() => console.log('Chi tiết thể lệ')}
+                onViewRules={() => {
+                    if (event?.id) navigate(`/event/${event.id}`);
+                }}
             />
         </UserLayout>
     )

@@ -170,10 +170,11 @@ function EventListPage({ onManageEvent }) {
               const dateObj = new Date(m.dateStart);
               const formattedDate = isNaN(dateObj.getTime())
                 ? 'Chưa rõ'
-                : `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}`;
+                : `${String(dateObj.getDate()).padStart(2, '0')}/${String(dateObj.getMonth() + 1).padStart(2, '0')}/${dateObj.getFullYear()}`;
 
               return {
                 date: formattedDate,
+                isoDate: m.dateStart,
                 label: m.milestoneName
               };
             });
