@@ -1,0 +1,61 @@
+.marqueeWrap {
+  width: 100%;
+  overflow: hidden;
+  background: var(--color-primary-green);
+  color: var(--color-bg-white);
+  padding: 1em 0;
+  display: flex;
+  align-items: center;
+  border-top: 2px solid var(--color-dark-green);
+  border-bottom: 2px solid var(--color-dark-green);
+  transform: rotate(-1.5deg) scale(1.02);
+  margin: 3em 0;
+  z-index: 10;
+  position: relative;
+  box-shadow: none;
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  width: max-content;
+  animation: scrollLeft 45s linear infinite;
+}
+
+/* Nếu người dùng hover, chạy chậm lại */
+.marqueeWrap:hover .track {
+  animation-play-state: paused;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+  padding-right: 1.5em;
+}
+
+.text {
+  font-family: var(--title-font-main);
+  font-size: 1.8rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.icon {
+  color: var(--color-bg-white);
+}
+
+@keyframes scrollLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@media (max-width: 768px) {
+  .marqueeWrap {
+    margin: 2em 0;
+    transform: rotate(-2deg) scale(1.05);
+  }
+  .text {
+    font-size: 1.5rem;
+  }
+}

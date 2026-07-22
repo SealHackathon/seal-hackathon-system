@@ -1,0 +1,112 @@
+/* ─── PublicNav: thanh quick-links dính ─── */
+.sentinel {
+  width: 100%;
+  height: 1px;
+}
+
+.bar {
+  position: sticky;
+  top: 1em;
+  z-index: 40;
+  background-color: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: top center;
+  height: 4.5em;
+}
+
+/* Trạng thái dính: thêm viền + bo góc + thu nhỏ + nền trắng đặc */
+.bar.stuck {
+  background-color: var(--color-bg-white);
+  border-color: var(--color-border-blue);
+  border-radius: var(--radius);
+  width: min(1100px, 92%);
+  margin: 0.6em auto;
+  transform: scale(0.98);
+}
+
+.inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  padding: 0.9em 1.6em;
+  transition: padding 0.3s ease;
+}
+.bar.stuck .inner {
+  padding: 0.75em 1.2em;
+}
+
+.links {
+  position: relative;
+  display: flex;
+  gap: 0.25em;
+  flex-wrap: wrap;
+}
+
+/* Pill indicator — background di chuyển mượt theo active link */
+.pill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--color-bg-blue);
+  border-radius: var(--inner-radius);
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 0;
+  pointer-events: none;
+}
+
+.link {
+  position: relative;
+  z-index: 1;
+  padding: 0.45em 0.9em;
+  border: none;
+  background: transparent;
+  border-radius: var(--inner-radius);
+  font-family: var(--body-font-main);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-secondary-blue);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.link:hover {
+  color: var(--color-primary-blue);
+}
+.linkActive {
+  color: var(--color-primary-blue);
+  font-weight: 800;
+}
+
+.right {
+  display: flex;
+  align-items: center;
+  gap: 1.2em;
+  flex-shrink: 0;
+}
+.countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  line-height: 1.15;
+}
+.cdLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+.cdValue {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-primary-blue);
+}
+.cdValue b {
+  font-weight: 800;
+}
+
+@media (max-width: 720px) {
+  .cdLabel { display: none; }
+  .links { display: none; }
+}

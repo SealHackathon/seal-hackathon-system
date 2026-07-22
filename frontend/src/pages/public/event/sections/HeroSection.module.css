@@ -1,0 +1,884 @@
+/* ─── HeroSection (bento) ─── */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 0.85fr 1.35fr;
+  align-items: center;
+  min-height: 34em;
+  background: var(--color-bg-white);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5em;
+  padding: 4.5em 2vw 4.5em 3vw;
+}
+
+.name {
+  margin: 0;
+  font-family: var(--title-font-main);
+  font-size: 3.5rem;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--color-primary-blue);
+}
+
+/* Chủ đề dưới tiêu đề */
+.theme {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7em;
+  align-self: flex-start;
+}
+
+.themeArrow {
+  color: var(--color-primary-orange);
+}
+
+.themeText {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: var(--color-primary-orange);
+}
+
+.actions {
+  display: flex;
+  gap: 0.75em;
+  margin-top: 0.4em;
+  flex-wrap: wrap;
+}
+
+/* ── Bento ── */
+.bento {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr) repeat(2, 1.7fr);
+  grid-auto-rows: minmax(7.5em, auto);
+  gap: 1.2em;
+}
+
+/* Ảnh lớn */
+.cImage {
+  grid-column: 1 / span 6;
+  grid-row: 1 / span 2;
+  position: relative;
+  min-height: 16em;
+  aspect-ratio: 1 / 1;
+  background-color: var(--color-bg-blue);
+  background-size: cover;
+  background-position: center;
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.imgPlaceholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--title-font-main);
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+  text-align: center;
+  padding: 1em;
+  background-color: var(--color-bg-white);
+  background-image: 
+    linear-gradient(45deg, var(--color-bg-grey) 25%, transparent 25%, transparent 75%, var(--color-bg-grey) 75%, var(--color-bg-grey)),
+    linear-gradient(45deg, var(--color-bg-grey) 25%, transparent 25%, transparent 75%, var(--color-bg-grey) 75%, var(--color-bg-grey));
+  background-size: 2em 2em;
+  background-position: 0 0, 1em 1em;
+}
+
+/* Box thống kê chung */
+.stat {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-radius: var(--radius);
+  padding: 1.5em;
+  gap: 0.5em;
+}
+
+.clickableBox {
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.clickableBox:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 6px 0 var(--color-border-blue);
+  z-index: 20;
+}
+
+.cSlogan {
+  grid-column: 1 / span 6;
+  grid-row: 1 / span 2;
+  border-radius: var(--radius);
+  border: 1.5px solid var(--color-border-blue);
+  background-color: var(--color-bg-white);
+  background-image: radial-gradient(var(--color-bg-grey) 2px, transparent 2px);
+  background-size: 24px 24px;
+  background-position: 0 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 2em;
+  position: relative;
+  overflow: hidden;
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+.sloganContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5em;
+  z-index: 2;
+}
+.sloganIcon {
+  color: var(--color-primary-orange);
+  margin-bottom: 0.5em;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.cSlogan:hover .sloganIcon {
+  transform: translateY(-8px) scale(1.1);
+}
+.sloganText {
+  font-family: var(--title-font-main);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  line-height: 1.1;
+  margin-bottom: 0.2em;
+}
+.sloganHighlight {
+  color: var(--color-primary-orange);
+}
+.sloganSub {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-secondary-blue);
+}
+.cPrize.clickableBox:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 6px 0 var(--color-dark-blue);
+}
+
+/* Sử dụng thẻ div riêng để xử lý tràn viền vệt sáng (vì cPrize có animation/hover sao lồi) */
+.prizeLightBeams {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+}
+.prizeLightBeams::before,
+.prizeLightBeams::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.02));
+  transform: skewX(-25deg);
+}
+.prizeLightBeams::before {
+  width: 10em;
+  right: 15em;
+}
+.prizeLightBeams::after {
+  width: 2em;
+  right: 12em;
+  opacity: 0.6;
+}
+
+.prizeRight {
+  position: relative;
+  z-index: 1; /* Nổi lên trên vệt sáng */
+}
+
+
+/* Các chỉ số chung (dùng body-font-main cho số liệu) */
+.statValue {
+  font-family: var(--body-font-main);
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: var(--color-text-primary);
+}
+
+.statLabel {
+  font-family: var(--body-font-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+/* Card nhấn: tổng giải thưởng (2x1) */
+.cPrize {
+  grid-column: 7 / span 6;
+  grid-row: 1;
+  background-color: var(--color-primary-blue);
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1.5em;
+  padding: 1.5em;
+  position: relative;
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+.absStar1,
+.absStar2,
+.absStar3 {
+  position: absolute;
+  color: var(--color-primary-orange);
+  z-index: 10;
+}
+
+.absStar1 svg path,
+.absStar2 svg path,
+.absStar3 svg path {
+  stroke: var(--color-bg-white);
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  paint-order: stroke fill;
+}
+
+.absStar1,
+.absStar2,
+.absStar3 {
+  transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Hover nguyên box Prize -> các ngôi sao xoay nhẹ */
+.cPrize:hover .absStar1 { transform: rotate(-5deg) scale(1.05); }
+.cPrize:hover .absStar2 { transform: rotate(15deg) scale(1.05); }
+.cPrize:hover .absStar3 { transform: rotate(10deg) scale(1.05); }
+
+/* Hover riêng vào từng ngôi sao -> xoay mạnh hơn */
+.absStar1:hover {
+  transform: rotate(-15deg) scale(1.15) !important;
+}
+
+.absStar2:hover {
+  transform: rotate(35deg) scale(1.15) !important;
+}
+
+.absStar3:hover {
+  transform: rotate(15deg) scale(1.15) !important;
+}
+
+.absStar1 {
+  stroke-width: 64px;
+  top: -1em;
+  left: -0.5em;
+  transform: rotate(-15deg);
+}
+
+.absStar2 {
+  stroke-width: 80px;
+  bottom: -0.8em;
+  right: 15%;
+  transform: rotate(20deg);
+}
+
+.absStar3 {
+  stroke-width: 42px;
+  top: -1.2em;
+  right: -1em;
+  transform: rotate(0);
+}
+
+.prizeRight {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.prizeValue {
+  font-family: var(--body-font-main);
+  font-size: 2.2rem;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--color-bg-white);
+}
+
+.prizeLabel {
+  font-family: var(--body-font-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-bg-grey);
+}
+
+/* Hành trình đăng ký (3x1) */
+.cReg {
+  grid-column: 1 / span 8;
+  grid-row: 3;
+  background-color: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.5em;
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.34s both;
+}
+
+.regHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+
+.headerIcon {
+  color: var(--color-primary-blue);
+}
+
+.blueIcon {
+  color: var(--color-primary-blue);
+}
+
+.regTitle {
+  font-family: var(--body-font-main);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+
+.timelineTrack {
+  display: flex;
+  align-items: center;
+  gap: 0.2em;
+  margin: 1.5em 0 1em 0;
+  position: relative;
+}
+
+.orangeIcon {
+  color: var(--color-primary-orange);
+}
+
+/* Hover cReg -> các mốc ngày tháng nảy lên tuần tự (timeline steps) */
+@keyframes bouncePoint {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+.cReg:hover .timePoint:nth-child(1) { animation: bouncePoint 0.5s ease 0s; }
+.cReg:hover .timePoint:nth-child(2) { animation: bouncePoint 0.5s ease 0.15s; }
+.cReg:hover .timePoint:nth-child(3) { animation: bouncePoint 0.5s ease 0.3s; }
+
+.timeLine {
+  flex: 1;
+  height: 3px;
+  background-color: var(--color-text-muted);
+  margin: 0 -0.2em;
+  z-index: 0;
+}
+
+.timelineLabels {
+  display: flex;
+  justify-content: space-between;
+}
+
+.timePoint {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+
+.timeDate {
+  font-family: var(--body-font-main);
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-text-primary);
+}
+
+.timeDesc {
+  font-family: var(--body-font-main);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
+
+/* Địa điểm (thay cho Chốt đội) (1x1) */
+.cLocation {
+  grid-column: 9 / span 4;
+  grid-row: 3;
+  background-color: var(--color-bg-blue);
+  border: 1.5px solid var(--color-border-blue);
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  text-align: left;
+  padding: 1.5em;
+  gap: 1em;
+  position: relative;
+  overflow: hidden;
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.42s both;
+}
+
+.locNormalIcon {
+  color: var(--color-primary-blue);
+}
+@keyframes dropPin {
+  0% { transform: translateY(0) scale(1); }
+  30% { transform: translateY(-12px) scale(1.1); }
+  50% { transform: translateY(0) scale(1.1); }
+  75% { transform: translateY(-4px) scale(1.05); }
+  100% { transform: translateY(0) scale(1); }
+}
+/* Hover: Biểu tượng địa điểm thả chốt rơi nảy xuống bản đồ */
+.cLocation:hover .locNormalIcon {
+  animation: dropPin 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.locHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  z-index: 1;
+}
+
+
+.locationText {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3em;
+  z-index: 1;
+}
+
+.locationLabel {
+  font-family: var(--body-font-main);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.locationValue {
+  font-family: var(--body-font-main);
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  text-align: left;
+  line-height: 1.3;
+}
+
+.locValueWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.locMoreBadge {
+  background-color: var(--color-bg-white);
+  color: var(--color-primary-blue);
+  border: 1px solid var(--color-border-blue);
+  border-radius: 12px;
+  padding: 0.1em 0.5em;
+  font-size: 0.75rem;
+  font-weight: 800;
+  white-space: nowrap;
+  cursor: help;
+}
+
+/* Team Size (2x1) */
+.cTeam {
+  grid-column: 7 / span 6;
+  grid-row: 2;
+  background-color: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5em;
+  padding: 1.5em 2em;
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.26s both;
+}
+
+.teamAvatars {
+  display: flex;
+  align-items: center;
+}
+
+.tAva {
+  position: relative;
+  width: 3.5em;
+  height: 3.5em;
+  border-radius: var(--radius-circle);
+  background-color: var(--color-bg-blue);
+  color: var(--color-primary-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 3px solid var(--color-bg-white);
+  margin-left: -1em;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), margin-left 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Đảm bảo thứ tự z-index để avatar trưởng nhóm (vương miện) đè lên trên */
+.tAva:nth-child(1) { z-index: 5; margin-left: 0; }
+.tAva:nth-child(2) { z-index: 4; }
+.tAva:nth-child(3) { z-index: 3; }
+
+/* Hover: Các thành viên xích lại gần nhau biểu tượng sự gắn kết */
+.cTeam:hover .tAva:not(:first-child) {
+  margin-left: -1.6em;
+}
+.cTeam:hover .tAva {
+  transform: scale(1.05);
+}
+
+.tPlus {
+  position: relative;
+  z-index: 2;
+  width: 3em;
+  height: 3em;
+  border-radius: var(--radius-circle);
+  background-color: var(--color-bg-white);
+  color: var(--color-border-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px dashed var(--color-border-blue);
+  margin-left: 0.5em; /* Đẩy xa ra thay vì đè */
+  cursor: pointer;
+  transition: all 0.2s ease, border-color 0.2s ease;
+}
+
+.tPlus:hover {
+  border: 2px solid var(--color-border-blue);
+  color: var(--color-secondary-blue);
+}
+
+.crownIcon {
+  position: absolute;
+  top: -0.7em;
+  left: 45%;
+  transform: rotate(30deg);
+  transition: transform 0.2s ease-in-out;
+  color: var(--color-primary-orange);
+}
+
+.crownIcon:hover {
+  transform: translateX(0.4em) rotate(45deg) scale(1.1);
+}
+
+.cTeam .statValue {
+  color: var(--color-primary-blue);
+}
+
+.cTeam .statLabel {
+  color: var(--color-secondary-blue);
+}
+
+.teamText {
+  display: flex;
+  flex-direction: column;
+  width: 90px;
+  flex-shrink: 0;
+  text-align: right;
+}
+
+/* Cột cuối cùng (Chia 2 box) */
+.cTallWrapper {
+  grid-column: 13 / span 2;
+  grid-row: 1 / span 3;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2em;
+}
+
+.cMiniBox {
+  background-color: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  display: flex;
+  overflow: hidden;
+  position: relative;
+}
+
+.cRoundsBox {
+  flex: 3;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 1.2em;
+}
+
+.cTracksBox {
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 1.2em;
+}
+
+/* Rounds List */
+.roundList {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  margin-bottom: 0.5em;
+  flex: 1;
+}
+
+.roundItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8em;
+  position: relative;
+  min-height: 3.5em;
+}
+
+.roundNode {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  padding-top: 0.3em;
+}
+
+.rDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-primary-blue);
+  flex-shrink: 0;
+}
+
+.rDotOrange {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--color-primary-orange);
+  flex-shrink: 0;
+}
+
+.rLine {
+  width: 2px;
+  flex: 1;
+  background-color: var(--color-border-blue);
+  margin-top: 4px;
+  margin-bottom: 4px;
+  min-height: 1.2em;
+}
+
+.rLineDashed {
+  width: 2px;
+  flex: 1;
+  border-left: 2px dashed var(--color-border-blue);
+  margin-top: 4px;
+  margin-bottom: 4px;
+  min-height: 1.2em;
+}
+
+.rName {
+  font-family: var(--body-font-main);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+  line-height: 1.2;
+  padding-top: 0.15em;
+}
+
+/* Hover cRoundsBox -> các chấm tròn chớp sáng (pulse) tuần tự */
+@keyframes pulseDot {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 102, 255, 0.4); }
+  50% { transform: scale(1.4); box-shadow: 0 0 0 6px rgba(0, 102, 255, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 102, 255, 0); }
+}
+.cRoundsBox:hover .roundItem:nth-child(1) .roundNode > .rDot { animation: pulseDot 0.6s ease 0s; }
+.cRoundsBox:hover .roundItem:nth-child(2) .roundNode > .rDot { animation: pulseDot 0.6s ease 0.15s; }
+.cRoundsBox:hover .roundItem:nth-child(3) .roundNode > .rDot { animation: pulseDot 0.6s ease 0.3s; }
+.cRoundsBox:hover .roundItem:nth-child(4) .roundNode > .rDot { animation: pulseDot 0.6s ease 0.45s; }
+.cRoundsBox:hover .roundItem:nth-child(5) .roundNode > .rDot { animation: pulseDot 0.6s ease 0.6s; }
+
+/* Tracks Decor (Squares) */
+.tracksDecorSq {
+  position: relative;
+  width: 80px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+}
+.trackSquare {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  border: 2px solid var(--color-bg-white);
+  background-color: var(--color-bg-blue);
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.trackSquare:hover {
+  transform: translateY(-4px) rotate(5deg) scale(1.15) !important;
+  z-index: 10 !important;
+}
+.trackSqDash:hover {
+  transform: translateY(-4px) rotate(0deg) scale(1.15) !important;
+  z-index: 10 !important;
+}
+.trackSq1 {
+  background-color: var(--color-primary-blue);
+  left: 0;
+  z-index: 1;
+}
+.trackSq2 {
+  background-color: var(--color-primary-green);
+  left: 14px;
+  z-index: 2;
+}
+.trackSq3 {
+  background-color: var(--color-primary-orange);
+  left: 28px;
+  z-index: 3;
+}
+.trackSqDash {
+  background-color: var(--color-bg-blue);
+  border: 1px dashed var(--color-border-blue);
+  left: 42px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Text styles */
+.boxContentRounds {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.4em;
+  margin-top: auto;
+  z-index: 1;
+}
+.boxNum {
+  font-family: var(--body-font-main);
+  font-size: 2.8rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  line-height: 0.85;
+}
+.boxLabel {
+  font-family: var(--body-font-main);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  margin-bottom: 0.1em;
+}
+
+@media (max-width: 900px) {
+  .hero {
+    grid-template-columns: 1fr;
+  }
+
+  .text {
+    padding: 3em 6vw 1em;
+  }
+
+  .bento {
+    padding: 1em 6vw 3em;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cImage {
+    grid-column: 1 / span 2;
+    grid-row: 1;
+    min-height: 13em;
+  }
+
+  .cPrize {
+    grid-column: 1 / span 2;
+    grid-row: 2;
+    gap: 1em;
+  }
+
+  .cReg {
+    grid-column: 1 / span 2;
+    grid-row: 3;
+  }
+
+  .cLocation {
+    grid-column: 1 / span 2;
+    grid-row: 4;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .cTeam {
+    grid-column: 1 / span 2;
+    grid-row: 5;
+  }
+
+  .cTallWrapper {
+    grid-column: 1 / span 2;
+    grid-row: 6;
+    flex-direction: row;
+    gap: 1em;
+  }
+  
+  .cRoundsBox,
+  .cTracksBox {
+    flex: 1;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .name {
+    font-size: 2.4rem;
+  }
+}
+
+/* ── Stagger entrance animation cho bento grid ── */
+@keyframes bentoIn {
+  from {
+    opacity: 0;
+    translate: 0 1.2em;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+@keyframes heroTextIn {
+  from {
+    opacity: 0;
+    translate: -1.5em 0;
+  }
+  to {
+    opacity: 1;
+    translate: 0 0;
+  }
+}
+
+.text {
+  animation: heroTextIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.cImage {
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+}
+
+.cPrize {
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
+}
+
+.cTeam {
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.26s both;
+}
+
+.cReg {
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.34s both;
+}
+
+.cLocation {
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.42s both;
+}
+
+.cTallWrapper {
+  animation: bentoIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.5s both;
+}

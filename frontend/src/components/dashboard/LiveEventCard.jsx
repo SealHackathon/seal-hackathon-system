@@ -63,7 +63,7 @@ function LiveEventCard({ event, isRegistered = false, onJoin, onViewRules }) {
                 {/* Nút */}
                 <div className={styles.actions}>
                     <Button className={styles.btn} label={joinButtonLabel} variant="primary" color="blue" onClick={onJoin} disabled={isRegistrationClosed} /> 
-                    {/* <Button className={styles.btn} label="Chi tiết thể lệ" variant="outline" color="blue" onClick={onViewRules} /> */}
+                    <Button className={styles.btn} label="Chi tiết thể lệ" variant="outline" color="blue" onClick={onViewRules} />
                 </div>
             </div>
 
