@@ -1,0 +1,268 @@
+/* ─── RulesSection ─── */
+.section {
+  padding: 4em 6vw;
+  /* Thêm padding-top để bù cho phần cạnh trên bị clip nghiêng */
+  padding-top: calc(4em + 3.5vw);
+  background-color: var(--color-bg-blue);
+  /* Tech dot pattern mờ nhạt */
+  background-image: radial-gradient(var(--color-border-blue) 1px, transparent 1px);
+  background-size: 24px 24px;
+  scroll-margin-top: 4.5em;
+  /* Chỉ skew cạnh trên ~2deg, cạnh dưới giữ thẳng */
+  clip-path: polygon(0 3.5vw, 100% 0, 100% 100%, 0 100%);
+  border-radius: var(--radius);
+  /* Scroll-reveal */
+  opacity: 0;
+  transform: translateY(2em);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== Header title ===== */
+.headCol {
+  display: flex;
+  flex-direction: column;
+  max-width: 32em;
+  margin-bottom: 2.4em;
+}
+.eyebrow {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-secondary-blue);
+}
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 0.15em;
+}
+.title {
+  font-family: var(--title-font-main);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 2.05rem;
+  line-height: 1.05;
+  color: var(--color-primary-blue);
+}
+.title .ac {
+  color: var(--color-primary-orange);
+}
+.hicon {
+  display: inline-flex;
+  color: var(--color-primary-orange);
+  font-size: 2em;
+  line-height: 1;
+  /* Animation bounce — khác với rotate của flag ở AboutSection */
+  transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hicon:hover {
+  transform: translateY(-0.25em) scale(1.2);
+}
+.uline {
+  display: flex;
+  gap: 0.45em;
+  margin-top: 0.8em;
+}
+.uline span {
+  height: 0.42em;
+  border-radius: 999px;
+}
+.uline span:nth-child(1) {
+  width: 3.6em;
+  background: var(--color-primary-blue);
+}
+.uline span:nth-child(2) {
+  width: 1.1em;
+  background: var(--color-border-blue);
+}
+
+/* ===== Sub heading (body font, KHÔNG italic, có icon nhỏ) ===== */
+.subHead {
+  margin: 0 0 1em;
+}
+.subTitleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+.subIcon {
+  display: inline-flex;
+  color: var(--color-primary-blue);
+  font-size: 1.3em;
+  line-height: 1;
+}
+.subTitle {
+  font-family: var(--body-font-main); /* body font */
+  font-style: normal; /* không italic */
+  font-weight: 800;
+  font-size: 1.3rem;
+  color: var(--color-primary-blue);
+}
+.subUline {
+  display: flex;
+  gap: 0.4em;
+  margin-top: 0.5em;
+}
+.subUline span {
+  height: 0.4em;
+  border-radius: 999px;
+}
+.subUline span:nth-child(1) {
+  width: 3em;
+  background: var(--color-primary-blue);
+}
+.subUline span:nth-child(2) {
+  width: 1em;
+  background: var(--color-border-blue);
+}
+.blockGap {
+  margin-top: 2.4em;
+}
+
+/* ===== Card Quy định chung ===== */
+.general {
+  padding: 3em;
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  background: var(--color-bg-white);
+}
+.generalBody {
+  font-size: 1.02rem;
+  line-height: 1.8;
+  color: var(--color-text-primary);
+}
+.generalBody > *:first-child { margin-top: 0; }
+.generalBody > *:last-child { margin-bottom: 0; }
+.generalBody p {
+  margin: 0 0 1em;
+  font-weight: 400;
+}
+.generalBody strong {
+  font-weight: 700;
+  color: var(--color-primary-blue); /* Bold = primary blue */
+}
+.generalBody em {
+  font-style: italic;
+  color: var(--color-text-secondary);
+}
+
+/* Bullet = caret 1 màu */
+.generalBody ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.2em 0 1em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7em;
+}
+.generalBody li {
+  position: relative;
+  padding-left: 1.7em;
+  line-height: 1.7;
+}
+.generalBody li::before {
+  content: '';
+  position: absolute;
+  left: 0.2em;
+  top: 0.55em;
+  width: 0.6em;
+  height: 0.6em;
+  background-color: var(--color-primary-blue);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+/* Danh sách framework lồng bên trong: caret nhạt hơn + in đậm xanh */
+.generalBody ul ul {
+  margin: 0.6em 0 0.4em;
+  gap: 0.4em;
+}
+.generalBody ul ul li {
+  padding-left: 1.5em;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+}
+.generalBody ul ul li::before {
+  top: 0.5em;
+  width: 0.5em;
+  height: 0.5em;
+  background-color: var(--color-secondary-blue);
+}
+
+/* ===== Lưu ý: card NẰM NGANG, xếp dọc (scale nhiều quy định) ===== */
+.notesList {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+.noteCard {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.4em;
+  padding: 1.4em 1.7em;
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  background: var(--color-bg-white);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.noteCard:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 0 var(--color-border-blue); /* hard shadow, blur = 0 */
+}
+.noteNum {
+  flex-shrink: 0;
+  min-width: 1.7em;
+  font-family: var(--title-font-main);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 3rem;
+  line-height: 1;
+  color: var(--color-border-blue);
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+/* Hover -> số nổi bật */
+.noteCard:hover .noteNum {
+  color: var(--color-primary-blue);
+  transform: scale(1.1) rotate(-5deg);
+}
+
+/* Thêm Watermark / Deco mờ trong thẻ NoteCard */
+.noteCard::after {
+  content: '';
+  position: absolute;
+  bottom: -20px;
+  right: -20px;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--color-bg-blue) 0%, transparent 100%);
+  opacity: 0.5;
+  transition: transform 0.4s ease;
+  pointer-events: none;
+}
+.noteCard:hover::after {
+  transform: scale(1.5);
+}
+.noteBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35em;
+}
+.noteTitle {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+.noteDesc {
+  font-size: 0.98rem;
+  font-weight: 500;
+  line-height: 1.65;
+  color: var(--color-text-primary);
+}
+
+@media (max-width: 640px) {
+  .noteCard { gap: 1em; padding: 1.2em 1.3em; }
+  .noteNum { font-size: 2rem; min-width: 1.5em; }
+}

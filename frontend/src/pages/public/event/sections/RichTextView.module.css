@@ -1,0 +1,88 @@
+/* ─── RichTextView ─── */
+.rich {
+  font-family: var(--body-font-main);
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--color-text-primary);
+}
+
+.rich h1,
+.rich h2,
+.rich h3,
+.rich h4 {
+  margin: 1.2em 0 0.5em;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  line-height: 1.25;
+}
+.rich h1 { font-size: 1.5rem; }
+.rich h2 { font-size: 1.3rem; }
+.rich h3 { font-size: 1.15rem; }
+.rich h4 { font-size: 1rem; }
+.rich > :first-child { margin-top: 0; }
+
+.rich p { margin: 0 0 0.9em; }
+
+.rich ul,
+.rich ol {
+  list-style: none;
+  padding-left: 0;
+  margin: 0 0 0.9em;
+}
+.rich li {
+  position: relative;
+  padding-left: 1.5em;
+  margin-bottom: 0.6em;
+  line-height: 1.6;
+  transition: transform 0.2s ease;
+}
+.rich li:hover {
+  transform: translateX(4px);
+}
+.rich ul li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.25em;
+  width: 1.2em;
+  height: 1.2em;
+  background-color: transparent;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath fill='%23FF860C' d='M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z'/%3E%3C/svg%3E");
+  background-size: contain;
+  background-repeat: no-repeat;
+  border-radius: 0;
+}
+.rich ol {
+  counter-reset: rich-counter;
+}
+.rich ol li::before {
+  counter-increment: rich-counter;
+  content: counter(rich-counter) ".";
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-weight: 800;
+  color: var(--color-primary-orange);
+}
+
+.rich strong { font-weight: 800; color: var(--color-primary-blue); }
+
+.rich em, .rich i {
+  color: var(--color-primary-blue) !important;
+}
+
+.rich a {
+  color: var(--color-primary-blue);
+  font-weight: 700;
+  text-decoration: underline;
+}
+
+.rich blockquote {
+  margin: 1em 0;
+  padding: 0.7em 1.1em;
+  border-left: 3px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  background: var(--color-bg-blue);
+  color: var(--color-secondary-blue);
+  font-weight: 600;
+}

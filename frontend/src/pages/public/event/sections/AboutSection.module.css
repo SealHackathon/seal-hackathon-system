@@ -1,0 +1,360 @@
+.about {
+  width: 100%;
+  margin: 0 auto;
+  padding: 4.5em 2.5em;
+}
+
+/* ===== Layout ===== */
+.twoColLayout {
+  display: grid;
+  grid-template-columns: 0.65fr 1.6fr;
+  gap: 2em;
+  align-items: stretch;
+  transform: skewY(-2deg);
+}
+
+.leftCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.rightCol {
+  display: flex;
+  flex-direction: column;
+}
+
+.headCol {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Thanh line trên: dài gần bằng box, 2 tông xanh */
+.bars {
+  display: flex;
+  gap: 0.5em;
+  width: 94%;
+  margin: 0 0 0.8em 0.3em;
+}
+
+.bars span {
+  height: 0.62em;
+  border-radius: 999px;
+}
+
+.bars span:nth-child(1) {
+  flex: 1;
+  background: var(--color-primary-blue);
+}
+
+.bars span:nth-child(2) {
+  width: 3.6em;
+  background: var(--color-border-blue);
+}
+
+.headCard {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding: 3em 2em;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+}
+
+/* Sọc: 1 đường, chỉ bg-blue, opacity .8 */
+.headCard::before {
+  content: '';
+  position: absolute;
+  inset: -20% -5%;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: repeating-linear-gradient(102deg,
+      var(--color-bg-blue) 0 40px,
+      transparent 40px 60px);
+}
+
+.headInner {
+  position: relative;
+  transform: skewY(2deg);
+  /* Bù lại để chữ thẳng */
+}
+
+.eyebrow {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-secondary-blue);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 0.15em;
+}
+
+.title {
+  font-family: var(--title-font-main);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 2.05rem;
+  line-height: 1.05;
+  color: var(--color-primary-blue);
+}
+
+.accent {
+  color: var(--color-primary-orange);
+  /* Chữ "Về" cam */
+}
+
+.flag {
+  display: inline-flex;
+  color: var(--color-primary-orange);
+}
+
+.flag svg {
+  width: 2em;
+  /* Cờ to */
+  height: 2em;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.flag:hover svg {
+  transform: scale(1.4) rotate(-360deg);
+}
+
+.uline {
+  display: flex;
+  gap: 0.45em;
+  margin-top: 0.8em;
+}
+
+.uline span {
+  height: 0.42em;
+  border-radius: 999px;
+}
+
+.uline span:nth-child(1) {
+  width: 3.6em;
+  background: var(--color-primary-blue);
+}
+
+.uline span:nth-child(2) {
+  width: 1.1em;
+  background: var(--color-border-blue);
+}
+
+/* Mô tả ngắn trong head box, dưới uline */
+.headDesc {
+  margin: 1em 0 0;
+  font-size: 0.9rem;
+  line-height: 1.65;
+  font-weight: 400;
+  color: var(--color-text-primary);
+}
+
+.banner {
+  position: relative;
+  overflow: hidden;
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  background: var(--color-bg-blue);
+  aspect-ratio: 1280 / 549;
+  margin-bottom: 1.5em;
+}
+
+.banner img,
+.banner .bannerPh {
+  width: 100%;
+  height: 100%;
+}
+
+.banner img {
+  object-fit: cover;
+  display: block;
+}
+
+.bannerPh {
+  display: grid;
+  place-items: center;
+  color: var(--color-secondary-blue);
+  font-family: var(--title-font-main);
+  font-weight: 800;
+  font-style: italic;
+  font-size: 1.3rem;
+  transform: skewY(2deg);
+  background-color: var(--color-bg-white);
+  background-image: 
+    linear-gradient(45deg, var(--color-bg-grey) 25%, transparent 25%, transparent 75%, var(--color-bg-grey) 75%, var(--color-bg-grey)),
+    linear-gradient(45deg, var(--color-bg-grey) 25%, transparent 25%, transparent 75%, var(--color-bg-grey) 75%, var(--color-bg-grey));
+  background-size: 2em 2em;
+  background-position: 0 0, 1em 1em;
+}
+
+/* ===== Khu vực box nội dung ===== */
+.content {
+  flex: 1;
+  background: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 3em;
+  margin-top: 1.5em;
+}
+
+.contentInner {
+  transform: skewY(2deg);
+  /* Bù lại để nội dung thẳng */
+}
+
+/* --- Mô tả ngắn (lead) --- */
+.lead {
+  display: flex;
+  align-items: flex-start;
+  gap: 1em;
+  margin-bottom: 1.8em;
+}
+
+.leadArrow {
+  flex-shrink: 0;
+  margin-top: 0.3em;
+  color: var(--color-primary-orange);
+}
+
+.leadText {
+  margin: 0;
+  font-size: 1rem;
+  /* Bằng/nhỏ hơn text chi tiết bên dưới */
+  line-height: 1.7;
+  font-weight: 400;
+  color: var(--color-dark-blue);
+}
+
+.sep {
+  height: 1.5px;
+  margin: 0 0 1.8em;
+  border: 0;
+  background: var(--color-bg-blue);
+}
+
+/* --- Mô tả chi tiết (rich text từ BTC) --- */
+.richText {
+  font-family: var(--body-font-main);
+  color: var(--color-text-primary);
+  font-size: 1.02rem;
+  line-height: 1.85;
+  font-weight: 400;
+}
+
+.richText>*:first-child {
+  margin-top: 0;
+}
+
+.richText>*:last-child {
+  margin-bottom: 0;
+}
+
+.richText p {
+  margin: 0 0 1.1em;
+  font-weight: 400;
+}
+
+.richText strong {
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  /* Bold = primary blue */
+}
+
+.richText em {
+  font-style: italic;
+}
+
+.richText a {
+  color: var(--color-primary-blue);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Bullet = caret, 1 màu, hợp mọi số lượng */
+.richText ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.3em 0 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.55em;
+}
+
+.richText ul li {
+  position: relative;
+  padding-left: 1.6em;
+  line-height: 1.65;
+  transition: transform 0.15s ease;
+}
+
+.richText ul li::before {
+  content: '';
+  position: absolute;
+  left: 0.2em;
+  top: 0.52em;
+  width: 0.6em;
+  height: 0.6em;
+  background-color: var(--color-primary-blue);
+  transition: transform 0.15s ease;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 256 256'%3E%3Cpath d='M181.66,133.66l-80,80a8,8,0,0,1-11.32-11.32L164.69,128,90.34,53.66a8,8,0,0,1,11.32-11.32l80,80A8,8,0,0,1,181.66,133.66Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+.richText ul li:hover {
+  transform: translateX(3px);
+}
+
+.richText ol {
+  padding-left: 1.4em;
+  margin: 0.3em 0 1.2em;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45em;
+}
+
+.richText ol li::marker {
+  color: var(--color-primary-blue);
+  font-weight: 700;
+}
+
+@media (max-width: 900px) {
+  .topRow {
+    grid-template-columns: 1fr;
+  }
+
+  .sideDeco {
+    display: none;
+  }
+
+  /* Ẩn cột trang trí 2 bên khi màn hình hẹp */
+  .content {
+    padding: 1.6em 1.5em;
+  }
+}
+
+/* ── Scroll-reveal animations ── */
+.leftCol {
+  opacity: 0;
+  transform: translateX(-2em);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.revealLeft {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.rightCol {
+  opacity: 0;
+  transform: translateX(2em);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s, transform 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+}
+.revealRight {
+  opacity: 1;
+  transform: translateX(0);
+}
