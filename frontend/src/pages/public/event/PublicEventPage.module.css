@@ -1,0 +1,11 @@
+/* ─── PublicEventPage ─── */
+.page {
+  width: 100%;
+  background: var(--color-bg-white);
+  font-family: var(--body-font-main);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+}
