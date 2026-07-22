@@ -1,0 +1,81 @@
+.head {
+  position: relative;
+  margin-bottom: 2.2em;
+  max-width: 44rem;
+}
+.head.center {
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+/* Eyebrow: mũi tên dài (đặc trưng Hero) + nhãn — KHÔNG dùng pill */
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55em;
+  font-weight: 800;
+  font-size: 1.05rem;
+  color: var(--color-primary-blue);
+}
+.head.center .eyebrow {
+  justify-content: center;
+}
+.arrow {
+  flex-shrink: 0;
+  color: var(--color-primary-orange);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.4em;
+  margin-top: 0.5em;
+}
+.head.center .titleRow {
+  justify-content: center;
+}
+.title {
+  font-family: var(--title-font-main);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 2.2rem;
+  line-height: 1.1;
+  color: var(--color-text-primary);
+}
+.accent {
+  color: var(--color-primary-orange); /* Chữ "Về" tô cam */
+  font-style: italic;
+}
+
+/* Icon cạnh tiêu đề (thay cho dot) — nghiêng nhẹ khi hover */
+.flag {
+  display: inline-flex;
+  color: var(--color-primary-blue);
+  transition: transform 0.25s ease;
+}
+.flag svg {
+  width: 1.35em;
+  height: 1.35em;
+}
+.titleRow:hover .flag {
+  transform: rotate(-8deg) scale(1.1);
+}
+
+.subtitle {
+  margin-top: 0.7em;
+  max-width: 40rem;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+.head.center .subtitle {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+@media (max-width: 820px) {
+  .title {
+    font-size: 1.75rem;
+  }
+}

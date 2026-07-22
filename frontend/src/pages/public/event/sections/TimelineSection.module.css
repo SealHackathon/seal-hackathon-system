@@ -1,0 +1,263 @@
+/* ─── TimelineSection ─── */
+.section {
+  padding: 4em 6vw;
+  scroll-margin-top: 4.5em;
+  /* Scroll-reveal */
+  opacity: 0;
+  transform: translateY(2em);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== Header title ===== */
+.headCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 2.5em;
+}
+
+.eyebrow {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-secondary-blue);
+}
+
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 0.15em;
+}
+
+.sectionTitle {
+  font-family: var(--title-font-main);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 2.05rem;
+  line-height: 1.05;
+  color: var(--color-primary-blue);
+}
+
+.sectionTitle .ac {
+  color: var(--color-primary-orange);
+}
+
+.hicon {
+  display: inline-flex;
+  color: var(--color-primary-orange);
+  font-size: 2em;
+  line-height: 1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.hicon:hover {
+  transform: scale(1.1) rotate(-15deg);
+}
+
+.uline {
+  display: flex;
+  gap: 4px;
+  margin-top: 0.6em;
+}
+
+.uline span:first-child {
+  width: 4em;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--color-primary-blue);
+}
+
+.uline span:last-child {
+  width: 2em;
+  height: 6px;
+  border-radius: 4px;
+  background: var(--color-border-blue);
+}
+
+.scroller {
+  overflow-x: auto;
+  scrollbar-color: var(--color-border-blue) transparent;
+  padding-bottom: 2em;
+}
+
+.track {
+  display: flex;
+  gap: 1.5em;
+  min-width: min-content;
+  padding: 1em 0;
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+  width: 20em;
+  flex-shrink: 0;
+  padding: 1.5em;
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  background: var(--color-bg-white);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.item:hover {
+  transform: translateY(-4px);
+  box-shadow: 0px 6px 0 var(--color-border-blue);
+}
+
+.itemTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.dateBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.dateMonth {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  text-transform: uppercase;
+}
+
+.dateDay {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  line-height: 1;
+  margin-top: 0.1em;
+  transition: all 0.25s ease;
+}
+
+/* Hover card → ngày chuyển cam */
+.item:hover .dateDay {
+  font-size: 2.5rem;
+}
+
+.time {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary-orange);
+  margin-top: 0.3em;
+}
+
+.iconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5em;
+  height: 3.5em;
+  border-radius: var(--inner-radius);
+  background: var(--color-bg-blue);
+  color: var(--color-primary-blue);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background-color 0.25s ease;
+  position: relative;
+}
+
+/* Hiệu ứng Pulse nhịp đập vòng ngoài - chỉ dành cho mốc hiện tại */
+.pulseActive::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: inherit;
+  border: 1.5px solid var(--color-secondary-blue);
+  opacity: 0;
+  animation: pulseNode 2s infinite cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes pulseNode {
+  0% { transform: scale(0.8); opacity: 0.8; }
+  100% { transform: scale(1.3); opacity: 0; }
+}
+
+/* Hover card → icon xoay + scale */
+.item:hover .iconWrap {
+  transform: rotate(10deg) scale(1.08);
+}
+
+.itemTitle {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  line-height: 1.3;
+  margin: 0;
+}
+
+.desc {
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--color-secondary-blue);
+  margin: 0;
+  flex: 1;
+}
+
+.tags {
+  display: flex;
+  align-items: center;
+  gap: 0.8em;
+  margin-top: 1em;
+  flex-wrap: wrap;
+}
+
+.tag {
+  padding: 0.3em 0.8em;
+  border-radius: 100px;
+  background: var(--color-bg-blue);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+.scrollWrapper {
+  position: relative;
+  width: 100%;
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  bottom: 2em;
+  width: 5em;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.overlayLeft {
+  left: 0;
+  background: linear-gradient(to right, #FFFFFF 20%, transparent);
+}
+
+.overlayRight {
+  right: 0;
+  background: linear-gradient(to left, #FFFFFF 20%, transparent);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-primary-green);
+  text-decoration: none;
+  background: var(--color-bg-green);
+  padding: 0.4em 1em;
+  border-radius: 100px;
+}
+
+.link svg {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.link:hover svg {
+  transform: translateX(4px) translateY(-4px);
+}

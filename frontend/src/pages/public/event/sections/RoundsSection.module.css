@@ -1,0 +1,592 @@
+/* ─── RoundsSection ─── */
+.section {
+  padding: 4em 4vw;
+  background: var(--color-bg-white);
+  scroll-margin-top: 4.5em;
+}
+
+/* ===== Header title ===== */
+.headCol {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 2em;
+}
+.eyebrow {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--color-secondary-blue);
+}
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  margin-top: 0.15em;
+}
+.title {
+  font-family: var(--title-font-main);
+  font-style: italic;
+  font-weight: 800;
+  font-size: 2.05rem;
+  line-height: 1.05;
+  color: var(--color-primary-blue);
+}
+.title .ac {
+  color: var(--color-primary-orange);
+}
+.hicon {
+  display: inline-flex;
+  color: var(--color-primary-orange);
+  font-size: 2em;
+  line-height: 1;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hicon:hover {
+  transform: scale(1.15) rotate(15deg);
+}
+.uline {
+  display: flex;
+  gap: 0.45em;
+  margin-top: 0.8em;
+}
+.uline span {
+  height: 0.42em;
+  border-radius: 999px;
+}
+.uline span:nth-child(1) {
+  width: 3.6em;
+  background: var(--color-primary-blue);
+}
+.uline span:nth-child(2) {
+  width: 1.1em;
+  background: var(--color-border-blue);
+}
+
+/* ===== Layout ===== */
+.layout {
+  display: grid;
+  grid-template-columns: 20em 1fr;
+  gap: 2.5em;
+  max-width: 82em;
+  margin: 0 auto;
+}
+
+/* ===== Left Tabs ===== */
+.tabsCol {
+  display: flex;
+  flex-direction: column;
+}
+.tabsCol::-webkit-scrollbar {
+  width: 6px;
+}
+.tabsCol::-webkit-scrollbar-track {
+  background: transparent;
+}
+.tabsCol::-webkit-scrollbar-thumb {
+  background: var(--color-border-blue);
+  border-radius: 999px;
+}
+.tabsCol::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary-blue);
+}
+
+.tab {
+  display: flex;
+  position: relative;
+  gap: 1em;
+  padding-bottom: 2em; /* Khoảng cách giữa các tab */
+}
+/* Đường line dọc nối giữa các node */
+.tab:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: 1.15em;
+  top: 2.6em;
+  bottom: 0;
+  width: 2px;
+  background: var(--color-border-blue);
+  z-index: 0;
+}
+
+.tabNode {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.4em;
+  height: 2.4em;
+  flex-shrink: 0;
+  border-radius: var(--radius-circle);
+  border: 1.5px solid var(--color-border-blue);
+  background: var(--color-bg-white);
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  z-index: 1;
+  transition: all 0.3s;
+}
+
+.tabActive .tabNode {
+  background: var(--color-primary-blue);
+  border-color: var(--color-primary-blue);
+  box-shadow: 0px 4px 0 var(--color-dark-blue);
+  color: var(--color-bg-white);
+}
+
+.tabBtn {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6em;
+  flex: 1;
+  padding: 1.2em;
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  background: var(--color-bg-white);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.25s;
+}
+.tabBtn:hover {
+  background: var(--color-bg-blue);
+}
+.tabActive .tabBtn {
+  background: var(--color-primary-blue);
+  border-color: var(--color-primary-blue);
+  box-shadow: 0px 4px 0 var(--color-dark-blue);
+  transform: translateY(-2px);
+}
+
+.tabHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5em;
+}
+.tabName {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-secondary-blue);
+}
+.tabActive .tabName {
+  color: var(--color-bg-white);
+}
+.tabDate {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+}
+.tabActive .tabDate {
+  color: var(--color-bg-white);
+  opacity: 0.9;
+}
+.tabDateIcon {
+  color: var(--color-border-blue);
+}
+.tabActive .tabDateIcon {
+  color: var(--color-bg-white);
+}
+
+/* ===== Right Content ===== */
+.contentColWrap {
+  position: relative;
+  height: 42em;
+  border-radius: var(--radius);
+}
+
+.contentCol {
+  background: var(--color-bg-white);
+  border-radius: var(--radius);
+  border: 1.5px solid var(--color-border-blue);
+  padding: 2.5em;
+  height: 100%;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-blue) transparent;
+}
+.contentCol::-webkit-scrollbar {
+  width: 6px;
+}
+.contentCol::-webkit-scrollbar-track {
+  background: transparent;
+}
+.contentCol::-webkit-scrollbar-thumb {
+  background: var(--color-border-blue);
+  border-radius: 999px;
+}
+.contentCol::-webkit-scrollbar-thumb:hover {
+  background: var(--color-secondary-blue);
+}
+
+.scrollOverlay {
+  position: absolute;
+  bottom: 1.5px;
+  left: 1.5px;
+  right: 1.5px;
+  height: 6em;
+  background: linear-gradient(to top, var(--color-bg-white) 10%, rgba(255, 255, 255, 0) 100%);
+  pointer-events: none;
+  border-bottom-left-radius: calc(var(--radius) - 1.5px);
+  border-bottom-right-radius: calc(var(--radius) - 1.5px);
+}
+
+.detailCard {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.detailHead {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8em;
+}
+.detailHeadTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+}
+.detailTitle {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  margin: 0;
+}
+.detailHeadTime {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+.detailHeadTimeIcon {
+  color: var(--color-primary-blue);
+}
+.topTeamPass {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 0.5em 1em;
+  background: var(--color-bg-blue);
+  border: 1px solid var(--color-border-blue);
+  border-radius: 999px;
+  width: fit-content;
+  margin-top: 0.2em;
+}
+.topTeamLabel {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-secondary-blue);
+}
+.topTeamNum {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+/* Banner Map/Link */
+.banner {
+  border-radius: var(--inner-radius);
+  overflow: hidden;
+  border: 1.5px solid var(--color-border-blue);
+  background: var(--color-bg-white);
+}
+.offlineBanner {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.mapWrap {
+  height: 14em;
+  position: relative;
+}
+.locationDetailPanel {
+  padding: 1.2em 1.5em;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1em;
+  background: var(--color-bg-white);
+  border-top: 1px solid var(--color-border-blue);
+}
+.locationTextWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+  flex: 1;
+}
+.locationName {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+.locationAddress {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-secondary-blue);
+}
+.distanceControls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.6em;
+}
+.transportPills {
+  display: flex;
+  background: var(--color-bg-blue);
+  border-radius: 999px;
+  padding: 2px;
+}
+.transportPill {
+  display: flex;
+  align-items: center;
+  gap: 0.3em;
+  padding: 0.3em 0.8em;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.transportPillActive {
+  background: var(--color-bg-white);
+  color: var(--color-primary-blue);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.distanceValue {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  font-size: 0.95rem;
+  color: var(--color-primary-blue);
+  font-weight: 700;
+}
+.distDot { color: var(--color-border-blue); }
+.distDur { color: var(--color-primary-blue); font-weight: 800; }
+
+.onlineBannerCompact {
+  padding: 1.5em;
+  display: flex;
+  align-items: center;
+  gap: 1.5em;
+  background: var(--color-bg-blue);
+}
+.bannerIcon { 
+  color: var(--color-primary-blue); 
+  flex-shrink: 0;
+}
+.onlineBannerText {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2em;
+}
+.onlineBannerTitle {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-secondary-blue);
+}
+.bannerLink {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  text-decoration: underline;
+  word-break: break-all;
+}
+.bannerEmptyText {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--color-secondary-blue);
+}
+
+/* Info Grid */
+.infoGrid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2.5em;
+}
+
+.infoLeft, .infoRight {
+  display: flex;
+  flex-direction: column;
+  gap: 2em;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+.blockLabel {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+.subRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.2em;
+}
+.subItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+}
+.subIcon { color: var(--color-border-blue); }
+
+.guide {
+  font-size: 0.95rem;
+}
+.submissionPrevious {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-primary-blue);
+  padding: 1em;
+  background: var(--color-bg-blue);
+  border-radius: var(--inner-radius);
+}
+.subInfoIcon {
+  color: var(--color-primary-blue);
+}
+
+.detailsBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+  margin-top: 1em;
+}
+.detailsDivider {
+  height: 1px;
+  background: var(--color-border-blue);
+  margin-bottom: 0.5em;
+}
+
+/* Agenda con */
+.agenda { display: flex; flex-direction: column; gap: 1em; padding-left: 0.3em; }
+.agendaItem { display: flex; gap: 1em; }
+.agendaBody { display: flex; flex-direction: column; gap: 0.15em; }
+.agendaTime {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-primary-green);
+}
+.agendaName {
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+.agendaDesc {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  margin-top: 0.2em;
+}
+
+/* Empty */
+.empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+  opacity: 0.6;
+}
+
+.emptyField {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+  padding: 1em 1.2em;
+  border-radius: var(--inner-radius);
+  background: var(--color-bg-blue);
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-secondary-blue);
+}
+.emptyIcon {
+  color: var(--color-border-blue);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .layout {
+    grid-template-columns: 20em 1fr;
+  }
+}
+@media (max-width: 900px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .tab:not(:last-child)::before {
+    display: none;
+  }
+  .tab {
+    padding-bottom: 0;
+  }
+  .tabsCol {
+    flex-direction: row;
+    overflow-x: auto;
+    overflow-y: hidden;
+    max-height: none;
+    gap: 1em;
+    padding-bottom: 1em;
+    padding-right: 0;
+  }
+  .tab { min-width: 18em; }
+  .infoGrid {
+    grid-template-columns: 1fr;
+  }
+  .contentColWrap {
+    height: auto;
+  }
+  .contentCol { 
+    padding: 1.5em; 
+    max-height: none;
+    overflow-y: visible;
+  }
+  .scrollOverlay {
+    display: none;
+  }
+  .locationDetailPanel {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .distanceControls {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+/* Fade-slide animation khi chuyển tab vòng thi */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(1em);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fadeIn {
+  animation: fadeSlideIn 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
