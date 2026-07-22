@@ -1,0 +1,63 @@
+/* ─── CtaSection ─── */
+.wrap { padding: 4em 2vw 0; }
+
+.cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5em;
+  flex-wrap: wrap;
+  padding: 2.4em 2.6em;
+  border-radius: var(--radius);
+  background: var(--color-primary-blue);
+  /* Scroll-reveal: mặc định ẩn */
+  opacity: 0;
+  transform: translateY(1.5em);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1), transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.ctaRevealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+.ctaText { display: flex; flex-direction: column; gap: 0.4em; }
+.ctaTitle {
+  font-family: var(--title-font-main);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--color-bg-white);
+  line-height: 1.1;
+}
+.ctaSub {
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--color-bg-white);
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1em;
+  flex-wrap: wrap;
+  padding: 2em 0;
+  margin-top: 2em;
+  border-top: 1.5px solid var(--color-border-blue);
+}
+.brandImg {
+  height: 36px;
+  width: auto;
+  object-fit: contain;
+}
+.footLinks { display: flex; gap: 1.5em; }
+.footLink {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-primary-blue);
+  text-decoration: none;
+}
+.footLink:hover { text-decoration: underline; }
+.copy {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--color-secondary-blue);
+}
