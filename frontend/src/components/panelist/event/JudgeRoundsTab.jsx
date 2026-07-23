@@ -7,7 +7,23 @@ import styles from './JudgeRoundsTab.module.css';
 
 // Nội dung chính tab Giám khảo: danh sách vòng chấm (cột trái).
 function JudgeRoundsTab({ event }) {
-  const rounds = event.assignment?.judge?.rounds ?? [];
+  // Mock Vòng 2 đã kết thúc để test nút "Xem kết quả"
+  const mockEndedRound = {
+    id: "vong2_mock",
+    name: "Vòng 2: Chung kết (Mock)",
+    ordinal: 2,
+    lifecycle: "ended",
+    assigned: true,
+    allCategories: true,
+    categories: [],
+    rubricName: "Tiêu chí Chung kết",
+    scoredCount: 15,
+    totalSubmissions: 15,
+    timeStart: new Date("2026-08-18"),
+    timeEnd: new Date("2026-08-20"),
+  };
+
+  const rounds = [...(event.assignment?.judge?.rounds ?? []), mockEndedRound];
   const [selectedRound, setSelectedRound] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [criteria, setCriteria] = useState([]);

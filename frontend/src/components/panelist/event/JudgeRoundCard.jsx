@@ -45,7 +45,7 @@ function JudgeRoundCard({ round, isLast, onOpenRubric,event }) {
   let action;
   if (round.lifecycle === 'ended') {
     // Vòng đã kết thúc: luôn cho xem kết quả, kể cả không phụ trách.
-    action = <Button className={styles.btn} label="Xem kết quả" variant="outline" color="blue" />;
+    action = <Button className={styles.btn} label="Xem kết quả" variant="primary" color="green" onClick={() => navigate(`/panelist/events/${event.id}/judge/rounds/${round.id}/leaderboard`)} />;
   } else if (!assigned) {
     // Chỉ còn active/upcoming mà không phụ trách mới báo "Không phụ trách".
     action = <Button className={styles.btn} label="Không phụ trách" variant="outline" color="blue" disabled />;

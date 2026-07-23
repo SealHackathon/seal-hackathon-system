@@ -11,6 +11,31 @@ import styles from './SubmissionPage.module.css'
 import { useAuth } from '../AuthContext'
 import axiosClient from '../api/axiosClient'
 
+// ==========================================
+// MOCK DATA
+// ==========================================
+const ENABLE_MOCK_ROUND = true;
+
+const MOCK_ROUND = {
+  id: 'mock-round-1',
+  name: 'Vòng 0: Sàng lọc hồ sơ (Mock)',
+  dateRange: '01/06/2026 - 15/06/2026',
+  status: 'DONE',
+  submissionStatus: 'SUBMITTED_ON_TIME',
+  submissionDeadline: '15/06/2026, 23:59',
+  daysLeft: 0,
+  message: {
+    type: 'success',
+    title: 'Đã nộp bài',
+    content: 'Đội đã nộp bài dự thi thành công cho vòng này.'
+  },
+  roundNumber: 0,
+  teamTotalScore: 8.5,
+  teamRank: { rank: 2, totalTeams: 20 },
+  totalTeamsInRound: 20,
+  trackName: 'Track AI'
+};
+
 function formatDateLabel(value) {
   if (!value) return null
 
@@ -64,14 +89,6 @@ function mapBackendRoundToUi(round, scoreResultsList = []) {
   const end = endRaw ? new Date(endRaw) : null
   const deadline = deadlineRaw ? new Date(deadlineRaw) : null
 
-  // 2. TÌM KIẾM KẾT QUẢ PHÙ HỢP TỪ API KẾT QUẢ
-  const matchedScore = Array.isArray(scoreResultsList)
-    ? scoreResultsList.find(item => String(item.roundId) === String(roundId))
-    : null
-
-  // Ưu tiên lấy trạng thái nộp bài được tính toán cực chuẩn từ Backend
-  const submissionStatus = matchedScore?.submissionStatus ?? 'NOT_OPEN'
-
   // 3. TÍNH TRẠNG THÁI VÒNG THI (Để timeline hiển thị sáng/tối đúng tiến độ)
   let status = 'UPCOMING'
   if (start && end && now >= start && now <= end) {
@@ -79,7 +96,27 @@ function mapBackendRoundToUi(round, scoreResultsList = []) {
   } else if (end && now > end) {
     status = 'DONE'
   }
-  // Bổ sung logic nếu trạng thái là LATE theo thiết kế cũ của bạn
+
+  // 2. TÌM KIẾM KẾT QUẢ PHÙ HỢP TỪ API KẾT QUẢ
+  const matchedScore = Array.isArray(scoreResultsList)
+    ? scoreResultsList.find(item => String(item.roundId) === String(roundId))
+    : null
+
+  // Ưu tiên lấy trạng thái nộp bài từ Backend, nhưng fallback theo frontend time (hỗ trợ test đổi giờ local)
+  let submissionStatus = matchedScore?.submissionStatus
+  if (!submissionStatus || submissionStatus === 'NOT_OPEN') {
+    if (status === 'ACTIVE') {
+      submissionStatus = 'NO_SUBMISSION'
+    } else if (status === 'LATE') {
+      submissionStatus = 'LATE_NO_SUBMISSION'
+    } else if (status === 'DONE') {
+      submissionStatus = 'CLOSED_NO_SUBMISSION'
+    } else {
+      submissionStatus = 'NOT_OPEN'
+    }
+  }
+
+  // Bổ sung logic nếu trạng thái là LATE theo thiết kế cũ
   if (submissionStatus === 'LATE_NO_SUBMISSION' && status === 'ACTIVE') {
     status = 'LATE'
   }
@@ -257,7 +294,12 @@ function SubmissionPage() {
           const { rounds: backendRounds } = roundsResult.value
           
           // 5. THAY ĐỔI: Truyền danh sách kết quả vào hàm map để xử lý khớp dữ liệu cho từng round
-          const normalizedRounds = (backendRounds || []).map((r) => mapBackendRoundToUi(r, scoreResultsList))
+          let normalizedRounds = (backendRounds || []).map((r) => mapBackendRoundToUi(r, scoreResultsList))
+          
+          if (ENABLE_MOCK_ROUND) {
+            normalizedRounds = [MOCK_ROUND, ...normalizedRounds];
+          }
+
           setRounds(normalizedRounds)
           setProgress(buildProgress(normalizedRounds))
         } else {

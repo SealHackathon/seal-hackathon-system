@@ -6,6 +6,7 @@ import ScoringTeamHero from '../../components/panelist/scoring/ScoringTeamHero';
 import SubmissionPanel from '../../components/panelist/scoring/SubmissionPanel';
 import ScoringPanel from '../../components/panelist/scoring/ScoringPanel';
 import ScoringCriteriaModal from '../../components/panelist/event/judgeRoundDetail/ScoringCriteriaModal';
+import ReportViolationModal from '../../components/panelist/scoring/ReportViolationModal';
 import styles from './JudgeScoringPage.module.css';
 import axiosClient from '../../api/axiosClient';
 
@@ -14,6 +15,7 @@ function JudgeScoringPage() {
   const navigate = useNavigate();
 
   const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState(false);
+  const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
   const [team, setTeam] = useState(null);
   const [submission, setSubmission] = useState(null);
   const [rubric, setRubric] = useState(null);
@@ -211,9 +213,25 @@ function JudgeScoringPage() {
   };
 
   const handleToggleViolation = async (nextState) => {
+    if (nextState) {
+      // Mở modal khi muốn báo cáo vi phạm
+      setIsViolationModalOpen(true);
+    } else {
+      // Hủy báo cáo vi phạm
+      try {
+        await axiosClient.put(`/api/v1/panelist/submissions/${submissionId}/violation`, { isViolation: false, reason: '' });
+        setTeam(prev => ({ ...prev, flaggedViolation: false }));
+      } catch (err) {
+        alert(err.response?.data?.message || 'Không thể cập nhật trạng thái vi phạm.');
+      }
+    }
+  };
+
+  const handleSubmitViolation = async (reason) => {
     try {
-      await axiosClient.put(`/api/v1/panelist/submissions/${submissionId}/violation`, { isViolation: nextState });
-      setTeam(prev => ({ ...prev, flaggedViolation: nextState }));
+      await axiosClient.put(`/api/v1/panelist/submissions/${submissionId}/violation`, { isViolation: true, reason });
+      setTeam(prev => ({ ...prev, flaggedViolation: true }));
+      setIsViolationModalOpen(false);
     } catch (err) {
       alert(err.response?.data?.message || 'Không thể cập nhật trạng thái vi phạm.');
     }
@@ -277,6 +295,13 @@ function JudgeScoringPage() {
         isOpen={isCriteriaModalOpen}
         onClose={() => setIsCriteriaModalOpen(false)}
         criteria={rubric?.criteria}
+      />
+
+      <ReportViolationModal
+        isOpen={isViolationModalOpen}
+        onClose={() => setIsViolationModalOpen(false)}
+        onSubmit={handleSubmitViolation}
+        teamName={team?.name || ''}
       />
     </div>
   );
