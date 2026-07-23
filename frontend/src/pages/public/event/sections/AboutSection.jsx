@@ -77,20 +77,17 @@ function AboutSection({ event }) {
           </div>
         </div>
 
-        {/* Cột phải: Banner và Content (detail) */}
+        {/* Cột phải: Content (gồm cả banner nếu có) */}
         <div
           ref={rightRef}
           className={`${styles.rightCol} ${rightVisible ? styles.revealRight : ''}`}
         >
-          <figure className={styles.banner}>
-            {event?.bannerUrl ? (
-              <img src={event.bannerUrl} alt="Banner sự kiện" loading="lazy" />
-            ) : (
-              <span className={styles.bannerPh}>Banner sự kiện</span>
-            )}
-          </figure>
-
           <div className={styles.content}>
+            {event?.bannerUrl && (
+              <figure className={styles.banner}>
+                <img src={event.bannerUrl} alt="Banner sự kiện" loading="lazy" />
+              </figure>
+            )}
             <div className={styles.contentInner}>
               {detailDesc && (
                 <div

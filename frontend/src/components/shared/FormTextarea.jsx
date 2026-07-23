@@ -10,6 +10,7 @@ function FormTextarea({
   required,
   hint,
   iconLeft,
+  iconWeight,
   placeholder,
   value,
   onChange,
@@ -38,7 +39,7 @@ function FormTextarea({
       <div className={`${formInputStyles.box} ${styles.boxOverride} ${status ? formInputStyles[status] : ''} ${disabled ? styles.disabled : ''}`}>
         {IconLeft && (
           <span className={formInputStyles.iconLeft}>
-            <IconLeft size={28} />
+            <IconLeft size={28} weight={iconWeight} />
           </span>
         )}
         <textarea

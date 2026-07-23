@@ -175,6 +175,7 @@ function TimelineVertical({ milestones = [], showToday = true }) {
                                     </a>
                                 </p>
                             )}
+                            {node.action && node.action}
                         </div>
                     </motion.div>
                 )

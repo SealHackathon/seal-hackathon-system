@@ -68,7 +68,7 @@
     display: flex;
     align-items: flex-start;
     gap: 0.875rem;
-    padding: 0.75rem 0;
+    padding: 1.15rem 0;
     z-index: 1;
 }
 
@@ -92,7 +92,22 @@
 }
 
 .dotDone     { background: #dcfce7; border-color: #22c55e; color: #16a34a; }
-.dotActive   { background: var(--color-primary-blue); border-color: var(--color-primary-blue); color: white; }
+.dotActive   { 
+    background: white; 
+    border-color: var(--color-primary-blue); 
+    position: relative;
+}
+.dotActive::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--color-primary-blue);
+    border-radius: 50%;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
 .dotUpcoming { background: white; border-color: var(--color-border-blue); }
 
 /* Content */

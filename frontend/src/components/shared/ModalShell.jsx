@@ -12,6 +12,7 @@ function ModalShell({
     subtitle,
     icon,
     titleColor,
+    subtitleColor,
     showBottomOverlay = false
 }) {
     // Ref gắn vào vùng content để theo dõi scroll
@@ -52,7 +53,7 @@ function ModalShell({
                             {icon && <span className={styles.headIcon}>{icon}</span>}
                             <div>
                                 <h3 className={styles.title} style={titleColor ? { color: titleColor } : {}}>{title}</h3>
-                                {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+                                {subtitle && <p className={styles.subtitle} style={subtitleColor ? { color: subtitleColor } : {}}>{subtitle}</p>}
                             </div>
                         </div>
                         {onClose && (

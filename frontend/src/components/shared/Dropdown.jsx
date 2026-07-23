@@ -3,6 +3,7 @@ import { MagnifyingGlass, CaretDown, CaretUp } from '@phosphor-icons/react'
 import styles from './Dropdown.module.css'
 
 function Dropdown({
+  className = '',
   label,
   labelPosition = 'top',   // 'top' | 'side'
   icon,
@@ -145,7 +146,7 @@ function Dropdown({
   )
 
   return (
-    <div className={`${styles.wrapper} ${labelPosition === 'side' ? styles.sideLayout : ''}`} ref={ref}>
+    <div className={`${styles.wrapper} ${labelPosition === 'side' ? styles.sideLayout : ''} ${className}`} ref={ref}>
 
       {label && (
         <label className={styles.label}>

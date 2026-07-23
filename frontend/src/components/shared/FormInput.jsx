@@ -29,6 +29,8 @@ function FormInput({
   name,
   id,
   showCount,
+  className = '',
+  style,
   ...rest
 }) {
 
@@ -41,7 +43,7 @@ function FormInput({
   const ActionIcon = actionIcon
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${className}`} style={style}>
       {label && (
         <label
           htmlFor={inputId}
