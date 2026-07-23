@@ -45,7 +45,7 @@ function StatusCell({ row }) {
   return <span className={styles.pending}>Chưa đủ điểm</span>;
 }
 
-function RoleBasedLeaderboard({ data = [], role = 'TEAM', stage = 1, currentJudgeId = null, currentTeamId = null, mentorTeamIds = [] }) {
+function RoleBasedLeaderboard({ data = [], role = 'TEAM', stage = 1, currentJudgeId = null, myTeamData = null, myMentorTeamsData = [], onRequestEdit, onOpenChart }) {
   const [expandedRows, setExpandedRows] = useState({});
 
   const toggleRow = (id) => {
@@ -54,8 +54,10 @@ function RoleBasedLeaderboard({ data = [], role = 'TEAM', stage = 1, currentJudg
 
   const isTableLocked = (role === 'TEAM' || role === 'LEADER' || role === 'MEMBER' || role === 'MENTOR') ? stage < 3 : stage < 2;
   const isContestant = role === 'LEADER' || role === 'MEMBER' || role === 'TEAM';
-  const myTeam = isContestant ? data.find(t => t.id === currentTeamId) : null;
-  const myMentorTeams = role === 'MENTOR' ? data.filter(t => mentorTeamIds.includes(t.id)) : [];
+  
+  // Lấy data trực tiếp từ props thay vì tự query trong mảng data
+  const myTeam = isContestant ? myTeamData : null;
+  const myMentorTeams = role === 'MENTOR' ? myMentorTeamsData : [];
 
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
@@ -265,7 +267,13 @@ function RoleBasedLeaderboard({ data = [], role = 'TEAM', stage = 1, currentJudg
                     {row.discrepancy ? (
                       <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
                         <Tooltip content="Chênh lệch điểm giữa các giám khảo" bgColor="white" textColor="orangeTxt">
-                          <span className={styles.iconWarn}><Scales size={28} weight="fill" /></span>
+                          <span 
+                            className={styles.iconWarn} 
+                            style={{ cursor: 'pointer' }}
+                            onClick={() => onOpenChart?.(row.id)}
+                          >
+                            <Scales size={28} weight="fill" />
+                          </span>
                         </Tooltip>
                         {/* Nếu BGK hiện tại nằm trong nhóm chấm đội này, cho phép sửa điểm */}
                         {(row.judges || []).some(j => j.judgeId === currentJudgeId) && (
@@ -276,6 +284,7 @@ function RoleBasedLeaderboard({ data = [], role = 'TEAM', stage = 1, currentJudg
                              size="sm" 
                              icon={PencilSimple} 
                              style={{ padding: '0.4em 0.7em', fontSize: '0.85rem' }} 
+                             onClick={() => onRequestEdit?.(row.id)}
                            />
                         )}
                       </div>

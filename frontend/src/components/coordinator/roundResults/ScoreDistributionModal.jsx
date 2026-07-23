@@ -4,29 +4,13 @@ import JudgeScoreChart from './JudgeScoreChart'
 import { ChartBar } from '@phosphor-icons/react'
 import styles from './ScoreEditModal.module.css' // Reusing styles
 
-function ScoreDistributionModal({ isOpen, onClose, teamId, entries, judges, criteria }) {
-  if (!isOpen || !teamId) return null
-
-  const entry = entries.find(e => e.teamId === teamId)
-  if (!entry) return null
-
-  // Extract judges that have submitted for this team
-  const teamJudges = (entry.perJudge || []).filter(j => j.submitted)
-  // Map it to match what JudgeScoreChart expects
-  const chartJudges = teamJudges.map(j => {
-    const judgeInfo = judges.find(jx => jx.id === j.judgeId)
-    return {
-      id: j.judgeId,
-      name: judgeInfo?.name || 'BGK',
-      isSender: false,
-      scores: j.scores || {}
-    }
-  })
+function ScoreDistributionModal({ isOpen, onClose, data }) {
+  if (!isOpen || !data) return null;
 
   return (
     <ModalShell
       onClose={onClose}
-      title={`Phân tán điểm - ${entry.teamName}`}
+      title={`Phân tán điểm - ${data.teamName}`}
       icon={<ChartBar size={24} weight="fill" />}
       subtitle="Biểu đồ phân tán điểm số giữa các ban giám khảo."
       size="md"
@@ -45,8 +29,8 @@ function ScoreDistributionModal({ isOpen, onClose, teamId, entries, judges, crit
             </div>
           </div>
           <JudgeScoreChart
-            criteria={criteria}
-            judges={chartJudges}
+            criteria={data.criteria}
+            judges={data.judges}
             affectedId={null}
           />
         </div>

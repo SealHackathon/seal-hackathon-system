@@ -44,8 +44,18 @@ function JudgeRoundCard({ round, isLast, onOpenRubric,event }) {
   // Nút hành động
   let action;
   if (round.lifecycle === 'ended') {
-    // Vòng đã kết thúc: luôn cho xem kết quả, kể cả không phụ trách.
-    action = <Button className={styles.btn} label="Xem kết quả" variant="primary" color="green" onClick={() => navigate(`/panelist/events/${event.id}/judge/rounds/${round.id}/leaderboard`)} />;
+    // Vòng đã kết thúc: luôn cho xem kết quả.
+    if (assigned) {
+      // Nếu được phân công chấm thì hiện cả 2 nút.
+      action = (
+        <div className={styles.btnWrap}>
+          <Button className={styles.btn} style={{ flex: 1 }} label="Xem bài nộp" variant="outline" color="blue" onClick={() => navigate(`/panelist/events/${event.id}/judge/rounds/${round.id}`)} />
+          <Button className={styles.btn} style={{ flex: 1 }} label="Xem kết quả" variant="primary" color="green" onClick={() => navigate(`/panelist/events/${event.id}/judge/rounds/${round.id}/leaderboard`)} />
+        </div>
+      );
+    } else {
+      action = <Button className={styles.btn} label="Xem kết quả" variant="primary" color="green" onClick={() => navigate(`/panelist/events/${event.id}/judge/rounds/${round.id}/leaderboard`)} />;
+    }
   } else if (!assigned) {
     // Chỉ còn active/upcoming mà không phụ trách mới báo "Không phụ trách".
     action = <Button className={styles.btn} label="Không phụ trách" variant="outline" color="blue" disabled />;

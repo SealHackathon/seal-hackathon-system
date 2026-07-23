@@ -65,12 +65,22 @@
 }
 
 /* Các card còn lại giữ style thường (nền trắng, viền bg-grey). */
-.cardEnded { border-color: var(--color-bg-grey); }
-.cardUpcoming { border-color: var(--color-bg-grey); }
-.cardUnassigned { border-color: var(--color-bg-grey); }
+.cardEnded {
+  border-color: var(--color-bg-grey);
+}
+
+.cardUpcoming {
+  border-color: var(--color-bg-grey);
+}
+
+.cardUnassigned {
+  border-color: var(--color-bg-grey);
+}
 
 /* Đang diễn ra: nền card là bg-blue nên thanh tiến độ chuyển nền trắng */
-.cardActive .track { background: var(--color-bg-white); }
+.cardActive .track {
+  background: var(--color-bg-white);
+}
 
 .divider {
   width: 1px;
@@ -79,7 +89,9 @@
   flex-shrink: 0;
 }
 
-.cardActive .divider { background: var(--color-border-blue); }
+.cardActive .divider {
+  background: var(--color-border-blue);
+}
 
 /* Cột 1 */
 .colMain {
@@ -188,5 +200,13 @@
 }
 
 /* Cột cuối: nút hành động */
-.btnWrap { width: 100%; }
-.btn { width: 100%; }
+.btnWrap {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.btn {
+  width: 100%;
+}

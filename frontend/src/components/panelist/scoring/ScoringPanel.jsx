@@ -35,9 +35,9 @@ function ScoringPanel({
   onOpenRubric,
   onSaveDraft,
   onSubmit,
-  onRequestEdit,
+  isReScoringMode,
 }) {
-  const readOnly = status === 'done'
+  const readOnly = status === 'done' && !isReScoringMode
   const prefilled = status === 'draft' || status === 'done'
 
   const [scores, setScores] = useState(prefilled ? existing.scores ?? {} : {})
@@ -137,21 +137,7 @@ function ScoringPanel({
 
         <div className={styles.actions}>
           {readOnly ? (
-            existing.hasDiscrepancy ? (
-              <div className={styles.editZone}>
-                <Button
-                  label="Yêu cầu chỉnh sửa điểm"
-                  icon={PencilSimpleLine}
-                  iconWeight="fill"
-                  variant="outline"
-                  color="orange"
-                  onClick={() => onRequestEdit?.()}
-                />
-                <span className={styles.editHint}>Có chênh lệch điểm giữa các giám khảo nên được phép yêu cầu chỉnh sửa.</span>
-              </div>
-            ) : (
-              <span className={styles.lockedNote}>Điểm đã nộp, không thể chỉnh sửa.</span>
-            )
+            <span className={styles.lockedNote}>Điểm đã nộp. Cần gửi yêu cầu từ bảng xếp hạng nếu muốn chỉnh sửa.</span>
           ) : (
             <div className={styles.actionGroup}>
               <div className={styles.actionBtns}>

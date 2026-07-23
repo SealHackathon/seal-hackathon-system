@@ -7,10 +7,10 @@ import styles from './JudgeRoundsTab.module.css';
 
 // Nội dung chính tab Giám khảo: danh sách vòng chấm (cột trái).
 function JudgeRoundsTab({ event }) {
-  // Mock Vòng 2 đã kết thúc để test nút "Xem kết quả"
+  // Bật lại mock round kết thúc (Stage 2) để test nút Leaderboard
   const mockEndedRound = {
     id: "vong2_mock",
-    name: "Vòng 2: Chung kết (Mock)",
+    name: "Vòng 2: Chung kết (Stage 2 Mock)",
     ordinal: 2,
     lifecycle: "ended",
     assigned: true,
@@ -23,7 +23,23 @@ function JudgeRoundsTab({ event }) {
     timeEnd: new Date("2026-08-20"),
   };
 
-  const rounds = [...(event.assignment?.judge?.rounds ?? []), mockEndedRound];
+  // Mock round kết thúc (Stage 3) để test Leaderboard
+  const mockStage3Round = {
+    id: "vong3_mock",
+    name: "Vòng 3: Đã chốt điểm (Stage 3 Mock)",
+    ordinal: 3,
+    lifecycle: "ended",
+    assigned: true,
+    allCategories: true,
+    categories: [],
+    rubricName: "Tiêu chí Đã chốt",
+    scoredCount: 15,
+    totalSubmissions: 15,
+    timeStart: new Date("2026-09-01"),
+    timeEnd: new Date("2026-09-02"),
+  };
+
+  const rounds = [...(event.assignment?.judge?.rounds ?? []), mockEndedRound, mockStage3Round];
   const [selectedRound, setSelectedRound] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [criteria, setCriteria] = useState([]);

@@ -19,6 +19,10 @@ function JudgeRoundDetailPage({ backLink = '/panelist/events/1?tab=judge' }) {
     navigate(`/panelist/events/${eventId}/judge/rounds/${roundId}/submissions/${submissionId}`);
   };
 
+  const handleRequestEdit = (submissionId) => {
+    navigate(`/panelist/events/${eventId}/judge/rounds/${roundId}/submissions/${submissionId}?editMode=true`);
+  };
+
   const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState(false);
   const [round, setRound] = useState(null)
   const [submissions, setSubmissions] = useState([])
@@ -64,7 +68,8 @@ function JudgeRoundDetailPage({ backLink = '/panelist/events/1?tab=judge' }) {
           status: s.scoringStatus,          // 'unscored', 'draft', hoặc 'done'
           score: s.finalScore,              // null hoặc số điểm cụ thể
           scoredAt: s.scoredAt,
-          submission: s.submission          // Lấy trọn object lồng nhau { github, video, slide }
+          submission: s.submission,         // Lấy trọn object lồng nhau { github, video, slide }
+          hasDiscrepancy: s.hasDiscrepancy  // Check flag chênh lệch
         }))
 
         setRound(formattedRound)
@@ -127,7 +132,7 @@ function JudgeRoundDetailPage({ backLink = '/panelist/events/1?tab=judge' }) {
         </div>
 
         <div className={styles.tableRow}>
-          <JudgeSubmissionTable submissions={submissions} onScore={handleScore} />
+          <JudgeSubmissionTable submissions={submissions} onScore={handleScore} onRequestEdit={handleRequestEdit} />
         </div>
       </div>
 

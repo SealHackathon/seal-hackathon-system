@@ -3,6 +3,7 @@ import { Trophy, ArrowLeft, ClockCounterClockwise } from '@phosphor-icons/react'
 import RoleBasedLeaderboard from '../../components/shared/Leaderboard/RoleBasedLeaderboard';
 import { useAuth } from '../../AuthContext';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import ScoreDistributionModal from '../../components/coordinator/roundResults/ScoreDistributionModal';
 import styles from './LeaderboardPage.module.css';
 
 // ==========================================
@@ -79,11 +80,82 @@ const MOCK_LEADERBOARD = [
   }
 ];
 
+// Mock API 2: My Context (Cá nhân hoá theo token)
+const MOCK_MY_CONTEXT = {
+  role: "TEAM",
+  myTeam: {
+    id: "team1",
+    teamName: "SEAL INNOVATORS",
+    rank: 1,
+    avgScore: 8.95
+  },
+  myMentorTeams: [
+    {
+      id: "team1",
+      teamName: "SEAL INNOVATORS",
+      rank: 1,
+      avgScore: 8.95
+    },
+    {
+      id: "team3",
+      teamName: "TECH TITANS",
+      rank: 3,
+      avgScore: 7.50
+    }
+  ]
+};
+
+// Mock API 3: Dữ liệu chung cho biểu đồ phân tán điểm số (Sử dụng chung cho BTC và BGK)
+const MOCK_SCORE_DISTRIBUTION = {
+  teamId: "team2",
+  teamName: "CODE MASTERS",
+  criteria: [
+    { id: 1, name: "Tính khả thi", weight: 50 },
+    { id: 2, name: "Sáng tạo", weight: 50 }
+  ],
+  judges: [
+    {
+      id: "j1",
+      name: "Trần Văn A (Bạn)",
+      isSender: true,
+      scores: { "1": 8.0, "2": 9.0 }
+    },
+    {
+      id: "j2",
+      name: "Nguyễn Thị B",
+      isSender: false,
+      scores: { "1": 5.0, "2": 7.0 }
+    },
+    {
+      id: "j3",
+      name: "Lê Văn C",
+      isSender: false,
+      scores: { "1": 10.0, "2": 9.6 }
+    }
+  ]
+};
+
 function LeaderboardPage() {
   const { role: authRole, teamRole } = useAuth(); // 'USER', 'LECTURER', 'ADMIN'
   const { eventId, roundId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
+
+  const handleRequestEdit = (submissionId) => {
+    navigate(`/panelist/events/${eventId}/judge/rounds/${roundId}/submissions/${submissionId}?editMode=true`);
+  };
+  
+  const [chartModalOpen, setChartModalOpen] = useState(false);
+  const [chartData, setChartData] = useState(null);
+
+  const handleOpenChart = (teamId) => {
+    // API Call: GET /api/rounds/${roundId}/submissions/${teamId}/score-distribution
+    // Mock logic:
+    if (ENABLE_MOCK_LEADERBOARD) {
+      setChartData(MOCK_SCORE_DISTRIBUTION);
+      setChartModalOpen(true);
+    }
+  };
   
   // Xác định role thật khi vào trang này dựa trên URL (để không bị đè nếu vừa là Judge vừa là Mentor)
   let activeRole = 'TEAM';
@@ -95,9 +167,9 @@ function LeaderboardPage() {
     activeRole = (teamRole === 'LEADER' || teamRole === 'MEMBER') ? teamRole : 'TEAM';
   }
 
-  // Mock data: JUDGE thì GĐ 2 (chưa chốt), MENTOR/TEAM thì GĐ 3 (đã chốt) để xem được bảng
-  const activeStage = activeRole === 'JUDGE' ? 2 : 3; 
-  const roundName = "Vòng 1: Sơ loại"; // Tương lai sẽ fetch bằng API: /round/rounds/:roundId
+  // Mock data: JUDGE thì tuỳ URL, MENTOR/TEAM thì GĐ 3 (đã chốt) để xem được bảng
+  const activeStage = activeRole === 'JUDGE' ? (roundId === 'vong3_mock' ? 3 : 2) : 3; 
+  const roundName = roundId === 'vong3_mock' ? "Vòng 3: Đã chốt điểm" : "Vòng 2: Chung kết"; // Tương lai sẽ fetch bằng API: /round/rounds/:roundId
 
   // Đồng hồ đếm ngược rà soát điểm (30 phút = 1800 giây)
   const [remainingSec, setRemainingSec] = useState(1800);
@@ -133,8 +205,9 @@ function LeaderboardPage() {
 
   // MOCK IDS
   const currentJudgeId = ENABLE_MOCK_LEADERBOARD ? 'j1' : '';
-  const currentTeamId = ENABLE_MOCK_LEADERBOARD ? 'team1' : '';
-  const mentorTeamIds = ENABLE_MOCK_LEADERBOARD ? ['team1', 'team3'] : [];
+  
+  const myTeamData = ENABLE_MOCK_LEADERBOARD ? MOCK_MY_CONTEXT.myTeam : null;
+  const myMentorTeamsData = ENABLE_MOCK_LEADERBOARD ? MOCK_MY_CONTEXT.myMentorTeams : [];
 
   return (
     <div className={styles.page}>
@@ -174,10 +247,19 @@ function LeaderboardPage() {
           role={activeRole} 
           stage={activeStage} 
           currentJudgeId={currentJudgeId}
-          currentTeamId={currentTeamId}
-          mentorTeamIds={mentorTeamIds}
+          myTeamData={myTeamData}
+          myMentorTeamsData={myMentorTeamsData}
+          onRequestEdit={handleRequestEdit}
+          onOpenChart={handleOpenChart}
         />
       </main>
+
+      {/* Modal biểu đồ phân tán điểm số dùng chung với BTC */}
+      <ScoreDistributionModal
+        isOpen={chartModalOpen}
+        onClose={() => setChartModalOpen(false)}
+        data={chartData}
+      />
     </div>
   );
 }

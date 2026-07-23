@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import StickyHeader from '../../components/shared/StickyHeader';
 import ResizableSplit from '../../components/shared/ResizableSplit';
 import ScoringTeamHero from '../../components/panelist/scoring/ScoringTeamHero';
@@ -7,6 +7,7 @@ import SubmissionPanel from '../../components/panelist/scoring/SubmissionPanel';
 import ScoringPanel from '../../components/panelist/scoring/ScoringPanel';
 import ScoringCriteriaModal from '../../components/panelist/event/judgeRoundDetail/ScoringCriteriaModal';
 import ReportViolationModal from '../../components/panelist/scoring/ReportViolationModal';
+import RequestEditModal from '../../components/panelist/scoring/RequestEditModal';
 import styles from './JudgeScoringPage.module.css';
 import axiosClient from '../../api/axiosClient';
 
@@ -14,8 +15,15 @@ function JudgeScoringPage() {
   const { eventId, roundId, submissionId } = useParams();
   const navigate = useNavigate();
 
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const isEditModeParam = searchParams.get('editMode') === 'true';
+
   const [isCriteriaModalOpen, setIsCriteriaModalOpen] = useState(false);
   const [isViolationModalOpen, setIsViolationModalOpen] = useState(false);
+  const [isRequestEditModalOpen, setIsRequestEditModalOpen] = useState(false);
+  const [isReScoringMode, setIsReScoringMode] = useState(isEditModeParam);
+  const [pendingReScorePayload, setPendingReScorePayload] = useState(null);
   const [team, setTeam] = useState(null);
   const [submission, setSubmission] = useState(null);
   const [rubric, setRubric] = useState(null);
@@ -172,6 +180,12 @@ function JudgeScoringPage() {
 
   //  2. XỬ LÝ NỘP ĐIỂM CHÍNH THỨC (status: 'SUBMITTED' hoặc 'DONE')
   const handleSubmit = async (scoringPanelPayload) => {
+    if (isReScoringMode) {
+      setPendingReScorePayload(scoringPanelPayload);
+      setIsRequestEditModalOpen(true);
+      return;
+    }
+
     try {
       if (window.confirm('Bạn có chắc chắn muốn nộp điểm số này? Điểm sau khi nộp sẽ không thể tự chỉnh sửa.')) {
 
@@ -201,12 +215,25 @@ function JudgeScoringPage() {
     }
   };
 
-  const handleRequestEdit = async () => {
+  const handleSubmitRequestEdit = async (reason) => {
     try {
-      if (window.confirm('Gửi yêu cầu mở khóa sửa điểm lên ban tổ chức?')) {
-        await axiosClient.post(`/api/v1/panelist/submissions/${submissionId}/request-edit`);
-        alert('Yêu cầu đã được gửi thành công, vui lòng chờ BTC duyệt.');
-      }
+      const backendPayload = {
+        submissionId: Number(submissionId),
+        comment: pendingReScorePayload?.overall || "",
+        status: "SUBMITTED",
+        details: Object.keys(pendingReScorePayload?.scores || {}).map((criterionId) => ({
+          criterionId: Number(criterionId),
+          score: Number(pendingReScorePayload?.scores[criterionId]),
+          comment: pendingReScorePayload?.notes?.[criterionId] || ""
+        })),
+        reason: reason
+      };
+
+      await axiosClient.post(`/api/v1/panelist/submissions/${submissionId}/request-edit`, backendPayload);
+      alert('Yêu cầu đã được gửi thành công, vui lòng chờ BTC duyệt.');
+      setIsRequestEditModalOpen(false);
+      setIsReScoringMode(false);
+      setPendingReScorePayload(null);
     } catch (err) {
       alert(err.response?.data?.message || 'Không thể gửi yêu cầu mở khóa.');
     }
@@ -285,7 +312,7 @@ function JudgeScoringPage() {
               onOpenRubric={() => setIsCriteriaModalOpen(true)}
               onSaveDraft={handleSaveDraft}
               onSubmit={handleSubmit}
-              onRequestEdit={handleRequestEdit}
+              isReScoringMode={isReScoringMode}
             />
           }
         />
@@ -301,6 +328,13 @@ function JudgeScoringPage() {
         isOpen={isViolationModalOpen}
         onClose={() => setIsViolationModalOpen(false)}
         onSubmit={handleSubmitViolation}
+        teamName={team?.name || ''}
+      />
+
+      <RequestEditModal
+        isOpen={isRequestEditModalOpen}
+        onClose={() => setIsRequestEditModalOpen(false)}
+        onSubmit={handleSubmitRequestEdit}
         teamName={team?.name || ''}
       />
     </div>

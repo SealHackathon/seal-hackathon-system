@@ -9,7 +9,7 @@ import styles from './MentorSidebar.module.css'
 // ==========================================
 // MOCK DATA
 // ==========================================
-const ENABLE_MOCK_MENTOR_TIMELINE = false;
+const ENABLE_MOCK_MENTOR_TIMELINE = true;
 
 /**
  * MentorSidebar — cột phải sticky của tab Mentor.

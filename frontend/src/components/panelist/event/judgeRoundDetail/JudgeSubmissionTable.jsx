@@ -34,7 +34,7 @@ function matchFilter(s, filter) {
  * @param {Array}    submissions
  * @param {function} [onScore]  — (submission) => void
  */
-function JudgeSubmissionTable({ submissions = [], onScore }) {
+function JudgeSubmissionTable({ submissions = [], onScore, onRequestEdit }) {
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('all')
   const [sort, setSort] = useState('submittedAt')
@@ -131,7 +131,7 @@ function JudgeSubmissionTable({ submissions = [], onScore }) {
                   </td>
                 </tr>
                 {g.items.map((s) => (
-                  <JudgeSubmissionRow key={s.id} submission={s} onScore={onScore} />
+                  <JudgeSubmissionRow key={s.id} submission={s} onScore={onScore} onRequestEdit={onRequestEdit} />
                 ))}
               </Fragment>
             ))}
