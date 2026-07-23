@@ -1,5 +1,8 @@
 package com.minhtung.hackathon.repository;
 
+import com.minhtung.hackathon.dto.response.MyContextResponseDTO;
+import com.minhtung.hackathon.dto.response.TeamSummaryDTO;
+import com.minhtung.hackathon.entity.JudgeScore;
 import com.minhtung.hackathon.entity.TeamResult;
 import com.minhtung.hackathon.enums.TeamResultStatus;
 import io.lettuce.core.dynamic.annotation.Param;
@@ -36,6 +39,8 @@ public interface TeamResultRepository
             Long roundId,
             TeamResultStatus status
     );
+
+
 
     //  Public Round
     List<TeamResult>
@@ -134,6 +139,45 @@ public interface TeamResultRepository
             @Param("trackId") long trackId,
             @Param("fromRank") int fromRank,
             @Param("toRank") int toRank);
+
+
+    // TeamResultRepository.java
+
+    // Query 1: Fetch TeamResult + Team + Track + JudgeScores + JudgeAssignment + User
+    @Query("SELECT DISTINCT tr FROM TeamResult tr " +
+            "LEFT JOIN FETCH tr.team t " +
+            "LEFT JOIN FETCH t.track " +
+            "LEFT JOIN FETCH tr.judgeScores js " +
+            "LEFT JOIN FETCH js.judgeAssignment ja " +
+            "LEFT JOIN FETCH ja.user " +
+            "WHERE tr.round.id = :roundId " +
+            "ORDER BY tr.ranking ASC")
+    List<TeamResult> findBasicFullByRoundId(@Param("roundId") Long roundId);
+
+    // Query 2: Fetch chi tiết details & criterion trực tiếp từ JudgeScore
+    @Query("SELECT DISTINCT js FROM JudgeScore js " +
+            "LEFT JOIN FETCH js.details d " +
+            "LEFT JOIN FETCH d.criterion " +
+            "WHERE js.teamResult.round.id = :roundId")
+    List<JudgeScore> fetchJudgeScoreDetailsByRoundId(@Param("roundId") Long roundId);
+
+
+    // 1. Dành cho MENTOR: Lấy danh sách kết quả các Đội thuộc các Track mà Mentor này phụ trách trong Round đó
+    @Query("SELECT DISTINCT new com.minhtung.hackathon.dto.response.TeamSummaryDTO(" +
+            "t.id, t.name, tr.ranking, tr.totalScore) " + // Đã đổi tr.avgScore -> tr.totalScore
+            "FROM Team t " +
+            "JOIN MentorAssignment ma ON ma.track.id = t.track.id " +
+            "LEFT JOIN TeamResult tr ON tr.team.id = t.id AND tr.round.id = :roundId " +
+            "WHERE ma.user.id = :mentorUserId")
+    List<TeamSummaryDTO> findMentorTeamsResultByRound(@Param("roundId") Long roundId,
+                                                      @Param("mentorUserId") Long mentorUserId);
+
+    @Query("SELECT new com.minhtung.hackathon.dto.response.TeamSummaryDTO(" +
+            "t.id, t.name, tr.ranking, tr.totalScore) " +
+            "FROM Member tm JOIN tm.team t " +
+            "LEFT JOIN TeamResult tr ON tr.team.id = t.id AND tr.round.id = :roundId " +
+            "WHERE tm.member.id = :userId") // Changed tm.user.id to tm.member.id
+    Optional<TeamSummaryDTO> findMyTeamResultByRound(@Param("roundId") Long roundId, @Param("userId") Long userId);
 }
 
 

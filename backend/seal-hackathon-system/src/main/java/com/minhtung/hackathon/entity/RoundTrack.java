@@ -21,7 +21,7 @@ public class RoundTrack {
     private Track track;
 
     @Column(name = "publish_stage")
-    private Integer publishStage = 1; // 1: Đóng, 2: Stage 1, 3: Stage 2, 3: Stage 3
+    private Integer publishStage = 1; // 1: Đóng Stage 1, 2: Stage 2, 3: Stage 3
 
 
 

@@ -1,24 +1,18 @@
 package com.minhtung.hackathon.service;
 
-import com.minhtung.hackathon.dto.response.TeamResultResponse;
-import com.minhtung.hackathon.dto.response.TeamRoundResultDTO;
-import com.minhtung.hackathon.dto.response.TeamRoundResultLecturerDTO;
+import com.minhtung.hackathon.dto.response.*;
 import com.minhtung.hackathon.entity.*;
-import com.minhtung.hackathon.enums.MemberStatus;
-import com.minhtung.hackathon.enums.RankingScope;
-import com.minhtung.hackathon.enums.SubmissionStatus;
-import com.minhtung.hackathon.enums.TeamResultStatus;
+import com.minhtung.hackathon.enums.*;
 import com.minhtung.hackathon.repository.*;
 import com.minhtung.hackathon.security.JwtUtil;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
@@ -37,6 +31,8 @@ public class TeamResultService {
     private final RoundTrackRepository roundTrackRepository;
     private final EventService eventService;
     private final SubmissionRepository submissionRepository;
+    private final MentorAssignmentRepository mentorAssignmentRepository;
+
 
     @Transactional
     public List<TeamResultResponse> getTrackRanking(Long trackId, Long roundId) {
@@ -89,7 +85,7 @@ public class TeamResultService {
         if (!roundRepository.existsById(roundId)) {
             throw new RuntimeException("khong tim thay round");
         }
-        int updated = teamResultRepository.publishTrackResults(trackId, roundId, TeamResultStatus.PUBLISHED);
+        int updated = teamResultRepository.publishTrackResults(trackId, roundId, TeamResultStatus.official);
 
         if (updated == 0) {
             throw new RuntimeException("khong co ket qua nao de cong bo ");
@@ -104,12 +100,14 @@ public class TeamResultService {
                     throw new RuntimeException("roundId là bắt buộc khi xem Track");
                 }
 
+
+
                 List<TeamResult> results =
                         teamResultRepository
                                 .findByTeamTrackIdAndRoundIdAndStatusOrderByTotalScoreDesc(
                                         id,
                                         roundId,
-                                        TeamResultStatus.PUBLISHED
+                                        TeamResultStatus.official
                                 );
 
                 yield mapAndRecalculateRanking(results);
@@ -120,7 +118,7 @@ public class TeamResultService {
                         teamResultRepository
                                 .findByRoundIdAndStatusOrderByTotalScoreDesc(
                                         id,
-                                        TeamResultStatus.PUBLISHED
+                                        TeamResultStatus.official
                                 );
 
                 yield mapAndRecalculateRanking(results);
@@ -131,7 +129,7 @@ public class TeamResultService {
                         teamResultRepository
                                 .findPublishedEventRanking(
                                         id,
-                                        TeamResultStatus.PUBLISHED
+                                        TeamResultStatus.official
                                 );
 
                 AtomicInteger ranking = new AtomicInteger(1);
@@ -426,4 +424,167 @@ public class TeamResultService {
 
         return results;
     }
+
+
+
+
+
+
+
+
+
+    //--------------------------------API getLeaderboard----------------------
+    @Transactional
+    public List<LeaderboardTeamDTO.Team> getLeaderboard(long roundId, long eventId, long currentUserId) {
+
+        // 1. Kiểm tra sự tồn tại của User
+        User currentUser = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+
+        // 2. Lấy danh sách RoundTrack để kiểm tra publishStage của Round
+        List<RoundTrack> roundTracks = roundTrackRepository.findByRoundId(roundId);
+        if (roundTracks.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Not found RoundTrack for this round");
+        }
+
+        // Lấy publishStage nhỏ nhất trong các Track của Round
+        int currentStage = roundTracks.stream()
+                .mapToInt(rt -> rt.getPublishStage() != null ? rt.getPublishStage() : 1)
+                .min()
+                .orElse(1);
+
+        // 3. Validate quyền xem dựa vào Stage và Role của User
+        validateAccessRight(currentUser, currentStage);
+
+        // 4. Lấy tất cả Track ID mà User đang làm Mentor trong Event này
+        Set<Long> mentorerTrackIds = mentorAssignmentRepository
+                .findByUserIdAndEventId(currentUserId, eventId)
+                .stream()
+                .map(ma -> ma.getTrack().getId())
+                .collect(Collectors.toSet());
+        // 5. Query dữ liệu bằng cách kết hợp 2 Query để tránh MultipleBagFetchException
+        List<TeamResult> teamResults = teamResultRepository.findBasicFullByRoundId(roundId);
+        if (!teamResults.isEmpty()) {
+            // Gọi query thứ 2: Hibernate sẽ tự nạp details vào các JudgeScore đang có sẵn trong Persistence Context
+            teamResultRepository.fetchJudgeScoreDetailsByRoundId(roundId);
+        }
+
+        return teamResults.stream()
+                .map(tr -> toTeamDTO(tr, mentorerTrackIds))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Logic phân quyền truy cập bảng điểm theo Stage:
+     * - Stage 1: Chỉ Admin
+     * - Stage 2: Admin + Lecturer (Judge/Mentor)
+     * - Stage 3: Tất cả các Role (Admin, Lecturer, User)
+     */
+    private void validateAccessRight(User user, int stage) {
+        Role role = user.getRole(); // Điều chỉnh tên getter tuỳ theo thuộc tính trong Entity User
+
+        if (Role.ADMIN.equals(role)) {
+            return; // Admin có toàn quyền truy cập ở mọi Stage
+        }
+
+        switch (stage) {
+            case 1:
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Stage 1: Leaderboard is locked for non-admin");
+            case 2:
+                if (!Role.LECTURER.equals(role)) {
+                    throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Stage 2: Leaderboard is only accessible by Lecturers");
+                }
+                break;
+            case 3:
+                break; // Mọi người dùng đều được phép xem
+            default:
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid publish stage");
+        }
+    }
+
+    /**
+     * Map dữ liệu TeamResult sang DTO.
+     * Nếu User hiện tại là Mentor của Track chứa Team này -> Ẩn status, discrepancy, judges.
+     */
+    private LeaderboardTeamDTO.Team toTeamDTO(TeamResult tr, Set<Long> mentorerTrackIds) {
+        Team team = tr.getTeam();
+
+        // Kiểm tra User có phải là Mentor thuộc Track của Team này không
+        boolean isMentorOfThisTeamTrack = team != null
+                && team.getTrack() != null
+                && mentorerTrackIds.contains(team.getTrack().getId());
+
+        // Nếu là Mentor của Track này -> Trả dữ liệu thu gọn
+        if (isMentorOfThisTeamTrack) {
+            return LeaderboardTeamDTO.Team.builder()
+                    .id(team.getId())
+                    .teamName(team.getName())
+                    .rank(tr.getRanking())
+                    .avgScore(tr.getTotalScore())
+                    .status(null)
+                    .discrepancy(false) // TODO lam sau
+                    .judges(null)
+                    .build();
+        }
+
+        // Trường hợp thông thường -> Trả đầy đủ thông tin chi tiết
+        List<LeaderboardTeamDTO.JudgeScore> judges = tr.getJudgeScores().stream()
+                .map(this::toJudgeScoreDTO)
+                .collect(Collectors.toList());
+
+        return LeaderboardTeamDTO.Team.builder()
+                .id(team.getId())
+                .teamName(team.getName())
+                .rank(tr.getRanking())
+                .avgScore(tr.getTotalScore())
+                .status(tr.getStatus() != null ? tr.getStatus().name() : null)
+                .discrepancy(false) // TODO: Tính discrepancy sau
+                .judges(judges)
+                .build();
+    }
+
+    private LeaderboardTeamDTO.JudgeScore toJudgeScoreDTO(JudgeScore js) {
+        User user = js.getJudgeAssignment().getUser();
+
+        List<LeaderboardTeamDTO.CriteriaScore> criteriaScores = js.getDetails().stream()
+                .map(d -> new LeaderboardTeamDTO.CriteriaScore(d.getCriterion().getName(), d.getScore()))
+                .collect(Collectors.toList());
+
+        return new LeaderboardTeamDTO.JudgeScore(
+                user.getId(),
+                user.getFullName(),
+                js.getTotalScore(),
+                criteriaScores
+        );
+    }
+
+
+    public MyContextResponseDTO getMyContext(Long roundId, Long currentUserId) {
+
+        // Tự động kiểm tra xem user này có phân công Mentor nào không
+        boolean isMentor = !mentorAssignmentRepository.findByUserId(currentUserId).isEmpty();
+
+        if (isMentor) {
+            // Trường hợp 1: Người gọi là MENTOR -> Lấy danh sách đội do mình phụ trách
+            List<TeamSummaryDTO> mentorTeams = teamResultRepository.findMentorTeamsResultByRound(roundId, currentUserId);
+
+            return MyContextResponseDTO.builder()
+                    .role("MENTOR")
+                    .myTeam(null)
+                    .myMentorTeams(mentorTeams)
+                    .build();
+        } else {
+            // Trường hợp 2: Người gọi là USER/Thí sinh -> Lấy kết quả đội thi của chính mình
+            TeamSummaryDTO myTeam = teamResultRepository.findMyTeamResultByRound(roundId, currentUserId)
+                    .orElse(null);
+
+            return MyContextResponseDTO.builder()
+                    .role("TEAM")
+                    .myTeam(myTeam)
+                    .myMentorTeams(new ArrayList<>())
+                    .build();
+        }
+    }
+
+
 }

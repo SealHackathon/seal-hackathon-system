@@ -11,7 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "team_result")
 @Data
-public class TeamResult {
+    public class TeamResult {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,13 +37,13 @@ public class TeamResult {
 
     @OneToMany(mappedBy = "teamResult", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<JudgeScore> judgeScores = new ArrayList<>();
-    /**
-     * Thứ hạng trong vòng thi
-     * Ví dụ: 1, 2, 3,...
-     */
     @Column(name = "ranking")
     private int ranking;
 
     @Column(name = "is_passed")
     private boolean isPassed;
+
+
+    @Column(name = "isDiscrepancy")
+    private Boolean isDiscrepancy ;
 }

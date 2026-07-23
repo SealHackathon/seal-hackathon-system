@@ -1,13 +1,16 @@
 package com.minhtung.hackathon.controller;
 
+import com.minhtung.hackathon.dto.response.MyContextResponseDTO;
 import com.minhtung.hackathon.dto.response.ViewTeamListRespone;
 import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
+import com.minhtung.hackathon.dto.round.RoundInfoResponseDTO;
 import com.minhtung.hackathon.dto.round.RoundRequest;
 import com.minhtung.hackathon.entity.Round;
 import com.minhtung.hackathon.repository.RoundRepository;
 import com.minhtung.hackathon.repository.UserRepository;
 import com.minhtung.hackathon.security.JwtUtil;
 import com.minhtung.hackathon.service.RoundService;
+import com.minhtung.hackathon.service.TeamResultService;
 import com.minhtung.hackathon.service.TeamService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -31,7 +34,7 @@ public class RoundController {
     private final UserRepository userRepository;
     private final RoundService roundService;
     private final TeamService teamService ;
-
+    private final TeamResultService teamResultService;
     // api admin view Coming Round
 //    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/coming")
@@ -162,5 +165,28 @@ public class RoundController {
         return ResponseEntity.ok(
                 teamService.viewTeamByRound(roundId)
         );
+    }
+
+    //get round info
+    @GetMapping("/{roundId}/info")
+    public ResponseEntity<RoundInfoResponseDTO> getRoundInfo(@PathVariable Long roundId) {
+        RoundInfoResponseDTO response = roundService.getRoundInfo(roundId);
+        return ResponseEntity.ok(response);
+    }
+
+
+    @GetMapping("/{roundId}/my-context")
+    public ResponseEntity<?> getMyContext(@PathVariable Long roundId,@RequestHeader("Authorization") String auth) {
+
+
+        Integer uid = getUid(auth);
+        if (uid == null) {
+
+            return unauthorized();
+        }
+        boolean isMentor = false; // Nếu User này là Lecturer/Mentor thì set true, Thí sinh thì set false
+
+        MyContextResponseDTO response = teamResultService.getMyContext(roundId, Integer.toUnsignedLong(uid));
+        return ResponseEntity.ok(response);
     }
 }

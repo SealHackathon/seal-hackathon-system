@@ -22,4 +22,6 @@ public interface MentorAssignmentRepository extends JpaRepository<MentorAssignme
             "WHERE ma.user.id = :userId")
     List<MentorAssignment> findAllByUserIdWithDetails(@Param("userId") long userId);
 
+
+    List<MentorAssignment> findByUserIdAndEventId(Long userId, Long eventId);
 }

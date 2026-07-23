@@ -122,7 +122,7 @@ public class JudgeScoreService {
                     .findBySubmissionIdAndStatus(submission.getId(), JudgeScoreStatus.SUBMITTED);
 
             if (!officialScores.isEmpty()) {
-                // Tính điểm trung bình cộng (Điểm tổng của các Giám khảo)
+                // 1. Tính điểm trung bình cộng (Điểm tổng của các Giám khảo)
                 double averageScore = officialScores.stream()
                         .mapToDouble(JudgeScore::getTotalScore)
                         .average()
@@ -131,7 +131,7 @@ public class JudgeScoreService {
                 // Làm tròn đến 2 chữ số thập phân
                 averageScore = Math.round(averageScore * 100.0) / 100.0;
 
-                // Tìm hoặc khởi tạo mới bản ghi kết quả của Đội thi (TeamResult) tại vòng này
+                // 2. Tìm hoặc khởi tạo mới bản ghi kết quả của Đội thi (TeamResult) tại vòng này
                 Team team = submission.getTeam();
                 Round round = submission.getRound();
 
@@ -140,11 +140,29 @@ public class JudgeScoreService {
                             TeamResult newResult = new TeamResult();
                             newResult.setTeam(team);
                             newResult.setRound(round);
+                            newResult.setCreatedAt(LocalDateTime.now());
                             return newResult;
                         });
 
-                // Ghi đè điểm trung bình mới tính được vào TeamResult
+                teamResult.setUpdatedAt(LocalDateTime.now());
                 teamResult.setTotalScore(averageScore);
+
+                // 3. GÁN LIÊN KẾT 2 CHIỀU GIỮA TeamResult VÀ JudgeScore
+
+                // Phía Owning Side (JudgeScore): Đảm bảo JudgeScore có khóa ngoại team_result_id
+                savedJudgeScore.setTeamResult(teamResult);
+
+                // Phía Inverse Side (TeamResult): Khởi tạo danh sách nếu null và thêm bản ghi mới vào
+                if (teamResult.getJudgeScores() == null) {
+                    teamResult.setJudgeScores(new ArrayList<>());
+                }
+
+                // Tránh thêm trùng lặp nếu judgeScore đã có trong list (trường hợp update điểm nháp sang submitted)
+                if (!teamResult.getJudgeScores().contains(savedJudgeScore)) {
+                    teamResult.getJudgeScores().add(savedJudgeScore);
+                }
+
+                // 4. Lưu TeamResult xuống DB
                 teamResultRepository.save(teamResult);
             }
         }

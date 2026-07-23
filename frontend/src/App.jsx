@@ -220,12 +220,13 @@ function AppRoutes() {
                                         )
                                     } />
                                     
-                                    <Route path="/event/:eventId/leaderboard" element={
+                                    <Route path="/event/:eventId/rounds/:roundId/leaderboard" element={
                                         userStatus === "PENDING_APPROVAL" ? (
                                             <Navigate to="/user/dashboard" replace />
                                         ) : (
                                             <LeaderboardPage />
                                         )
+                                        
                                     } />
 
                                     {/* Không cho phép quay lại complete-profile nếu đã xong */}

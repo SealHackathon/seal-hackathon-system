@@ -1,6 +1,7 @@
 package com.minhtung.hackathon.controller;
 
 
+import com.minhtung.hackathon.dto.response.LeaderboardTeamDTO;
 import com.minhtung.hackathon.dto.response.TeamResultResponse;
 import com.minhtung.hackathon.dto.response.TeamRoundResultDTO;
 import com.minhtung.hackathon.dto.response.TeamRoundResultLecturerDTO;
@@ -97,7 +98,6 @@ public class TeamResultController {
     @GetMapping("/round-results")
     public ResponseEntity<?> getTeamRoundResults(
             @RequestParam("eventId") Long eventId,
-            // Giả định bạn dùng Spring Security để lấy thông tin User/Team đang đăng nhập
             @RequestHeader("Authorization") String auth
     ) {
         // Lấy teamId của tài khoản đang đăng nhập
@@ -117,6 +117,21 @@ public class TeamResultController {
             @PathVariable Long teamId) {
         return teamResultService.getTeamResultsByTeamId(teamId, eventId);
     }
+
+
+    @GetMapping("/rounds/{roundId}/results")
+    public ResponseEntity<?> getLeaderboard(
+            @PathVariable long roundId,
+            @RequestParam long eventId,
+            @RequestHeader("Authorization") String auth) { // Bạn có thể đổi thành @AuthenticationPrincipal nếu dùng Spring Security
+        Integer currentUserId = getUid(auth);
+        if (currentUserId == null) {
+            return unauthorized();
+        }
+        List<LeaderboardTeamDTO.Team> leaderboard = teamResultService.getLeaderboard(roundId, eventId, currentUserId);
+        return ResponseEntity.ok(leaderboard);
+    }
+
 
 
     private Integer getUid(String authHeader) {

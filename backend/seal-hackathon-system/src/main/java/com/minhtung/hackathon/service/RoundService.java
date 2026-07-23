@@ -1,9 +1,6 @@
 package com.minhtung.hackathon.service;
 
-import com.minhtung.hackathon.dto.round.ComingRoundResponse;
-import com.minhtung.hackathon.dto.round.RoundDetailsResponse;
-import com.minhtung.hackathon.dto.round.RoundRequest;
-import com.minhtung.hackathon.dto.round.SubmissionConfigResponse;
+import com.minhtung.hackathon.dto.round.*;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.EventStatus;
 import com.minhtung.hackathon.enums.JudgeScoreStatus;
@@ -382,5 +379,21 @@ public class RoundService {
 
 
         return dto;
+    }
+
+
+    public RoundInfoResponseDTO getRoundInfo(Long roundId) {
+        // 1. Tìm Round theo roundId
+        Round round = roundRepository.findById(roundId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy vòng thi với ID: " + roundId));
+
+        // 2. Tìm RoundTrack liên quan đến Round này (lấy RoundTrack đầu tiên nếu tìm thấy)
+        Integer publishStage = roundTrackRepository.findByRoundId(roundId)
+                .stream()
+                .findFirst()
+                .map(RoundTrack::getPublishStage)
+                .orElse(1); // Mặc định là 1 nếu chưa cấu hình RoundTrack
+
+        return new RoundInfoResponseDTO(round.getName(), publishStage);
     }
 }

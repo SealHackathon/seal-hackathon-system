@@ -5,80 +5,81 @@ import { useAuth } from '../../AuthContext';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import ScoreDistributionModal from '../../components/coordinator/roundResults/ScoreDistributionModal';
 import styles from './LeaderboardPage.module.css';
+import axiosClient from '../../api/axiosClient';
 
 // ==========================================
 // MOCK DATA
 // ==========================================
 const ENABLE_MOCK_LEADERBOARD = true;
 
-const MOCK_LEADERBOARD = [
-  {
-    id: 'team1',
-    teamName: 'SEAL INNOVATORS',
-    rank: 1,
-    avgScore: 8.95,
-    status: 'official', 
-    discrepancy: false, 
-    judges: [
-      { 
-        judgeId: 'j1', judgeName: 'Trần Văn A', score: 9.0,
-        criteriaScores: [ { name: 'Tính khả thi', score: 9.0 }, { name: 'Sáng tạo', score: 9.0 } ]
-      },
-      { 
-        judgeId: 'j2', judgeName: 'Nguyễn Thị B', score: 8.9,
-        criteriaScores: [ { name: 'Tính khả thi', score: 8.8 }, { name: 'Sáng tạo', score: 9.0 } ]
-      },
-      { 
-        judgeId: 'j3', judgeName: 'Lê Văn C', score: 9.0,
-        criteriaScores: [ { name: 'Tính khả thi', score: 9.0 }, { name: 'Sáng tạo', score: 9.0 } ]
-      }
-    ]
-  },
-  {
-    id: 'team2',
-    teamName: 'CODE MASTERS',
-    rank: 2,
-    avgScore: 8.10,
-    status: 'provisional',
-    discrepancy: true, // Lệch chuẩn
-    judges: [
-      { 
-        judgeId: 'j1', judgeName: 'Trần Văn A (Bạn)', score: 8.5,
-        criteriaScores: [ { name: 'Tính khả thi', score: 8.0 }, { name: 'Sáng tạo', score: 9.0 } ]
-      },
-      { 
-        judgeId: 'j2', judgeName: 'Nguyễn Thị B', score: 6.0,
-        criteriaScores: [ { name: 'Tính khả thi', score: 5.0 }, { name: 'Sáng tạo', score: 7.0 } ]
-      },
-      { 
-        judgeId: 'j3', judgeName: 'Lê Văn C', score: 9.8,
-        criteriaScores: [ { name: 'Tính khả thi', score: 10.0 }, { name: 'Sáng tạo', score: 9.6 } ]
-      }
-    ]
-  },
-  {
-    id: 'team3',
-    teamName: 'TECH TITANS',
-    rank: 3,
-    avgScore: 7.50,
-    status: 'official',
-    discrepancy: false,
-    judges: [
-      { 
-        judgeId: 'j4', judgeName: 'Phạm Văn D', score: 7.5,
-        criteriaScores: [ { name: 'Tính khả thi', score: 7.0 }, { name: 'Sáng tạo', score: 8.0 } ]
-      },
-      { 
-        judgeId: 'j5', judgeName: 'Hoàng Thị E', score: 7.4,
-        criteriaScores: [ { name: 'Tính khả thi', score: 7.4 }, { name: 'Sáng tạo', score: 7.4 } ]
-      },
-      { 
-        judgeId: 'j6', judgeName: 'Vũ Văn F', score: 7.6,
-        criteriaScores: [ { name: 'Tính khả thi', score: 7.6 }, { name: 'Sáng tạo', score: 7.6 } ]
-      }
-    ]
-  }
-];
+// const MOCK_LEADERBOARD = [
+//   {
+//     id: 'team1',
+//     teamName: 'SEAL INNOVATORS',
+//     rank: 1,
+//     avgScore: 8.95,
+//     status: 'official', 
+//     discrepancy: false, 
+//     judges: [
+//       { 
+//         judgeId: 'j1', judgeName: 'Trần Văn A', score: 9.0,
+//         criteriaScores: [ { name: 'Tính khả thi', score: 9.0 }, { name: 'Sáng tạo', score: 9.0 } ]
+//       },
+//       { 
+//         judgeId: 'j2', judgeName: 'Nguyễn Thị B', score: 8.9,
+//         criteriaScores: [ { name: 'Tính khả thi', score: 8.8 }, { name: 'Sáng tạo', score: 9.0 } ]
+//       },
+//       { 
+//         judgeId: 'j3', judgeName: 'Lê Văn C', score: 9.0,
+//         criteriaScores: [ { name: 'Tính khả thi', score: 9.0 }, { name: 'Sáng tạo', score: 9.0 } ]
+//       }
+//     ]
+//   },
+//   {
+//     id: 'team2',
+//     teamName: 'CODE MASTERS',
+//     rank: 2,
+//     avgScore: 8.10,
+//     status: 'provisional',
+//     discrepancy: true, // Lệch chuẩn
+//     judges: [
+//       { 
+//         judgeId: 'j1', judgeName: 'Trần Văn A (Bạn)', score: 8.5,
+//         criteriaScores: [ { name: 'Tính khả thi', score: 8.0 }, { name: 'Sáng tạo', score: 9.0 } ]
+//       },
+//       { 
+//         judgeId: 'j2', judgeName: 'Nguyễn Thị B', score: 6.0,
+//         criteriaScores: [ { name: 'Tính khả thi', score: 5.0 }, { name: 'Sáng tạo', score: 7.0 } ]
+//       },
+//       { 
+//         judgeId: 'j3', judgeName: 'Lê Văn C', score: 9.8,
+//         criteriaScores: [ { name: 'Tính khả thi', score: 10.0 }, { name: 'Sáng tạo', score: 9.6 } ]
+//       }
+//     ]
+//   },
+//   {
+//     id: 'team3',
+//     teamName: 'TECH TITANS',
+//     rank: 3,
+//     avgScore: 7.50,
+//     status: 'official',
+//     discrepancy: false,
+//     judges: [
+//       { 
+//         judgeId: 'j4', judgeName: 'Phạm Văn D', score: 7.5,
+//         criteriaScores: [ { name: 'Tính khả thi', score: 7.0 }, { name: 'Sáng tạo', score: 8.0 } ]
+//       },
+//       { 
+//         judgeId: 'j5', judgeName: 'Hoàng Thị E', score: 7.4,
+//         criteriaScores: [ { name: 'Tính khả thi', score: 7.4 }, { name: 'Sáng tạo', score: 7.4 } ]
+//       },
+//       { 
+//         judgeId: 'j6', judgeName: 'Vũ Văn F', score: 7.6,
+//         criteriaScores: [ { name: 'Tính khả thi', score: 7.6 }, { name: 'Sáng tạo', score: 7.6 } ]
+//       }
+//     ]
+//   }
+// ];
 
 // Mock API 2: My Context (Cá nhân hoá theo token)
 const MOCK_MY_CONTEXT = {
@@ -138,13 +139,22 @@ const MOCK_SCORE_DISTRIBUTION = {
 function LeaderboardPage() {
   const { role: authRole, teamRole } = useAuth(); // 'USER', 'LECTURER', 'ADMIN'
   const { eventId, roundId } = useParams();
+  const [MOCK_LEADERBOARD, setMOCK_LEADERBOARD] = useState([]);
+  const [leaderboardData, setLeaderboardData] = useState([]);
+  const [myTeamData, setMyTeamData] = useState(null);
+const [myMentorTeamsData, setMyMentorTeamsData] = useState([]);
+  const [roundInfo, setRoundInfo] = useState({
+    roundName: 'Đang tải...',
+    publishStage: 1
+  });
+
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleRequestEdit = (submissionId) => {
     navigate(`/panelist/events/${eventId}/judge/rounds/${roundId}/submissions/${submissionId}?editMode=true`);
   };
-  
+
   const [chartModalOpen, setChartModalOpen] = useState(false);
   const [chartData, setChartData] = useState(null);
 
@@ -156,7 +166,7 @@ function LeaderboardPage() {
       setChartModalOpen(true);
     }
   };
-  
+
   // Xác định role thật khi vào trang này dựa trên URL (để không bị đè nếu vừa là Judge vừa là Mentor)
   let activeRole = 'TEAM';
   if (location.pathname.includes('/mentor/')) {
@@ -168,20 +178,46 @@ function LeaderboardPage() {
   }
 
   // Mock data: JUDGE thì tuỳ URL, MENTOR/TEAM thì GĐ 3 (đã chốt) để xem được bảng
-  const activeStage = activeRole === 'JUDGE' ? (roundId === 'vong3_mock' ? 3 : 2) : 3; 
-  const roundName = roundId === 'vong3_mock' ? "Vòng 3: Đã chốt điểm" : "Vòng 2: Chung kết"; // Tương lai sẽ fetch bằng API: /round/rounds/:roundId
+  // const activeStage = activeRole === 'JUDGE' ? (roundId === 'vong3_mock' ? 3 : 2) : 3;
+  // const roundName = roundId === 'vong3_mock' ? "Vòng 3: Đã chốt điểm" : "Vòng 2: Chung kết";
+  // Tương lai sẽ fetch bằng API: /round/rounds/:roundId
+
+  useEffect(() => {
+    if (ENABLE_MOCK_LEADERBOARD) {
+      axiosClient.get(`/round/${roundId}/info`)
+        .then((res) => {
+          setRoundInfo({
+            roundName: res.data.roundName,
+            publishStage: res.data.publishStage
+          });
+        })
+        .catch((err) => {
+          console.error("Lỗi khi tải thông tin vòng thi:", err);
+        });
+    }
+  }, [roundId]);
+  
+  // const activeStage = ENABLE_MOCK_LEADERBOARD 
+  // ? (activeRole === 'JUDGE' ? (roundId === 'vong3_mock' ? 3 : 2) : 3)
+  // : roundInfo.publishStage;
+
+// const roundName = ENABLE_MOCK_LEADERBOARD 
+//   ? (roundId === 'vong3_mock' ? "Vòng 3: Đã chốt điểm" : "Vòng 2: Chung kết")
+//   : roundInfo.roundName;
+
+
 
   // Đồng hồ đếm ngược rà soát điểm (30 phút = 1800 giây)
   const [remainingSec, setRemainingSec] = useState(1800);
 
   useEffect(() => {
-    if (activeRole === 'JUDGE' && activeStage === 2) {
+    if (activeRole === 'JUDGE' && roundInfo.publishStage === 2) {
       const interval = setInterval(() => {
         setRemainingSec(prev => (prev > 0 ? prev - 1 : 0));
       }, 1000);
       return () => clearInterval(interval);
     }
-  }, [activeRole, activeStage]);
+  }, [activeRole, roundInfo.publishStage]);
 
   // Format giây thành MM:SS
   const mins = Math.floor(remainingSec / 60).toString().padStart(2, '0');
@@ -189,25 +225,74 @@ function LeaderboardPage() {
 
   // Xử lý mock data: Nếu đã sang stage 3 (Công bố chính thức) thì tất cả đều là official và hết lệch chuẩn
   let processedData = [];
-  
-  if (ENABLE_MOCK_LEADERBOARD) {
-    processedData = MOCK_LEADERBOARD.map(team => {
-      if (activeStage === 3) {
-        return {
-          ...team,
-          status: 'official',
-          discrepancy: false,
-        };
-      }
-      return team;
-    });
-  }
+
+
+  useEffect(() => {
+    if (ENABLE_MOCK_LEADERBOARD) {
+
+      axiosClient.get(`/team-results/rounds/${roundId}/results?eventId=${eventId}`)
+        .then((response) => {
+          // Lưu dữ liệu API vào state
+          setLeaderboardData(response.data);
+
+        })
+        .catch((error) => {
+          console.error("Lỗi khi tải bảng xếp hạng:", error);
+        })
+        .finally(() => {
+
+        });
+    }
+  }, [roundId, eventId, ENABLE_MOCK_LEADERBOARD]);
+
+
+  // if (ENABLE_MOCK_LEADERBOARD) {
+  //   // Dùng dữ liệu Mock khi bật cờ MOCK
+  //   processedData = MOCK_LEADERBOARD.map(team => {
+  //     if (activeStage === 3) {
+  //       return {
+  //         ...team,
+  //         status: 'official',
+  //         discrepancy: false,
+  //       };
+  //     }
+  //     return team;
+  //   });
+  // } else {
+  //   // Dùng dữ liệu thật từ API
+  //   processedData = leaderboardData;
+  // }
 
   // MOCK IDS
   const currentJudgeId = ENABLE_MOCK_LEADERBOARD ? 'j1' : '';
+
+  // const myTeamData = ENABLE_MOCK_LEADERBOARD ? MOCK_MY_CONTEXT.myTeam : null;
   
-  const myTeamData = ENABLE_MOCK_LEADERBOARD ? MOCK_MY_CONTEXT.myTeam : null;
-  const myMentorTeamsData = ENABLE_MOCK_LEADERBOARD ? MOCK_MY_CONTEXT.myMentorTeams : [];
+  // const myMentorTeamsData = ENABLE_MOCK_LEADERBOARD ? MOCK_MY_CONTEXT.myMentorTeams : [];
+
+  useEffect(() => {
+  if (ENABLE_MOCK_LEADERBOARD) {
+    if (!roundId) return;
+
+    axiosClient
+      .get(`/round/${roundId}/my-context`)
+      .then((response) => {
+        // Response trả về MyContextResponseDTO chứa myTeam và myMentorTeams
+        const data = response.data;
+        setMyTeamData(data?.myTeam || null);
+        setMyMentorTeamsData(data?.myMentorTeams || []);
+      })
+      .catch((error) => {
+        console.error("Lỗi khi tải thông tin context của tôi:", error);
+        setMyTeamData(null);
+        setMyMentorTeamsData([]);
+      });
+  } else {
+    // Trường hợp bật MOCK
+    setMyTeamData(MOCK_MY_CONTEXT.myTeam);
+    setMyMentorTeamsData(MOCK_MY_CONTEXT.myMentorTeams || []);
+  }
+}, [roundId, ENABLE_MOCK_LEADERBOARD]);
 
   return (
     <div className={styles.page}>
@@ -217,7 +302,7 @@ function LeaderboardPage() {
             <ArrowLeft size={20} weight="bold" /> Quay lại
           </button>
           <h1 className={styles.pageTitle}>
-            Bảng xếp hạng - {roundName}
+            Bảng xếp hạng - {roundInfo.roundName}
           </h1>
           <p className={styles.pageDesc}>Xem xếp hạng, điểm số và kết quả của các đội thi trong vòng này.</p>
         </div>
@@ -225,7 +310,7 @@ function LeaderboardPage() {
 
       <main>
         {/* Banner đếm ngược rà soát điểm cho BGK */}
-        {activeRole === 'JUDGE' && activeStage === 2 && (
+        {activeRole === 'JUDGE' && roundInfo.publishStage === 2 && (
           <div className={styles.reviewBanner}>
             <div className={styles.reviewIcon}>
               <ClockCounterClockwise size={28} weight="fill" />
@@ -242,10 +327,10 @@ function LeaderboardPage() {
           </div>
         )}
 
-        <RoleBasedLeaderboard 
-          data={processedData} 
-          role={activeRole} 
-          stage={activeStage} 
+        <RoleBasedLeaderboard
+          data={leaderboardData}
+          role={activeRole}
+          stage={roundInfo.publishStage}
           currentJudgeId={currentJudgeId}
           myTeamData={myTeamData}
           myMentorTeamsData={myMentorTeamsData}
