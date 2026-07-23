@@ -18,5 +18,8 @@ public enum AuditAction {
     UNASSIGN,
 
     APPROVE,
-    REJECT
+    REJECT,
+    SCORE_SUBMITTED, // Lần đầu chấm xong và nộp
+    SCORE_EDITED     // Chỉnh sửa điểm sau khi được Admin duyệt FIXING
+    ,FLAGGED
 }

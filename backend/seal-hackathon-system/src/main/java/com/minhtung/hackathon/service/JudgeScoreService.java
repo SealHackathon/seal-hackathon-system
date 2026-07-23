@@ -7,6 +7,7 @@ import com.minhtung.hackathon.dto.request.UpdateJudgeScoreRequest;
 import com.minhtung.hackathon.dto.response.JudgeScoreDetailResponse;
 import com.minhtung.hackathon.dto.response.JudgeScoreResponse;
 import com.minhtung.hackathon.entity.*;
+import com.minhtung.hackathon.enums.AuditAction;
 import com.minhtung.hackathon.enums.JudgeScoreStatus;
 import com.minhtung.hackathon.repository.*;
 import lombok.RequiredArgsConstructor;
@@ -29,6 +30,7 @@ public class JudgeScoreService {
     private final JudgeScoreRepository judgeScoreRepository;
     private final CriterionRepository criterionRepository;
     private final TeamResultRepository teamResultRepository;
+    private final AuditLogService auditLogService;
     @Transactional
     public JudgeScoreResponse createScore(String email, JudgeScoreRequest request) {
         // 1. Tìm thông tin Giám khảo từ email đăng nhập
@@ -65,8 +67,16 @@ public class JudgeScoreService {
 
         JudgeScore judgeScore;
 
+        // [AUDIT LOG FIX 1]: Lưu vết trạng thái và điểm cũ để phân biệt SCORE_SUBMITTED hay SCORE_EDITED
+        JudgeScoreStatus previousStatus = null;
+        Double previousScore = null;
+
         if (existingScoreOpt.isPresent()) {
             judgeScore = existingScoreOpt.get();
+
+            // [AUDIT LOG FIX 2]: Lưu giá trị cũ trước khi sửa
+            previousStatus = judgeScore.getStatus();
+            previousScore = judgeScore.getTotalScore();
 
             // Ràng buộc nghiệp vụ: Điểm đã SUBMITTED thì không được sửa nữa
             if (judgeScore.getStatus() == JudgeScoreStatus.SUBMITTED) {
@@ -112,6 +122,43 @@ public class JudgeScoreService {
 
         // Lưu điểm của giám khảo hiện tại xuống DB
         JudgeScore savedJudgeScore = judgeScoreRepository.save(judgeScore);
+
+        // =========================================================================
+        // [AUDIT LOG FIX 3]: GHI AUDIT LOG KHI GIÁM KHẢO NỘP ĐIỂM (SUBMITTED)
+        // =========================================================================
+        if (newStatus == JudgeScoreStatus.SUBMITTED) {
+
+            // TH 1: Nộp lần đầu (Mới hoặc từ DRAFT -> SUBMITTED)
+            if (previousStatus == null || previousStatus == JudgeScoreStatus.DRAFT) {
+                auditLogService.log(
+                        "JudgeScore",
+                        savedJudgeScore.getId(),
+                        AuditAction.SCORE_SUBMITTED,
+                        "totalScore",
+                        null,
+                        "Tổng: " + savedJudgeScore.getTotalScore(),
+                        judge
+                );
+            }
+            // TH 2: Nộp lại sau khi Admin chuyển sang FIXING (FIXING -> SUBMITTED)
+            else if (previousStatus == JudgeScoreStatus.FIXING) {
+                String oldValueStr = previousScore != null ? "Điểm cũ: " + previousScore : null;
+                String newValueStr = "Tổng: " + savedJudgeScore.getTotalScore();
+                if (request.getComment() != null && !request.getComment().isBlank()) {
+                    newValueStr += "\nLý do: " + request.getComment();
+                }
+
+                auditLogService.log(
+                        "JudgeScore",
+                        savedJudgeScore.getId(),
+                        AuditAction.SCORE_EDITED,
+                        "totalScore",
+                        oldValueStr,
+                        newValueStr,
+                        judge
+                );
+            }
+        }
 
         // =========================================================================
         // 7. LOGIC CẬP NHẬT HOẶC TẠO TEAM RESULT KHI NỘP ĐIỂM CHÍNH THỨC
