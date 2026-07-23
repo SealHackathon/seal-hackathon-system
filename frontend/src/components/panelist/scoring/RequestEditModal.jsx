@@ -27,7 +27,7 @@ function RequestEditModal({ isOpen, onClose, onSubmit, teamName }) {
         label="Gửi yêu cầu"
         onClick={handleSubmit}
         variant="primary"
-        color="orange"
+        color="blue"
         disabled={!reason.trim()}
       />
     </div>

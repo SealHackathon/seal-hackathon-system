@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { ChatText, Trash } from '@phosphor-icons/react'
+import { ChatText, Trash, LockKey } from '@phosphor-icons/react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Badge from '../../shared/Badge'
 import ScoreSlider from './ScoreSlider'
@@ -15,8 +15,9 @@ import styles from './ScoringPanel.module.css'
  * @param {function} onScore    — (num) => void
  * @param {function} onNote     — (text) => void
  * @param {boolean}  readOnly
+ * @param {boolean}  isDiscrepancyLock
  */
-function CriterionRow({ criterion, value, note, onScore, onNote, readOnly }) {
+function CriterionRow({ criterion, value, note, onScore, onNote, readOnly, isDiscrepancyLock }) {
   const [showNote, setShowNote] = useState(!!note)
   const c = criterion
 
@@ -26,6 +27,12 @@ function CriterionRow({ criterion, value, note, onScore, onNote, readOnly }) {
         <div className={styles.critInfo}>
           <span className={styles.critName}>{c.name}</span>
           <span className={styles.critDesc}>{c.description}</span>
+          {isDiscrepancyLock && (
+            <div className={styles.lockMessage}>
+              <LockKey size={14} weight="fill" />
+              <span>Tiêu chí này không bị lệch chuẩn, không thể chỉnh sửa.</span>
+            </div>
+          )}
         </div>
         <Badge
           variant="blueSolid"

@@ -133,7 +133,6 @@
 }
 
 .detailBox {
-  background-color: var(--color-bg-blue);
   padding: 0.4rem 0.75rem;
   border-radius: var(--inner-radius);
   color: var(--color-dark-blue);

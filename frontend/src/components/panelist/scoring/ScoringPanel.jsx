@@ -78,17 +78,23 @@ function ScoringPanel({
 
       {/* Danh sách tiêu chí */}
       <div className={styles.criteria}>
-        {criteria.map((c) => (
-          <CriterionRow
-            key={c.id}
-            criterion={c}
-            value={scores[c.id]}
-            note={notes[c.id]}
-            onScore={(v) => setScore(c.id, v)}
-            onNote={(v) => setNote(c.id, v)}
-            readOnly={readOnly}
-          />
-        ))}
+        {criteria.map((c) => {
+          const isDiscrepancyLock = isReScoringMode && !(existing.discrepantCriteriaIds || []).includes(c.id);
+          const isLocked = readOnly || isDiscrepancyLock;
+
+          return (
+            <CriterionRow
+              key={c.id}
+              criterion={c}
+              value={scores[c.id]}
+              note={notes[c.id]}
+              onScore={(v) => setScore(c.id, v)}
+              onNote={(v) => setNote(c.id, v)}
+              readOnly={isLocked}
+              isDiscrepancyLock={isDiscrepancyLock}
+            />
+          )
+        })}
       </div>
 
       {/* Bình luận tổng thể */}

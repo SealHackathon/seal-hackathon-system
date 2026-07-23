@@ -208,10 +208,15 @@ function ScoringTab() {
         <ScoreDistributionModal
           isOpen={true}
           onClose={() => setScoreDistributionTeamId(null)}
-          teamId={scoreDistributionTeamId}
-          entries={ENTRIES}
-          judges={JUDGES}
-          criteria={CRITERIA}
+          data={{
+            teamName: ENTRIES.find(e => e.teamId === scoreDistributionTeamId)?.teamName || 'Team',
+            criteria: CRITERIA,
+            judges: (ENTRIES.find(e => e.teamId === scoreDistributionTeamId)?.perJudge || []).map(pj => ({
+              id: pj.judgeId,
+              name: pj.judgeName,
+              scores: pj.scores || {}
+            }))
+          }}
         />
       )}
     </div>

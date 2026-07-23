@@ -112,7 +112,19 @@
 .noteArea:focus,
 .overallArea:focus,
 .noteAreaSingle:focus {
-  border-color: var(--color-secondary-blue);
+  outline: none;
+  border-color: var(--color-primary-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.lockMessage {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  color: var(--color-primary-orange);
+  font-size: 0.8rem;
+  font-weight: 600;
+  margin-top: 0.4rem;
 }
 
 .sliderAndNote {
