@@ -36,13 +36,11 @@ function initials(name) {
  * @param {function} [onToggleViolation]  — (nextFlagged) => void
  */
 function ScoringTeamHero({ team, onToggleViolation }) {
-  const [flagged, setFlagged] = useState(!!team.flaggedViolation)
+  const flagged = !!team.flaggedViolation
   const status = STATUS[team.status] ?? STATUS.unscored
 
   const toggle = () => {
-    const next = !flagged
-    setFlagged(next)
-    onToggleViolation?.(next)
+    onToggleViolation?.(!flagged)
   }
 
   return (

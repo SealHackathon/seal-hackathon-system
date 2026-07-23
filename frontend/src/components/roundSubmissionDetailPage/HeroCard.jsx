@@ -2,8 +2,10 @@ import { Clock, ClockCountdown, Warning, WarningCircle, CheckCircle, Trophy, Sea
 import styles from './HeroCard.module.css'
 import Badge from '../shared/Badge'
 import Button from '../shared/Button'
+import { useNavigate } from 'react-router-dom'
 
 function HeroCard({ round, state, now }) {
+  const navigate = useNavigate();
   const openAt = round.openAt;
   const closeAt = round.closeAt;
 
@@ -40,7 +42,7 @@ function HeroCard({ round, state, now }) {
       <div className={styles.successBox}>
         <div className={styles.successTitle}><Trophy size='24' weight="fill" color='var(--color-border-green)' />Chúc mừng! Đội đã vượt qua vòng thi</div>
         <p className={styles.successText}>Bạn có thể xem chi tiết nhận xét và điểm số của Ban giám khảo.</p>
-        <Button label="Xem kết quả" icon={ChartBar} color='green' variant="outline" iconWeight='fill' iconColor='var(--color-border-green)' />
+        <Button label="Xem kết quả" icon={ChartBar} color='green' variant="outline" iconWeight='fill' iconColor='var(--color-border-green)' onClick={() => navigate(`/event/${localStorage.getItem('eventId')}/leaderboard`)} />
       </div>
     )
   } else if (state === 'done_eval') {
@@ -49,7 +51,7 @@ function HeroCard({ round, state, now }) {
       <div className={styles.evalBox}>
         <div className={styles.evalTitle}><FlagCheckered size='24' weight="fill" color='var(--color-border-blue)' />Hành trình dừng lại ở vòng này</div>
         <p className={styles.evalText}>Cảm ơn đội đã nỗ lực! Sau khi đánh giá, đội chưa đủ điều kiện đi tiếp. Bạn có thể xem chi tiết nhận xét và điểm số của Ban giám khảo.</p>
-        <Button label="Xem kết quả" icon={ChartBar} variant="outline" iconWeight='fill' />
+        <Button label="Xem kết quả" icon={ChartBar} variant="outline" iconWeight='fill' onClick={() => navigate(`/event/${localStorage.getItem('eventId')}/leaderboard`)} />
       </div>
     )
   } else if (state === 'done_closed') {
