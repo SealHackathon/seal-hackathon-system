@@ -14,7 +14,7 @@ function initials(name) {
  *
  * @param {object} team  — { name, category, members, kpi }
  */
-function TeamDetailHero({ team }) {
+function TeamDetailHero({ team, hidePendingQuestions = false }) {
   const kpi = team.kpi ?? {}
   const pending = kpi.pendingQuestions ?? 0
 
@@ -40,7 +40,7 @@ function TeamDetailHero({ team }) {
               <Trophy size={22} weight="fill" />
             </span>
             <span className={styles.kpiBody}>
-              <span className={styles.kpiValueOrange}>
+              <span className={styles.kpiValue}>
                 #{kpi.rank ?? '—'}<span className={styles.kpiUnit}>/{kpi.totalTeams ?? '—'}</span>
               </span>
               <span className={styles.kpiLabel}>Xếp hạng</span>
@@ -71,19 +71,21 @@ function TeamDetailHero({ team }) {
             </span>
           </div>
 
-          <div className={styles.kpiCard}>
-            <span className={styles.kpiIcon}>
-              <ChatCircleDots size={22} weight="fill" />
-            </span>
-            <span className={styles.kpiBody}>
-              {pending > 0 ? (
-                <span className={styles.kpiValueOrange}>{pending}</span>
-              ) : (
-                <span className={styles.kpiValueGreen}>0</span>
-              )}
-              <span className={styles.kpiLabel}>Câu hỏi chờ</span>
-            </span>
-          </div>
+          {!hidePendingQuestions && (
+            <div className={styles.kpiCard}>
+              <span className={styles.kpiIcon}>
+                <ChatCircleDots size={22} weight="fill" />
+              </span>
+              <span className={styles.kpiBody}>
+                {pending > 0 ? (
+                  <span className={styles.kpiValue}>{pending}</span>
+                ) : (
+                  <span className={styles.kpiValue}>0</span>
+                )}
+                <span className={styles.kpiLabel}>Câu hỏi chờ</span>
+              </span>
+            </div>
+          )}
         </div>
       </div>
 

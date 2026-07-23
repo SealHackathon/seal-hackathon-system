@@ -115,9 +115,7 @@
   min-width: 0;
 }
 
-.kpiValue,
-.kpiValueOrange,
-.kpiValueGreen {
+.kpiValue {
   display: inline-flex;
   align-items: baseline;
   gap: 0.2em;
@@ -133,9 +131,6 @@
   color: var(--color-primary-blue);
 }
 
-.kpiValueGreen {
-  color: var(--color-primary-green);
-}
 
 .kpiUnit {
   font-size: 0.8rem;

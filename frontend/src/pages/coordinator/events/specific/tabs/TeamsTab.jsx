@@ -100,6 +100,14 @@ function TeamsTab() {
 
     return (
         <div className={styles.tabContainer}>
+            {/* Header */}
+            <header className={styles.header}>
+                <h2 className={styles.pageTitle}>Duyệt đội thi</h2>
+                <p className={styles.pageDesc}>
+                    Quản lý danh sách các đội đăng ký, xem thông tin chi tiết và xét duyệt tham gia sự kiện.
+                </p>
+            </header>
+
             <CandidateFilterBar
                 search={search}
                 onSearchChange={setSearch}

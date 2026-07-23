@@ -6,7 +6,7 @@ import ViolationHandlingModal from './ViolationHandlingModal'
 import ScoreEditModal from './ScoreEditModal'
 import { mockScoreEditData } from './scoreEditMock'
 
-function RequestsSection({ onOpenTeam, onOpenSubmission }) {
+function RequestsSection({ onOpenTeam, onOpenSubmission, type = 'all', hideHeader = false }) {
   const [violationModalOpen, setViolationModalOpen] = useState(false)
   const [selectedViolation, setSelectedViolation] = useState(null)
   const [scoreEditModalOpen, setScoreEditModalOpen] = useState(false)
@@ -48,15 +48,17 @@ function RequestsSection({ onOpenTeam, onOpenSubmission }) {
   return (
     <div className={styles.section}>
       {/* Box Yêu cầu chỉnh sửa điểm */}
-      {/* 
-      <div className={styles.boxGreen}>
-        <div className={styles.header}>
-          <div className={styles.titleRow}>
-            <NotePencil size={24} color="var(--color-primary-green)" weight="fill" />
-            <h3 className={styles.titleGreen}>Yêu cầu chỉnh sửa</h3>
-            <span className={styles.countBadgeGreen}>{mockScoreEdits.length}</span>
-          </div>
-        </div>
+      {(type === 'all' || type === 'scoreEdit') && (
+        <div className={styles.boxGreen}>
+          {!hideHeader && (
+            <div className={styles.header}>
+              <div className={styles.titleRow}>
+                <NotePencil size={24} color="var(--color-primary-green)" weight="fill" />
+                <h3 className={styles.titleGreen}>Yêu cầu chỉnh sửa</h3>
+                <span className={styles.countBadgeGreen}>{mockScoreEdits.length}</span>
+              </div>
+            </div>
+          )}
 
         <div className={styles.list}>
           {mockScoreEdits.length === 0 ? (
@@ -77,17 +79,20 @@ function RequestsSection({ onOpenTeam, onOpenSubmission }) {
           )}
         </div>
       </div>
-      */}
+      )}
 
       {/* Box Xử lí vi phạm */}
-      <div className={styles.boxOrange}>
-        <div className={styles.header}>
-          <div className={styles.titleRow}>
-            <Flag size={24} color="var(--color-primary-orange)" weight="fill" />
-            <h3 className={styles.titleOrange}>Xử lí vi phạm</h3>
-            <span className={styles.countBadgeOrange}>{mockViolations.length}</span>
-          </div>
-        </div>
+      {(type === 'all' || type === 'violation') && (
+        <div className={styles.boxOrange}>
+          {!hideHeader && (
+            <div className={styles.header}>
+              <div className={styles.titleRow}>
+                <Flag size={24} color="var(--color-primary-orange)" weight="fill" />
+                <h3 className={styles.titleOrange}>Xử lí vi phạm</h3>
+                <span className={styles.countBadgeOrange}>{mockViolations.length}</span>
+              </div>
+            </div>
+          )}
 
         <div className={styles.list}>
           {mockViolations.length === 0 ? (
@@ -108,6 +113,7 @@ function RequestsSection({ onOpenTeam, onOpenSubmission }) {
           )}
         </div>
       </div>
+      )}
 
       {violationModalOpen && (
         <ViolationHandlingModal 

@@ -386,9 +386,9 @@ function ResultsTab() {
   };
 
 
-  const gotoViolation = (team) => navigate('/admin/coordinator/events/' + eventId + '/violations?team=' + team.id)
-  const openScoring = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId)
-  const openAudit = () => navigate('/admin/coordinator/events/' + eventId + '/scoring?round=' + roundId + '&tab=audit')
+  const gotoViolation = (team) => navigate(`/admin/coordinator/events/${eventId}/scoring`) // Vi phạm usually handled in scoring tab or specific route
+  const openScoring = () => navigate(`/admin/coordinator/events/${eventId}/scoring?round=${roundId}`)
+  const openAudit = () => navigate(`/admin/coordinator/events/${eventId}/audit?round=${roundId}`)
 
   if (loadingRounds) {
     return <div className={styles.tab}>Đang tải dữ liệu vòng thi...</div>

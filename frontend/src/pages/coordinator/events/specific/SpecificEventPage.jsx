@@ -3,12 +3,13 @@ import SegmentedControl from '../../../../components/shared/SegmentedControl'
 import StatusBadge from '../../../../components/coordinator/StatusBadge'
 import Button from '../../../../components/shared/Button'
 import ResultsTab from './tabs/ResultsTab'
-// import ScoringTab from './tabs/ScoringTab'
+import ScoringTab from './tabs/ScoringTab'
 import OverviewTab from './tabs/OverviewTab'
 import TeamsTab from './tabs/TeamsTab'
+import AuditTab from './tabs/AuditTab'
 import {
   ArrowLeft, FlagBanner, Eye, LinkSimple, PencilSimple, Export,
-  Info, Path, SquaresFour, Gear, Scales, Trophy, UsersThree
+  Info, Path, SquaresFour, Gear, Scales, Trophy, UsersThree, Clock
 } from '@phosphor-icons/react'
 import styles from './SpecificEventPage.module.css'
 
@@ -16,8 +17,9 @@ const TABS = [
   { value: 'overview',   label: 'Tổng quan',     icon: Info },
   { value: 'teams',      label: 'Duyệt đội',     icon: UsersThree },
   // { value: 'rounds',     label: 'Vòng thi',      icon: Path },
-  // { value: 'scoring',    label: 'Chấm điểm',     icon: PencilSimple },
+  { value: 'scoring',    label: 'Điểm số', icon: PencilSimple },
   { value: 'ranking',    label: 'Xếp hạng và Trao thưởng', icon: Trophy },
+  { value: 'audit',      label: 'Lịch sử thao tác', icon: Clock },
 ]
 const TAB_VALUES = TABS.map((t) => t.value)
 const DEFAULT_TAB = 'overview'
@@ -59,6 +61,8 @@ function SpecificEventPage({ event = MOCK_EVENT }) {
         return <OverviewTab />
       case 'teams':
         return <TeamsTab />
+      case 'audit':
+        return <AuditTab />
       case 'rounds':
         return <TabPlaceholder label="Vòng thi" />
       default:

@@ -40,7 +40,7 @@
   gap: 0.45em;
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--color-dark-green);
+  color: var(--color-primary-green);
 }
 
 /* Khung chứa vùng cuộn + overlay fade */

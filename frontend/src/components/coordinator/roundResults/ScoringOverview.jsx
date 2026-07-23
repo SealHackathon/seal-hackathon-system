@@ -101,8 +101,8 @@ function ScoringOverview({ judges, roundIsAll, allRoundsData, onOpenAudit, onOpe
             onClick={onOpenAudit} />
           <Button
             label="Chi tiết điểm"
-            icon={Pen} iconWeight='fill' iconColor='var(--color-border-green'
-            variant="outline" color="green"
+            icon={Pen} iconWeight='fill' 
+            variant="outline" color="blue"
             labelSize="0.85rem"
             onClick={onOpenScoring} />
         </div>

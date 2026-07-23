@@ -141,7 +141,7 @@ function TeamDetailModal({ open, team, eventId, roundId, onClose }) {
     >
       <div className={styles.body}>
         {/* Hero + KPI */}
-        <TeamDetailHero team={fullTeam} />
+        <TeamDetailHero team={fullTeam} hidePendingQuestions={true} />
 
         {/* Chia màn hình: timeline | side box thống kê (không có Box Hỗ trợ) */}
         <div className={styles.split}>

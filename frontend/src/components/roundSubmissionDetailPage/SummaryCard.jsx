@@ -62,7 +62,16 @@ function SummaryCard({ submission, state }) {
           <ChatCircleText weight="fill" size={24}/>
           Nhận xét của Ban giám khảo
         </div>
-        {comment ? (
+        {comment && Array.isArray(comment) ? (
+          <div className={styles.commentList}>
+            {comment.map((line, idx) => (
+              <div key={idx} className={styles.commentLine}>
+                <span className={styles.commentBullet}>•</span>
+                <span>{line}</span>
+              </div>
+            ))}
+          </div>
+        ) : comment ? (
           <p className={styles.commentText}>{comment}</p>
         ) : (
           <p className={styles.commentEmpty}>Chưa có nhận xét nào.</p>

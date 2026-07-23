@@ -14,6 +14,41 @@ import { REQUIRED_SUBMISSION_FIELDS, validateSubmissionField, computeValidFields
 import axiosClient from '../api/axiosClient'
 import { useAuth } from '../AuthContext'
 
+// ==========================================
+// MOCK DATA
+// ==========================================
+const ENABLE_MOCK_ROUND_DETAIL = true;
+
+const MOCK_ROUND_DETAILS = {
+  roundId: 'mock-round-1',
+  roundName: 'Vòng 0: Sàng lọc hồ sơ (Mock)',
+  roundOrdinalNumber: 0,
+  roundQuantity: 3,
+  roundStartTime: '2026-06-01T00:00:00',
+  roundEndTime: '2026-06-15T23:59:59',
+  roundSubmissionDeadline: '2026-06-15T23:59:59',
+  status: 'COMPLETED',
+  submissionConfig: {
+    title: 'Hoàn thiện hồ sơ',
+    submissionInstructions: 'Nộp đầy đủ thông tin để sàng lọc',
+    openingTime: '2026-06-01T00:00:00'
+  },
+  criteria: [{ name: 'Ý tưởng' }, { name: 'Đội ngũ' }]
+};
+
+const MOCK_ACTIVE_SUBMISSION = {
+  id: 'mock-sub-1',
+  githubUrl: 'https://github.com/mock/repo',
+  demoUrl: 'https://youtube.com/mock',
+  documentUrl: 'https://docs.google.com/mock',
+  submittedAt: '2026-06-10T15:30:00',
+  lastEditedAt: '2026-06-10T15:30:00',
+  isLate: false,
+  score: 8.5,
+  comments: ['Tốt', 'Cần cải thiện phần demo'],
+  judgesCount: 2
+};
+
 function formatDateLabel(value) {
   if (!value) return null
 
@@ -110,8 +145,13 @@ function RoundSubmissionDetailPage() {
         setError(null)
 
         // 1. Fetch thông tin vòng thi
-        const roundRes = await axiosClient.get(`/round/rounds/${roundId}`)
-        const details = roundRes.data
+        let details = null;
+        if (ENABLE_MOCK_ROUND_DETAIL && roundId === 'mock-round-1') {
+          details = MOCK_ROUND_DETAILS;
+        } else {
+          const roundRes = await axiosClient.get(`/round/rounds/${roundId}`)
+          details = roundRes.data
+        }
         if (!details) {
           throw new Error('Không nhận được dữ liệu vòng thi.')
         }
@@ -129,52 +169,69 @@ function RoundSubmissionDetailPage() {
 
         // FETCH BÀI NỘP HIỆN TẠI CỦA TEAM
         let activeSubmission = null
-        try {
-          // Thay thế chính xác endpoint mà bạn vừa cấu hình ở Backend
-          const subRes = await axiosClient.get(`/submission/current?roundId=${roundId}`)
+        if (ENABLE_MOCK_ROUND_DETAIL && roundId === 'mock-round-1') {
+           activeSubmission = MOCK_ACTIVE_SUBMISSION;
+           setSubmissionId(activeSubmission.id);
+           setIsUpdate(true);
+           setRealSubmission({
+             github: { mode: 'link', value: activeSubmission.githubUrl },
+             video: { mode: 'link', value: activeSubmission.demoUrl },
+             slide: { mode: 'link', value: activeSubmission.documentUrl },
+             submittedAt: formatDateLabel(activeSubmission.submittedAt),
+             lastEditedAt: formatDateLabel(activeSubmission.lastEditedAt),
+             late: false,
+             score: activeSubmission.score,
+             comment: activeSubmission.comments.map((c, index) => `Giám khảo ${index + 1}: ${c}`),
+             judge: `Hội đồng giám khảo (${activeSubmission.judgesCount} người đã chấm)`
+           });
+        } else {
+          try {
+            // Thay thế chính xác endpoint mà bạn vừa cấu hình ở Backend
+            const subRes = await axiosClient.get(`/submission/current?roundId=${roundId}`)
 
-          // Nếu status là 200 và có data trả về (đã từng nộp)
-          if (subRes.status === 200 && subRes.data) {
-            activeSubmission = subRes.data;
-            setSubmissionId(activeSubmission.id); // Lưu lại ID để phục vụ lệnh PUT
-            setIsUpdate(true);                    // Đánh dấu chuyển form sang trạng thái cập nhật (PUT)
+            // Nếu status là 200 và có data trả về (đã từng nộp)
+            if (subRes.status === 200 && subRes.data) {
+              activeSubmission = subRes.data;
+              setSubmissionId(activeSubmission.id); // Lưu lại ID để phục vụ lệnh PUT
+              setIsUpdate(true);                    // Đánh dấu chuyển form sang trạng thái cập nhật (PUT)
 
-            // ĐƯA DỮ LIỆU THẬT VÀO STATE
-            setRealSubmission({
-              github: { mode: 'link', value: activeSubmission.githubUrl },
-              video: {
-                mode: activeSubmission.demoUrl?.startsWith('http') ? 'link' : 'file',
-                value: activeSubmission.demoUrl
-              },
-              slide: {
-                mode: activeSubmission.documentUrl?.startsWith('http') ? 'link' : 'file',
-                value: activeSubmission.documentUrl
-              },
-              submittedAt: formatDateLabel(activeSubmission.submittedAt),
-              lastEditedAt: formatDateLabel(activeSubmission.lastEditedAt || activeSubmission.submittedAt),
-              late: activeSubmission.isLate || false,
+              // ĐƯA DỮ LIỆU THẬT VÀO STATE
+              setRealSubmission({
+                github: { mode: 'link', value: activeSubmission.githubUrl },
+                video: {
+                  mode: activeSubmission.demoUrl?.startsWith('http') ? 'link' : 'file',
+                  value: activeSubmission.demoUrl
+                },
+                slide: {
+                  mode: activeSubmission.documentUrl?.startsWith('http') ? 'link' : 'file',
+                  value: activeSubmission.documentUrl
+                },
+                submittedAt: formatDateLabel(activeSubmission.submittedAt),
+                lastEditedAt: formatDateLabel(activeSubmission.lastEditedAt || activeSubmission.submittedAt),
+                late: activeSubmission.isLate || false,
 
-              // Điểm trung bình cộng hệ 10 của toàn bộ hội đồng giám khảo
-              score: activeSubmission.score !== null ? activeSubmission.score : null,
+                // Điểm trung bình cộng hệ 10 của toàn bộ hội đồng giám khảo
+                score: activeSubmission.score !== null ? activeSubmission.score : null,
 
-              // Duyệt mảng ghép chuỗi có đánh số thứ tự cho đẹp UI
-              comment: activeSubmission.comments && activeSubmission.comments.length > 0
-                ? activeSubmission.comments.map((c, index) => `• Giám khảo ${index + 1}: ${c}`).join('\n')
-                : 'Chưa có nhận xét tổng quan từ hội đồng giám khảo.',
+                // Duyệt mảng tạo danh sách nhận xét
+                comment: activeSubmission.comments && activeSubmission.comments.length > 0
+                  ? activeSubmission.comments.map((c, index) => `Giám khảo ${index + 1}: ${c}`)
+                  : null,
 
-              //  Hiển thị động số lượng người đã nộp điểm
-              judge: activeSubmission.judgesCount > 0
-                ? `Hội đồng giám khảo (${activeSubmission.judgesCount} người đã chấm)`
-                : 'Chưa có kết quả chấm điểm',
-            });
-          } else {
-            setIsUpdate(false);                  // Nhận diện HTTP 204 No Content -> Dùng POST để tạo mới
-            setRealSubmission(null);             // Chưa nộp bài
+                //  Hiển thị động số lượng người đã nộp điểm
+                judge: activeSubmission.judgesCount > 0
+                  ? `Hội đồng giám khảo (${activeSubmission.judgesCount} người đã chấm)`
+                  : 'Chưa có kết quả chấm điểm',
+              });
+            } else {
+              setIsUpdate(false);                  // Nhận diện HTTP 204 No Content -> Dùng POST để tạo mới
+              setRealSubmission(null);             // Chưa nộp bài
+            }
+          } catch (e) {
+            console.log('Chưa có bài nộp nào cho vòng này hoặc phát sinh lỗi, mặc định dùng POST.', e)
+            setIsUpdate(false)
+            setRealSubmission(null)
           }
-        } catch (e) {
-          console.log('Chưa có bài nộp nào cho vòng này hoặc phát sinh lỗi, mặc định dùng POST.', e)
-          setIsUpdate(false)
-          setRealSubmission(null)
         }
 
         if (!isMounted) return
@@ -240,12 +297,15 @@ function RoundSubmissionDetailPage() {
         const deadline = details.roundSubmissionDeadline ? new Date(details.roundSubmissionDeadline) : null
 
         let derivedState = 'active'
-        if (details.status === 'UPCOMING' || (start && now < start)) {
+        if (start && now < start) {
           derivedState = 'upcoming'
-        } else if (details.status === 'COMPLETED' || (end && now > end)) {
+        } else if (end && now > end) {
           derivedState = 'done_closed'
         } else if (deadline && now > deadline) {
           derivedState = 'late'
+        } else if (!start && !end) {
+          if (details.status === 'UPCOMING') derivedState = 'upcoming'
+          else if (details.status === 'COMPLETED') derivedState = 'done_closed'
         }
 
         const userRole = teamRole?.toLowerCase() === 'leader' ? 'leader' : 'member'
@@ -290,12 +350,16 @@ function RoundSubmissionDetailPage() {
     const end = round.rawEnd ? new Date(round.rawEnd) : null
     const deadline = round.rawDeadline ? new Date(round.rawDeadline) : null
 
-    if (round.rawStatus === 'UPCOMING' || (start && now < start)) {
+    if (start && now < start) {
       currentState = 'upcoming'
-    } else if (round.rawStatus === 'COMPLETED' || (end && now > end)) {
+    } else if (end && now > end) {
       currentState = 'done_closed'
     } else if (deadline && now > deadline) {
       currentState = 'late'
+    } else if (!start && !end) {
+      if (round.rawStatus === 'UPCOMING') currentState = 'upcoming'
+      else if (round.rawStatus === 'COMPLETED') currentState = 'done_closed'
+      else currentState = 'active'
     } else {
       currentState = 'active'
     }

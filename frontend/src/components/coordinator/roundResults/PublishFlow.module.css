@@ -1,5 +1,5 @@
 .section {
-  background: var(--color-bg-white);
+  background: var(--color-bg-blue);
   border: 1.5px solid var(--color-border-blue);
   border-radius: var(--radius);
   padding: 1.35em 1.6em;
@@ -80,7 +80,7 @@
   flex: 1;
   height: 3px;
   margin: 0 0.6em;
-  background: var(--color-bg-grey);
+  background: var(--color-border-blue);
   border-radius: var(--radius);
 }
 .lineDone { background: var(--color-primary-green); }
