@@ -1,0 +1,33 @@
+/* ─── ScoringFilterBar ─── */
+
+.bar {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.85em;
+  flex-wrap: wrap;
+  background: var(--color-bg-blue);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.1em 1.4em;
+}
+
+/* Wrapper cho từng nhóm label + dropdown */
+.filterItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3em;
+  min-width: 11em;
+}
+
+.filterLabel {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-secondary-blue);
+}
+
+/* Ô search đẩy về phải */
+.searchWrap {
+  flex: 1;
+  min-width: 14em;
+  margin-left: auto;
+}
