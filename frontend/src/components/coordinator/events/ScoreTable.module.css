@@ -1,0 +1,399 @@
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  background-color: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+}
+
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1.5px solid var(--color-border-blue);
+  padding-bottom: 1rem;
+}
+
+.title {
+  margin: 0;
+  color: var(--color-primary-blue);
+  font-family: var(--title-font-main);
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-style: normal;
+}
+
+.headRight {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.totalCount {
+  color: var(--color-text-secondary);
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: var(--color-primary-blue);
+  color: var(--color-bg-white);
+  border: none;
+  padding: 0.6rem 1.2rem;
+  border-radius: var(--radius);
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.exportBtn:hover {
+  background-color: var(--color-dark-blue);
+}
+
+.tableWrap {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.empty {
+  text-align: center;
+  color: var(--color-text-secondary);
+  padding: 2rem;
+}
+
+.trackGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.trackHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: var(--color-primary-blue);
+  padding: 1rem 1.5rem;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  border-bottom: 1.5px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  margin-bottom: 0.5rem;
+}
+
+.trackCaret {
+  color: var(--color-bg-white);
+  display: flex;
+}
+
+.trackName {
+  font-weight: 800;
+  color: var(--color-bg-white);
+  font-size: 1.1rem;
+  flex: 1;
+}
+
+.trackBody {
+  display: flex;
+  flex-direction: column;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 4em minmax(10em, 1fr) 10em 7em 11em 8em 3em;
+  align-items: center;
+  gap: 1em;
+  padding: 0.9em;
+  border: 1.5px solid transparent;
+  border-radius: var(--inner-radius);
+  transition: border 0.15s ease-in, background-color 0.15s ease-in;
+}
+
+.rowHeader {
+  background: var(--color-bg-blue);
+  border-radius: var(--inner-radius);
+  border: 1.5px solid var(--color-border-blue);
+  padding: 0.85em 0.9em;
+  margin-bottom: 0.5em;
+}
+
+.rowHeader span {
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: none;
+  letter-spacing: normal;
+  color: var(--color-primary-blue);
+}
+
+.row:not(.rowHeader) {
+  cursor: pointer;
+}
+
+.row:not(.rowHeader):hover {
+  border: 1.5px solid var(--color-border-blue);
+  background-color: var(--color-bg-white);
+  box-sizing: border-box;
+}
+
+.rowWrap {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 0.5em;
+  border: 1.5px solid transparent;
+  border-radius: var(--inner-radius);
+  transition: all 0.2s ease;
+}
+
+.rowWrapExpanded {
+  border: 1.5px solid var(--color-border-blue);
+  background-color: var(--color-bg-white);
+}
+
+.rowWrapExpanded .row:not(.rowHeader) {
+  border-radius: var(--inner-radius) var(--inner-radius) 0 0;
+}
+
+.rowWrapExpanded .row:not(.rowHeader):hover {
+  border-color: transparent;
+}
+
+/* Các cột */
+.colRank { font-weight: 800; color: var(--color-text-secondary); }
+.colTeam { display: flex; flex-direction: column; gap: 0.15em; }
+.colStatus { display: flex; align-items: center; }
+.colFlags { display: flex; align-items: center; gap: 0.5em; }
+.colAvg { font-weight: 700; }
+.colDev { }
+.colExpand { display: flex; justify-content: flex-end; color: var(--color-primary-blue); }
+
+.teamName {
+  font-weight: 700;
+  color: var(--color-dark-blue);
+  font-size: 1.05rem;
+}
+
+.avgScore {
+  color: var(--color-primary-blue);
+  font-size: 1.1rem;
+  background-color: var(--color-bg-blue);
+  padding: 0.2rem 0.6rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border-blue);
+}
+
+.devNormal { color: var(--color-secondary-blue); }
+.devHigh { color: var(--color-primary-orange); font-weight: 700; border-color: var(--color-primary-orange); }
+
+.devClickable {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  background: var(--color-bg-white);
+  border: 1px solid var(--color-border-blue);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.95em;
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.devClickable:hover {
+  background-color: var(--color-bg-blue);
+  border-color: var(--color-primary-blue);
+}
+
+.devClickable.devHigh:hover {
+  background-color: var(--color-bg-orange);
+  border-color: var(--color-primary-orange);
+}
+
+/* Chi tiết Expand */
+.expandedDetail {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+  padding: 1.5rem;
+}
+
+.detailLeft {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.detailRight {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-left: 1px dashed var(--color-border-blue);
+  padding-left: 2rem;
+}
+
+.detailTitle {
+  margin: 0 0 1rem 0;
+  color: var(--color-text-primary);
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.judgeCards {
+  display: flex;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.judgeCardBar {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background-color: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  transition: all 0.2s ease;
+  min-width: 0;
+}
+
+.judgeCardBar:hover {
+  border-color: var(--color-primary-blue);
+  box-shadow: 0 4px 12px rgba(8, 76, 221, 0.08);
+}
+
+.judgeInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-bottom: 1px dashed var(--color-border-blue);
+  padding-bottom: 0.5rem;
+}
+
+.judgeAvatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.judgeName {
+  flex: 1;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+  font-size: 1.05rem;
+}
+
+.judgeTotalWrap {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.judgeTotalLabel {
+  font-size: 0.85rem;
+  color: var(--color-primary-blue);
+  font-weight: 700;
+}
+
+.judgeTotalScore {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--color-primary-blue);
+}
+
+.scrollContainer {
+  position: relative;
+  width: 100%;
+}
+
+.scrollMask {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.maskLeft {
+  left: 0;
+  background: linear-gradient(to right, var(--color-bg-white) 20%, transparent);
+}
+
+.maskRight {
+  right: 0;
+  background: linear-gradient(to left, var(--color-bg-white) 20%, transparent);
+}
+
+.judgeCriteriaWrap {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 2rem;
+  overflow-x: auto;
+  padding-bottom: 0.5rem;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.judgeCriteriaWrap::-webkit-scrollbar {
+  display: none;
+}
+
+.criterionBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  flex: 0 0 auto;
+  width: 180px;
+}
+
+.criterionHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.criterionLabel {
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+  font-weight: 600;
+}
+
+.criterionValue {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.barTrack {
+  height: 6px;
+  background: var(--color-bg-blue);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: var(--color-primary-blue);
+  border-radius: 3px;
+  transition: width 0.5s ease-out;
+}
+
+.flagBtn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: var(--color-primary-orange);
+  display: inline-flex;
+  padding: 0;
+  transition: transform 0.2s ease;
+}
+
+.flagBtn:hover {
+  transform: scale(1.1);
+}
