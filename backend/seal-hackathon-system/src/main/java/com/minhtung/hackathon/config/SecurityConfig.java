@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/kyc/cccd").hasRole("USER")
                         .requestMatchers("/api/kyc/face-match").hasRole("USER")
                         .requestMatchers("/api/kyc/*/approve").hasRole("ADMIN")
+                        .requestMatchers("/api/audit-logs/*").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
