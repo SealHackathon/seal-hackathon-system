@@ -2,13 +2,16 @@ package com.minhtung.hackathon.entity;
 
 import com.minhtung.hackathon.enums.AuditAction;
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "audit_log")
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AuditLog {
 
     @Id
@@ -57,4 +60,6 @@ public class AuditLog {
 
     @Column
     private LocalDateTime performedAt;
+
+
 }

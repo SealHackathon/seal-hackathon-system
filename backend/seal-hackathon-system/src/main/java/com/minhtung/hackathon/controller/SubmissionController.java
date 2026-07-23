@@ -1,9 +1,15 @@
 package com.minhtung.hackathon.controller;
 
+import com.minhtung.hackathon.dto.request.FlagViolationRequest;
 import com.minhtung.hackathon.dto.request.SubmissionRequest;
 import com.minhtung.hackathon.dto.response.*;
+import com.minhtung.hackathon.entity.AuditLog;
+import com.minhtung.hackathon.enums.AuditAction;
+import com.minhtung.hackathon.repository.UserRepository;
+import com.minhtung.hackathon.security.JwtUtil;
 import com.minhtung.hackathon.service.SubmissionService;
 
+import com.minhtung.hackathon.service.TeamService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,7 +28,9 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SubmissionController {
     private final SubmissionService submissionService ;
-
+    private final JwtUtil jwtUtil;
+    private final UserRepository userRepository;
+    private final TeamService teamService ;
 
 
     @PostMapping(value = "/submit", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -141,4 +149,53 @@ public class SubmissionController {
 
         return ResponseEntity.ok(response);
     }
+
+    private Integer getUid(String authHeader) {
+        try {
+            String token = authHeader.substring(7);
+            String email = jwtUtil.extractEmail(token);
+            return userRepository.findByEmail(email)
+                    .map(u -> Math.toIntExact(u.getId()))
+                    .orElse(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private ResponseEntity<String> unauthorized() {
+        return ResponseEntity.status(401).body("Token không hợp lệ");
+    }
+    // nay de lay danh sach teambyround ;
+    @GetMapping("/{roundId}/teams")
+    @PreAuthorize("hasAnyRole('ADMIN', 'LECTURER')")
+    public ResponseEntity<List<ViewTeamListRespone>>
+    getTeamsByRound(
+            @PathVariable Long roundId
+    ) {
+        return ResponseEntity.ok(
+                teamService.viewTeamByRound(roundId)
+        );
+    }
+
+
+    @PutMapping("/{submissionId}/violation")
+    public ResponseEntity<?> toggleViolation(
+            @PathVariable Long submissionId,
+            @RequestBody FlagViolationRequest request,@RequestHeader("Authorization") String auth
+
+    ) {
+        Integer currentUserId = getUid(auth);
+        if (currentUserId == null) {
+
+            return unauthorized();
+        }
+
+
+        submissionService.handleFlagViolation(submissionId, request, Integer.toUnsignedLong(currentUserId));
+
+        return ResponseEntity.ok().build();
+    }
+
+
 }

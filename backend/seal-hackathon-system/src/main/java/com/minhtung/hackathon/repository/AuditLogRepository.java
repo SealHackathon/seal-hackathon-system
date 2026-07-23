@@ -18,4 +18,12 @@ public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
 
     // Lấy danh sách audit log phân trang theo thứ tự mới nhất
     Page<AuditLog> findAllByOrderByPerformedAtDesc(Pageable pageable);
+
+    // Thêm phương thức xóa log cắm cờ
+    void deleteByEntityTypeAndEntityIdAndPerformedByIdAndAction(
+            String entityType,
+            Long entityId,
+            Long performedById,
+            AuditAction action
+    );
 }

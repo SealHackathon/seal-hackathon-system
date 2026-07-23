@@ -37,4 +37,14 @@ public interface SystemRequestRepository extends JpaRepository<SystemRequest, Lo
             @Param("referenceId") long referenceId,
             @Param("type") SystemRequest.RequestType type,
             @Param("statuses") Collection<SystemRequest.RequestStatus> statuses);
+
+
+    // Tìm request vi phạm đang chờ xử lý của bài nộp do giám khảo gửi
+    Optional<SystemRequest> findBySenderIdAndReferenceIdAndReferenceTypeAndTypeAndStatus(
+            Long senderId,
+            Long referenceId,
+            SystemRequest.ReferenceType referenceType,
+            SystemRequest.RequestType type,
+            SystemRequest.RequestStatus status
+    );
 }

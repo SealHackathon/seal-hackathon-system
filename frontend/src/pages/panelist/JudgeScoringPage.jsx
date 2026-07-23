@@ -246,7 +246,7 @@ function JudgeScoringPage() {
     } else {
       // Hủy báo cáo vi phạm
       try {
-        await axiosClient.put(`/api/v1/panelist/submissions/${submissionId}/violation`, { isViolation: false, reason: '' });
+        await axiosClient.put(`/submission/${submissionId}/violation`, { isViolation: false, reason: '' });
         setTeam(prev => ({ ...prev, flaggedViolation: false }));
       } catch (err) {
         alert(err.response?.data?.message || 'Không thể cập nhật trạng thái vi phạm.');
@@ -256,7 +256,7 @@ function JudgeScoringPage() {
 
   const handleSubmitViolation = async (reason) => {
     try {
-      await axiosClient.put(`/api/v1/panelist/submissions/${submissionId}/violation`, { isViolation: true, reason });
+      await axiosClient.put(`/submission/${submissionId}/violation`, { isViolation: true, reason });
       setTeam(prev => ({ ...prev, flaggedViolation: true }));
       setIsViolationModalOpen(false);
     } catch (err) {

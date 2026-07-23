@@ -18,7 +18,7 @@
         private User sender;          // Người gửi lời mời (coordinator)
 
         @ManyToOne(fetch = FetchType.LAZY)
-        @JoinColumn(name = "receiver_id", nullable = false)
+        @JoinColumn(name = "receiver_id")
         private User receiver;        // Người nhận (mentor/judge)
 
         private long referenceId;     // eventId, teamId, ...
@@ -45,7 +45,7 @@
         @PreUpdate
         void onUpdate() { this.updatedAt = LocalDateTime.now(); }
 
-        public enum ReferenceType { EVENT, TEAM }
-        public enum RequestType   { MENTOR_INVITE, JUDGE_INVITE }
-        public enum RequestStatus { PENDING, SENT, ACCEPTED, REJECTED,WITHDRAW }
+        public enum ReferenceType { EVENT, TEAM,SUBMISSION }
+        public enum RequestType   { MENTOR_INVITE, JUDGE_INVITE,FLAG_VIOLATION }
+        public enum RequestStatus { PENDING, SENT, ACCEPTED, REJECTED,WITHDRAW,RESOLVED,CANCELLED }
     }

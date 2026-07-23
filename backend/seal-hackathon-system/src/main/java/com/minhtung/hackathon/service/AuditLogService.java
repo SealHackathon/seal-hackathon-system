@@ -9,6 +9,8 @@ import com.minhtung.hackathon.entity.User;
 import com.minhtung.hackathon.enums.AuditAction;
 import com.minhtung.hackathon.repository.AuditLogRepository;
 import com.minhtung.hackathon.repository.JudgeScoreRepository;
+import com.minhtung.hackathon.repository.SubmissionRepository;
+import com.minhtung.hackathon.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +26,7 @@ public class AuditLogService {
 
     private final AuditLogRepository auditLogRepository;
     private final JudgeScoreRepository judgeScoreRepository;
+    private final SubmissionRepository submissionRepository;
     public void log(
             String entityType,
             Long entityId,
@@ -58,7 +61,8 @@ public class AuditLogService {
         long scoreEdits = auditLogRepository.countByAction(AuditAction.SCORE_EDITED);
 
         // Giả định nếu bạn có enum FLAGGED cho vi phạm, nếu chưa có thì để tạm 0 hoặc đếm theo enum tương ứng
-        long violationsFlagged = 0;
+
+        long violationsFlagged = auditLogRepository.countByAction(AuditAction.FLAGGED);
 
         return AuditLogOverviewResponse.builder()
                 .totalActions(totalActions)
@@ -94,41 +98,57 @@ public class AuditLogService {
     }
 
     private AuditLogResponse mapToAuditLogResponse(AuditLog log) {
-        String userDisplay = log.getPerformedBy() != null ? log.getPerformedBy().getFullName() : "Hệ thống";
-        if (log.getPerformedBy() != null && log.getPerformedBy().getTitle() != null) {
-            userDisplay = log.getPerformedBy().getTitle() + " " + userDisplay;
+        // 1. Tên người thực hiện (ThS. Nguyễn Văn A / Hệ thống)
+        String userDisplay = "Hệ thống";
+        if (log.getPerformedBy() != null) {
+            userDisplay = log.getPerformedBy().getFullName();
+            if (log.getPerformedBy().getTitle() != null && !log.getPerformedBy().getTitle().isBlank()) {
+                userDisplay = log.getPerformedBy().getTitle() + " " + userDisplay;
+            }
         }
 
         String type;
         String actionText;
         String targetText = "N/A";
 
-        // Map enum sang định dạng Frontend yêu cầu
+        // 2. Map type & actionText
         if (log.getAction() == AuditAction.SCORE_SUBMITTED) {
             type = "score_submitted";
             actionText = "đã hoàn thành chấm điểm";
         } else if (log.getAction() == AuditAction.SCORE_EDITED) {
             type = "score_edited";
             actionText = "đã yêu cầu chỉnh sửa điểm";
+        } else if (log.getAction() == AuditAction.FLAGGED) {
+            type = "flagged";
+            actionText = "gắn cờ vi phạm";
         } else {
             type = log.getAction().name().toLowerCase();
             actionText = "đã thực hiện thao tác";
         }
 
-        // Truy vấn lấy tên Đội thi dựa trên entityId (JudgeScore -> Submission -> Team)
-        if ("JudgeScore".equalsIgnoreCase(log.getEntityType()) && log.getEntityId() != null) {
-            targetText = judgeScoreRepository.findById(log.getEntityId())
-                    .map(js -> "đội " + js.getSubmission().getTeam().getName())
-                    .orElse("Hệ thống");
+        // 3. Map targetText linh hoạt theo EntityType
+        if (log.getEntityId() != null) {
+            if ("JudgeScore".equalsIgnoreCase(log.getEntityType())) {
+                // Trường hợp chấm/sửa điểm: Entity là JudgeScore -> Submission -> Team
+                targetText = judgeScoreRepository.findById(log.getEntityId())
+                        .map(js -> "đội " + js.getSubmission().getTeam().getName())
+                        .orElse("Hệ thống");
+
+            } else if ("Submission".equalsIgnoreCase(log.getEntityType())) {
+                // Trường hợp báo cờ vi phạm: Entity trực tiếp là Submission -> Team
+                targetText = submissionRepository.findById(log.getEntityId())
+                        .map(sub -> "đội " + sub.getTeam().getName())
+                        .orElse("Hệ thống");
+            }
         }
 
         return AuditLogResponse.builder()
-                .id("al" + log.getId())
+                .id(log.getId())
                 .type(type)
                 .user(userDisplay)
                 .action(actionText)
                 .target(targetText)
-                .time(log.getPerformedAt()) // Jackson sẽ tự render ra ISO 8601 (e.g. 2026-07-22T10:35:00)
+                .time(log.getPerformedAt())
                 .detail(log.getNewValue())
                 .build();
     }

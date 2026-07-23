@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuditLogResponse {
-    private String id;
+    private long id;
     private String type;     // score_submitted, score_edited, flagged
     private String user;     // Tên kèm chức danh/học vị hoặc full_name
     private String action;   // "đã hoàn thành chấm điểm", "đã chỉnh sửa điểm", ...

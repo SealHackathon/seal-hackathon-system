@@ -1,9 +1,11 @@
 package com.minhtung.hackathon.service;
 
 
+import com.minhtung.hackathon.dto.request.FlagViolationRequest;
 import com.minhtung.hackathon.dto.request.SubmissionRequest;
 import com.minhtung.hackathon.dto.response.*;
 import com.minhtung.hackathon.entity.*;
+import com.minhtung.hackathon.enums.AuditAction;
 import com.minhtung.hackathon.enums.JudgeScoreStatus;
 import com.minhtung.hackathon.enums.MemberRole;
 import com.minhtung.hackathon.enums.MemberStatus;
@@ -35,6 +37,10 @@ public class SubmissionService {
     private final JudgeScoreRepository judgeScoreRepository;
     private final RoundTrackRepository roundTrackRepository;
     private final JudgeAssignmentRepository judgeAssignmentRepository;
+    private final SystemRequestRepository  systemRequestRepository;
+    private final AuditLogRepository auditLogRepository;
+
+
     @Value("${submission.demo.max-size}")
     private DataSize maxDemoSize;
 
@@ -609,4 +615,74 @@ public class SubmissionService {
                 .build();
     }
 
+
+
+
+    // cắm cờ vi phạm
+
+    @Transactional
+    public void handleFlagViolation(Long submissionId, FlagViolationRequest request, Long currentUserId) {
+        User judge = userRepository.findById(currentUserId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy người dùng"));
+
+        Submission submission = submissionRepository.findById(submissionId)
+                .orElseThrow(() -> new RuntimeException("Không tìm thấy bài nộp ID: " + submissionId));
+
+        if (Boolean.TRUE.equals(request.getIsViolation())) {
+            // ==========================================
+            // CASE 1: BÁO CÁO VI PHẠM (isViolation = true)
+            // ==========================================
+
+            SystemRequest violationReq = new SystemRequest();
+            violationReq.setSender(judge);
+            violationReq.setReferenceId(submissionId);
+            violationReq.setRoundId(submission.getRound() != null ? submission.getRound().getId() : null);
+            violationReq.setReferenceType(SystemRequest.ReferenceType.SUBMISSION);
+            violationReq.setType(SystemRequest.RequestType.FLAG_VIOLATION);
+            violationReq.setStatus(SystemRequest.RequestStatus.PENDING);
+            violationReq.setMessage(request.getReason());
+            violationReq.setSentAt(LocalDateTime.now());
+
+            systemRequestRepository.save(violationReq);
+
+            // Ghi AuditLog
+            AuditLog auditLog = AuditLog.builder()
+                    .entityType("Submission")
+                    .entityId(submissionId)
+                    .action(AuditAction.FLAGGED)
+                    .fieldName("violation")
+                    .oldValue(null)
+                    .newValue("Lý do: " + request.getReason())
+                    .performedBy(judge)
+                    .performedAt(LocalDateTime.now())
+                    .build();
+
+            auditLogRepository.save(auditLog);
+
+        } else {
+            // ==========================================
+            // CASE 2: HỦY BÁO CÁO VI PHẠM -> XÓA AUDIT LOG
+            // ==========================================
+
+            // 1. Chuyển SystemRequest về CANCELLED
+            systemRequestRepository.findBySenderIdAndReferenceIdAndReferenceTypeAndTypeAndStatus(
+                    currentUserId,
+                    submissionId,
+                    SystemRequest.ReferenceType.SUBMISSION,
+                    SystemRequest.RequestType.FLAG_VIOLATION,
+                    SystemRequest.RequestStatus.PENDING
+            ).ifPresent(existingReq -> {
+                existingReq.setStatus(SystemRequest.RequestStatus.CANCELLED);
+                systemRequestRepository.save(existingReq);
+            });
+
+            // 2. Xóa hẳn dòng AuditLog cắm cờ tương ứng khỏi Database
+            auditLogRepository.deleteByEntityTypeAndEntityIdAndPerformedByIdAndAction(
+                    "Submission",
+                    submissionId,
+                    currentUserId,
+                    AuditAction.FLAGGED
+            );
+        }
+    }
 }

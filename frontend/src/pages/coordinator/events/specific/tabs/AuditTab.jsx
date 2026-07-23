@@ -43,32 +43,22 @@ function AuditTab() {
       })
   }, [])
 
-  // 2. Fetch danh sách Audit Logs (chạy lại mỗi khi page hoặc filterType thay đổi)
-  useEffect(() => {
-    setLoadingLogs(true)
-    
-    // Khởi tạo query params
-    const params = {
-      page: page,
-      limit: 5
-    }
+  // 2. Fetch danh sách Audit Logs (Chỉ chạy 1 lần khi load)
+useEffect(() => {
+  setLoadingLogs(true)
 
-    // Nếu có filter thì truyền kèm vào param
-    if (filterType !== 'all') {
-      params.type = filterType
-    }
-
-    axiosClient.get('/audit-logs', { params })
-      .then((res) => {
-        setApiResponse(res.data)
-      })
-      .catch((err) => {
-        console.error("Lỗi khi tải danh sách nhật ký thao tác:", err)
-      })
-      .finally(() => {
-        setLoadingLogs(false)
-      })
-  }, [page, filterType])
+  // Lấy danh sách đủ lớn để Client tự filter
+  axiosClient.get('/audit-logs', { params: { page: 1, limit: 1000 } })
+    .then((res) => {
+      setApiResponse(res.data)
+    })
+    .catch((err) => {
+      console.error("Lỗi khi tải danh sách nhật ký thao tác:", err)
+    })
+    .finally(() => {
+      setLoadingLogs(false)
+    })
+}, []) 
 
   // Reset về trang 1 khi chuyển bộ lọc filter
   const handleFilterChange = (newFilter) => {
