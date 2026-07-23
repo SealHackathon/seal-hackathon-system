@@ -1,0 +1,157 @@
+.container {
+  background-color: var(--color-bg-white);
+  border: 1.5px solid var(--color-border-blue);
+  border-radius: var(--radius);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1.5px solid var(--color-border-blue);
+  background-color: var(--color-bg-blue);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2em;
+  border-radius: var(--radius) var(--radius) 0 0;
+
+}
+
+.title {
+  color: var(--color-primary-blue);
+  font-size: 1.15rem;
+  margin: 0;
+  font-style: normal;
+  font-family: var(--title-font-main);
+  font-weight: 700;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.dropdownWrap {
+  flex: 1;
+}
+
+.list {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  overflow-y: auto;
+  max-height: 400px;
+}
+
+.item {
+  display: grid;
+  grid-template-columns: 140px 100px auto;
+  gap: 1.5rem;
+  align-items: center;
+  padding-bottom: 1.25rem;
+  border-bottom: 1.5px dashed var(--color-border-blue);
+}
+
+.item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.timeWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  color: var(--color-text-secondary);
+}
+
+.clockIcon {
+  color: var(--color-secondary-blue);
+}
+
+.timeText {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.chipWrap {
+  display: flex;
+  align-items: center;
+}
+
+.actionChip {
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 0.3rem 0.6rem;
+  border-radius: var(--radius);
+  color: var(--color-bg-white);
+  text-align: center;
+  min-width: 80px;
+}
+
+.chipGreen { background-color: var(--color-primary-green); }
+.chipOrange { background-color: var(--color-primary-orange); }
+.chipBlue { background-color: var(--color-primary-blue); }
+.chipGray { background-color: var(--color-text-secondary); }
+
+.contentWrap {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.iconWrap {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+}
+
+.iconGreen { color: var(--color-primary-green); }
+.iconOrange { color: var(--color-primary-orange); }
+.iconBlue { color: var(--color-primary-blue); }
+.iconMuted { color: var(--color-text-secondary); }
+
+.content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+}
+
+.mainText {
+  color: var(--color-text-primary);
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
+
+.detailBox {
+  background-color: var(--color-bg-blue);
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--inner-radius);
+  color: var(--color-dark-blue);
+  font-size: 0.85rem;
+  font-weight: 600;
+  border: 1px solid var(--color-border-blue);
+  white-space: nowrap;
+}
+
+.detailLabel {
+  color: var(--color-primary-blue);
+  font-weight: 800;
+  margin-right: 0.25rem;
+}
+
+.emptyText {
+  color: var(--color-text-secondary);
+  font-size: 1rem;
+  text-align: center;
+  padding: 2rem 0;
+}

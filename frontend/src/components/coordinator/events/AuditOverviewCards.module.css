@@ -1,0 +1,126 @@
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9em;
+  margin-bottom: 1.5rem;
+}
+
+.statRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0.75em;
+  flex-wrap: wrap;
+}
+
+.statCard {
+  display: flex;
+  align-items: center;
+  gap: 0.85em;
+  background: var(--color-bg-white);
+  border: 2px solid var(--color-border-blue);
+  border-radius: var(--inner-radius);
+  padding: 0.75em 1em;
+  flex: 1;
+  min-width: 12em;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.statCard:hover {
+  transform: translateY(-2px);
+}
+
+.hoverBlue:hover { border-color: var(--color-primary-blue); }
+.hoverGreen:hover { border-color: var(--color-primary-green); }
+.hoverOrange:hover { border-color: var(--color-primary-orange); }
+
+.activeSolid {
+  background: var(--color-primary-blue) !important;
+  border-color: var(--color-primary-blue) !important;
+}
+
+.activeSolid .statLabel,
+.activeSolid .statValue {
+  color: var(--color-bg-white) !important;
+}
+
+.activeSolid .statIconWrap {
+  background: var(--color-bg-white);
+  color: var(--color-primary-blue);
+  border-color: var(--color-bg-white);
+}
+
+.activeBlue {
+  border-color: var(--color-primary-blue);
+  background: var(--color-bg-blue);
+}
+
+.activeGreen {
+  border-color: var(--color-primary-green);
+  background: var(--color-bg-green);
+}
+
+.activeOrange {
+  border-color: var(--color-primary-orange);
+  background: var(--color-bg-orange);
+}
+
+.statIconWrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 3em;
+  height: 3em;
+  border-radius: var(--inner-radius);
+  flex-shrink: 0;
+}
+
+.iconBlue {
+  color: var(--color-primary-blue);
+  background: var(--color-bg-blue);
+  border: 1.5px solid var(--color-border-blue);
+}
+
+.iconGreen {
+  color: var(--color-primary-green);
+  background: var(--color-bg-green);
+  border: 1.5px solid var(--color-border-green);
+}
+
+.iconOrange {
+  color: var(--color-primary-orange);
+  background: var(--color-bg-orange);
+  border: 1.5px solid var(--color-border-orange);
+}
+
+.statBody {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: stretch;
+  flex: 1;
+}
+
+.statTextWrap {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+
+.statValue {
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-primary-blue);
+  font-family: var(--body-font-main);
+}
+
+.valueGreen { color: var(--color-dark-green); }
+.valueOrange { color: var(--color-dark-orange); }
+
+.statLabel {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-secondary);
+}
