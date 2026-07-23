@@ -3,12 +3,14 @@ import { CheckCircle, NotePencil, Flag, ClockCounterClockwise, DownloadSimple, C
 import Dropdown from '../../shared/Dropdown'
 import Button from '../../shared/Button'
 import FormInput from '../../shared/FormInput'
+import Pagination from '../../shared/Pagination'
+import { format } from 'date-fns' // formatting ISO date
 import styles from './AuditLogSection.module.css'
 
 /**
  * AuditLogSection — Hiển thị danh sách log
  */
-function AuditLogSection({ logs = [], filterType = 'all' }) {
+function AuditLogSection({ apiResponse, filterType = 'all', page, onPageChange }) {
   const getIcon = (type) => {
     switch(type) {
       case 'score_submitted': return <CheckCircle size={22} weight="fill" className={styles.iconGreen} />
@@ -28,6 +30,9 @@ function AuditLogSection({ logs = [], filterType = 'all' }) {
   }
 
   const [searchTerm, setSearchTerm] = useState('')
+
+  const logs = apiResponse?.data || []
+  const meta = apiResponse?.meta || { totalPages: 1 }
 
   const filteredLogs = logs.filter(log => {
     if (filterType !== 'all' && log.type !== filterType) return false
@@ -98,7 +103,10 @@ function AuditLogSection({ logs = [], filterType = 'all' }) {
             
             <div className={styles.timeWrap}>
               <Clock size={16} weight="bold" className={styles.clockIcon} />
-              <span className={styles.timeText}>{log.time}</span>
+              <span className={styles.timeText}>
+                {/* Format chuỗi ISO8601 cho nó khớp */}
+                {log.time ? format(new Date(log.time), 'HH:mm dd/MM/yyyy') : ''}
+              </span>
             </div>
 
             <div className={styles.chipWrap}>
@@ -127,6 +135,16 @@ function AuditLogSection({ logs = [], filterType = 'all' }) {
           <div className={styles.emptyText}>Không tìm thấy thao tác nào phù hợp.</div>
         )}
       </div>
+
+      {meta.totalPages > 1 && (
+        <div className={styles.paginationWrap}>
+          <Pagination 
+            currentPage={page} 
+            totalPages={meta.totalPages} 
+            onPageChange={onPageChange} 
+          />
+        </div>
+      )}
     </div>
   )
 }

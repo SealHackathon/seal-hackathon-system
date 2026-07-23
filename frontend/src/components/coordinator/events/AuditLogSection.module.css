@@ -155,3 +155,12 @@
   text-align: center;
   padding: 2rem 0;
 }
+
+.paginationWrap {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1.5px solid var(--color-border-blue);
+  margin-top: auto;
+}
