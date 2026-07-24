@@ -2,7 +2,7 @@ import { Clock } from '@phosphor-icons/react'
 import SideCard from './SideCard'
 import Button from '../shared/Button'
 
-function InviteCard({ invites, onCancel }) {
+function InviteCard({ invites, onCancel, disabled }) {
   return (
     <SideCard
       color="orange"
@@ -17,6 +17,7 @@ function InviteCard({ invites, onCancel }) {
           labelSize={16}
           variant="outline"
           color='orange'
+          disabled={disabled}
           onClick={() => onCancel(item.memberId)}
         />
       )}

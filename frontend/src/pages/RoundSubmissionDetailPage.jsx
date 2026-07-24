@@ -131,6 +131,7 @@ function RoundSubmissionDetailPage() {
   const [submissionId, setSubmissionId] = useState(null)
   const [isUpdate, setIsUpdate] = useState(false)
   const [realSubmission, setRealSubmission] = useState(null)
+  const [teamStatus, setTeamStatus] = useState(null)
   useEffect(() => {
     if (!roundId) {
       setError('Thiếu thông tin roundId trên URL.')
@@ -160,8 +161,11 @@ function RoundSubmissionDetailPage() {
         let teamTrack = 'Chưa phân nhánh'
         try {
           const teamRes = await axiosClient.get('/team/team-info')
-          if (teamRes.data?.category.trackName) {
+          if (teamRes.data?.category?.trackName) {
             teamTrack = teamRes.data.category.trackName
+          }
+          if (teamRes.data?.teamStatus) {
+            setTeamStatus(teamRes.data.teamStatus)
           }
         } catch (e) {
           console.warn('Không thể lấy thông tin đội:', e)
@@ -365,7 +369,7 @@ function RoundSubmissionDetailPage() {
     }
   }
 
-  const isEditable = userRole === 'leader' && (currentState === 'active' || currentState === 'late')
+  const isEditable = teamStatus !== 'BANNED' && userRole === 'leader' && (currentState === 'active' || currentState === 'late')
   const isLate = currentState === 'late'
   const readOnlyForm = !isEditing
 

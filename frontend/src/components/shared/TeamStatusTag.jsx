@@ -5,7 +5,7 @@ const STATUS_CONFIG = {
   REJECTED:  { label: 'Chưa chốt đội' },
   PENDING_APPROVAL:  { label: 'Chờ BTC duyệt' },
   APPROVED: { label: 'Đã chốt đội'   },
-
+  BANNED: { label: 'Vi phạm quy chế' },
 }
 
 function TeamStatusTag({ status = 'OPEN' }) {

@@ -245,9 +245,13 @@ function DashboardPage() {
       // API chưa trả timeline tổng của event (chỉ có schedule của currentRound)
       // -> tạm để rỗng, cần bổ sung API riêng nếu muốn hiển thị đầy đủ mốc thời gian sự kiện
       timeline: [],
-      // API chưa trả tiến độ chấm điểm (done/total)
-      // -> để undefined, AssignedEventCard cần xử lý trường hợp thiếu dữ liệu này
-      judging: undefined,
+      // Tính tiến độ chấm điểm
+      judging: assignment?.judge?.rounds
+        ? {
+            done: assignment.judge.rounds.reduce((s, r) => s + (r.scoredQuantity || 0), 0),
+            total: assignment.judge.rounds.reduce((s, r) => s + (r.submissionQuantity || 0), 0)
+          }
+        : undefined,
       mentoring: assignment?.mentor?.teams ? { teamCount: assignment.mentor.teams.length } : undefined,
       currentRound: currentRound
         ? {

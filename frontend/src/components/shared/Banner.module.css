@@ -153,7 +153,7 @@
 }
 
 .orange .message {
-    color: var(--color-primary-orange);
+    color: var(--color-text-primary);
 }
 
 .orange .icon {

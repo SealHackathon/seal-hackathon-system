@@ -9,6 +9,8 @@ import styles from "./MemberView.module.css";
 import axiosClient from "../api/axiosClient";
 import { useAuth } from "../AuthContext";
 import ToastContainer from "../components/shared/ToastContainer";
+import Banner from "../components/shared/Banner";
+import { WarningCircle } from "@phosphor-icons/react";
 
 // const MOCK_MEMBERS = [
 //   {
@@ -128,6 +130,8 @@ const MOCK_CATEGORIES = [
   },
 ];
 
+const MOCK_BAN_REASON = "Đội của bạn đã vi phạm quy chế (Dữ liệu giả lập).";
+
 function MemberView() {
   const [teamStatus, setTeamStatus] = useState("OPEN");
   // Use mock data for testing UI
@@ -185,8 +189,9 @@ function MemberView() {
         setTeamInfo(response.data);
         setTeamStatus(response.data.teamStatus);
         // TODO: Cần trả về trường categoryId trong object teamInfo
-        if (response.data.category.id)
+        if (response.data.category?.id)
           setSelectedCategory(response.data.category.id);
+        // TODO: map thêm field banReason từ API về
       })
       .catch((error) => console.log(error));
   }, []);
@@ -414,6 +419,19 @@ function MemberView() {
           onCategoryChange={setSelectedCategory}
         />
 
+        {/* Banner thông báo BANNED */}
+        {teamStatus === 'BANNED' && (
+          <div>
+            <Banner
+              color="orange"
+              iconSize={48}
+              icon={WarningCircle}
+              title="Đội của bạn đã bị đánh dấu vi phạm và đình chỉ tham gia."
+              message={`Lý do: ${teamInfo?.banReason || MOCK_BAN_REASON}`}
+            />
+          </div>
+        )}
+
         <div className={styles.content}>
           <div className={styles.main}>
             <TeamMemberPanel
@@ -423,8 +441,8 @@ function MemberView() {
               isLeader={false}
               hasSelectedCategory={!!selectedCategory}
               leaveRequests={leaveRequest}
-              onLeave={handleOnLeave}
-              onCancelLeave={(id) => handleOnCancelLeave(id)}
+              onLeave={teamStatus === 'BANNED' ? undefined : handleOnLeave}
+              onCancelLeave={teamStatus === 'BANNED' ? undefined : (id) => handleOnCancelLeave(id)}
             />
           </div>
 
@@ -433,8 +451,9 @@ function MemberView() {
               invites={
                 currentUser?.memberStatus === "OFFICAL" ? [] : FAKE_INVITES
               }
-              onAccept={(id) => handleAcceptInvite(id, true)}
-              onReject={(id) => handleRejectInvite(id, false)}
+              disabled={teamStatus === 'BANNED'}
+              onAccept={teamStatus === 'BANNED' ? undefined : (id) => handleAcceptInvite(id, true)}
+              onReject={teamStatus === 'BANNED' ? undefined : (id) => handleRejectInvite(id, false)}
               isFromTeam={true}
               emptyText={
                 currentUser?.memberStatus === "OFFICAL"

@@ -12,74 +12,78 @@ import axiosClient from '../../api/axiosClient';
 // ==========================================
 const ENABLE_MOCK_LEADERBOARD = true;
 
-// const MOCK_LEADERBOARD = [
-//   {
-//     id: 'team1',
-//     teamName: 'SEAL INNOVATORS',
-//     rank: 1,
-//     avgScore: 8.95,
-//     status: 'official', 
-//     discrepancy: false, 
-//     judges: [
-//       { 
-//         judgeId: 'j1', judgeName: 'Trần Văn A', score: 9.0,
-//         criteriaScores: [ { name: 'Tính khả thi', score: 9.0 }, { name: 'Sáng tạo', score: 9.0 } ]
-//       },
-//       { 
-//         judgeId: 'j2', judgeName: 'Nguyễn Thị B', score: 8.9,
-//         criteriaScores: [ { name: 'Tính khả thi', score: 8.8 }, { name: 'Sáng tạo', score: 9.0 } ]
-//       },
-//       { 
-//         judgeId: 'j3', judgeName: 'Lê Văn C', score: 9.0,
-//         criteriaScores: [ { name: 'Tính khả thi', score: 9.0 }, { name: 'Sáng tạo', score: 9.0 } ]
-//       }
-//     ]
-//   },
-//   {
-//     id: 'team2',
-//     teamName: 'CODE MASTERS',
-//     rank: 2,
-//     avgScore: 8.10,
-//     status: 'provisional',
-//     discrepancy: true, // Lệch chuẩn
-//     judges: [
-//       { 
-//         judgeId: 'j1', judgeName: 'Trần Văn A (Bạn)', score: 8.5,
-//         criteriaScores: [ { name: 'Tính khả thi', score: 8.0 }, { name: 'Sáng tạo', score: 9.0 } ]
-//       },
-//       { 
-//         judgeId: 'j2', judgeName: 'Nguyễn Thị B', score: 6.0,
-//         criteriaScores: [ { name: 'Tính khả thi', score: 5.0 }, { name: 'Sáng tạo', score: 7.0 } ]
-//       },
-//       { 
-//         judgeId: 'j3', judgeName: 'Lê Văn C', score: 9.8,
-//         criteriaScores: [ { name: 'Tính khả thi', score: 10.0 }, { name: 'Sáng tạo', score: 9.6 } ]
-//       }
-//     ]
-//   },
-//   {
-//     id: 'team3',
-//     teamName: 'TECH TITANS',
-//     rank: 3,
-//     avgScore: 7.50,
-//     status: 'official',
-//     discrepancy: false,
-//     judges: [
-//       { 
-//         judgeId: 'j4', judgeName: 'Phạm Văn D', score: 7.5,
-//         criteriaScores: [ { name: 'Tính khả thi', score: 7.0 }, { name: 'Sáng tạo', score: 8.0 } ]
-//       },
-//       { 
-//         judgeId: 'j5', judgeName: 'Hoàng Thị E', score: 7.4,
-//         criteriaScores: [ { name: 'Tính khả thi', score: 7.4 }, { name: 'Sáng tạo', score: 7.4 } ]
-//       },
-//       { 
-//         judgeId: 'j6', judgeName: 'Vũ Văn F', score: 7.6,
-//         criteriaScores: [ { name: 'Tính khả thi', score: 7.6 }, { name: 'Sáng tạo', score: 7.6 } ]
-//       }
-//     ]
-//   }
-// ];
+const MOCK_LEADERBOARD = [
+  {
+    id: 'team1',
+    teamName: 'SEAL INNOVATORS',
+    rank: 1,
+    avgScore: 8.95,
+    status: 'official', 
+    discrepancy: false, 
+    judges: [
+      { 
+        judgeId: 'j1', judgeName: 'Trần Văn A', score: 9.0,
+        criteriaScores: [ { name: 'Tính khả thi', score: 9.0 }, { name: 'Sáng tạo', score: 9.0 } ]
+      },
+      { 
+        judgeId: 'j2', judgeName: 'Nguyễn Thị B', score: 8.9,
+        criteriaScores: [ { name: 'Tính khả thi', score: 8.8 }, { name: 'Sáng tạo', score: 9.0 } ]
+      },
+      { 
+        judgeId: 'j3', judgeName: 'Lê Văn C', score: 9.0,
+        criteriaScores: [ { name: 'Tính khả thi', score: 9.0 }, { name: 'Sáng tạo', score: 9.0 } ]
+      }
+    ]
+  },
+  {
+    id: 'team2',
+    teamName: 'CODE MASTERS',
+    rank: 2,
+    avgScore: 8.10,
+    tie: true,
+    tieBreakNote: 'Hòa 8.10 — Quyết định bởi BTC',
+    status: 'provisional',
+    discrepancy: true, // Lệch chuẩn
+    judges: [
+      { 
+        judgeId: 'j1', judgeName: 'Trần Văn A (Bạn)', score: 8.5,
+        criteriaScores: [ { name: 'Tính khả thi', score: 8.0 }, { name: 'Sáng tạo', score: 9.0 } ]
+      },
+      { 
+        judgeId: 'j2', judgeName: 'Nguyễn Thị B', score: 6.0,
+        criteriaScores: [ { name: 'Tính khả thi', score: 5.0 }, { name: 'Sáng tạo', score: 7.0 } ]
+      },
+      { 
+        judgeId: 'j3', judgeName: 'Lê Văn C', score: 9.8,
+        criteriaScores: [ { name: 'Tính khả thi', score: 10.0 }, { name: 'Sáng tạo', score: 9.6 } ]
+      }
+    ]
+  },
+  {
+    id: 'team3',
+    teamName: 'TECH TITANS',
+    rank: 2,
+    avgScore: 8.10,
+    tie: true,
+    tieBreakNote: 'Hòa 8.10 — Quyết định bởi BTC',
+    status: 'official',
+    discrepancy: false,
+    judges: [
+      { 
+        judgeId: 'j4', judgeName: 'Phạm Văn D', score: 7.5,
+        criteriaScores: [ { name: 'Tính khả thi', score: 7.0 }, { name: 'Sáng tạo', score: 8.0 } ]
+      },
+      { 
+        judgeId: 'j5', judgeName: 'Hoàng Thị E', score: 7.4,
+        criteriaScores: [ { name: 'Tính khả thi', score: 7.4 }, { name: 'Sáng tạo', score: 7.4 } ]
+      },
+      { 
+        judgeId: 'j6', judgeName: 'Vũ Văn F', score: 7.6,
+        criteriaScores: [ { name: 'Tính khả thi', score: 7.6 }, { name: 'Sáng tạo', score: 7.6 } ]
+      }
+    ]
+  }
+];
 
 // Mock API 2: My Context (Cá nhân hoá theo token)
 const MOCK_MY_CONTEXT = {

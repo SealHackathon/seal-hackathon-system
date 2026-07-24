@@ -4,7 +4,7 @@ import Button from '../shared/Button'
 import RequestDetailModal from './RequestDetailModal'
 import { EnvelopeSimple } from '@phosphor-icons/react'
 
-function RequestCard({ requests, onAccept, onReject }) {
+function RequestCard({ requests, onAccept, onReject, disabled }) {
   const [selectedRequest, setSelectedRequest] = useState(null)
 
   return (
@@ -22,6 +22,7 @@ function RequestCard({ requests, onAccept, onReject }) {
           labelSize={16}
           variant="outline"
           color='green'
+          disabled={disabled}
           onClick={() => setSelectedRequest(item)}
         />
       )}

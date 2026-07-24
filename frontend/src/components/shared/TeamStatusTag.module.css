@@ -30,3 +30,9 @@
   color: var(--color-primary-green);
   border-color: var(--color-primary-green);
 }
+
+.BANNED {
+  background-color: white;
+  color: var(--color-primary-orange);
+  border-color: var(--color-primary-orange);
+}

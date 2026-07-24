@@ -38,7 +38,7 @@ function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, e
                         <h1>{teamName}</h1>
                     </div>
 
-                    {isLeader && (
+                    {isLeader && teamStatus !== 'BANNED' && (
                         <Tooltip content="Chỉnh sửa" bgColor="white" textColor="blue" position='right'>
                             <button
                                 className={styles.edit}
@@ -93,7 +93,7 @@ function TeamInfoHeader({ teamId, teamName, teamStatus, description, teamCode, e
                             variant="outline"
                             color='blue'
                             onClick={() => setShowModal(true)}
-                            disabled={emptyCount == 0 || teamStatus === 'PENDING_APPROVAL'}
+                            disabled={emptyCount == 0 || teamStatus === 'PENDING_APPROVAL' || teamStatus === 'BANNED'}
                         />
 
                         {showModal && (

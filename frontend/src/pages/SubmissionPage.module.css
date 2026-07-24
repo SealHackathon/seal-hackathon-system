@@ -97,3 +97,15 @@
   line-height: 1.6;
   margin: 0;
 }
+
+.bannedState {
+  border-color: var(--color-border-orange);
+}
+
+.bannedState .emptyIcon {
+  background-color: var(--color-bg-orange);
+}
+
+.bannedState h2 {
+  color: var(--color-primary-orange);
+}

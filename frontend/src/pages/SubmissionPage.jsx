@@ -338,7 +338,18 @@ function SubmissionPage() {
         {loading && <p>Đang tải dữ liệu vòng thi...</p>}
         {error && <p>{error}</p>}
 
-        {!loading && !error && teamStatus !== 'APPROVED' ? (
+        {!loading && !error && teamStatus === 'BANNED' ? (
+          <div className={`${styles.emptyState} ${styles.bannedState}`}>
+            <div className={styles.emptyIcon}>
+              <LockKey size={48} weight="fill" color="var(--color-primary-orange)" />
+            </div>
+            <h2>Đội đã bị đình chỉ</h2>
+            <p>
+              Đội của bạn đã bị đánh dấu vi phạm quy chế và đình chỉ tham gia.<br/>
+              Bạn không thể thực hiện nộp bài dự thi. Vui lòng liên hệ Ban tổ chức nếu có thắc mắc.
+            </p>
+          </div>
+        ) : !loading && !error && teamStatus !== 'APPROVED' ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>
               <LockKey size={48} weight="fill" color="var(--color-primary-blue)" />
