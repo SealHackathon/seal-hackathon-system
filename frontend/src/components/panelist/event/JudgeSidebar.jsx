@@ -6,8 +6,8 @@ import styles from './JudgeSidebar.module.css';
 function JudgeSidebar({ event }) {
   const rounds = event.assignment?.judge?.rounds ?? [];
   const assigned = rounds.filter((r) => r.assigned !== false);
-  const totalScored = assigned.reduce((s, r) => s + (r.scoredCount ?? 0), 0);
-  const totalNeeded = assigned.reduce((s, r) => s + (r.totalSubmissions ?? 0), 0);
+  const totalScored = assigned.reduce((s, r) => s + (r.scoredQuantity ?? 0), 0);
+  const totalNeeded = assigned.reduce((s, r) => s + (r.submissionQuantity ?? 0), 0);
   const activeRound = assigned.find((r) => r.lifecycle === 'active');
 
   return (

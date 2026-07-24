@@ -52,8 +52,8 @@ function ScoringPanel({
   const totalPct = Math.min(100, (total / 10) * 100)
   const totalBarStyle = { width: totalPct + '%' }
 
-  const scoredCount = criteria.filter((c) => scores[c.id] != null).length
-  const canSubmit = scoredCount >= 1
+  const scoredCount = criteria.filter((c) => scores[c.id] !== undefined && scores[c.id] !== null).length
+  const canSubmit = scoredCount === criteria.length
 
   const setScore = (id, v) => setScores((prev) => ({ ...prev, [id]: v }))
   const setNote = (id, v) => setNotes((prev) => ({ ...prev, [id]: v }))

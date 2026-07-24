@@ -17,8 +17,8 @@ function JudgeRoundsTab({ event }) {
     allCategories: true,
     categories: [],
     rubricName: "Tiêu chí Chung kết",
-    scoredCount: 15,
-    totalSubmissions: 15,
+    scoredQuantity: 15,
+    submissionQuantity: 15,
     timeStart: new Date("2026-08-18"),
     timeEnd: new Date("2026-08-20"),
   };
@@ -33,8 +33,8 @@ function JudgeRoundsTab({ event }) {
     allCategories: true,
     categories: [],
     rubricName: "Tiêu chí Đã chốt",
-    scoredCount: 15,
-    totalSubmissions: 15,
+    scoredQuantity: 15,
+    submissionQuantity: 15,
     timeStart: new Date("2026-09-01"),
     timeEnd: new Date("2026-09-02"),
   };

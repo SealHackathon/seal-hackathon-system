@@ -65,8 +65,8 @@ function EventDetailPage() {
                 allCategories: r.allCategories,
                 categories: r.categories || [],
                 rubricName: 'Tiêu chí chấm thi',
-                scoredCount: 0,
-                totalSubmissions: 0,
+                scoredQuantity: r.scoredQuantity || 0,
+                submissionQuantity: r.submissionQuantity || 0,
                 timeStart: r.timeStart ? new Date(r.timeStart) : null,
                 timeEnd: r.timeEnd ? new Date(r.timeEnd) : null
               })) || []

@@ -29,8 +29,8 @@ function JudgeRoundCard({ round, isLast, onOpenRubric,event }) {
   const { Icon } = cfg;
   const assigned = round.assigned !== false;
 
-  const total = round.totalSubmissions ?? 0;
-  const scored = round.scoredCount ?? 0;
+  const total = round.submissionQuantity ?? 0;
+  const scored = round.scoredQuantity ?? 0;
   const pct = total > 0 ? Math.round((scored / total) * 100) : 0;
 
   const cats = round.allCategories ? ['Tất cả hạng mục'] : (round.categories ?? []);
