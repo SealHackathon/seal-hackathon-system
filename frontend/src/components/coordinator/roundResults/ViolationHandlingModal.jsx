@@ -18,17 +18,19 @@ import RadioCardGroup from '../../shared/RadioCardGroup'
 import TeamDetailModal from './TeamDetailModal'
 import SubmissionModal from '../../panelist/event/mentorTeamDetail/SubmissionModal'
 import styles from './ViolationHandlingModal.module.css'
+import axiosClient from '../../../api/axiosClient'
+
 
 const ACTIONS = [
-  { 
-    value: 'ignore', 
-    label: 'Bỏ qua (Không vi phạm)', 
+  {
+    value: 'ignore',
+    label: 'Bỏ qua (Không vi phạm)',
     description: 'Xóa cờ vi phạm, kết quả vẫn được tính bình thường.',
     icon: ShieldCheck
   },
-  { 
-    value: 'disqualify', 
-    label: 'Loại đội thi', 
+  {
+    value: 'disqualify',
+    label: 'Loại đội thi',
     description: 'Hủy toàn bộ kết quả của đội tại vòng thi này.',
     icon: ProhibitInset
   }
@@ -57,6 +59,9 @@ function ViolationHandlingModal({ isOpen, onClose, data, onOpenTeam, onOpenSubmi
   const [action, setAction] = useState('ignore')
   const [reason, setReason] = useState('')
 
+
+
+
   // State mở modal chi tiết từ bên trong
   const [teamDetailOpen, setTeamDetailOpen] = useState(false)
   const [submissionOpen, setSubmissionOpen] = useState(false)
@@ -81,6 +86,43 @@ function ViolationHandlingModal({ isOpen, onClose, data, onOpenTeam, onOpenSubmi
     }
   }
 
+
+
+  //TODO VIẾT API "Xác nhận quyết định" violation OR 
+
+
+  // API Xử lý vi phạm
+
+const handleSubmitDecision = async () => {
+  if (!reason.trim()) return
+
+  if (!data?.id) {
+    alert("Không tìm thấy ID của báo cáo vi phạm!")
+    return
+  }
+
+  try {
+    const apiStatus = action === 'disqualify' ? 'ACCEPTED' : 'CANCELLED'
+
+    // axiosClient đã được config baseURL sẵn nên đường dẫn chỉ cần ghi ngắn gọn thế này
+    await axiosClient.put(`/system-requests/violations/${data.id}/handle`, {
+      status: apiStatus,
+      handleMessage: reason.trim()
+    })
+
+    // Thành công -> Báo parent component reload & Đóng modal
+ 
+    onClose()
+
+  } catch (error) {
+    console.error('Lỗi khi xử lý vi phạm:', error)
+    // axios tự catch lỗi status code 4xx, 5xx ở đây
+    const message = error.response?.data?.message || 'Đã có lỗi xảy ra khi xử lý vi phạm!'
+    alert(message)
+  }
+}
+
+
   const footer = (
     <div className={styles.footerContainer}>
       <Button label="Hủy" variant="outline" color="grblueey" onClick={onClose} />
@@ -88,7 +130,7 @@ function ViolationHandlingModal({ isOpen, onClose, data, onOpenTeam, onOpenSubmi
         label="Xác nhận quyết định"
         variant="primary"
         color="blue"
-        onClick={() => { onClose() }}
+        onClick={handleSubmitDecision }
         disabled={!reason.trim()}
       />
     </div>
@@ -111,7 +153,7 @@ function ViolationHandlingModal({ isOpen, onClose, data, onOpenTeam, onOpenSubmi
       <ModalShell
         onClose={onClose}
         title="Xử lí vi phạm"
-        icon={<Flag size={24} weight="fill"/>}
+        icon={<Flag size={24} weight="fill" />}
         subtitle="Xem xét và đưa ra quyết định chính thức về cờ vi phạm được ghi nhận từ ban giám khảo."
         footer={footer}
         size="md"

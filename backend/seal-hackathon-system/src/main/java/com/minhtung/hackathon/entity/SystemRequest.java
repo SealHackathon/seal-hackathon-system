@@ -35,6 +35,9 @@
 
         private String message;
 
+        @Column(columnDefinition = "TEXT")
+        private String handleMessage;
+
         private LocalDateTime sentAt;
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;

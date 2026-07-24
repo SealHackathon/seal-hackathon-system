@@ -4,6 +4,7 @@ import com.minhtung.hackathon.dto.result.*;
 import com.minhtung.hackathon.entity.*;
 import com.minhtung.hackathon.enums.JudgeScoreStatus;
 import com.minhtung.hackathon.dto.result.RoundResultResponse;
+import com.minhtung.hackathon.enums.TeamStatus;
 import com.minhtung.hackathon.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -68,7 +69,9 @@ public class RoundResultServiceImpl implements RoundResultService {
         for (Submission submission : submissions) {
             Team team = submission.getTeam();
             if (team.getTrack() == null) continue;
-
+            if (team.getStatus() == TeamStatus.BANNED) {
+                continue;
+            }
             // SỬA LỖI: Lấy danh sách Giám khảo thuộc đúng Track của Đội thi này
             Long teamTrackId = team.getTrack().getId();
             List<JudgeAssignment> teamJudges = assignmentsByTrack.getOrDefault(teamTrackId, List.of());

@@ -4,7 +4,8 @@ public enum TeamStatus {
     OPEN,
     PENDING_APPROVAL,
     APPROVED ,
-    REJECTED
+    REJECTED,
+    BANNED
 }
 
 
