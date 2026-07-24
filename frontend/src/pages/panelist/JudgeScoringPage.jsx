@@ -11,6 +11,9 @@ import RequestEditModal from '../../components/panelist/scoring/RequestEditModal
 import styles from './JudgeScoringPage.module.css';
 import axiosClient from '../../api/axiosClient';
 
+// TẮT/BẬT MOCK DATA ĐỂ TEST GIAO DIỆN MÀ KHÔNG CẦN BACKEND
+const USE_MOCK_DATA = true;
+
 function JudgeScoringPage() {
   const { eventId, roundId, submissionId } = useParams();
   const navigate = useNavigate();
@@ -47,14 +50,38 @@ function JudgeScoringPage() {
         setLoading(true);
         setError(null);
 
-        //  1. GỌI SONG SONG 2 API: Chi tiết bài nộp và Danh sách vòng thi của Sự kiện
-        const [submissionRes, eventRoundsRes] = await Promise.all([
-          axiosClient.get(`submission/${submissionId}`),
-          axiosClient.get(`/round/rounds/${roundId}`)
-        ]);
+        let subListData, roundsList;
 
-        const subListData = submissionRes.data;
-        const roundsList = eventRoundsRes.data;
+        if (USE_MOCK_DATA) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          subListData = {
+            teamName: "FPT.O-H",
+            roundName: "Vòng chung kết",
+            scoringStatus: "SUBMITTED",
+            scoredAt: '2026-07-22T08:30:00Z',
+            scores: { 1: 3.5, 2: 4.0 },
+            notes: { 1: 'Tốt', 2: 'Khá' },
+            overallComment: 'Dự án tiềm năng nhưng cần cải thiện UI.',
+            isViolation: false,
+            discrepantCriteriaIds: [2],
+            githubUrl: 'https://github.com/mock',
+            documentUrl: 'https://docs.google.com',
+            demoUrl: 'https://youtube.com',
+            members: [{ id: 1, fullName: 'Nguyễn Văn A', roleInTeam: 'LEADER', leader: true }]
+          };
+          roundsList = {
+            roundName: 'Vòng chung kết',
+            criteria: [{ id: 1, name: 'Sáng tạo', description: 'Độ sáng tạo', weight: 50 }, { id: 2, name: 'Kỹ thuật', description: 'Độ phức tạp', weight: 50 }]
+          };
+        } else {
+          //  1. GỌI SONG SONG 2 API: Chi tiết bài nộp và Danh sách vòng thi của Sự kiện
+          const [submissionRes, eventRoundsRes] = await Promise.all([
+            axiosClient.get(`submission/${submissionId}`),
+            axiosClient.get(`/round/rounds/${roundId}`)
+          ]);
+          subListData = submissionRes.data;
+          roundsList = eventRoundsRes.data;
+        }
 
         //  Xử lý lấy phần tử nếu API bài nộp trả về dạng mảng (Phòng thủ dữ liệu)
         const subData = Array.isArray(subListData) ? subListData[0] : subListData;
@@ -127,7 +154,8 @@ function JudgeScoringPage() {
               savedAt: subData.scoredAt,
               submittedAt: subData.scoringStatus === 'SUBMITTED' ? subData.scoredAt : null
             },
-            hasDiscrepancy: false
+            hasDiscrepancy: false,
+            discrepantCriteriaIds: subData.discrepantCriteriaIds || []
           });
         } else {
           // Fallback object trống an toàn phòng thủ lỗi undefined properties ở ScoringPanel khi đội thi chưa được chấm
@@ -136,7 +164,8 @@ function JudgeScoringPage() {
             notes: {},
             overall: '',
             audit: { savedAt: null, submittedAt: null },
-            hasDiscrepancy: false
+            hasDiscrepancy: false,
+            discrepantCriteriaIds: []
           });
         }
 
@@ -200,7 +229,7 @@ function JudgeScoringPage() {
           }))
         };
 
-        if (!backendPayload.details || backendPayload.details.length === 0) {
+        if (!backendPayload.details || backendPayload.details.length < rubric.criteria.length) {
           alert("Vui lòng nhập đầy đủ điểm cho các tiêu chí trước khi nộp.");
           return;
         }
@@ -221,11 +250,13 @@ function JudgeScoringPage() {
         submissionId: Number(submissionId),
         comment: pendingReScorePayload?.overall || "",
         status: "SUBMITTED",
-        details: Object.keys(pendingReScorePayload?.scores || {}).map((criterionId) => ({
-          criterionId: Number(criterionId),
-          score: Number(pendingReScorePayload?.scores[criterionId]),
-          comment: pendingReScorePayload?.notes?.[criterionId] || ""
-        })),
+        details: Object.keys(pendingReScorePayload?.scores || {})
+          .filter(criterionId => (existing.discrepantCriteriaIds || []).includes(Number(criterionId)))
+          .map((criterionId) => ({
+            criterionId: Number(criterionId),
+            score: Number(pendingReScorePayload?.scores[criterionId]),
+            comment: pendingReScorePayload?.notes?.[criterionId] || ""
+          })),
         reason: reason
       };
 

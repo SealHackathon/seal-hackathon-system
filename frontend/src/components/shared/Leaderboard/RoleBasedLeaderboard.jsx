@@ -81,6 +81,12 @@ function RoleBasedLeaderboard({ data = [], role = 'TEAM', stage = 1, currentJudg
 
     let sorted = [...list];
     sorted.sort((a, b) => {
+      const isABanned = a.status === 'banned';
+      const isBBanned = b.status === 'banned';
+
+      if (isABanned && !isBBanned) return 1;
+      if (!isABanned && isBBanned) return -1;
+
       if (sortBy === 'rankAsc') return (a.rank || 999) - (b.rank || 999);
       if (sortBy === 'rankDesc') return (b.rank || 999) - (a.rank || 999);
       if (sortBy === 'nameAsc') return a.teamName.localeCompare(b.teamName);
@@ -213,126 +219,184 @@ function RoleBasedLeaderboard({ data = [], role = 'TEAM', stage = 1, currentJudg
           {/* TEAM & MENTOR không còn cột Trạng thái */}
         </div>
 
-        {visibleData.map((row) => {
-          const isOfficial = row.status === 'official';
-          const isExpanded = expandedRows[row.id];
+        {(() => {
+          const groupedRows = [];
+          let currentGroup = [];
+          let currentRank = null;
 
-          return (
-            <div className={styles.rowWrapper} key={row.id}>
-              <div 
-                className={`${styles.row} ${gridClass} ${showDetailedJudges ? styles.clickableRow : ''}`}
-                onClick={showDetailedJudges ? () => toggleRow(row.id) : undefined}
-              >
-                {/* Cột Hạng */}
-                <span className={styles.cRank}>
-                  {row.rank ? (
-                    <span className={styles.rankWrap}>
-                      {row.rank <= 3 && <Star size={20} weight="fill" className={styles['medal' + row.rank]} />}
-                      <span className={styles.rankNum}>{row.rank}</span>
-                    </span>
-                  ) : (
-                    <span className={styles.rankNone}>—</span>
-                  )}
-                </span>
+          visibleData.forEach((row) => {
+            if (row.tie && row.rank != null) {
+              if (currentRank === row.rank) {
+                currentGroup.push(row);
+              } else {
+                if (currentGroup.length > 0) groupedRows.push({ isTie: true, rows: currentGroup });
+                currentGroup = [row];
+                currentRank = row.rank;
+              }
+            } else {
+              if (currentGroup.length > 0) {
+                groupedRows.push({ isTie: true, rows: currentGroup });
+                currentGroup = [];
+                currentRank = null;
+              }
+              groupedRows.push({ isTie: false, rows: [row] });
+            }
+          });
+          if (currentGroup.length > 0) {
+            groupedRows.push({ isTie: true, rows: currentGroup });
+          }
 
-                {/* Cột Đội thi */}
-                <span className={styles.cTeam}>
-                  <span className={styles.teamName}>{row.teamName}</span>
-                </span>
+          const renderRow = (row) => {
+            const isOfficial = row.status === 'official';
+            const isBanned = row.status === 'banned';
+            const isExpanded = expandedRows[row.id];
 
-                {/* Cột Điểm chi tiết BGK (Chỉ Judge stage 3) */}
-                {showDetailedJudges && (
-                  <span className={styles.cJudges}>
-                    {(row.judges || []).map((j, idx) => (
-                      <Tooltip key={idx} content={j.judgeName} bgColor="blue" textColor="white">
-                        <span className={styles.judgeBadge}>{fmtScore(j.score)}</span>
-                      </Tooltip>
-                    ))}
-                  </span>
-                )}
-
-                {/* Cột Điểm tổng / TB */}
-                <span className={styles.cScore}>
-                  <div className={styles.scoreWrap}>
-                    <span className={isOfficial ? styles.scoreVal : styles.scoreTemp}>
-                      {fmtScore(row.avgScore)}
-                      <span className={styles.scoreMax}>/10</span>
-                    </span>
-                  </div>
-                </span>
-
-                {/* Cột Trạng thái / Hành động - JUDGE STAGE 2 */}
-                {showDiscrepancyWarning && (
-                  <span className={styles.cAction}>
-                    {row.discrepancy ? (
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <Tooltip content="Chênh lệch điểm giữa các giám khảo" bgColor="white" textColor="orangeTxt">
-                          <span 
-                            className={styles.iconWarn} 
-                            style={{ cursor: 'pointer' }}
-                            onClick={() => onOpenChart?.(row.id)}
-                          >
-                            <Scales size={28} weight="fill" />
-                          </span>
-                        </Tooltip>
-                        {/* Nếu BGK hiện tại nằm trong nhóm chấm đội này, cho phép sửa điểm */}
-                        {(row.judges || []).some(j => j.judgeId === currentJudgeId) && (
-                           <Button 
-                             label="Sửa điểm" 
-                             variant="solid" 
-                             color="orange" 
-                             size="sm" 
-                             icon={PencilSimple} 
-                             style={{ padding: '0.4em 0.7em', fontSize: '0.85rem' }} 
-                             onClick={() => onRequestEdit?.(row.id)}
-                           />
-                        )}
-                      </div>
+            return (
+              <div className={`${styles.rowWrapper} ${isBanned ? styles.bannedRow : ''}`} key={row.id}>
+                <div 
+                  className={`${styles.row} ${gridClass} ${showDetailedJudges && !isBanned ? styles.clickableRow : ''}`}
+                  onClick={showDetailedJudges && !isBanned ? () => toggleRow(row.id) : undefined}
+                >
+                  {/* Cột Hạng */}
+                  <span className={styles.cRank}>
+                    {row.rank && !isBanned ? (
+                      <span className={styles.rankWrap}>
+                        {row.rank <= 3 && <Star size={20} weight="fill" className={styles['medal' + row.rank]} />}
+                        <span className={styles.rankNum}>{row.rank}</span>
+                      </span>
                     ) : (
-                      <span style={{ color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.85rem' }}>Đồng thuận</span>
+                      <span className={styles.rankNone}>—</span>
                     )}
                   </span>
-                )}
 
-                {/* Cột Trạng thái - JUDGE STAGE 3 */}
-                {showDetailedJudges && (
-                  <span className={styles.cStatus}>
-                    <StatusCell row={row} />
+                  {/* Cột Đội thi */}
+                  <span className={styles.cTeam} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span className={styles.teamName}>{row.teamName}</span>
+                    {isBanned && <Badge variant="gray" label="Đình chỉ" size="sm" dot={false} />}
                   </span>
-                )}
 
-                {/* Nút Sổ Xuống - JUDGE STAGE 3 */}
-                {showDetailedJudges && (
-                  <span className={styles.cExpand}>
-                    {isExpanded ? <CaretUp size={20} weight="bold" color="var(--color-primary-blue)" /> : <CaretDown size={20} weight="bold" color="var(--color-text-muted)" />}
+                  {/* Cột Điểm chi tiết BGK (Chỉ Judge stage 3) */}
+                  {showDetailedJudges && (
+                    <span className={styles.cJudges}>
+                      {!isBanned ? (
+                        (row.judges || []).map((j, idx) => (
+                          <Tooltip key={idx} content={j.judgeName} bgColor="blue" textColor="white">
+                            <span className={styles.judgeBadge}>{fmtScore(j.score)}</span>
+                          </Tooltip>
+                        ))
+                      ) : (
+                        <span className={styles.rankNone}>—</span>
+                      )}
+                    </span>
+                  )}
+
+                  {/* Cột Điểm tổng / TB */}
+                  <span className={styles.cScore}>
+                    <div className={styles.scoreWrap} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <span className={isOfficial && !isBanned ? styles.scoreVal : styles.scoreTemp}>
+                        {isBanned ? '—' : fmtScore(row.avgScore)}
+                        {!isBanned && <span className={styles.scoreMax}>/10</span>}
+                      </span>
+                      {!isBanned && row.tieBreakNote && (() => {
+                        const noteParts = row.tieBreakNote.split(' — ');
+                        const cleanNote = noteParts.length > 1 ? noteParts[1].charAt(0).toUpperCase() + noteParts[1].slice(1) : row.tieBreakNote;
+                        return (
+                          <Tooltip position="left" content={cleanNote} bgColor="blue" textColor="white">
+                            <Badge variant="blueSolid" label="Tie-breaking" size="sm" dot={false} />
+                          </Tooltip>
+                        );
+                      })()}
+                    </div>
                   </span>
+
+                  {/* Cột Trạng thái / Hành động - JUDGE STAGE 2 */}
+                  {showDiscrepancyWarning && (
+                    <span className={styles.cAction}>
+                      {!isBanned ? (
+                        row.discrepancy ? (
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                            <Tooltip content="Chênh lệch điểm giữa các giám khảo" bgColor="white" textColor="orangeTxt">
+                              <span 
+                                className={styles.iconWarn} 
+                                style={{ cursor: 'pointer' }}
+                                onClick={() => onOpenChart?.(row.id)}
+                              >
+                                <Scales size={28} weight="fill" />
+                              </span>
+                            </Tooltip>
+                            {/* Nếu BGK hiện tại nằm trong nhóm chấm đội này, cho phép sửa điểm */}
+                            {(row.judges || []).some(j => j.judgeId === currentJudgeId) && (
+                               <Button 
+                                 label="Sửa điểm" 
+                                 variant="solid" 
+                                 color="orange" 
+                                 size="sm" 
+                                 icon={PencilSimple} 
+                                 style={{ padding: '0.4em 0.7em', fontSize: '0.85rem' }} 
+                                 onClick={() => onRequestEdit?.(row.id)}
+                               />
+                            )}
+                          </div>
+                        ) : (
+                          <span style={{ color: 'var(--color-text-muted)', fontWeight: 700, fontSize: '0.85rem' }}>Đồng thuận</span>
+                        )
+                      ) : (
+                        <span className={styles.rankNone}>—</span>
+                      )}
+                    </span>
+                  )}
+
+                  {/* Cột Trạng thái - JUDGE STAGE 3 */}
+                  {showDetailedJudges && (
+                    <span className={styles.cStatus}>
+                      {!isBanned ? <StatusCell row={row} /> : <span className={styles.rankNone}>—</span>}
+                    </span>
+                  )}
+
+                  {/* Nút Sổ Xuống - JUDGE STAGE 3 */}
+                  {showDetailedJudges && (
+                    <span className={styles.cExpand}>
+                      {!isBanned && (isExpanded ? <CaretUp size={20} weight="bold" color="var(--color-primary-blue)" /> : <CaretDown size={20} weight="bold" color="var(--color-text-muted)" />)}
+                    </span>
+                  )}
+                </div>
+
+                {/* Khu vực chi tiết (Expanded) - Chỉ dành cho JUDGE Stage 3 */}
+                {isExpanded && showDetailedJudges && !isBanned && (
+                  <div className={styles.expandedDetails}>
+                    {(row.judges || []).map((j, idx) => (
+                      <div key={idx} className={styles.judgeCard}>
+                        <div className={styles.judgeCardHeader}>
+                          <span className={styles.judgeName}>{j.judgeName}</span>
+                          <span className={styles.judgeTotal}>{fmtScore(j.score)}</span>
+                        </div>
+                        <div className={styles.criteriaList}>
+                          {(j.criteriaScores || []).map((c, cIdx) => (
+                            <div key={cIdx} className={styles.criteriaItem}>
+                              <span className={styles.criteriaName}>{c.name}:</span>
+                              <span className={styles.criteriaBadge}>{fmtScore(c.score)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 )}
               </div>
+            );
+          };
 
-              {/* Khu vực chi tiết (Expanded) - Chỉ dành cho JUDGE Stage 3 */}
-              {isExpanded && showDetailedJudges && (
-                <div className={styles.expandedDetails}>
-                  {(row.judges || []).map((j, idx) => (
-                    <div key={idx} className={styles.judgeCard}>
-                      <div className={styles.judgeCardHeader}>
-                        <span className={styles.judgeName}>{j.judgeName}</span>
-                        <span className={styles.judgeTotal}>{fmtScore(j.score)}</span>
-                      </div>
-                      <div className={styles.criteriaList}>
-                        {(j.criteriaScores || []).map((c, cIdx) => (
-                          <div key={cIdx} className={styles.criteriaItem}>
-                            <span className={styles.criteriaName}>{c.name}:</span>
-                            <span className={styles.criteriaBadge}>{fmtScore(c.score)}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
+          return groupedRows.map((grp, gIdx) => {
+            if (grp.isTie) {
+              return (
+                <div key={`tie-${gIdx}`} className={styles.tieGroup}>
+                  {grp.rows.map(row => renderRow(row))}
                 </div>
-              )}
-            </div>
-          );
-        })}
+              );
+            }
+            return renderRow(grp.rows[0]);
+          });
+        })()}
 
         {visibleData.length === 0 && (
           <p className={styles.empty}>Không tìm thấy đội nào khớp với tìm kiếm.</p>
