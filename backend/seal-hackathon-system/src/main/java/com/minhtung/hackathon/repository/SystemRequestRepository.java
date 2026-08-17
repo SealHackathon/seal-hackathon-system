@@ -47,4 +47,9 @@ public interface SystemRequestRepository extends JpaRepository<SystemRequest, Lo
             SystemRequest.RequestType type,
             SystemRequest.RequestStatus status
     );
+
+    List<SystemRequest> findByTypeAndStatus(
+            SystemRequest.RequestType type,
+            SystemRequest.RequestStatus status
+    );
 }

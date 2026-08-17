@@ -60,7 +60,10 @@ public class TeamResultService {
         if (!roundRepository.existsById(roundId)) {
             throw new RuntimeException("khong tim thay round");
         }
+        // Lấy toàn bộ kết quả các đội trong Round (đã sắp xếp TotalScore giảm dần)
         List<TeamResult> results = teamResultRepository.findByRoundIdOrderByTotalScoreDesc(roundId);
+
+        // Đánh lại thứ tự BXH chung cho toàn Vòng thi từ 1 -> N
         return mapAndRecalculateRanking(results);
     }
 
@@ -99,8 +102,6 @@ public class TeamResultService {
                 if (roundId == null) {
                     throw new RuntimeException("roundId là bắt buộc khi xem Track");
                 }
-
-
 
                 List<TeamResult> results =
                         teamResultRepository
@@ -150,8 +151,8 @@ public class TeamResultService {
                 .teamReasultId(result.getId())
                 .teamId(team.getId())
                 .teamName(team.getName())
-                .trackId(track.getId())
-                .trackName(track.getName())
+                .trackId(track != null ? track.getId() : null)
+                .trackName(track != null ? track.getName() : null)
                 .RoundId(round.getId())
                 .roundName(round.getName())
                 .totalScore(result.getTotalScore())
@@ -192,7 +193,7 @@ public class TeamResultService {
         LocalDateTime end = round.getTimeEnd();
         LocalDateTime deadline = round.getSubmissionDeadline() != null ? round.getSubmissionDeadline() : end;
 
-        // 1. Tự tính toán trạng thái Vòng thi (UPCOMING / ACTIVE / DONE) dựa trên timeline thực tế
+        // Tự tính toán trạng thái Vòng thi (UPCOMING / ACTIVE / DONE)
         String roundStatus = "UPCOMING";
         if (start != null && end != null) {
             if (now.isBefore(start)) {
@@ -204,14 +205,13 @@ public class TeamResultService {
             }
         }
 
-        // 2. Kiểm tra xem Đội đã nộp bài (Submission) trong vòng thi này chưa
+        // Kiểm tra xem Đội đã nộp bài trong vòng thi này chưa
         boolean hasSubmission = false;
         if (round.getSubmissions() != null) {
             hasSubmission = round.getSubmissions().stream()
                     .anyMatch(sub -> sub.getTeam() != null && sub.getTeam().getId()==(teamId));
         }
 
-        // 3. Quyết định Trạng thái nộp bài (SubmissionStatus) gửi về React
         if ("UPCOMING".equals(roundStatus)) {
             return SubmissionStatus.NOT_OPEN;
         }
@@ -222,17 +222,15 @@ public class TeamResultService {
 
         if ("ACTIVE".equals(roundStatus)) {
             if (hasSubmission) {
-                // Sửa lỗi ngữ nghĩa: Đã nộp bài (dù trễ) thì không trả về LATE_NO_SUBMISSION
                 if (deadline != null && now.isAfter(deadline)) {
-                    // TODO: Thay bằng SUBMITTED_LATE nếu Enum của bạn có bổ sung sau này
                     return SubmissionStatus.READY;
                 }
-                return SubmissionStatus.READY; // Đã nộp bài thành công & đúng hạn
+                return SubmissionStatus.READY;
             } else {
                 if (deadline != null && now.isAfter(deadline)) {
-                    return SubmissionStatus.LATE_NO_SUBMISSION; // Chưa nộp và đã quá hạn
+                    return SubmissionStatus.LATE_NO_SUBMISSION;
                 }
-                return SubmissionStatus.NO_SUBMISSION; // Chưa nộp, còn trong hạn -> hiện nút "Nộp bài"
+                return SubmissionStatus.NO_SUBMISSION;
             }
         }
 
@@ -254,53 +252,46 @@ public class TeamResultService {
             throw new RuntimeException("khong tim thay team cua member");
         }
 
-        // 1. Lấy TẤT CẢ round thuộc event này và bắt buộc phải sắp xếp tăng dần theo ordinal_number
         List<Round> allRounds = roundRepository.findByEventId(eventId);
         allRounds.sort(Comparator.comparingInt(Round::getOrdinal_number));
 
-        // 2. Lấy các TeamResult đã tồn tại của đội trong event này
         List<TeamResult> existingResults = teamResultRepository.findByTeamIdAndEventId(team.getId(), eventId);
 
-        // 3. Map roundId -> TeamResult để tra cứu nhanh
         Map<Long, TeamResult> resultByRoundId = existingResults.stream()
                 .collect(Collectors.toMap(tr -> tr.getRound().getId(), tr -> tr));
 
         List<TeamRoundResultDTO> results = new ArrayList<>();
-        boolean eliminatedSoFar = false; // Cờ kiểm soát việc bị loại lũy tiến qua các vòng
+        boolean eliminatedSoFar = false;
 
-        // 4. Duyệt qua TẤT CẢ round bằng vòng lặp thường để quản lý stateful (eliminatedSoFar)
         for (Round round : allRounds) {
             TeamResult tr = resultByRoundId.get(round.getId());
 
-            // Gọi hàm check trạng thái có truyền cờ bị loại của vòng trước
             String submissionStatus = determineSubmissionStatus(round, team.getId(), eliminatedSoFar).name();
             int totalTeamsInRound = teamResultRepository.countTotalTeamsInRound(round.getId());
 
             String trackName = null;
             int totalTeamsInTrack = 0;
-            boolean isPublished = false; // Biến đánh dấu đã công bố kết quả chưa
+            boolean isPublished = false;
 
             if (team.getTrack() != null) {
                 trackName = team.getTrack().getName();
                 totalTeamsInTrack = teamResultRepository.countTotalTeamsInTrack(team.getTrack().getId());
 
-                // Check cấu hình công bố kết quả (Publish Stage) từ bảng round_track
                 RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(round.getId(), team.getTrack().getId());
 
                 isPublished = roundTrackRepository.findById(roundTrackId)
-                        .map(rt -> rt.getPublishStage() == 3) // == 3 là công bố cho thí sinh xem rồi
-                        .orElse(false); // Không tìm thấy cấu hình mặc định coi như chưa công bố
+                        .map(rt -> rt.getPublishStage() == 3)
+                        .orElse(false);
             }
 
-            // Logic ẩn/hiển thị dựa trên biến công bố isPublished
             Double finalScore = (tr != null && isPublished) ? tr.getTotalScore() : null;
             Integer finalRanking = (tr != null && isPublished) ? tr.getRanking() : null;
 
             TeamRoundResultDTO dto = TeamRoundResultDTO.builder()
                     .roundId(round.getId())
-                    .teamTotalScore(finalScore) // Chỉ trả về điểm nếu đã công bố
+                    .teamTotalScore(finalScore)
                     .teamRank(new TeamRoundResultDTO.TeamRankDTO(
-                            finalRanking,      // Chỉ trả về rank nếu đã công bố
+                            finalRanking,
                             totalTeamsInTrack))
                     .totalTeamsInRound(totalTeamsInRound)
                     .trackName(trackName)
@@ -309,7 +300,6 @@ public class TeamResultService {
 
             results.add(dto);
 
-            // Cập nhật cờ bị loại cho vòng sau: chỉ bị loại khi đã có điểm, đã công bố và kết quả là rớt (isPassed = false)
             if (tr != null && isPublished && !tr.isPassed()) {
                 eliminatedSoFar = true;
             }
@@ -325,23 +315,19 @@ public class TeamResultService {
         Team team = teamRepository.findById(teamId)
                 .orElseThrow(() -> new RuntimeException("khong tim thay team"));
 
-        // 1. Lấy tất cả round và sắp xếp tăng dần theo ordinal_number
         List<Round> allRounds = roundRepository.findByEventId(eventId);
         allRounds.sort(Comparator.comparingInt(Round::getOrdinal_number));
 
-        // 2. Lấy kết quả thực tế của đội
         List<TeamResult> existingResults = teamResultRepository.findByTeamIdAndEventId(team.getId(), eventId);
         Map<Long, TeamResult> resultByRoundId = existingResults.stream()
                 .collect(Collectors.toMap(tr -> tr.getRound().getId(), tr -> tr));
 
         List<TeamRoundResultLecturerDTO> results = new ArrayList<>();
-        boolean eliminatedSoFar = false; // Cờ kiểm soát trạng thái bị loại của Mentor/Judge view
+        boolean eliminatedSoFar = false;
 
-        // 3. Sử dụng vòng lặp thường tương tự hàm dành cho Thí sinh
         for (Round round : allRounds) {
             TeamResult tr = resultByRoundId.get(round.getId());
 
-            // Truyền cờ bị loại vào tính toán trạng thái nộp bài
             String submissionStatus = determineSubmissionStatus(round, team.getId(), eliminatedSoFar).name();
             int totalTeamsInRound = teamResultRepository.countTotalTeamsInRound(round.getId());
 
@@ -355,14 +341,13 @@ public class TeamResultService {
 
                 RoundTrack.RoundTrackId roundTrackId = new RoundTrack.RoundTrackId(round.getId(), team.getTrack().getId());
                 isPublished = roundTrackRepository.findById(roundTrackId)
-                        .map(rt -> rt.getPublishStage() == 2) // == 2 là công bố cho mentor/judge xem
+                        .map(rt -> rt.getPublishStage() == 2)
                         .orElse(false);
             }
 
             Double finalScore = (tr != null && isPublished) ? tr.getTotalScore() : null;
             Integer finalRanking = (tr != null && isPublished) ? tr.getRanking() : null;
 
-            // ---- Submission thực tế (link + thời gian nộp) ----
             TeamRoundResultLecturerDTO.SubmissionDTO submissionDTO = submissionRepository
                     .findByTeam_IdAndRound_IdAndLatestTrue(team.getId(), round.getId())
                     .map(s -> TeamRoundResultLecturerDTO.SubmissionDTO.builder()
@@ -373,13 +358,11 @@ public class TeamResultService {
                             .build())
                     .orElse(null);
 
-            // ---- Tính trễ hạn thủ công, không dựa vào enum ----
             Boolean late = null;
             if (submissionDTO != null && submissionDTO.getSubmittedAt() != null && round.getSubmissionDeadline() != null) {
                 late = submissionDTO.getSubmittedAt().isAfter(round.getSubmissionDeadline());
             }
 
-            // ---- Neighbors (chỉ tính khi đã công bố và có rank) ----
             List<TeamRoundResultLecturerDTO.NeighborDTO> neighbors = null;
             if (isPublished && finalRanking != null && team.getTrack() != null) {
                 int from = Math.max(1, finalRanking - 1);
@@ -393,7 +376,7 @@ public class TeamResultService {
                                 .teamName(nr.getTeam().getName())
                                 .rank(nr.getRanking())
                                 .score(nr.getTotalScore())
-                                .isSelf(nr.getTeam().getId() == team.getId())
+                                .isSelf(nr.getTeam().getId()==(team.getId()))
                                 .build())
                         .collect(Collectors.toList());
             }
@@ -416,7 +399,6 @@ public class TeamResultService {
 
             results.add(dto);
 
-            // 4. Cập nhật cờ bị loại cho vòng kế tiếp theo phân quyền Mentor/Judge (PublishStage == 2)
             if (tr != null && isPublished && !tr.isPassed()) {
                 eliminatedSoFar = true;
             }
@@ -426,14 +408,7 @@ public class TeamResultService {
     }
 
 
-
-
-
-
-
-
-
-    //--------------------------------API getLeaderboard----------------------
+    //--------------------------------API getLeaderboard (Xếp hạng theo toàn Round)----------------------
     @Transactional
     public List<LeaderboardTeamDTO.Team> getLeaderboard(long roundId, long eventId, long currentUserId) {
 
@@ -462,29 +437,33 @@ public class TeamResultService {
                 .stream()
                 .map(ma -> ma.getTrack().getId())
                 .collect(Collectors.toSet());
+
         // 5. Query dữ liệu bằng cách kết hợp 2 Query để tránh MultipleBagFetchException
         List<TeamResult> teamResults = teamResultRepository.findBasicFullByRoundId(roundId);
         if (!teamResults.isEmpty()) {
-            // Gọi query thứ 2: Hibernate sẽ tự nạp details vào các JudgeScore đang có sẵn trong Persistence Context
             teamResultRepository.fetchJudgeScoreDetailsByRoundId(roundId);
         }
 
+        // 6. Sắp xếp toàn bộ các đội trong Round theo điểm số tổng (TotalScore) giảm dần
+        teamResults.sort((tr1, tr2) -> {
+            Double score1 = tr1.getTotalScore() ;
+            Double score2 = tr2.getTotalScore() ;
+            return Double.compare(score2, score1);
+        });
+
+        // 7. Đánh lại thứ hạng (Rank) cho toàn bộ Vòng thi (1 -> N)
+        AtomicInteger roundRank = new AtomicInteger(1);
+
         return teamResults.stream()
-                .map(tr -> toTeamDTO(tr, mentorerTrackIds))
+                .map(tr -> toTeamDTO(tr, mentorerTrackIds, roundRank.getAndIncrement()))
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Logic phân quyền truy cập bảng điểm theo Stage:
-     * - Stage 1: Chỉ Admin
-     * - Stage 2: Admin + Lecturer (Judge/Mentor)
-     * - Stage 3: Tất cả các Role (Admin, Lecturer, User)
-     */
     private void validateAccessRight(User user, int stage) {
-        Role role = user.getRole(); // Điều chỉnh tên getter tuỳ theo thuộc tính trong Entity User
+        Role role = user.getRole();
 
         if (Role.ADMIN.equals(role)) {
-            return; // Admin có toàn quyền truy cập ở mọi Stage
+            return;
         }
 
         switch (stage) {
@@ -496,38 +475,34 @@ public class TeamResultService {
                 }
                 break;
             case 3:
-                break; // Mọi người dùng đều được phép xem
+                break;
             default:
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid publish stage");
         }
     }
 
     /**
-     * Map dữ liệu TeamResult sang DTO.
-     * Nếu User hiện tại là Mentor của Track chứa Team này -> Ẩn status, discrepancy, judges.
+     * Map dữ liệu TeamResult sang DTO với thứ hạng đã được tính lại theo Round (calculatedRank).
      */
-    private LeaderboardTeamDTO.Team toTeamDTO(TeamResult tr, Set<Long> mentorerTrackIds) {
+    private LeaderboardTeamDTO.Team toTeamDTO(TeamResult tr, Set<Long> mentorerTrackIds, int calculatedRank) {
         Team team = tr.getTeam();
 
-        // Kiểm tra User có phải là Mentor thuộc Track của Team này không
         boolean isMentorOfThisTeamTrack = team != null
                 && team.getTrack() != null
                 && mentorerTrackIds.contains(team.getTrack().getId());
 
-        // Nếu là Mentor của Track này -> Trả dữ liệu thu gọn
         if (isMentorOfThisTeamTrack) {
             return LeaderboardTeamDTO.Team.builder()
                     .id(team.getId())
                     .teamName(team.getName())
-                    .rank(tr.getRanking())
+                    .rank(calculatedRank)
                     .avgScore(tr.getTotalScore())
                     .status(null)
-                    .discrepancy(false) // TODO lam sau
+                    .discrepancy(false)
                     .judges(null)
                     .build();
         }
 
-        // Trường hợp thông thường -> Trả đầy đủ thông tin chi tiết
         List<LeaderboardTeamDTO.JudgeScore> judges = tr.getJudgeScores().stream()
                 .map(this::toJudgeScoreDTO)
                 .collect(Collectors.toList());
@@ -535,10 +510,10 @@ public class TeamResultService {
         return LeaderboardTeamDTO.Team.builder()
                 .id(team.getId())
                 .teamName(team.getName())
-                .rank(tr.getRanking())
+                .rank(calculatedRank)
                 .avgScore(tr.getTotalScore())
                 .status(tr.getStatus() != null ? tr.getStatus().name() : null)
-                .discrepancy(false) // TODO: Tính discrepancy sau
+                .discrepancy(false)
                 .judges(judges)
                 .build();
     }
@@ -558,15 +533,35 @@ public class TeamResultService {
         );
     }
 
-
     public MyContextResponseDTO getMyContext(Long roundId, Long currentUserId) {
 
-        // Tự động kiểm tra xem user này có phân công Mentor nào không
+        // 1. Kiểm tra xem user có phải là Mentor hay không
         boolean isMentor = !mentorAssignmentRepository.findByUserId(currentUserId).isEmpty();
 
+        // 2. Lấy bảng xếp hạng chung của TOÀN ROUND (đã sắp xếp TotalScore giảm dần)
+        List<TeamResult> allRoundResults = teamResultRepository.findByRoundIdOrderByTotalScoreDesc(roundId);
+
+        // 3. Tạo một Map để tra cứu Rank toàn Round theo teamId: Map<teamId, roundRank>
+        Map<Long, Integer> teamRoundRankMap = new HashMap<>();
+        for (int i = 0; i < allRoundResults.size(); i++) {
+            teamRoundRankMap.put(allRoundResults.get(i).getTeam().getId(), i + 1);
+        }
+
         if (isMentor) {
-            // Trường hợp 1: Người gọi là MENTOR -> Lấy danh sách đội do mình phụ trách
+            // Trường hợp 1: Người gọi là MENTOR -> Lấy danh sách đội
             List<TeamSummaryDTO> mentorTeams = teamResultRepository.findMentorTeamsResultByRound(roundId, currentUserId);
+
+            // Gán lại Rank chuẩn theo TOÀN ROUND cho từng đội của Mentor
+            mentorTeams.forEach(teamDto -> {
+                Integer roundRank = teamRoundRankMap.get(teamDto.getId());
+                teamDto.setRank(roundRank); // Đã gán Rank mới theo Round
+            });
+
+            // Sắp xếp lại danh sách đội của Mentor theo Rank toàn Round tăng dần (Đội hạng cao xếp trước)
+            mentorTeams.sort(Comparator.comparing(
+                    TeamSummaryDTO::getRank,
+                    Comparator.nullsLast(Comparator.naturalOrder())
+            ));
 
             return MyContextResponseDTO.builder()
                     .role("MENTOR")
@@ -574,9 +569,15 @@ public class TeamResultService {
                     .myMentorTeams(mentorTeams)
                     .build();
         } else {
-            // Trường hợp 2: Người gọi là USER/Thí sinh -> Lấy kết quả đội thi của chính mình
+            // Trường hợp 2: Người gọi là Thí sinh (TEAM)
             TeamSummaryDTO myTeam = teamResultRepository.findMyTeamResultByRound(roundId, currentUserId)
                     .orElse(null);
+
+            if (myTeam != null) {
+                // Gán lại Rank chuẩn theo TOÀN ROUND cho đội của thí sinh
+                Integer roundRank = teamRoundRankMap.get(myTeam.getId());
+                myTeam.setRank(roundRank);
+            }
 
             return MyContextResponseDTO.builder()
                     .role("TEAM")
@@ -585,6 +586,4 @@ public class TeamResultService {
                     .build();
         }
     }
-
-
 }

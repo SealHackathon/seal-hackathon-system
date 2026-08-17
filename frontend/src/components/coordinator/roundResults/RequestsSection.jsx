@@ -1,28 +1,59 @@
-import { useState } from 'react'
+import { useState,useEffect } from 'react'
 import { NotePencil, Flag } from '@phosphor-icons/react'
 import Button from '../../shared/Button'
 import styles from './RequestsSection.module.css'
 import ViolationHandlingModal from './ViolationHandlingModal'
 import ScoreEditModal from './ScoreEditModal'
 import { mockScoreEditData } from './scoreEditMock'
-
+import axiosClient from '../../../api/axiosClient'
+import { format } from 'date-fns'
 function RequestsSection({ onOpenTeam, onOpenSubmission, type = 'all', hideHeader = false }) {
   const [violationModalOpen, setViolationModalOpen] = useState(false)
   const [selectedViolation, setSelectedViolation] = useState(null)
   const [scoreEditModalOpen, setScoreEditModalOpen] = useState(false)
   const [selectedScoreEdit, setSelectedScoreEdit] = useState(null)
-
+  const [violations, setViolations] = useState([])
+  const [loading, setLoading] = useState(true)
   // Dữ liệu mock (tạm thời)
-  const mockViolations = [
-    {
-      id: 1,
-      teamName: 'FPT.O-H',
-      round: 'Vòng sơ loại',
-      judgeName: 'Nguyễn Văn A',
-      time: '14:30 10/07/2026',
-      reason: 'Nghi ngờ sử dụng source code được làm sẵn từ trước, không tuân thủ quy định Hackathon. Cần kiểm tra lại source code của đội này ngay lập tức để đảm bảo công bằng.'
-    }
-  ]
+  // const mockViolations = [
+  //   {
+  //     id: 1,
+  //     teamName: 'FPT.O-H',
+  //     round: 'Vòng sơ loại',
+  //     judgeName: 'Nguyễn Văn A',
+  //     time: '14:30 10/07/2026',
+  //     reason: 'Nghi ngờ sử dụng source code được làm sẵn từ trước, không tuân thủ quy định Hackathon. Cần kiểm tra lại source code của đội này ngay lập tức để đảm bảo công bằng.'
+  //   }
+  // ]
+
+
+  useEffect(() => {
+    setLoading(true)
+    axiosClient.get('/system-requests/violations')
+      .then((res) => {
+        // Map dữ liệu từ API khớp với cấu trúc bạn đang dùng
+        const mappedData = (res.data || []).map(item => ({
+          id: item.id,
+          submissionId: item.submissionId,
+          teamName: item.teamName || 'N/A',
+          round: item.round || 'N/A',
+          judgeName: item.judgeName || 'N/A',
+         time: item.time || '', // 👈 Gán thẳng, không new Date() nữa,
+          reason: item.reason
+        }))
+        
+        setViolations(mappedData)
+      })
+      .catch((err) => {
+        console.error("Lỗi khi tải danh sách báo cáo vi phạm:", err)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }, [])
+
+
+
 
   const mockScoreEdits = [
     {
@@ -89,16 +120,16 @@ function RequestsSection({ onOpenTeam, onOpenSubmission, type = 'all', hideHeade
               <div className={styles.titleRow}>
                 <Flag size={24} color="var(--color-primary-orange)" weight="fill" />
                 <h3 className={styles.titleOrange}>Xử lí vi phạm</h3>
-                <span className={styles.countBadgeOrange}>{mockViolations.length}</span>
+                <span className={styles.countBadgeOrange}>{violations.length}</span>
               </div>
             </div>
           )}
 
         <div className={styles.list}>
-          {mockViolations.length === 0 ? (
+          {violations.length === 0 ? (
             <div className={styles.emptyOrange}>Chưa có đội bị cắm cờ</div>
           ) : (
-            mockViolations.map(v => (
+            violations.map(v => (
               <div key={v.id} className={styles.cardOrange}>
                 <div className={styles.cardInfo}>
                   <strong className={styles.senderName}>{v.judgeName}</strong>

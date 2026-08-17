@@ -14,27 +14,27 @@ import axiosClient from '../api/axiosClient'
 // ==========================================
 // MOCK DATA
 // ==========================================
-const ENABLE_MOCK_ROUND = true;
+// const ENABLE_MOCK_ROUND = true;
 
-const MOCK_ROUND = {
-  id: 'mock-round-1',
-  name: 'Vòng 0: Sàng lọc hồ sơ (Mock)',
-  dateRange: '01/06/2026 - 15/06/2026',
-  status: 'DONE',
-  submissionStatus: 'SUBMITTED_ON_TIME',
-  submissionDeadline: '15/06/2026, 23:59',
-  daysLeft: 0,
-  message: {
-    type: 'success',
-    title: 'Đã nộp bài',
-    content: 'Đội đã nộp bài dự thi thành công cho vòng này.'
-  },
-  roundNumber: 0,
-  teamTotalScore: 8.5,
-  teamRank: { rank: 2, totalTeams: 20 },
-  totalTeamsInRound: 20,
-  trackName: 'Track AI'
-};
+// const MOCK_ROUND = {
+//   id: 'mock-round-1',
+//   name: 'Vòng 0: Sàng lọc hồ sơ (Mock)',
+//   dateRange: '01/06/2026 - 15/06/2026',
+//   status: 'DONE',
+//   submissionStatus: 'SUBMITTED_ON_TIME',
+//   submissionDeadline: '15/06/2026, 23:59',
+//   daysLeft: 0,
+//   message: {
+//     type: 'success',
+//     title: 'Đã nộp bài',
+//     content: 'Đội đã nộp bài dự thi thành công cho vòng này.'
+//   },
+//   roundNumber: 0,
+//   teamTotalScore: 8.5,
+//   teamRank: { rank: 2, totalTeams: 20 },
+//   totalTeamsInRound: 20,
+//   trackName: 'Track AI'
+// };
 
 function formatDateLabel(value) {
   if (!value) return null
@@ -294,11 +294,12 @@ function SubmissionPage() {
           const { rounds: backendRounds } = roundsResult.value
           
           // 5. THAY ĐỔI: Truyền danh sách kết quả vào hàm map để xử lý khớp dữ liệu cho từng round
-          let normalizedRounds = (backendRounds || []).map((r) => mapBackendRoundToUi(r, scoreResultsList))
+           const normalizedRounds = (backendRounds || []).map((r) => mapBackendRoundToUi(r, scoreResultsList))
+          // let normalizedRounds = (backendRounds || []).map((r) => mapBackendRoundToUi(r, scoreResultsList))
           
-          if (ENABLE_MOCK_ROUND) {
-            normalizedRounds = [MOCK_ROUND, ...normalizedRounds];
-          }
+          // if (ENABLE_MOCK_ROUND) {
+          //   normalizedRounds = [MOCK_ROUND, ...normalizedRounds];
+          // }
 
           setRounds(normalizedRounds)
           setProgress(buildProgress(normalizedRounds))
